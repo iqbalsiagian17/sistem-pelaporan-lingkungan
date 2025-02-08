@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
+use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
@@ -52,20 +53,22 @@ class LoginController extends Controller
         ]);
 
         // Cari user berdasarkan email
-        $user = User::where('email', $request->email)->first();
+        $credentials = $request->only('email', 'password');
 
         // Cek apakah password cocok
-        if (!$user || !Hash::check($request->password, $user->password)) {
+        if (!$token = JWTAuth::attempt($credentials)) {
             return response()->json(['message' => 'Email atau password salah'], 401);
         }
 
-        // Hapus token lama agar tidak ada duplikasi login
-        $user->tokens()->delete();
 
-        // Buat token baru
-        $token = $user->createToken('auth_token')->plainTextToken;
+        // Hapus token lama agar tidak ada duplikasi login
+        $user = auth()->user();
+
+        $expiresIn = config('jwt.ttl') * 60; // Konversi dari menit ke detik
+
 
         return response()->json([
+            'status' => 'success',
             'message' => 'Login successful!',
             'user' => [
                 'id' => $user->id,
@@ -74,15 +77,25 @@ class LoginController extends Controller
                 'role' => $user->type == "user" ? "user" : "admin",
             ],
             'token' => $token,
+            'expires_in' => $expiresIn // Waktu expired dalam detik
         ], 200);
     }
 
-    public function logout(Request $request)
+    public function logout()
     {
-        $request->user()->tokens()->delete();
+        try {
+            JWTAuth::invalidate(JWTAuth::getToken());
 
-        return response()->json([
-            'message' => 'Logout successful!'
-        ], 200);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Logout successful!'
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to logout, token invalid or expired'
+            ], 400);
+        }
     }
+
 }

@@ -27,7 +27,7 @@ Route::post('/register', [RegisterController::class, 'register']);
 Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
 Route::post('/reset-password', [ResetPasswordController::class, 'reset'])->name('password.update');
 
-Route::middleware(['auth:sanctum'])->post('/logout', [LoginController::class, 'logout']);
+Route::middleware(['auth:api'])->post('/logout', [LoginController::class, 'logout']);
 
 Route::get('/reports/{id}', [UserReportController::class, 'show']);
 

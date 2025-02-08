@@ -7,6 +7,8 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Tymon\JWTAuth\Facades\JWTAuth;
+
 
 class RegisterController extends Controller
 {
@@ -33,6 +35,7 @@ class RegisterController extends Controller
         // Jika validasi gagal, kembalikan respon error
         if ($validator->fails()) {
             return response()->json([
+                'status' => 'error',
                 'message' => 'Validation failed',
                 'errors' => $validator->errors()
             ], 422);
@@ -47,10 +50,13 @@ class RegisterController extends Controller
         ]);
 
         // Buat token autentikasi
-        $token = $user->createToken('auth_token')->plainTextToken;
+        $token = JWTAuth::fromUser($user);
+
+        $expiresIn = config('jwt.ttl') * 60; // Konversi dari menit ke detik
 
         // Respon sukses dengan token
         return response()->json([
+            'status' => 'success',
             'message' => 'User registered successfully!',
             'user' => [
                 'id' => $user->id,
@@ -59,6 +65,7 @@ class RegisterController extends Controller
                 'role' => 'User',
             ],
             'token' => $token,
+            'expires_in' => $expiresIn
         ], 201);
     }
 }

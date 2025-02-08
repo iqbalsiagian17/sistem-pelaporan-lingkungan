@@ -10,10 +10,11 @@ use Illuminate\Contracts\Auth\CanResetPassword;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Casts\Attribute; // Tambahkan ini
 use App\Notifications\ResetPasswordNotification;
+use Tymon\JWTAuth\Contracts\JWTSubject;
 
 
 
-class User extends Authenticatable implements CanResetPassword
+class User extends Authenticatable implements JWTSubject, CanResetPassword
 {
     use HasApiTokens, HasFactory, Notifiable;
 
@@ -49,6 +50,16 @@ class User extends Authenticatable implements CanResetPassword
         return new Attribute(
             get: fn ($value) => ["user", "admin"][$value] ?? "user",
         );
+    }
+
+    public function getJWTIdentifier()
+    {
+        return $this->getKey();
+    }
+
+    public function getJWTCustomClaims()
+    {
+        return [];
     }
 
     public function sendPasswordResetNotification($token)

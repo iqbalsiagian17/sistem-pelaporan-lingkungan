@@ -34,12 +34,11 @@ class ResetPasswordNotification extends Notification
      */
     public function toMail($notifiable)
     {
-        $resetUrl = env('RESET_PASSWORD_URL') . '?token=' . $this->token . '&email=' . urlencode($notifiable->email);
+        $resetUrl = config('app.frontend_url') . '/reset-password?token=' . $this->token . '&email=' . urlencode($notifiable->email);
 
         return (new MailMessage)
             ->subject('Reset Password')
-            ->line('Klik tombol di bawah untuk mengatur ulang password Anda:')
-            ->action('Reset Password', $resetUrl)
-            ->line('Jika Anda tidak meminta reset password, abaikan email ini.');
+            ->view('emails.reset_password', ['resetUrl' => $resetUrl]); // Menggunakan template Blade
     }
+
 }
