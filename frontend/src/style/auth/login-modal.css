@@ -1,0 +1,33 @@
+.modal-content {
+    border-radius: 10px;
+    max-width: 400px;
+    margin: auto;
+}
+
+.modal-header h2 {
+    font-weight: bold;
+}
+
+.divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 20px 0;
+    font-weight: 500;
+    color: #777;
+    font-size: 14px;
+}
+
+.divider::before,
+.divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #aaa;
+}
+
+.divider span {
+    padding: 0 10px;
+    background-color: white;
+    position: relative;
+    z-index: 1;
+}

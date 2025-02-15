@@ -1,0 +1,40 @@
+.divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 20px 0;
+    font-weight: 500;
+    color: #777;
+    font-size: 14px;
+}
+
+.divider::before,
+.divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #aaa;
+}
+
+.divider span {
+    padding: 0 10px;
+    background-color: white;
+    position: relative;
+    z-index: 1;
+}
+
+.google-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    font-weight: bold;
+    gap: 10px;
+    cursor: pointer;
+}
+
+.google-btn img {
+    width: 20px;
+}
