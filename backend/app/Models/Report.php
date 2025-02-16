@@ -21,12 +21,17 @@ class Report extends Model
         'district',
         'village',
         'location_details',
+        'latitude',
+        'longitude',
         'likes',
         'status'
     ];
 
+
     protected $casts = [
         'date' => 'date',
+        'latitude' => 'decimal:8',
+        'longitude' => 'decimal:8',
     ];
 
     // Auto-generate report number saat membuat laporan baru

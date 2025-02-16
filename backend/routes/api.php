@@ -31,7 +31,7 @@ Route::middleware(['auth:api'])->post('/logout', [LoginController::class, 'logou
 
 Route::get('/reports/{id}', [UserReportController::class, 'show']);
 
-Route::middleware(['auth:sanctum', 'user-access:user'])->group(function () {
+Route::middleware(['auth:api', 'user-access:user'])->group(function () {
     Route::get('/user/profile', action: [UserProfileController::class, 'showProfile']);
     Route::post('/user/profile', [UserProfileController::class, 'storeProfile']);
     Route::post('/user/profile/update', [UserProfileController::class, 'updateProfile']);
@@ -48,7 +48,7 @@ Route::middleware(['auth:sanctum', 'user-access:user'])->group(function () {
     Route::delete('/user/follow-ups/{id}', [UserReportFollowUpController::class, 'deleteFollowUp']);
 });
 
-Route::middleware(['auth:sanctum', 'user-access:admin'])->group(function () {
+Route::middleware(['auth:api', 'user-access:admin'])->group(function () {
     Route::post('/admin/reports/{id}/follow-ups', [AdminReportFollowUpController::class, 'addFollowUp']);
     Route::get('/admin/reports/{id}/follow-ups', [AdminReportFollowUpController::class, 'getFollowUps']);
     Route::delete('/admin/follow-ups/{id}', [AdminReportFollowUpController::class, 'deleteFollowUp']);

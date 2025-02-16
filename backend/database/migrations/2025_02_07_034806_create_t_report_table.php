@@ -18,13 +18,17 @@ return new class extends Migration
             $table->string('title', 255);
             $table->text('description');
             $table->date('date');
-            $table->enum('status', ['pending', 'verified', 'in_progress', 'completed', 'closed'])->default('pending');
+            $table->enum('status', ['pending', 'rejected', 'verified', 'in_progress', 'completed', 'closed'])->default('pending');
             $table->integer('likes')->default(0);
             
-            // Lokasi laporan
-            $table->string('district', 100); // Kecamatan
-            $table->string('village', 100);  // Desa/Kelurahan
-            $table->text('location_details')->nullable(); // Detail lokasi opsional
+           // Lokasi laporan
+           $table->string('district', 100)->nullable(); // Kecamatan
+           $table->string('village', 100)->nullable();  // Desa/Kelurahan
+           $table->text('location_details')->nullable(); // Detail lokasi opsional
+
+           // Koordinat lokasi
+           $table->decimal('latitude', 10, 8)->nullable();
+           $table->decimal('longitude', 11, 8)->nullable();
             
             $table->foreign('user_id')->references('id')->on('t_user')->onDelete('cascade');            
             $table->timestamps();

@@ -27,7 +27,7 @@ class UserReportFollowUpController extends Controller
 
         $user = Auth::user();
 
-        // Pastikan user bukan admin (hanya type = 0)
+        // Pastikan user bukan admin
         if ($user->type != "user") {
             return response()->json(['message' => 'Hanya pengguna biasa yang dapat menambahkan follow-up.'], 403);
         }
@@ -50,21 +50,26 @@ class UserReportFollowUpController extends Controller
         if ($request->hasFile('attachments')) {
             foreach ($request->file('attachments') as $file) {
                 $filename = time() . '_' . $file->getClientOriginalName();
+                $filePath = 'follow_up_attachments/' . $filename;
+
+                // Simpan file ke storage publik
                 $file->move(public_path('follow_up_attachments'), $filename);
 
+                // Simpan informasi file ke database
                 ReportFollowUpAttachment::create([
                     'report_follow_up_id' => $followUp->id,
                     'user_id' => $user->id,
-                    'file' => 'follow_up_attachments/' . $filename,
+                    'file' => $filePath,
                 ]);
             }
         }
 
         return response()->json([
             'message' => 'Follow-up berhasil dikirim!',
-            'follow_up' => $followUp->load('attachments')
+            'follow_up' => $followUp->load('attachments') // Pastikan relasi diload
         ], 201);
     }
+
 
     // Mendapatkan semua follow-up untuk laporan tertentu (khusus user biasa)
     public function getFollowUps($reportId)

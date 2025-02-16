@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Auth;
 use App\Models\ReportFollowUp;
+use Illuminate\Support\Facades\DB;
 use App\Models\ReportFollowUpAttachment;
 
 
@@ -36,43 +37,58 @@ class UserReportController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'date' => 'required|date',
-            'district' => 'required|string|max:255',  // Kecamatan wajib
-            'village' => 'required|string|max:255',   // Desa/Kelurahan wajib
-            'location_details' => 'nullable|string|max:500', // Detail opsional
-            'attachments.*' => 'file|mimes:jpg,jpeg,png,pdf|max:2048', // Max 2MB per file
+
+            // Validasi lokasi
+            'is_at_location' => 'required|boolean',
+            'latitude' => 'nullable|required_if:is_at_location,1|numeric',
+            'longitude' => 'nullable|required_if:is_at_location,1|numeric',
+            'location_details' => 'sometimes|nullable|string|max:500|required_if:is_at_location,1',
+
+            'district' => 'nullable|required_if:is_at_location,0|string|max:255',
+            'village' => 'nullable|required_if:is_at_location,0|string|max:255',
+
+            // Validasi lampiran (opsional)
+            'attachments.*' => 'file|mimes:jpg,jpeg,png,pdf|max:10000', // Max 2MB per file
         ]);
 
-        // Simpan laporan
-        $report = Report::create([
-            'user_id' => Auth::id(),
-            'title' => $request->title,
-            'description' => $request->description,
-            'date' => $request->date,
-            'district' => $request->district,
-            'village' => $request->village,
-            'location_details' => $request->location_details,
-            'status' => 'pending',
-        ]);
+        return DB::transaction(function () use ($request) {
+            // Simpan laporan ke database
+            $report = Report::create([
+                'user_id' => Auth::id(),
+                'title' => $request->title,
+                'description' => $request->description,
+                'date' => $request->date,
+                'status' => 'pending',
+                'likes' => 0,
+                
+                // Penyimpanan lokasi berdasarkan opsi yang dipilih user
+                'latitude' => $request->is_at_location ? $request->latitude : null,
+                'longitude' => $request->is_at_location ? $request->longitude : null,
+                'location_details' => $request->is_at_location ? $request->location_details : null,
+                'district' => !$request->is_at_location ? $request->district : null,
+                'village' => !$request->is_at_location ? $request->village : null,
+            ]);
 
-        // Simpan lampiran (jika ada)
-        if ($request->hasFile('attachments')) {
-            foreach ($request->file('attachments') as $file) {
-                // Buat nama file unik
-                $filename = time() . '_' . $file->getClientOriginalName();
-                $file->move(public_path('reports'), $filename);
+            // Simpan lampiran (jika ada)
+            if ($request->hasFile('attachments')) {
+                foreach ($request->file('attachments') as $file) {
+                    // Buat nama file unik
+                    $filename = time() . '_' . $file->getClientOriginalName();
+                    $file->move(public_path('reports'), $filename);
 
-                // Simpan informasi file ke database
-                ReportAttachment::create([
-                    'report_id' => $report->id,
-                    'file' => 'reports/' . $filename, // Simpan path file
-                ]);
+                    // Simpan informasi file ke database
+                    ReportAttachment::create([
+                        'report_id' => $report->id,
+                        'file' => 'reports/' . $filename, // Simpan path file
+                    ]);
+                }
             }
-        }
 
-        return response()->json([
-            'message' => 'Laporan berhasil dikirim!',
-            'report' => $report->load('attachments') // Load attachments untuk respons JSON
-        ], 201);
+            return response()->json([
+                'message' => 'Laporan berhasil dikirim!',
+                'report' => $report->load('attachments') // Load attachments dalam respons JSON
+            ], 201);
+        });
     }
 
     // Fungsi untuk memperbarui laporan yang sudah dibuat
@@ -86,42 +102,67 @@ class UserReportController extends Controller
             return response()->json(['message' => 'Anda tidak memiliki izin untuk mengubah laporan ini.'], 403);
         }
 
+        // Cek apakah status masih "pending"
+        if ($report->status !== 'pending') {
+            return response()->json(['message' => 'Laporan tidak dapat diedit karena statusnya sudah ' . $report->status], 403);
+        }
+
         // Validasi input
         $request->validate([
             'title' => 'sometimes|required|string|max:255',
             'description' => 'sometimes|required|string',
             'date' => 'sometimes|required|date',
-            'district' => 'sometimes|required|string|max:255',
-            'village' => 'sometimes|required|string|max:255',
-            'location_details' => 'nullable|string|max:500',
+
+            // Validasi lokasi
+            'is_at_location' => 'sometimes|required|boolean',
+            'latitude' => 'nullable|required_if:is_at_location,1|numeric',
+            'longitude' => 'nullable|required_if:is_at_location,1|numeric',
+            'location_details' => 'sometimes|nullable|string|max:500|required_if:is_at_location,1',
+
+            'district' => 'nullable|required_if:is_at_location,0|string|max:255',
+            'village' => 'nullable|required_if:is_at_location,0|string|max:255',
+
+            // Validasi lampiran (opsional)
             'attachments.*' => 'file|mimes:jpg,jpeg,png,pdf|max:2048', // Max 2MB per file
         ]);
 
-        // Update laporan dengan data baru
-        $report->update($request->only([
-            'title', 'description', 'date', 'district', 'village', 'location_details'
-        ]));
+        return DB::transaction(function () use ($request, $report) {
+            // Update data laporan dengan input terbaru
+            $report->update([
+                'title' => $request->title ?? $report->title,
+                'description' => $request->description ?? $report->description,
+                'date' => $request->date ?? $report->date,
 
-        // Tambahkan lampiran baru (jika ada)
-        if ($request->hasFile('attachments')) {
-            foreach ($request->file('attachments') as $file) {
-                // Buat nama file unik
-                $filename = time() . '_' . $file->getClientOriginalName();
-                $file->move(public_path('reports'), $filename);
+                // Penyimpanan lokasi berdasarkan opsi yang dipilih user
+                'latitude' => $request->is_at_location ? $request->latitude : null,
+                'longitude' => $request->is_at_location ? $request->longitude : null,
+                'location_details' => $request->is_at_location ? $request->location_details : null,
+                'district' => !$request->is_at_location ? $request->district : null,
+                'village' => !$request->is_at_location ? $request->village : null,
+            ]);
 
-                // Simpan informasi file ke database
-                ReportAttachment::create([
-                    'report_id' => $report->id,
-                    'file' => 'reports/' . $filename, // Simpan path file
-                ]);
+            // Tambahkan lampiran baru (jika ada)
+            if ($request->hasFile('attachments')) {
+                foreach ($request->file('attachments') as $file) {
+                    // Buat nama file unik
+                    $filename = time() . '_' . $file->getClientOriginalName();
+                    $file->move(public_path('reports'), $filename);
+
+                    // Simpan informasi file ke database
+                    ReportAttachment::create([
+                        'report_id' => $report->id,
+                        'file' => 'reports/' . $filename, // Simpan path file
+                    ]);
+                }
             }
-        }
 
-        return response()->json([
-            'message' => 'Laporan berhasil diperbarui!',
-            'report' => $report->load('attachments') // Load attachments untuk respons JSON
-        ], 200);
+            return response()->json([
+                'message' => 'Laporan berhasil diperbarui!',
+                'report' => $report->load('attachments') // Load attachments dalam respons JSON
+            ], 200);
+        });
     }
+
 
     public function deleteAttachment($id)
     {
