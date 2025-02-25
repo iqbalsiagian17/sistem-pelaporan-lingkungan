@@ -1,0 +1,48 @@
+name: spl_mobile
+description: "A new Flutter project."
+
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.7.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  shared_preferences: ^2.2.0
+
+
+
+  cupertino_icons: ^1.0.8
+
+dev_dependencies:
+  flutter_native_splash: ^2.3.6
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^5.0.0
+
+flutter:
+
+  uses-material-design: true
+
+  assets:
+      - assets/images/logo.png
+      - assets/images/google.png
+      - assets/images/onboarding/apk.jpg
+      - assets/images/onboarding/cepat.jpg
+      - assets/images/onboarding/darurat.jpg
+      - assets/images/onboarding/tuntas.jpg
+
+
+flutter_native_splash:
+  color: "#1976D2"  # 🎨 Warna background
+  image: assets/images/logo.png  # 🖼️ Path ke logo splash
+  android: true
+  ios: true
+  web: true
+  android_gravity: center
+  ios_content_mode: scaleAspectFit
