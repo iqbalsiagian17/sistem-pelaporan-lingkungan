@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../auth/login_view.dart';
+import 'package:go_router/go_router.dart';
+import '../../routes/app_routes.dart';
 
 class OnboardingView extends StatefulWidget {
   const OnboardingView({super.key});
@@ -16,22 +17,22 @@ class _OnboardingViewState extends State<OnboardingView> {
   final List<Map<String, String>> onboardingData = [
     {
       "title": "Aplikasi Balige Bersih",
-      "description": "Laporkan permasalahan sampah di sekitar Balige. Bersama kita wujudkan lingkungan yang bersih, sehat, dan nyaman.",
+      "description": "Laporkan permasalahan sampah di sekitar Balige.",
       "image": "assets/images/onboarding/apk.jpg",
     },
     {
       "title": "Cepat Tanggap",
-      "description": "Laporkan tumpukan sampah, tong sampah penuh, atau pembuangan liar. Kami siap menindaklanjuti secara cepat dan tepat.",
+      "description": "Laporkan tumpukan sampah dan pembuangan liar.",
       "image": "assets/images/onboarding/cepat.jpg",
     },
     {
       "title": "Aduan Tuntas",
-      "description": "Setiap laporan sampah Anda adalah prioritas kami. Pantau prosesnya hingga masalah terselesaikan.",
+      "description": "Pantau laporan sampah Anda hingga tuntas.",
       "image": "assets/images/onboarding/tuntas.jpg",
     },
     {
       "title": "Panggilan Darurat",
-      "description": "Satu Klik untuk mudah dalam atasi keadaan darurat. Dimanapun dan kapanpun.",
+      "description": "Atasi keadaan darurat dengan satu klik.",
       "image": "assets/images/onboarding/darurat.jpg",
     },
   ];
@@ -41,10 +42,7 @@ class _OnboardingViewState extends State<OnboardingView> {
     await prefs.setBool('onboardingCompleted', true);
 
     if (!mounted) return;
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => const LoginView()),
-    );
+    context.go(AppRoutes.login); // Navigasi menggunakan go_router
   }
 
   void _goToPrevious() {
@@ -127,7 +125,6 @@ class _OnboardingViewState extends State<OnboardingView> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // 🔙 Tombol "Kembali" (tidak muncul di halaman pertama)
                 _currentIndex > 0
                     ? GestureDetector(
                         onTap: _goToPrevious,
@@ -139,9 +136,7 @@ class _OnboardingViewState extends State<OnboardingView> {
                               color: Colors.blue),
                         ),
                       )
-                    : const SizedBox(width: 70), // Placeholder agar rata
-
-                // Tombol "Selanjutnya" atau "Selesai"
+                    : const SizedBox(width: 70),
                 GestureDetector(
                   onTap: _goToNext,
                   child: Text(
