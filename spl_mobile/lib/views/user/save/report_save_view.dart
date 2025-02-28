@@ -44,6 +44,7 @@ class _ReportSaveViewState extends State<ReportSaveView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white, // ✅ Ensures entire background is white
       appBar: const SaveReportTopBar(title: "Laporan Disimpan"), // ✅ Gunakan top bar dengan gradient hijau
 
       body: isLoading

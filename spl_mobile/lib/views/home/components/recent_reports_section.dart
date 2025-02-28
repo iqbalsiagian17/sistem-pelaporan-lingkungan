@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:spl_mobile/routes/app_routes.dart';
 
 class RecentReportsSection extends StatelessWidget {
   const RecentReportsSection({super.key});
@@ -51,11 +53,14 @@ class RecentReportsSection extends StatelessWidget {
               ),
               TextButton(
                 onPressed: () {
-                  // TODO: Navigasi ke halaman "Lihat Semua"
+                  context.go(AppRoutes.allReport); // ✅ Navigate to "My Report" page using AppRoutes
                 },
                 child: Row(
                   children: const [
-                    Text("Lihat Semua", style: TextStyle(color: Color.fromRGBO(76, 175, 80, 1))),
+                    Text(
+                      "Lihat Semua",
+                      style: TextStyle(color: Color.fromRGBO(76, 175, 80, 1)),
+                    ),
                     Icon(Icons.arrow_forward_ios, size: 14, color: Color.fromRGBO(76, 175, 80, 1)),
                   ],
                 ),

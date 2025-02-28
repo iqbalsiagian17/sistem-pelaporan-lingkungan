@@ -47,7 +47,6 @@ class _HomeViewState extends State<HomeView> {
             children: [
               // 📦 Container: Carousel & Quick Access Menu
               Container(
-                margin: const EdgeInsets.only(top: 16),
                 width: double.infinity,
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -63,6 +62,7 @@ class _HomeViewState extends State<HomeView> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: const [
+                    SizedBox(height: 20),
                     CarouselBanner(),
                     SizedBox(height: 20),
                     QuickAccessMenu(),

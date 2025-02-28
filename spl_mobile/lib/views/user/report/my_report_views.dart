@@ -44,11 +44,15 @@ class _MyReportViewState extends State<MyReportView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const ReportTopBar(title: "Aduanku"), // ✅ Gunakan top bar dengan gradient hijau
+      backgroundColor: Colors.white, // ✅ Ensures entire background is white
+      appBar: const ReportTopBar(title: "Aduanku"), // ✅ Gradient top bar
 
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator()) // ✅ Loader saat fetching data
-          : ReportDataState(reports: reports, onRetry: _retryFetch), // ✅ Langsung tampilkan data
+      body: Container(
+        color: Colors.white, // ✅ Forces white background behind the list
+        child: isLoading
+            ? const Center(child: CircularProgressIndicator()) // ✅ Loader while fetching data
+            : ReportDataState(reports: reports, onRetry: _retryFetch), // ✅ Displays reports
+      ),
 
       bottomNavigationBar: BottomNavbar(
         currentIndex: _selectedIndex,
@@ -58,4 +62,5 @@ class _MyReportViewState extends State<MyReportView> {
       ),
     );
   }
+
 }

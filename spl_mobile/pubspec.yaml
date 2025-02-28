@@ -48,6 +48,7 @@ flutter:
       - assets/images/report/report3.jpg
       - assets/images/report/report4.jpg
       - assets/images/report/empty_report.png
+      - assets/images/camera_orientation.jpg
 
 
 flutter_native_splash:

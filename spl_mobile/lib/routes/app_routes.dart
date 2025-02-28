@@ -11,8 +11,8 @@ import '../views/home/home_view.dart';
 import '../views/user/save/report_save_view.dart';
 import '../views/user/profile/profile_view.dart';
 import '../views/report/report_create_view.dart';
-
-
+import '../views/report/list/report_list_view.dart';
+import '../views/report/detail/report_detail_view.dart';
 
 class AppRoutes {
   static const String onboarding = '/onboarding';
@@ -24,7 +24,8 @@ class AppRoutes {
   static const String myReport = '/my-report';
   static const String saveReport = '/save-report';
   static const String profile = '/profile';
-
+  static const String allReport = '/all-report';
+  static const String reportDetail = '/report-detail';
 
   static final GoRouter router = GoRouter(
     initialLocation: onboarding,
@@ -75,7 +76,27 @@ class AppRoutes {
       GoRoute(
         path: createReport, 
         builder: (context, state) => const ReportCreateView(),  
-        )
+      ),
+      GoRoute(
+        path: allReport, 
+        builder: (context, state) => const ReportListAllView(),  
+      ),
+      GoRoute(
+  path: AppRoutes.reportDetail,
+  builder: (context, state) {
+    final extra = state.extra as Map<String, dynamic>?;
+    final report = extra?['report'] as Map<String, dynamic>?;
+
+    if (report == null) {
+      return const Scaffold(
+        body: Center(child: Text('Data laporan tidak ditemukan')),
+      );
+    }
+
+    return ReportDetailView(report: report);
+  },
+),
+
     ],
     errorBuilder: (context, state) => const Scaffold(
       body: Center(child: Text('Halaman tidak ditemukan')),
