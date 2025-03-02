@@ -1,9 +1,21 @@
 import 'package:flutter/material.dart';
-import 'routes/app_routes.dart';
-import 'widgets/blur_wrapper.dart';
+import 'package:provider/provider.dart';
+import 'package:spl_mobile/routes/app_routes.dart';
+import 'package:spl_mobile/providers/auth_provider.dart';
+import 'package:spl_mobile/providers/user_password_provider.dart';
+import 'package:spl_mobile/providers/user_profile_provider.dart';
 
-void main() {
-  runApp(const BaligePeduliApp());
+void main() async {
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => UserProfileProvider()),
+        ChangeNotifierProvider(create: (_) => UserPasswordProvider()),
+      ],
+      child: const BaligePeduliApp(),
+    ),
+  );
 }
 
 class BaligePeduliApp extends StatelessWidget {
@@ -12,11 +24,9 @@ class BaligePeduliApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      title: 'Balige Peduli',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(primarySwatch: Colors.blue),
-      routerConfig: AppRoutes.router,
-      builder: (context, child) => BlurWrapper(child: child!), // Gunakan BlurWrapper di sini
+      title: 'Balige Peduli App',
+      routerConfig: AppRoutes.router, // ✅ Gunakan router dari AppRoutes langsung
     );
   }
 }

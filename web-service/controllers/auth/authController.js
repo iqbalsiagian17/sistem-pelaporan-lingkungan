@@ -41,14 +41,14 @@ const login = async (req, res) => {
         }
 
         const token = jwt.sign(
-            { id: user.id, phone_number: user.phone_number, email: user.email, type: user.type },
+            { id: user.id, phone_number: user.phone_number, email: user.email, username: user.username, type: user.type },
             process.env.JWT_SECRET,
             { expiresIn: process.env.JWT_EXPIRES_IN }
         );
 
         res.json({
             message: 'Login successful',
-            user: { id: user.id, phone_number: user.phone_number, email: user.email, type: user.type },
+            user: { id: user.id, username: user.username, phone_number: user.phone_number, email: user.email, type: user.type },
             token // ✅ Kirim token ke client
         });
     } catch (error) {

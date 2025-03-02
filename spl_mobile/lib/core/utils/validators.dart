@@ -1,17 +1,28 @@
-// lib/core/utils/validators.dart
-
 class Validators {
+  static String? validateEmailOrPhone(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Email atau nomor telepon tidak boleh kosong';
+    }
+
+    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    final phoneRegex = RegExp(r'^[0-9]{9,15}$');
+
+    if (!emailRegex.hasMatch(value) && !phoneRegex.hasMatch(value)) {
+      return 'Masukkan email atau nomor telepon yang valid';
+    }
+
+    return null; // ✅ Valid
+  }
+
   /// Validasi Email
   static String? validateEmail(String? value) {
     if (value == null || value.isEmpty) {
       return 'Email tidak boleh kosong';
     }
-
     final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
     if (!emailRegex.hasMatch(value)) {
       return 'Format email tidak valid';
     }
-
     return null; // ✅ Valid
   }
 
@@ -22,6 +33,17 @@ class Validators {
     }
     if (value.length < 6) {
       return 'Password minimal 6 karakter';
+    }
+    return null;
+  }
+
+  /// Validasi Konfirmasi Password
+  static String? validateConfirmPassword(String? value, String password) {
+    if (value == null || value.isEmpty) {
+      return 'Konfirmasi password tidak boleh kosong';
+    }
+    if (value != password) {
+      return 'Password tidak cocok';
     }
     return null;
   }

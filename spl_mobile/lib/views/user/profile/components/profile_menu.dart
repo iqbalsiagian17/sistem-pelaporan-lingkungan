@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import '../../../../routes/app_routes.dart';
 
 class ProfileMenu extends StatelessWidget {
   const ProfileMenu({super.key});
@@ -6,9 +8,8 @@ class ProfileMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start, // ✅ Menyesuaikan posisi teks kategori
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // ✅ Kategori "Akun"
         const Padding(
           padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
           child: Text(
@@ -17,15 +18,12 @@ class ProfileMenu extends StatelessWidget {
           ),
         ),
         _buildMenuItem(Icons.edit, "Edit Profil", () {
-          // TODO: Tambahkan navigasi ke halaman edit profil
+          context.push(AppRoutes.editProfile); // ✅ Navigasi ke halaman edit profil
         }),
-        _buildMenuItem(Icons.lock, "Ubah Password", () {
-          // TODO: Tambahkan navigasi ke halaman ubah password
+       _buildMenuItem(Icons.lock, "Ubah Password", () {
+          context.go(AppRoutes.editPassword);
         }),
-
-        const SizedBox(height: 20), // ✅ Jarak antar kategori
-
-        // ✅ Kategori "Umum"
+        const SizedBox(height: 20),
         const Padding(
           padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
           child: Text(

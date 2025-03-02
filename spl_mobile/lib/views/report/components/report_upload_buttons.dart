@@ -1,6 +1,7 @@
-import 'dart:io'; // ✅ Import this for File support
+import 'dart:io'; // ✅ Import untuk File support
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:flutter/services.dart'; // ✅ Import untuk Haptic Feedback
 
 class ReportUploadButtons extends StatefulWidget {
   final bool isAtLocation;
@@ -38,6 +39,9 @@ class _ReportUploadButtonsState extends State<ReportUploadButtons> {
   }
 
   Future<bool> _showCameraOrientationSheet(BuildContext context) async {
+    // ✅ GETARAN saat modal muncul
+    HapticFeedback.mediumImpact();
+
     return await showModalBottomSheet<bool>(
           context: context,
           isDismissible: true,

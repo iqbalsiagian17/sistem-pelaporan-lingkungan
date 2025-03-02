@@ -13,6 +13,7 @@ class OnboardingView extends StatefulWidget {
 class _OnboardingViewState extends State<OnboardingView> {
   final PageController _pageController = PageController();
   int _currentIndex = 0;
+  bool _isLoading = true;
 
   final List<Map<String, String>> onboardingData = [
     {
@@ -37,12 +38,34 @@ class _OnboardingViewState extends State<OnboardingView> {
     },
   ];
 
+  @override
+  void initState() {
+    super.initState();
+    _checkOnboardingStatus();
+  }
+
+  /// **🔹 Cek apakah onboarding sudah selesai sebelumnya**
+  Future<void> _checkOnboardingStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    final onboardingCompleted = prefs.getBool('onboardingCompleted') ?? false;
+
+    if (onboardingCompleted) {
+      if (!mounted) return;
+      context.go(AppRoutes.login); // ✅ Langsung ke halaman login jika sudah selesai
+    } else {
+      setState(() {
+        _isLoading = false; // ✅ Tampilkan halaman onboarding jika belum selesai
+      });
+    }
+  }
+
+  /// **🔹 Tandai onboarding selesai dan navigasi ke login**
   Future<void> _completeOnboarding() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('onboardingCompleted', true);
 
     if (!mounted) return;
-    context.go(AppRoutes.login); // Navigasi menggunakan go_router
+    context.go(AppRoutes.login); // ✅ Navigasi ke halaman login setelah selesai
   }
 
   void _goToPrevious() {
@@ -67,94 +90,87 @@ class _OnboardingViewState extends State<OnboardingView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: Column(
-        children: [
-          Expanded(
-            child: PageView.builder(
-              controller: _pageController,
-              itemCount: onboardingData.length,
-              onPageChanged: (index) => setState(() => _currentIndex = index),
-              itemBuilder: (_, index) => Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Image.asset(
-                      onboardingData[index]["image"]!,
-                      height: 250,
-                      fit: BoxFit.contain,
-                    ),
-                    const SizedBox(height: 30),
-                    Text(
-                      onboardingData[index]["title"]!,
-                      style: const TextStyle(
-                          fontSize: 24, fontWeight: FontWeight.bold),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      onboardingData[index]["description"]!,
-                      style: const TextStyle(fontSize: 16),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(
-              onboardingData.length,
-              (index) => Container(
-                margin: const EdgeInsets.symmetric(horizontal: 4),
-                width: _currentIndex == index ? 12 : 8,
-                height: _currentIndex == index ? 12 : 8,
-                decoration: BoxDecoration(
-                  color: _currentIndex == index ? Colors.blue : Colors.grey,
-                  shape: BoxShape.circle,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 20),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return _isLoading
+        ? const Scaffold(
+            body: Center(child: CircularProgressIndicator()), // ✅ Tampilkan loading jika masih mengecek status
+          )
+        : Scaffold(
+            backgroundColor: Colors.white,
+            body: Column(
               children: [
-                _currentIndex > 0
-                    ? GestureDetector(
-                        onTap: _goToPrevious,
-                        child: const Text(
-                          "Kembali",
-                          style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.blue),
-                        ),
-                      )
-                    : const SizedBox(width: 70),
-                GestureDetector(
-                  onTap: _goToNext,
-                  child: Text(
-                    _currentIndex == onboardingData.length - 1
-                        ? "Selesai"
-                        : "Selanjutnya",
-                    style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.blue),
+                Expanded(
+                  child: PageView.builder(
+                    controller: _pageController,
+                    itemCount: onboardingData.length,
+                    onPageChanged: (index) => setState(() => _currentIndex = index),
+                    itemBuilder: (_, index) => Padding(
+                      padding: const EdgeInsets.all(24.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image.asset(
+                            onboardingData[index]["image"]!,
+                            height: 250,
+                            fit: BoxFit.contain,
+                          ),
+                          const SizedBox(height: 30),
+                          Text(
+                            onboardingData[index]["title"]!,
+                            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            onboardingData[index]["description"]!,
+                            style: const TextStyle(fontSize: 16),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(
+                    onboardingData.length,
+                    (index) => Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 4),
+                      width: _currentIndex == index ? 12 : 8,
+                      height: _currentIndex == index ? 12 : 8,
+                      decoration: BoxDecoration(
+                        color: _currentIndex == index ? Colors.blue : Colors.grey,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      _currentIndex > 0
+                          ? TextButton(
+                              onPressed: _goToPrevious,
+                              child: const Text("Kembali",
+                                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.blue)),
+                            )
+                          : const SizedBox(width: 70),
+                      TextButton(
+                        onPressed: _goToNext,
+                        child: Text(
+                          _currentIndex == onboardingData.length - 1 ? "Selesai" : "Selanjutnya",
+                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.blue),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
               ],
             ),
-          ),
-          const SizedBox(height: 20),
-        ],
-      ),
-    );
+          );
   }
 }

@@ -29,6 +29,7 @@ class RegisterView extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: const [
                   RegisterHeader(),
+                  SizedBox(height: 16),
                   RegisterForm(),
                   SizedBox(height: 16),
                   SocialRegisterButtons(),
