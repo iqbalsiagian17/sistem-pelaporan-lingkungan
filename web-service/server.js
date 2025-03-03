@@ -14,12 +14,13 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(bodyParser.json());
 
+
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/user/profile', userInfoRoutes); 
 
 // Serve static assets if in production
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use("/uploads", express.static("uploads"));
 
 
 app.listen(PORT, () => {

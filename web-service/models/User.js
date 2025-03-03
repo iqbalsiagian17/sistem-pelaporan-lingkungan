@@ -4,7 +4,7 @@ const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     static associate(models) {
-      User.hasOne(models.UserInfo, { foreignKey: 'user_id', onDelete: 'CASCADE' });
+
     }
   }
 
@@ -31,6 +31,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false,
       defaultValue: 0
+    },
+    profile_picture: {
+      type: DataTypes.STRING,
+      allowNull: true
     }
   }, {
     sequelize,

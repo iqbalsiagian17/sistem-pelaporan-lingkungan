@@ -35,6 +35,10 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false
       },
+      profile_picture: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
       rememberToken: {
         type: Sequelize.STRING,
         allowNull: true

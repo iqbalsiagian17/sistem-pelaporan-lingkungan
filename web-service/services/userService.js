@@ -11,6 +11,18 @@ const findByPhoneOrEmail = async (identifier) => {
     });
 };
 
+const getUserById = async (user_id) => {
+    return await User.findOne({
+        where: { id: user_id },
+        attributes: ['id', 'username', 'phone_number', 'email', 'profile_picture']
+    });
+};
+
+
+const updateUser = async (user_id, updateData) => {
+    return await User.update(updateData, { where: { id: user_id } });
+};
+
 const createUser = async (userData) => {
     return await User.create(userData);
 };
@@ -38,4 +50,4 @@ const changePassword = async (user_id, oldPassword, newPassword) => {
 };
 
 
-module.exports = { findByPhoneOrEmail, createUser,changePassword };
+module.exports = { findByPhoneOrEmail, createUser,changePassword,getUserById,updateUser };

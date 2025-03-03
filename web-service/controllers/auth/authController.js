@@ -41,14 +41,14 @@ const login = async (req, res) => {
         }
 
         const token = jwt.sign(
-            { id: user.id, phone_number: user.phone_number, email: user.email, username: user.username, type: user.type },
+            { id: user.id, phone_number: user.phone_number, email: user.email, username: user.username, type: user.type, profile_picture: user.profile_picture },
             process.env.JWT_SECRET,
             { expiresIn: process.env.JWT_EXPIRES_IN }
         );
 
         res.json({
             message: 'Login successful',
-            user: { id: user.id, username: user.username, phone_number: user.phone_number, email: user.email, type: user.type },
+            user: { id: user.id, username: user.username, phone_number: user.phone_number, email: user.email, type: user.type, profile_picture: user.profile_picture },
             token // ✅ Kirim token ke client
         });
     } catch (error) {
@@ -57,30 +57,4 @@ const login = async (req, res) => {
 };
 
 
-
-
-const logout = (req, res) => {
-    res.json({ message: 'Logout successful, please remove the token on the client side' });
-};
-
-
-const changePassword = async (req, res) => {
-    try {
-        const user_id = req.user.id; // Ambil user_id dari token JWT
-        const { oldPassword, newPassword } = req.body;
-
-        if (!oldPassword || !newPassword) {
-            return res.status(400).json({ message: "Old password and new password are required" });
-        }
-
-        // Panggil service untuk mengganti password
-        await userService.changePassword(user_id, oldPassword, newPassword);
-
-        res.json({ message: "Password changed successfully" });
-    } catch (error) {
-        console.error("Change Password Error:", error);
-        res.status(400).json({ message: error.message });
-    }
-};
-
-module.exports = { register, login, logout,changePassword };
+module.exports = { register, login  };
