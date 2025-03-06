@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:spl_mobile/routes/app_routes.dart';
 import 'package:spl_mobile/providers/auth_provider.dart';
-import 'package:spl_mobile/providers/user_password_provider.dart';
 import 'package:spl_mobile/providers/user_profile_provider.dart';
+import 'package:spl_mobile/providers/user_report_provider.dart';
 
 void main() async {
   runApp(
@@ -11,7 +11,8 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => UserProfileProvider()),
-        ChangeNotifierProvider(create: (_) => UserPasswordProvider()),
+        ChangeNotifierProvider(create: (context) => ReportProvider()),
+
       ],
       child: const BaligePeduliApp(),
     ),

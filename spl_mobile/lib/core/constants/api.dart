@@ -1,5 +1,5 @@
 class ApiConstants {
-  static const String baseUrl = "http://192.168.253.108:3000";
+  static const String baseUrl = "http://172.25.42.159:3000";
   
   // Endpoint Autentikasi
   static const String authBaseUrl = "$baseUrl/api/auth";
@@ -9,5 +9,9 @@ class ApiConstants {
   
   // Upload Profile Picture
   static const String uploadProfilePictureUrl = "$userProfileBaseUrl/update-profile-picture";
+
+
+  static const String userReportUrl = "$baseUrl/api/user/reports";
+  
 
 }

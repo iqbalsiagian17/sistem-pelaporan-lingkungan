@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:spl_mobile/models/Report.dart';
 
 import '../views/auth/login_view.dart';
 import '../views/onboarding/onboarding_view.dart';
@@ -67,20 +68,14 @@ class AppRoutes {
       GoRoute(path: createReport, builder: (context, state) => const ReportCreateView()),
       GoRoute(path: allReport, builder: (context, state) => const ReportListAllView()),
       GoRoute(
-        path: AppRoutes.reportDetail,
+        path: '/report-detail',
+        name: AppRoutes.reportDetail,
         builder: (context, state) {
-          final extra = state.extra as Map<String, dynamic>?;
-          final report = extra?['report'] as Map<String, dynamic>?;
-
-          if (report == null) {
-            return const Scaffold(
-              body: Center(child: Text('Data laporan tidak ditemukan')),
-            );
-          }
-
+          final report = state.extra as Report; // ✅ Ambil `extra` sebagai Report
           return ReportDetailView(report: report);
         },
       ),
+
     ],
     errorBuilder: (context, state) => const Scaffold(
       body: Center(child: Text('Halaman tidak ditemukan')),

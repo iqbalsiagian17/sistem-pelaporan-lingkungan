@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'components/login_header.dart';
 import 'components/login_form.dart';
-import 'components/social_login_buttons.dart';
+import 'components/social_buttons.dart';
 import 'components/login_footer.dart';
 
 class LoginView extends StatelessWidget {
@@ -20,7 +20,7 @@ class LoginView extends StatelessWidget {
               LoginHeader(),
               LoginForm(),
               SizedBox(height: 16),
-              SocialLoginButtons(),
+              SocialButtons(),
               SizedBox(height: 24),
               LoginFooter(),
             ],

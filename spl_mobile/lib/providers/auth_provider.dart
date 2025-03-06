@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../providers/user_profile_provider.dart'; // Impor UserProfileProvider
 import '../../core/services/auth/auth_service.dart';
 import '../../models/User.dart';
 
 class AuthProvider with ChangeNotifier {
   final AuthService _authService = AuthService();
-  final UserProfileProvider _userProfileProvider = UserProfileProvider();
 
   bool _isLoading = false;
   String? _errorMessage;
@@ -17,13 +15,31 @@ class AuthProvider with ChangeNotifier {
   User? get user => _user;
   bool get isLoggedIn => _user != null;
 
-  // ✅ LOGIN USER DENGAN HANYA MENYIMPAN TOKEN
+  AuthProvider() {
+    _loadUserFromPrefs(); // ✅ Load user saat AuthProvider dibuat
+  }
+
+  Future<void> _loadUserFromPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString("token");
+    
+    if (token == null) return; // ✅ Jika token tidak ada, berarti user tidak login
+
+    _user = User(
+      id: prefs.getInt("id") ?? 0,
+      username: prefs.getString("username") ?? "",
+      email: prefs.getString("email") ?? "",
+      phoneNumber: prefs.getString("phone_number") ?? "",
+      type: prefs.getInt("type") ?? 0,
+    );
+
+    notifyListeners(); // ✅ Update UI setelah user dimuat
+  }
+
   Future<bool> login(String identifier, String password) async {
     _isLoading = true;
-    notifyListeners();
-
-    _user = null;
     _errorMessage = null;
+    _user = null;
     notifyListeners();
 
     final response = await _authService.login(identifier, password);
@@ -35,7 +51,6 @@ class AuthProvider with ChangeNotifier {
     }
 
     _user = User.fromJson(response["user"]);
-
     if (_user!.type == 1) {
       _errorMessage = "Admin tidak dapat login ke aplikasi ini.";
       _user = null;
@@ -44,7 +59,6 @@ class AuthProvider with ChangeNotifier {
       return false;
     }
 
-    // Simpan hanya token ke SharedPreferences
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString("token", response["token"]);
 
@@ -53,9 +67,9 @@ class AuthProvider with ChangeNotifier {
     return true;
   }
 
-  // ✅ REGISTER USER
   Future<bool> register(String phone, String username, String email, String password) async {
     _isLoading = true;
+    _errorMessage = null;
     notifyListeners();
 
     final response = await _authService.register(phone, username, email, password);
@@ -67,30 +81,45 @@ class AuthProvider with ChangeNotifier {
     }
 
     _isLoading = false;
-    _errorMessage = null;
     notifyListeners();
     return true;
   }
 
-  // ✅ LOGOUT DENGAN HANYA MENGHAPUS TOKEN
   Future<void> logout() async {
     _isLoading = true;
     notifyListeners();
-    _userProfileProvider.clearUserData(); // ✅ Sekarang digunakan
 
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove("token"); // Hapus token agar login ulang
-    await prefs.remove("user_data");
+
+    // ✅ Preserve onboarding status while clearing user-related data
+    bool onboardingCompleted = prefs.getBool('onboardingCompleted') ?? false;
+
+    await prefs.clear(); // ✅ Clear all user-related data
+    await prefs.setBool('onboardingCompleted', onboardingCompleted); // ✅ Keep onboarding flag
+    await prefs.setBool('isLoggedIn', false); // ✅ Ensure login status is false
 
     _user = null;
     _errorMessage = null;
     _isLoading = false;
-
-    // ✅ Hapus data user dari `UserProfileProvider`
-    final userProfileProvider = UserProfileProvider();
-    userProfileProvider.clearUserData();
-
     notifyListeners();
   }
 
+  Future<void> refreshUser() async {
+  final prefs = await SharedPreferences.getInstance();
+  final token = prefs.getString("token");
+
+  if (token == null) return;
+
+  _user = User(
+    id: prefs.getInt("id") ?? 0,
+    username: prefs.getString("username") ?? "",
+    email: prefs.getString("email") ?? "",
+    phoneNumber: prefs.getString("phone_number") ?? "",
+    type: prefs.getInt("type") ?? 0,
+  );
+
+  notifyListeners(); // ✅ Perbarui UI setelah refresh
+}
+
+  
 }

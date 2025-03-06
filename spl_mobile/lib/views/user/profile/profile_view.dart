@@ -34,8 +34,9 @@ class _ProfileViewState extends State<ProfileView> {
   void initState() {
     super.initState();
     Future.microtask(() =>
-        Provider.of<UserProfileProvider>(context, listen: false).loadUserInfo()); // ✅ Load user data dari UserProfileProvider
+        Provider.of<UserProfileProvider>(context, listen: false).loadUser()); // ✅ Correct method
   }
+
 
   @override
   Widget build(BuildContext context) {

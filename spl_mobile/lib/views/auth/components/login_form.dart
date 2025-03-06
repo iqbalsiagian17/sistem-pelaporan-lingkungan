@@ -5,7 +5,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/utils/validators.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../routes/app_routes.dart';
-import '../../../widgets/show_snackbar.dart'; // ✅ Impor SnackbarHelper
+import '../../../widgets/show_snackbar.dart';
+import '../../../widgets/custom_input_field.dart'; // ✅ Gunakan CustomInputField
+import '../../../widgets/custom_button.dart'; // ✅ Gunakan CustomInputField
+
 
 class LoginForm extends StatefulWidget {
   const LoginForm({super.key});
@@ -18,6 +21,7 @@ class _LoginFormState extends State<LoginForm> {
   final _formKey = GlobalKey<FormState>();
   final _identifierController = TextEditingController();
   final _passwordController = TextEditingController();
+  bool _isObscurePassword = true;
 
   @override
   void dispose() {
@@ -27,30 +31,29 @@ class _LoginFormState extends State<LoginForm> {
   }
 
   void _login() async {
-    if (_formKey.currentState!.validate()) {
-      final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      bool success = await authProvider.login(
-        _identifierController.text.trim(),
-        _passwordController.text.trim(),
-      );
+    if (!_formKey.currentState!.validate()) return;
 
-      if (success) {
-        // ✅ Simpan status login
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setBool('isLoggedIn', true);
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    bool success = await authProvider.login(
+      _identifierController.text.trim(),
+      _passwordController.text.trim(),
+    );
 
-        // ✅ Tampilkan notifikasi sukses
+    if (success) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('isLoggedIn', true);
+
+      if (mounted) {
         SnackbarHelper.showSnackbar(context, "Login berhasil!", isError: false);
-
-        // ✅ Navigasi harus dijalankan dalam `Future.microtask`
-        Future.microtask(() {
-          if (mounted) {
-            context.go(AppRoutes.home);
-          }
-        });
-      } else {
-        // ❌ Tampilkan notifikasi error jika login gagal
-        SnackbarHelper.showSnackbar(context, "Login gagal. Periksa email/nomor telepon dan password!", isError: true);
+        GoRouter.of(context).go(AppRoutes.home);
+      }
+    } else {
+      if (mounted) {
+        SnackbarHelper.showSnackbar(
+          context,
+          authProvider.errorMessage ?? "Login gagal. Periksa email/nomor telepon dan password!",
+          isError: true,
+        );
       }
     }
   }
@@ -61,51 +64,32 @@ class _LoginFormState extends State<LoginForm> {
       key: _formKey,
       child: Column(
         children: [
-          TextFormField(
+          CustomInputField(
             controller: _identifierController,
-            decoration: const InputDecoration(
-              prefixIcon: Icon(Icons.person_outline),
-              labelText: 'Email atau Nomor Telepon',
-              border: OutlineInputBorder(),
-            ),
+            label: 'Email atau Nomor Telepon',
+            icon: Icons.person_outline,
+            keyboardType: TextInputType.text,
             validator: Validators.validateEmailOrPhone,
           ),
-          const SizedBox(height: 16),
-          TextFormField(
+          const SizedBox(height: 10),
+          CustomInputField(
             controller: _passwordController,
-            obscureText: true,
-            decoration: const InputDecoration(
-              prefixIcon: Icon(Icons.lock_outline),
-              labelText: 'Password',
-              border: OutlineInputBorder(),
-            ),
+            label: 'Password',
+            icon: Icons.lock_outline,
+            isObscure: _isObscurePassword,
+            onToggleObscure: () => setState(() => _isObscurePassword = !_isObscurePassword),
             validator: Validators.validatePassword,
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 10),
           Consumer<AuthProvider>(
             builder: (context, auth, child) {
-              return SizedBox(
-                width: double.infinity,
-                child: OutlinedButton(
-                  onPressed: auth.isLoading ? null : _login,
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    side: const BorderSide(color: Color(0xFF6c757d)),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    foregroundColor: const Color(0xFF6c757d),
-                  ).copyWith(
-                    overlayColor: WidgetStateProperty.all(
-                        const Color.fromRGBO(227, 233, 250, 1)),
-                  ),
-                  child: auth.isLoading
-                      ? const CircularProgressIndicator()
-                      : const Text(
-                          "Masuk",
-                          style: TextStyle(fontSize: 16),
-                        ),
-                ),
+              return CustomButton(
+                text: "Masuk",
+                onPressed: auth.isLoading ? () {} : _login, // ✅ Gunakan fungsi kosong jika loading
+                isLoading: auth.isLoading,
+                isOutlined: true, // Menggunakan outlined button
+                textColor: const Color(0xFF6c757d),
+                borderColor: const Color(0xFF6c757d),
               );
             },
           ),

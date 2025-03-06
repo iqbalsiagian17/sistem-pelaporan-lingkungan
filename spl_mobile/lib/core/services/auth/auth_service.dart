@@ -1,13 +1,13 @@
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../constants/api.dart'; // ✅ Gunakan base URL dari constants
+import '../../constants/api.dart';
 
 class AuthService {
   final Dio _dio = Dio(BaseOptions(
-    baseUrl: ApiConstants.authBaseUrl, // ✅ Gunakan base URL yang sudah dideklarasikan
+    baseUrl: ApiConstants.authBaseUrl,
     connectTimeout: const Duration(seconds: 10),
     receiveTimeout: const Duration(seconds: 10),
-  ))..interceptors.add(LogInterceptor(responseBody: true, requestBody: true)); // ✅ Debugging
+  ))..interceptors.add(LogInterceptor(responseBody: true, requestBody: true));
 
   AuthService() {
     _dio.interceptors.add(InterceptorsWrapper(
@@ -16,24 +16,29 @@ class AuthService {
         final token = prefs.getString("token");
 
         if (token != null) {
-          options.headers["Authorization"] = "Bearer $token"; // ✅ Tambahkan token otomatis
+          options.headers["Authorization"] = "Bearer $token";
         }
         return handler.next(options);
       },
     ));
   }
 
-  // **✅ Login User (Bisa dengan Email atau Nomor Telepon)**
+  // **✅ Login User dengan Identitas (Email/Phone) dan Client Type**
   Future<Map<String, dynamic>> login(String identifier, String password) async {
     try {
       final response = await _dio.post("/login", data: {
         "identifier": identifier,
         "password": password,
+        "client": "flutter", // ✅ Kirim client type agar sesuai backend
       });
 
       final data = response.data;
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString("token", data["token"]);
+      await prefs.setString("username", data["user"]["username"]);
+      await prefs.setString("email", data["user"]["email"]);
+      await prefs.setString("phone_number", data["user"]["phone_number"]);
+      await prefs.setInt("type", data["user"]["type"]);
 
       return data;
     } on DioException catch (e) {
@@ -61,7 +66,12 @@ class AuthService {
   // **✅ Logout User**
   Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove("token");
+
+    // ✅ Preserve onboarding flag
+    bool hasSeenOnboarding = prefs.getBool('hasSeenOnboarding') ?? false;
+
+    await prefs.clear(); // ✅ Clear all user data
+    await prefs.setBool('hasSeenOnboarding', hasSeenOnboarding); // ✅ Restore onboarding flag
   }
 
   // **✅ Check Login Status**

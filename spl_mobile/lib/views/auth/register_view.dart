@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'components/register_header.dart';
 import 'components/register_form.dart';
-import 'components/social_register_buttons.dart';
+import 'components/social_buttons.dart';
 
 class RegisterView extends StatelessWidget {
   const RegisterView({super.key});
@@ -32,7 +32,8 @@ class RegisterView extends StatelessWidget {
                   SizedBox(height: 16),
                   RegisterForm(),
                   SizedBox(height: 16),
-                  SocialRegisterButtons(),
+                  SocialButtons(),
+                  SizedBox(height: 16),
                 ],
               ),
             ),

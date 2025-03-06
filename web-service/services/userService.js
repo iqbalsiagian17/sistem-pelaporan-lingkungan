@@ -20,8 +20,14 @@ const getUserById = async (user_id) => {
 
 
 const updateUser = async (user_id, updateData) => {
-    return await User.update(updateData, { where: { id: user_id } });
+    const [updated] = await User.update(updateData, { where: { id: user_id } });
+
+    if (!updated) return null; // No update performed
+
+    // ✅ Fetch and return updated user details
+    return await User.findOne({ where: { id: user_id }, attributes: ['id', 'username', 'email', 'phone_number'] });
 };
+
 
 const createUser = async (userData) => {
     return await User.create(userData);

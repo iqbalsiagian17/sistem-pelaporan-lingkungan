@@ -22,7 +22,6 @@ return new class extends Migration
             $table->integer('likes')->default(0);
             
            // Lokasi laporan
-           $table->string('district', 100)->nullable(); // Kecamatan
            $table->string('village', 100)->nullable();  // Desa/Kelurahan
            $table->text('location_details')->nullable(); // Detail lokasi opsional
 

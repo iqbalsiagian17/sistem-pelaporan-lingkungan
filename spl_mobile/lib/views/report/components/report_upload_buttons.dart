@@ -1,45 +1,56 @@
-import 'dart:io'; // ✅ Import untuk File support
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:flutter/services.dart'; // ✅ Import untuk Haptic Feedback
+import 'package:flutter/services.dart';
 
 class ReportUploadButtons extends StatefulWidget {
-  final bool isAtLocation;
+  final Function(List<File>) onFilesSelected; // ✅ Callback untuk mengirim file ke parent
 
-  const ReportUploadButtons({super.key, required this.isAtLocation});
+  const ReportUploadButtons({super.key, required this.onFilesSelected});
 
   @override
   State<ReportUploadButtons> createState() => _ReportUploadButtonsState();
 }
 
 class _ReportUploadButtonsState extends State<ReportUploadButtons> {
-  final List<XFile> _selectedImages = []; // ✅ Simpan daftar gambar yang dipilih
+  final List<File> _selectedImages = [];
 
-  Future<void> _pickImage(BuildContext context, bool fromCamera) async {
+  // ✅ Fungsi untuk memilih banyak gambar dari galeri
+  Future<void> _pickMultipleImages() async {
+    final picker = ImagePicker();
+    final List<XFile>? pickedFiles = await picker.pickMultiImage();
+
+    if (pickedFiles != null && pickedFiles.isNotEmpty) {
+      setState(() {
+        _selectedImages.addAll(pickedFiles.map((file) => File(file.path)));
+      });
+
+      // ✅ Kirim file ke parent widget agar bisa dikirim ke backend
+      widget.onFilesSelected(_selectedImages);
+    }
+  }
+
+  // ✅ Fungsi untuk mengambil gambar dari kamera
+  Future<void> _pickImageFromCamera(BuildContext context) async {
     final picker = ImagePicker();
 
-    if (fromCamera) {
-      bool confirm = await _showCameraOrientationSheet(context);
-      if (!confirm) return;
-    }
+    bool confirm = await _showCameraOrientationSheet(context);
+    if (!confirm) return;
 
-    final XFile? pickedFile = await picker.pickImage(
-      source: fromCamera ? ImageSource.camera : ImageSource.gallery,
-    );
+    final XFile? pickedFile = await picker.pickImage(source: ImageSource.camera);
 
     if (pickedFile != null) {
       setState(() {
-        _selectedImages.add(pickedFile); // ✅ Tambahkan ke daftar gambar
+        _selectedImages.add(File(pickedFile.path));
       });
+
+      // ✅ Kirim file ke parent widget agar bisa dikirim ke backend
+      widget.onFilesSelected(_selectedImages);
     }
   }
 
-  Future<void> _pickPDF() async {
-    print("Upload PDF");
-  }
-
+  // ✅ Konfirmasi sebelum mengambil foto (agar landscape)
   Future<bool> _showCameraOrientationSheet(BuildContext context) async {
-    // ✅ GETARAN saat modal muncul
     HapticFeedback.mediumImpact();
 
     return await showModalBottomSheet<bool>(
@@ -106,25 +117,30 @@ class _ReportUploadButtonsState extends State<ReportUploadButtons> {
         false;
   }
 
+  // ✅ Hapus gambar yang sudah dipilih
   void _removeImage(int index) {
     setState(() {
       _selectedImages.removeAt(index);
     });
+
+    // ✅ Kirim file ke parent widget setelah perubahan
+    widget.onFilesSelected(_selectedImages);
   }
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
+        // 🔘 Tombol untuk pilih gambar
         Row(
           children: [
             Expanded(
               child: OutlinedButton.icon(
-                onPressed: () => _pickImage(context, widget.isAtLocation),
-                icon: const Icon(Icons.add_a_photo, color: Color.fromRGBO(76, 175, 80, 1)),
-                label: Text(
-                  widget.isAtLocation ? "Ambil Foto" : "Tambah Foto",
-                  style: const TextStyle(color: Color.fromRGBO(76, 175, 80, 1)),
+                onPressed: _pickMultipleImages,
+                icon: const Icon(Icons.image, color: Color.fromRGBO(76, 175, 80, 1)),
+                label: const Text(
+                  "Pilih Gambar",
+                  style: TextStyle(color: Color.fromRGBO(76, 175, 80, 1)),
                 ),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 12),
@@ -133,24 +149,28 @@ class _ReportUploadButtonsState extends State<ReportUploadButtons> {
                 ),
               ),
             ),
-            if (!widget.isAtLocation) ...[
-              const SizedBox(width: 10),
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: _pickPDF,
-                  icon: const Icon(Icons.picture_as_pdf, color: Color.fromRGBO(76, 175, 80, 1)),
-                  label: const Text("Tambah File (PDF)", style: TextStyle(color: Color.fromRGBO(76, 175, 80, 1))),
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    side: const BorderSide(color: Color.fromRGBO(76, 175, 80, 1)),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: () => _pickImageFromCamera(context),
+                icon: const Icon(Icons.camera_alt, color: Color.fromRGBO(76, 175, 80, 1)),
+                label: const Text(
+                  "Ambil Foto",
+                  style: TextStyle(color: Color.fromRGBO(76, 175, 80, 1)),
+                ),
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  side: const BorderSide(color: Color.fromRGBO(76, 175, 80, 1)),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
               ),
-            ],
+            ),
           ],
         ),
+
         const SizedBox(height: 10),
+
+        // 📂 Tampilkan gambar yang sudah dipilih
         if (_selectedImages.isNotEmpty) ...[
           const Text(
             "Gambar yang dipilih:",
@@ -172,7 +192,7 @@ class _ReportUploadButtonsState extends State<ReportUploadButtons> {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(12),
                     child: Image.file(
-                      File(_selectedImages[index].path), // ✅ Fix: Gunakan File() dari dart:io
+                      _selectedImages[index],
                       width: double.infinity,
                       height: double.infinity,
                       fit: BoxFit.cover,

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // ✅ Import untuk Haptic Feedback
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../routes/app_routes.dart';
 
@@ -12,9 +12,7 @@ class ProfileTopBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Size get preferredSize => const Size.fromHeight(56);
 
-  // ✅ **Fungsi Menampilkan Modal Logout dengan Haptic Feedback**
   void _showLogoutConfirmation(BuildContext context) {
-    // ✅ **Haptic Feedback saat modal muncul**
     HapticFeedback.mediumImpact();
 
     showModalBottomSheet(
@@ -49,7 +47,7 @@ class ProfileTopBar extends StatelessWidget implements PreferredSizeWidget {
                   Expanded(
                     child: OutlinedButton(
                       onPressed: () {
-                        HapticFeedback.lightImpact(); // ✅ Efek getaran ringan saat klik "Batal"
+                        HapticFeedback.lightImpact();
                         Navigator.pop(context);
                       },
                       style: OutlinedButton.styleFrom(
@@ -63,10 +61,10 @@ class ProfileTopBar extends StatelessWidget implements PreferredSizeWidget {
                   const SizedBox(width: 10),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () {
-                        HapticFeedback.heavyImpact(); // ✅ Efek getaran kuat saat logout
+                      onPressed: () async {
+                        HapticFeedback.heavyImpact();
                         Navigator.pop(context);
-                        onLogout(); // ✅ Lanjutkan logout
+                        onLogout();
                       },
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 12),
@@ -93,8 +91,8 @@ class ProfileTopBar extends StatelessWidget implements PreferredSizeWidget {
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Color(0xFF4CAF50), // 💚 Light Green
-              Color(0xFF81C784), // 💚 Soft Green
+              Color(0xFF4CAF50),
+              Color(0xFF81C784),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,

@@ -44,7 +44,6 @@ class UserReportController extends Controller
             'longitude' => 'nullable|required_if:is_at_location,1|numeric',
             'location_details' => 'sometimes|nullable|string|max:500|required_if:is_at_location,1',
 
-            'district' => 'nullable|required_if:is_at_location,0|string|max:255',
             'village' => 'nullable|required_if:is_at_location,0|string|max:255',
 
             // Validasi lampiran (opsional)
@@ -65,7 +64,6 @@ class UserReportController extends Controller
                 'latitude' => $request->is_at_location ? $request->latitude : null,
                 'longitude' => $request->is_at_location ? $request->longitude : null,
                 'location_details' => $request->is_at_location ? $request->location_details : null,
-                'district' => !$request->is_at_location ? $request->district : null,
                 'village' => !$request->is_at_location ? $request->village : null,
             ]);
 
@@ -119,7 +117,6 @@ class UserReportController extends Controller
             'longitude' => 'nullable|required_if:is_at_location,1|numeric',
             'location_details' => 'sometimes|nullable|string|max:500|required_if:is_at_location,1',
 
-            'district' => 'nullable|required_if:is_at_location,0|string|max:255',
             'village' => 'nullable|required_if:is_at_location,0|string|max:255',
 
             // Validasi lampiran (opsional)
@@ -137,7 +134,6 @@ class UserReportController extends Controller
                 'latitude' => $request->is_at_location ? $request->latitude : null,
                 'longitude' => $request->is_at_location ? $request->longitude : null,
                 'location_details' => $request->is_at_location ? $request->location_details : null,
-                'district' => !$request->is_at_location ? $request->district : null,
                 'village' => !$request->is_at_location ? $request->village : null,
             ]);
 

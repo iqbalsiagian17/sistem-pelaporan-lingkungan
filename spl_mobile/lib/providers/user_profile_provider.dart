@@ -1,108 +1,106 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/services/user/profile/user_profile_service.dart';
-import '../../models/UserInfo.dart';
+import '../../models/User.dart'; // ✅ Gunakan model User
 
 class UserProfileProvider with ChangeNotifier {
   final UserProfileService _userProfileService = UserProfileService();
 
   bool _isLoading = false;
   String? _errorMessage;
-  UserInfo? _userInfo;
+  User? _user; // ✅ Simpan user langsung dari API
 
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
-  UserInfo? get userInfo => _userInfo;
+  User? get user => _user; // ✅ Ambil user dari backend
 
   void clearUserData() {
-    _userInfo = null;
+    _user = null;
     _errorMessage = null;
     notifyListeners();
   }
 
-  // ✅ AMBIL USER INFO TANPA `SharedPreferences`
-Future<void> loadUserInfo() async {
+  // ✅ Ambil User dari Backend
+Future<void> loadUser() async {
   try {
     final response = await _userProfileService.getUserProfile();
-    debugPrint("📢 API Response: $response"); // ✅ Debug API response
-
     if (response.containsKey("data")) {
-      // ✅ Pastikan `userInfo` bisa `null` tanpa menyebabkan error
-      final userInfoData = response["data"]["userInfo"];
-      _userInfo = userInfoData != null ? UserInfo.fromJson(userInfoData) : null;
+      _user = User.fromJson(response["data"]);
+
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString("username", _user!.username);
+      await prefs.setString("email", _user!.email);
+      await prefs.setString("phone_number", _user!.phoneNumber);
+
       notifyListeners();
-    } else {
-      throw Exception("Gagal mengambil data profil.");
     }
   } catch (e) {
-    debugPrint("❌ Error saat mengambil user info: $e");
+    debugPrint("❌ Error loading user: $e");
   }
 }
 
 
 
-  // ✅ SIMPAN / UPDATE USER INFO
-  Future<bool> saveUserInfo(Map<String, dynamic> data) async {
-    _isLoading = true;
-    notifyListeners();
-
-    try {
-      final response = userInfo == null
-          ? await _userProfileService.createUserProfile(data)
-          : await _userProfileService.updateUserProfile(data);
-
-      if (response.containsKey("error")) {
-        throw Exception(response["error"]);
-      }
-
-      await loadUserInfo();
-      _isLoading = false;
-      notifyListeners();
-      return true;
-    } catch (e) {
-      _isLoading = false;
-      _errorMessage = e.toString();
-      notifyListeners();
-      debugPrint("❌ Error saat menyimpan profil: $_errorMessage");
-      return false;
-    }
+Future<void> refreshUser() async {
+    await loadUser(); // Reload user data
   }
 
-  // ✅ UPDATE FOTO PROFIL TANPA `SharedPreferences`
-  Future<bool> updateProfilePicture(File imageFile) async {
-    _isLoading = true;
-    notifyListeners();
+  // ✅ Simpan / Update User
+Future<bool> saveUser(Map<String, dynamic> data) async {
+  _isLoading = true;
+  notifyListeners();
 
-    try {
-      if (_userInfo == null) throw Exception("User tidak ditemukan");
+  try {
+    final response = await _userProfileService.updateUserProfile(data);
 
-      debugPrint("📤 Mengunggah foto profil...");
-
-      final response = await _userProfileService.uploadProfilePicture(imageFile);
-      debugPrint("✅ Respons API: $response");
-
-      if (response.containsKey("error")) {
-        throw Exception(response["error"]);
-      }
-
-      final String newProfilePicture = response["profile_picture"] != null
-          ? "${response["profile_picture"]}?timestamp=${DateTime.now().millisecondsSinceEpoch}"
-          : "";
-
-      _userInfo = _userInfo!.copyWith(profilePicture: newProfilePicture);
-      await loadUserInfo(); // ✅ Pastikan UI diperbarui setelah upload foto
-
-      _isLoading = false;
-      notifyListeners();
-      return true;
-    } catch (error) {
-      _isLoading = false;
-      _errorMessage = error.toString();
-      notifyListeners();
-      debugPrint("❌ Error saat mengupdate foto profil: $_errorMessage");
-      return false;
+    if (response.containsKey("error")) {
+      throw Exception(response["error"]);
     }
+
+    await loadUser(); // ✅ Ambil data terbaru setelah update
+    _isLoading = false;
+    notifyListeners();
+    return true;
+  } catch (e) {
+    _isLoading = false;
+    _errorMessage = "❌ Error menyimpan data user: $e";
+    notifyListeners();
+    debugPrint(_errorMessage);
+    return false;
   }
+}
+
+
+  // ✅ Ubah Password
+Future<bool> changePassword(String oldPassword, String newPassword) async {
+  _isLoading = true;
+  notifyListeners();
+
+  try {
+    debugPrint("🔄 Mengubah password...");
+
+    final response = await _userProfileService.changePassword(oldPassword, newPassword);
+    debugPrint("✅ Respons API: $response");
+
+    if (response.containsKey("error")) {
+      throw Exception(response["error"]);
+    }
+
+    // 🔥 Pastikan data user diperbarui setelah password berubah
+    await refreshUser();
+    debugPrint("✅ User data berhasil diperbarui setelah perubahan password");
+
+    _isLoading = false;
+    notifyListeners();
+    return true;
+  } catch (e) {
+    _isLoading = false;
+    _errorMessage = "❌ Error saat mengubah password: $e";
+    notifyListeners();
+    debugPrint(_errorMessage);
+    return false;
+  }
+}
 
 
 }

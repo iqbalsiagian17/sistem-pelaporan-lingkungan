@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:spl_mobile/models/ReportStatusHistory.dart';
 
-class ReportDetailAdminComment extends StatelessWidget {
-  final List<Map<String, String>> adminComments; // ✅ Daftar komentar
+class ReportDetailStatusHistory extends StatelessWidget {
+  final List<ReportStatusHistory> statusHistory; // ✅ Daftar riwayat status
 
-  const ReportDetailAdminComment({super.key, required this.adminComments});
+  const ReportDetailStatusHistory({super.key, required this.statusHistory});
 
   @override
   Widget build(BuildContext context) {
@@ -12,20 +13,19 @@ class ReportDetailAdminComment extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12), // ✅ Border radius lebih kecil untuk tampilan modern
-        border: Border.all(color: Colors.grey.shade300, width: 1), // ✅ Border tipis tanpa shadow
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12), // ✅ Padding agar tidak terlalu padat
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 🔹 Judul "Proses Aduan"
+            // 🔹 Judul "Riwayat Perubahan Status"
             Row(
               children: const [
-                Icon(Icons.history, color: Colors.green, size: 20), // ✅ Tambahkan ikon
+                Icon(Icons.timeline, color: Colors.green, size: 20), // ✅ Tambahkan ikon
                 SizedBox(width: 8),
                 Text(
-                  "Proses Aduan",
+                  "Riwayat Perubahan Status",
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -36,64 +36,93 @@ class ReportDetailAdminComment extends StatelessWidget {
             ),
             const SizedBox(height: 10),
 
-            // 🔹 Tampilkan daftar komentar dengan pemisah
-            ListView.separated(
-              shrinkWrap: true, // ✅ Agar tidak menyebabkan overflow
-              physics: const NeverScrollableScrollPhysics(), // ✅ Gunakan scroll utama
-              itemCount: adminComments.length,
-              separatorBuilder: (context, index) => Divider(color: Colors.grey.shade300), // ✅ Pemisah antar komentar
-              itemBuilder: (context, index) {
-                final comment = adminComments[index];
+            // 🔹 Jika statusHistory kosong, tampilkan pesan
+            if (statusHistory.isEmpty)
+              Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Column(
+                  children: [
+                    Icon(Icons.hourglass_empty, color: Colors.grey.shade500, size: 40), // ⏳ Ikon menunggu
+                    const SizedBox(height: 8),
+                    const Text(
+                      "Belum ada tanggapan dari admin, mohon bersabar.",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 14, color: Colors.grey),
+                    ),
+                  ],
+                ),
+              )
+            else
+              ListView.separated(
+                shrinkWrap: true, // ✅ Agar tidak menyebabkan overflow
+                physics: const NeverScrollableScrollPhysics(), // ✅ Gunakan scroll utama
+                itemCount: statusHistory.length,
+                separatorBuilder: (context, index) => Divider(color: Colors.grey.shade300), // ✅ Pemisah antar status
+                itemBuilder: (context, index) {
+                  final history = statusHistory[index];
 
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // 🔹 Status dengan ikon
-                      Row(
-                        children: [
-                          const Icon(Icons.check_circle, color: Colors.blueGrey, size: 16),
-                          const SizedBox(width: 6),
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // 🔹 Status dengan ikon perubahan
+                        Row(
+                          children: [
+                            const Icon(Icons.check_circle, color: Colors.blueGrey, size: 16),
+                            const SizedBox(width: 6),
+                            Text(
+                              "${history.previousStatus} → ${history.newStatus}",
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+
+                        // 🔹 Isi Pesan Perubahan Status
+                        Text(
+                          history.message,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Colors.black87,
+                            height: 1.5,
+                          ),
+                          textAlign: TextAlign.justify,
+                        ),
+
+                        const SizedBox(height: 4),
+
+                        // 🔹 Admin yang Mengubah Status (Opsional)
+                        if (history.admin.username.isNotEmpty)
                           Text(
-                            comment['status'] ?? "Status tidak diketahui",
+                            "Diperbarui oleh: ${history.admin.username}",
                             style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black54,
                             ),
                           ),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
 
-                      // 🔹 Isi Komentar Admin
-                      Text(
-                        comment['comment'] ?? "Tidak ada komentar",
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: Colors.black87,
-                          height: 1.5,
+                        const SizedBox(height: 4),
+
+                        // 🔹 Tanggal Perubahan Status
+                        Text(
+                          history.createdAt,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey,
+                            fontStyle: FontStyle.italic,
+                          ),
                         ),
-                        textAlign: TextAlign.justify,
-                      ),
-
-                      const SizedBox(height: 4),
-
-                      // 🔹 Tanggal Komentar
-                      Text(
-                        comment['timestamp'] ?? "Waktu tidak diketahui",
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey,
-                          fontStyle: FontStyle.italic,
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
+                      ],
+                    ),
+                  );
+                },
+              ),
           ],
         ),
       ),

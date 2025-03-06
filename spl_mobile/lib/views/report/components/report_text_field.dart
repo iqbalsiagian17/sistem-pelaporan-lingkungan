@@ -4,12 +4,15 @@ class ReportTextField extends StatelessWidget {
   final String title;
   final String hint;
   final int maxLines;
+  final TextEditingController? controller; // ✅ Tambahkan controller
 
   const ReportTextField({
     super.key,
     required this.title,
     required this.hint,
     this.maxLines = 1,
+    this.controller, // ✅ Gunakan controller jika tersedia
+
   });
 
   @override
@@ -22,6 +25,7 @@ class ReportTextField extends StatelessWidget {
           child: Text(title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
         ),
         TextField(
+          controller: controller, // ✅ Gunakan controller untuk mengelola input
           maxLines: maxLines,
           decoration: InputDecoration(
             hintText: hint,

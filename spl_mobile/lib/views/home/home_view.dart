@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:spl_mobile/providers/user_report_provider.dart';
 import '../../widgets/bottom_navbar.dart';
 import '../../widgets/top_navbar.dart';
 import 'components/carousel_banner.dart';
@@ -13,6 +15,9 @@ class HomeView extends StatefulWidget {
   State<HomeView> createState() => _HomeViewState();
 }
 
+
+
+
 class _HomeViewState extends State<HomeView> {
   int _selectedIndex = 0;
 
@@ -23,6 +28,12 @@ class _HomeViewState extends State<HomeView> {
       // TODO: Panggil API atau perbarui data di sini
     });
   }
+
+@override
+void initState() {
+  super.initState();
+  Future.microtask(() => Provider.of<ReportProvider>(context, listen: false).fetchReports());
+}
 
   void _onNavItemTapped(int index) {
     setState(() {
@@ -111,6 +122,7 @@ class _HomeViewState extends State<HomeView> {
                 ),
                 child: const RecentReportsSection(),
               ),
+              SizedBox(height: 15),
             ],
           ),
         ),

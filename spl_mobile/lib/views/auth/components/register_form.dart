@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter/services.dart';
 import '../../../core/utils/validators.dart';
 import '../../../providers/auth_provider.dart';
-import '../../../widgets/show_snackbar.dart'; // ✅ Impor SnackbarHelper
-import 'package:flutter/services.dart';
-
+import '../../../widgets/show_snackbar.dart';
+import '../../../widgets/custom_input_field.dart';
+import '../../../widgets/custom_button.dart';
 
 class RegisterForm extends StatefulWidget {
   const RegisterForm({super.key});
@@ -21,6 +22,8 @@ class _RegisterFormState extends State<RegisterForm> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+  bool _isObscurePassword = true;
+  bool _isObscureConfirmPassword = true;
 
   @override
   void dispose() {
@@ -32,8 +35,9 @@ class _RegisterFormState extends State<RegisterForm> {
     super.dispose();
   }
 
-void _register() async {
-  if (_formKey.currentState!.validate()) {
+  void _register() async {
+    if (!_formKey.currentState!.validate()) return;
+
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     bool success = await authProvider.register(
       _phoneController.text.trim(),
@@ -43,33 +47,21 @@ void _register() async {
     );
 
     if (success) {
-      // ✅ Hapus data di input field
       _phoneController.clear();
       _usernameController.clear();
       _emailController.clear();
       _passwordController.clear();
       _confirmPasswordController.clear();
 
-      // ✅ Tampilkan notifikasi sukses
       SnackbarHelper.showSnackbar(context, "Registrasi berhasil! Silakan login.", isError: false);
 
-      // 🔥 **Gunakan pushReplacement untuk mengganti halaman**
       Future.delayed(const Duration(seconds: 1), () {
-        if (mounted) {
-          print("✅ Menggunakan pushReplacement ke /login...");
-          context.pushReplacement("/login");
-        }
+        if (mounted) context.pushReplacement("/login");
       });
     } else {
-      // ❌ Tampilkan notifikasi error jika registrasi gagal
       SnackbarHelper.showSnackbar(context, "Registrasi gagal. Coba lagi!", isError: true);
     }
   }
-}
-
-
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -77,97 +69,59 @@ void _register() async {
       key: _formKey,
       child: Column(
         children: [
-          TextFormField(
+          CustomInputField(
             controller: _phoneController,
-            keyboardType: TextInputType.phone, // ✅ Keyboard khusus nomor telepon
+            label: 'Nomor Telepon',
+            icon: Icons.phone,
+            keyboardType: TextInputType.phone,
+            validator: Validators.validatePhone,
             inputFormatters: [
-              FilteringTextInputFormatter.digitsOnly, // ✅ Hanya angka
-              LengthLimitingTextInputFormatter(15), // ✅ Maksimal 15 digit (sesuai standar internasional)
+              FilteringTextInputFormatter.digitsOnly,
+              LengthLimitingTextInputFormatter(15),
             ],
-            decoration: const InputDecoration(
-              prefixIcon: Icon(Icons.phone),
-              labelText: 'Nomor Telepon',
-              border: OutlineInputBorder(),
-            ),
-            validator: Validators.validatePhone, // ✅ Gunakan validator jika perlu
           ),
-          const SizedBox(height: 16),
-          TextFormField(
+          CustomInputField(
             controller: _usernameController,
-            decoration: const InputDecoration(
-              prefixIcon: Icon(Icons.person),
-              labelText: 'Username',
-              border: OutlineInputBorder(),
-            ),
+            label: 'Username',
+            icon: Icons.person,
             validator: Validators.validateNotEmpty,
           ),
-          const SizedBox(height: 16),
-          TextFormField(
+          CustomInputField(
             controller: _emailController,
-            decoration: const InputDecoration(
-              prefixIcon: Icon(Icons.email),
-              labelText: 'Email',
-              border: OutlineInputBorder(),
-            ),
+            label: 'Email',
+            icon: Icons.email,
             validator: Validators.validateEmail,
           ),
-          const SizedBox(height: 16),
-          TextFormField(
+          CustomInputField(
             controller: _passwordController,
-            obscureText: true,
-            decoration: const InputDecoration(
-              prefixIcon: Icon(Icons.lock),
-              labelText: 'Password',
-              border: OutlineInputBorder(),
-            ),
+            label: 'Password',
+            icon: Icons.lock,
+            isObscure: _isObscurePassword,
+            onToggleObscure: () => setState(() => _isObscurePassword = !_isObscurePassword),
             validator: Validators.validatePassword,
           ),
-          const SizedBox(height: 16),
-          // ✅ Konfirmasi Password
-          TextFormField(
+          CustomInputField(
             controller: _confirmPasswordController,
-            obscureText: true,
-            decoration: const InputDecoration(
-              prefixIcon: Icon(Icons.lock_outline),
-              labelText: 'Konfirmasi Password',
-              border: OutlineInputBorder(),
-            ),
+            label: 'Konfirmasi Password',
+            icon: Icons.lock_outline,
+            isObscure: _isObscureConfirmPassword,
+            onToggleObscure: () => setState(() => _isObscureConfirmPassword = !_isObscureConfirmPassword),
             validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Konfirmasi password tidak boleh kosong';
-              }
-              if (value != _passwordController.text) {
-                return 'Password tidak cocok';
-              }
+              if (value == null || value.isEmpty) return 'Konfirmasi password tidak boleh kosong';
+              if (value != _passwordController.text) return 'Password tidak cocok';
               return null;
             },
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 20),
           Consumer<AuthProvider>(
             builder: (context, auth, child) {
-              return SizedBox(
-                width: double.infinity,
-                child: OutlinedButton(
-                  onPressed: auth.isLoading ? null : _register,
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    side: const BorderSide(color: Color(0xFF6c757d)),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    foregroundColor: const Color(0xFF6c757d),
-                  ).copyWith(
-                    overlayColor: WidgetStateProperty.all(
-                      const Color.fromRGBO(227, 233, 250, 1),
-                    ),
-                  ),
-                  child: auth.isLoading
-                      ? const CircularProgressIndicator()
-                      : const Text(
-                          "Daftar",
-                          style: TextStyle(fontSize: 16),
-                        ),
-                ),
+              return CustomButton(
+                text: "Daftar",
+                onPressed: auth.isLoading ? () {} : _register, // ✅ Gunakan fungsi kosong jika loading
+                isLoading: auth.isLoading,
+                isOutlined: true, // ✅ Gunakan outlined button agar konsisten dengan login
+                textColor: const Color(0xFF6c757d),
+                borderColor: const Color(0xFF6c757d),
               );
             },
           ),

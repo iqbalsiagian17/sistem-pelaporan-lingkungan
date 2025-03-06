@@ -32,9 +32,10 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       defaultValue: 0
     },
-    profile_picture: {
-      type: DataTypes.STRING,
-      allowNull: true
+    blocked_until: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      defaultValue: null // **User tidak diblokir secara default**
     }
   }, {
     sequelize,
