@@ -90,25 +90,23 @@ Future<Report?> getReportById(String reportId) async {
     });
 
     // ✅ Tambahkan file jika ada
-    if (attachments != null && attachments.isNotEmpty) {
-      for (var i = 0; i < attachments.length; i++) {
-      for (var file in attachments) {
-  String fileName = file.path.split('/').last;
-  formData.files.add(
-    MapEntry(
-      "attachments", // ✅ Gunakan nama key sesuai dengan backend
-      await MultipartFile.fromFile(
-        file.path,
-        filename: fileName,
-        contentType: MediaType("image", "jpeg"),
+// ✅ Pastikan hanya ada satu loop untuk menghindari duplikasi
+if (attachments != null && attachments.isNotEmpty) {
+  for (var file in attachments) { 
+    String fileName = file.path.split('/').last;
+    formData.files.add(
+      MapEntry(
+        "attachments", // ⚠ Sesuaikan dengan backend, mungkin "attachments[]"
+        await MultipartFile.fromFile(
+          file.path,
+          filename: fileName,
+          contentType: MediaType("image", "jpeg"),
+        ),
       ),
-    ),
-  );
+    );
+  }
 }
 
-    }
-
-    }
 
     final response = await _dio.post(
       '${ApiConstants.userReportUrl}/create',

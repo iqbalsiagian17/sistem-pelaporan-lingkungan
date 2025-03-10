@@ -1,7 +1,9 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:spl_mobile/core/constants/api.dart';
+import 'package:spl_mobile/core/utils/status_utils.dart';
 import '../../../routes/app_routes.dart';
 import '../../../providers/user_report_provider.dart';
 
@@ -12,10 +14,15 @@ class RecentReportsSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<ReportProvider>(
       builder: (context, reportProvider, child) {
+
+        final filteredReports = reportProvider.reports.where((report) =>
+            ['verified', 'in_progress', 'completed', 'closed']
+                .contains(report.status)).toList();
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 🔥 Judul & Lihat Semua
+            // 🔹 Judul & Tombol "Lihat Semua"
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Row(
@@ -46,59 +53,53 @@ class RecentReportsSection extends StatelessWidget {
             ),
             const SizedBox(height: 8),
 
-            // 📄 List Aduan Terbaru
+            // 🔹 List Aduan Terbaru
             if (reportProvider.isLoading)
-              const Center(child: CircularProgressIndicator()) // ⏳ Loading indicator
+              const Center(child: CircularProgressIndicator()) // ⏳ Loading
             else if (reportProvider.errorMessage != null)
-              Center(child: Text(reportProvider.errorMessage!, style: const TextStyle(color: Colors.red))) // ❌ Tampilkan error
-            else if (reportProvider.reports.isEmpty)
+              Center(child: Text(reportProvider.errorMessage!, style: const TextStyle(color: Colors.red))) // ❌ Error
+            else if (filteredReports.isEmpty)
               const Center(child: Text("Tidak ada aduan terbaru.")) // 📝 Tidak ada data
             else
               ListView.builder(
-                itemCount: reportProvider.reports.length,
+                itemCount: filteredReports.length,
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 itemBuilder: (context, index) {
-                  final report = reportProvider.reports[index];
+                  final report = filteredReports[index];
 
-                  // 🔹 Ambil hanya satu gambar pertama dari `attachments`, jika ada
-                  String imageUrl = report.attachments.isNotEmpty
+                  // ✅ Ambil URL gambar pertama dari attachments jika ada
+                  String imageUrl = (report.attachments.isNotEmpty)
                       ? "${ApiConstants.baseUrl}/${report.attachments.first.file}"
                       : "";
 
-                  return GestureDetector(
-                  onTap: () {
-                    context.push('/report-detail', extra: report); // ✅ Hanya gunakan `/report-detail`
-                  },
-
-
+                  return InkWell(
+                    onTap: () {
+                      context.push('/report-detail', extra: report);
+                    },
+                    borderRadius: BorderRadius.circular(12),
+                    splashColor: Colors.green.withOpacity(0.2), // ✅ Efek klik lebih interaktif
                     child: Padding(
-                      key: ValueKey(report.id), // ✅ Gunakan key unik berdasarkan ID laporan
+                      key: ValueKey(report.id),
                       padding: const EdgeInsets.only(bottom: 12.0),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // 🖼 Gambar Aduan
+                          // 🖼 Gambar Aduan dengan CachedNetworkImageProvider
                           if (imageUrl.isNotEmpty)
                             ClipRRect(
                               borderRadius: BorderRadius.circular(12),
-                              child: Image.network(
-                                imageUrl,
+                              child: CachedNetworkImage(
+                                imageUrl: imageUrl,
                                 width: 80,
                                 height: 80,
                                 fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return Image.asset(
-                                    "assets/images/report/report1.jpg",
-                                    width: 80,
-                                    height: 80,
-                                    fit: BoxFit.cover,
-                                  );
-                                },
+                                placeholder: (context, url) => _loadingPlaceholder(),
+                                errorWidget: (context, url, error) => _defaultImage(),
                               ),
                             ),
-                          if (imageUrl.isNotEmpty) const SizedBox(width: 12), // Beri jarak jika ada gambar
+                          if (imageUrl.isNotEmpty) const SizedBox(width: 12),
 
                           // 📝 Info Aduan
                           Expanded(
@@ -120,17 +121,20 @@ class RecentReportsSection extends StatelessWidget {
                                   style: const TextStyle(fontSize: 12, color: Colors.grey),
                                 ),
                                 const SizedBox(height: 4),
-                                Container(
+
+                                // 🔹 Status Aduan dengan Animasi Warna
+                                AnimatedContainer(
+                                  duration: const Duration(milliseconds: 300),
                                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFFE9DFFF),
+                                    color: StatusUtils.getStatusColor(report.status),
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: Text(
-                                    report.status,
+                                    StatusUtils.getTranslatedStatus(report.status),
                                     style: const TextStyle(
                                       fontSize: 12,
-                                      color: Color(0xFF9C27B0),
+                                      color: Colors.white,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
@@ -139,10 +143,10 @@ class RecentReportsSection extends StatelessWidget {
                             ),
                           ),
 
-                          // 🔖 Icon Bookmark (Bisa ditambahkan fungsionalitas)
+                          // 🔖 Icon Bookmark (Jika ada fitur bookmark nanti)
                           IconButton(
                             onPressed: () {
-                              // TODO: Tambahkan aksi bookmark
+                              // TODO: Implementasi fitur bookmark
                             },
                             icon: const Icon(Icons.bookmark_border, color: Colors.black54),
                           ),
@@ -155,6 +159,29 @@ class RecentReportsSection extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+
+  // 🔹 Placeholder saat gambar loading
+  Widget _loadingPlaceholder() {
+    return Container(
+      width: 80,
+      height: 80,
+      decoration: BoxDecoration(
+        color: Colors.grey[300],
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: const Center(child: CircularProgressIndicator(strokeWidth: 1.5)),
+    );
+  }
+
+  // 🔹 Gambar default jika gagal dimuat
+  Widget _defaultImage() {
+    return Image.asset(
+      "assets/images/report/report1.jpg",
+      width: 80,
+      height: 80,
+      fit: BoxFit.cover,
     );
   }
 }

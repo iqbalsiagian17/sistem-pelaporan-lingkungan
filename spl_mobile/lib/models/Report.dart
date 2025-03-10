@@ -43,12 +43,6 @@ factory Report.fromJson(Map<String, dynamic> json) {
 
   print("📢 Debugging JSON dari API di Flutter: $reportData");
 
-  if (reportData.containsKey('statusHistory')) {
-    print("🔥 statusHistory ditemukan! Data: ${reportData['statusHistory']}");
-  } else {
-    print("⚠️ statusHistory TIDAK ditemukan di JSON!");
-  }
-
   return Report(
     id: reportData['id'] ?? 0,
     userId: reportData['user_id'] ?? 0,
@@ -74,11 +68,22 @@ factory Report.fromJson(Map<String, dynamic> json) {
         ? (reportData['statusHistory'] as List)
             .map((history) {
                 print("📢 Parsing statusHistory: $history");
-                return ReportStatusHistory.fromJson(history);
+                return history != null
+                    ? ReportStatusHistory.fromJson(history) // ✅ Pastikan tidak `null`
+                    : ReportStatusHistory(
+                        id: 0,
+                        previousStatus: "unknown",
+                        newStatus: "unknown",
+                        message: "Tidak ada data",
+                        createdAt: "0000-00-00T00:00:00.000Z",
+                        admin: User(id: 0, username: "Unknown", email: "", phoneNumber: "", type: 0),
+                      );
             }).toList()
-        : [], // ✅ Sekarang mengambil dari `reportData['statusHistory']`
+        : [], // ✅ Pastikan `statusHistory` tidak null
   );
 }
+
+
 
 
 

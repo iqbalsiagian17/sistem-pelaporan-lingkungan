@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:spl_mobile/routes/app_routes.dart';
 import '../../../widgets/menu_item.dart';
 
 class QuickAccessMenu extends StatelessWidget {
@@ -17,26 +19,28 @@ class QuickAccessMenu extends StatelessWidget {
         children: [
           MenuItemWidget(
             title: 'Aduan',
-            icon: Icons.report_gmailerrorred_rounded,
-            color: Colors.redAccent,
-            onTap: () {},
+            icon: Icons.report_problem_rounded,
+            color: Colors.green.shade600, // ✅ Warna Hijau Gelap
+            onTap: () {
+              context.go(AppRoutes.allReport); // ✅ Navigasi ke ReportListAllView
+            },
           ),
           MenuItemWidget(
             title: 'Forum',
-            icon: Icons.article_outlined,
-            color: Colors.blueAccent,
+            icon: Icons.forum_rounded,
+            color: Colors.green.shade500, // ✅ Warna Hijau Medium
             onTap: () {},
           ),
           MenuItemWidget(
             title: 'Pengumuman',
-            icon: Icons.calendar_today,
-            color: Colors.teal,
+            icon: Icons.campaign_rounded,
+            color: Colors.green.shade400, // ✅ Warna Hijau Muda
             onTap: () {},
           ),
           MenuItemWidget(
             title: 'Darurat',
             icon: Icons.warning_amber_rounded,
-            color: Colors.orangeAccent,
+            color: Colors.green.shade700, // ✅ Warna Hijau Tua
             onTap: () {},
           ),
         ],

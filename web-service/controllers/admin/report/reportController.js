@@ -12,12 +12,18 @@ exports.getAllReports = async (req, res) => {
       order: [['createdAt', 'DESC']]
     });
 
-    res.status(200).json({ message: 'Daftar laporan berhasil diambil', reports });
+    // Jika tidak ada laporan, tetap kembalikan array kosong
+    if (!reports || reports.length === 0) {
+      return res.status(200).json({ message: "Tidak ada laporan yang tersedia", reports: [] });
+    }
+
+    res.status(200).json({ message: "Daftar laporan berhasil diambil", reports });
   } catch (error) {
-    console.error('Error fetching reports:', error);
-    res.status(500).json({ message: 'Terjadi kesalahan server', error: error.message });
+    console.error("Error fetching reports:", error);
+    res.status(500).json({ message: "Terjadi kesalahan server", error: error.message });
   }
 };
+
 
 // ✅ MELIHAT DETAIL LAPORAN (Admin Only)
 exports.getReportById = async (req, res) => {

@@ -1,0 +1,68 @@
+[
+    {
+        "header": "",
+        "items": [
+            {
+                "text": "Dashboard",
+                "icon": "bx bx-home",
+                "available": true,
+                "link": "/"
+            }
+        ]
+    },
+    {
+        "header": "LAPORAN",
+        "items": [
+            {
+                "text": "Laporan",
+                "icon": "bx bx-clipboard",
+                "available": true,
+                "link": "/reports"
+            }
+        ]
+    },
+    {
+        "header": "PENGGUNA",
+        "items": [
+            {
+                "text": "Pengguna",
+                "icon": "bx bx-user",
+                "available": true,
+                "link": "/users"
+            }
+        ]
+    },
+    {
+        "header": "FORUM",
+        "items": [
+            {
+                "text": "Forum",
+                "icon": "bx bx-message-square-detail",
+                "available": true,
+                "link": "/forum"
+            }
+        ]
+    },
+    {
+        "header": "PENGUMUMAN",
+        "items": [
+            {
+                "text": "Pengumuman",
+                "icon": "bx bx-speaker",
+                "available": true,
+                "link": "/announcements"
+            }
+        ]
+    },
+    {
+        "header": "BANNER",
+        "items": [
+            {
+                "text": "Banner",
+                "icon": "bx bx-image",
+                "available": true,
+                "link": "/banners"
+            }
+        ]
+    }
+]

@@ -72,43 +72,18 @@ const login = async (req, res) => {
             profile_picture: user.profile_picture
         };
 
-        if (client === "react") {
-            // **React menggunakan Refresh Token + HTTP-only cookies**
-            const refreshToken = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: "7d" });
+        // **React & Flutter sama-sama menerima token dalam JSON response**
+        return res.json({
+            message: 'Login successful',
+            user: userData,
+            token: accessToken // ✅ Token dikirim langsung dalam response
+        });
 
-            // Simpan refresh token di HTTP-only cookie
-            res.cookie('refreshToken', refreshToken, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: 'Strict'
-            });
-
-            // Simpan access token di HTTP-only cookie
-            res.cookie('accessToken', accessToken, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: 'Strict'
-            });
-
-            return res.json({
-                message: 'Login successful',
-                user: userData,
-                token: accessToken
-            });
-        } else if (client === "flutter") {
-            // **Flutter hanya menerima access token dalam JSON response**
-            return res.json({
-                message: 'Login successful',
-                user: userData,
-                token: accessToken // ✅ Token dikirim dalam response
-            });
-        } else {
-            return res.status(400).json({ message: "Invalid client type" });
-        }
     } catch (error) {
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
+
 
 
 

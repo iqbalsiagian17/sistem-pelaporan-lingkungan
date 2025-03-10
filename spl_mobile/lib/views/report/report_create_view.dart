@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:spl_mobile/routes/app_routes.dart';
+import 'package:spl_mobile/widgets/show_snackbar.dart';
 import '../../providers/user_report_provider.dart';
 import '../../widgets/bottom_navbar.dart';
 import 'components/report_topbar.dart';
@@ -29,64 +30,94 @@ class _ReportCreateViewState extends State<ReportCreateView> {
   bool isSubmitting = false;
   List<File> attachments = []; // ✅ List untuk menyimpan gambar yang dipilih
 
+  double? latitude;  // ✅ Deklarasikan variabel latitude
+  double? longitude; // ✅ Deklarasikan variabel longitude
+
   Future<void> _submitReport() async {
-    if (_titleController.text.isEmpty || _descriptionController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("⚠️ Judul dan rincian aduan wajib diisi!")),
+  if (_titleController.text.isEmpty || _descriptionController.text.isEmpty) {
+    SnackbarHelper.showSnackbar(context, "Judul dan rincian aduan wajib diisi!", isError: true);
+    return;
+  }
+
+  if (!isAtLocation && _locationController.text.isEmpty) {
+    SnackbarHelper.showSnackbar(context, "Lokasi kejadian (Desa/Kelurahan) wajib diisi!", isError: true);
+    return;
+  }
+
+  if (attachments.isEmpty) {
+    SnackbarHelper.showSnackbar(context, "Minimal 1 gambar harus diunggah!", isError: true);
+    return;
+  }
+
+  if (attachments.length > 5) {
+    SnackbarHelper.showSnackbar(context, "Maksimal 5 gambar dapat diunggah!", isError: true);
+    return;
+  }
+
+  setState(() => isSubmitting = true);
+
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString("token");
+
+    if (token == null || token.isEmpty) {
+      throw Exception("❌ Tidak ada token. Silakan login ulang.");
+    }
+
+    final reportProvider = Provider.of<ReportProvider>(context, listen: false);
+
+    // ✅ Cek apakah user masih memiliki laporan yang belum selesai
+    if (reportProvider.hasPendingReports()) {
+      setState(() => isSubmitting = false);
+      SnackbarHelper.showSnackbar(
+        context,
+        "Anda masih memiliki laporan yang belum selesai'.",
+        isError: true,
       );
       return;
     }
 
-    setState(() => isSubmitting = true);
+    // ✅ Hanya kirim gambar unik
+    final Set<String> uniquePaths = {};
+    final List<File> uniqueFiles = attachments.where((file) {
+      return uniquePaths.add(file.path);
+    }).toList();
 
-    try {
-      // ✅ Ambil token dari SharedPreferences
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString("token");
 
-      if (token == null || token.isEmpty) {
-        throw Exception("❌ Tidak ada token. Silakan login ulang.");
-      }
+    bool success = await reportProvider.createReport(
+      title: _titleController.text,
+      description: _descriptionController.text,
+      date: DateTime.now().toIso8601String(),
+      locationDetails: isAtLocation ? _detailLocationController.text : null,
+      village: !isAtLocation ? _locationController.text : null,
+      latitude: isAtLocation ? latitude?.toString() ?? "0.0" : null,
+      longitude: isAtLocation ? longitude?.toString() ?? "0.0" : null,
+      isAtLocation: isAtLocation,
+      attachments: uniqueFiles,
+    );
 
-      final reportProvider = Provider.of<ReportProvider>(context, listen: false);
-      bool success = await reportProvider.createReport(
-        title: _titleController.text,
-        description: _descriptionController.text,
-        date: DateTime.now().toIso8601String(),
-        locationDetails: isAtLocation ? _detailLocationController.text : null,
-        village: !isAtLocation ? _locationController.text : null,
-        latitude: isAtLocation ? "0.0" : null,
-        longitude: isAtLocation ? "0.0" : null,
-        isAtLocation: isAtLocation,
-        attachments: attachments, // ✅ Kirim gambar ke backend
-      );
+    setState(() => isSubmitting = false);
 
-      setState(() => isSubmitting = false);
-
-      if (success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("✅ Laporan berhasil dikirim!")),
-        );
-
-        // 🚀 **Tunggu 500ms, lalu navigasi ke halaman Home**
-        Future.delayed(Duration(seconds: 1), () {
-          if (context.mounted) {
-            context.go(AppRoutes.home);
-          }
-        });
-
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("❌ Gagal mengirim laporan.")),
-        );
-      }
-    } catch (e) {
-      setState(() => isSubmitting = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("⚠️ Error: $e")),
-      );
+    if (success) {
+      SnackbarHelper.showSnackbar(context, "✅ Laporan berhasil dikirim!");
+      Future.delayed(const Duration(milliseconds: 500), () {
+        if (context.mounted) {
+          context.go(AppRoutes.home);
+        }
+      });
+    } else {
+      SnackbarHelper.showSnackbar(context, "❌ Gagal mengirim laporan.", isError: true);
     }
+  } catch (e) {
+    setState(() => isSubmitting = false);
+    SnackbarHelper.showSnackbar(context, "⚠️ Error: $e", isError: true);
   }
+}
+
+
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -117,14 +148,37 @@ class _ReportCreateViewState extends State<ReportCreateView> {
             ReportTextField(controller: _detailLocationController, title: "Detail Lokasi (Opsional)", hint: "Tambahkan detail lokasi kejadian"),
             const SizedBox(height: 16),
             
-            // ✅ Perbaikan pemanggilan ReportUploadButtons tanpa isAtLocation
-            ReportUploadButtons(
-              onFilesSelected: (files) {
-                setState(() {
-                  attachments = files;
-                });
-              },
-            ),
+ // ✅ Pastikan ReportUploadButtons mengirim koordinat ke ReportCreateView
+ReportUploadButtons(
+  isAtLocation: isAtLocation,
+  onFilesSelected: (files) {
+    setState(() {
+      final Set<String> uniquePaths = {};
+      List<File> uniqueFiles = [];
+
+      for (var file in files) {
+        if (uniquePaths.add(file.path)) { 
+          uniqueFiles.add(file);
+        }
+      }
+
+      attachments = uniqueFiles; // Pastikan hanya menyimpan gambar unik
+    });
+
+print("DEBUG: Jumlah gambar yang dikirim ke API -> ${attachments.length}");
+print("DEBUG: Paths gambar yang dikirim -> ${attachments.map((file) => file.path).toList()}");
+  },
+  onLocationCaptured: (lat, long) {
+    setState(() {
+      latitude = lat;
+      longitude = long;
+    });
+  },
+),
+
+
+
+
 
             const SizedBox(height: 30),
             SizedBox(

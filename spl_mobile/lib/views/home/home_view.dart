@@ -15,31 +15,25 @@ class HomeView extends StatefulWidget {
   State<HomeView> createState() => _HomeViewState();
 }
 
-
-
-
 class _HomeViewState extends State<HomeView> {
   int _selectedIndex = 0;
 
-  /// 🌀 Fungsi untuk merefresh data (simulasi dengan delay 1 detik)
+  /// 🌀 Fungsi untuk merefresh data
   Future<void> _refreshContent() async {
-    await Future.delayed(const Duration(seconds: 1));
-    setState(() {
-      // TODO: Panggil API atau perbarui data di sini
-    });
+    await Provider.of<ReportProvider>(context, listen: false).fetchReports();
+    setState(() {});
   }
 
-@override
-void initState() {
-  super.initState();
-  Future.microtask(() => Provider.of<ReportProvider>(context, listen: false).fetchReports());
-}
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() => Provider.of<ReportProvider>(context, listen: false).fetchReports());
+  }
 
   void _onNavItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
-    // TODO: Navigasi sesuai index
   }
 
   @override
@@ -48,15 +42,14 @@ void initState() {
       backgroundColor: const Color(0xFFF8F9FA),
       appBar: const TopBar(title: "Balige Bersih"),
       body: RefreshIndicator(
-        onRefresh: _refreshContent, 
-        color: const Color(0xFF1976D2), 
-        backgroundColor: Colors.white, 
+        onRefresh: _refreshContent,
+        color: const Color(0xFF1976D2),
+        backgroundColor: Colors.white,
         child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(), 
+          physics: const AlwaysScrollableScrollPhysics(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 📦 Container: Carousel & Quick Access Menu
               Container(
                 width: double.infinity,
                 decoration: BoxDecoration(
@@ -80,8 +73,6 @@ void initState() {
                   ],
                 ),
               ),
-
-              // 📂 Container: Topik Aduan Populer
               Container(
                 width: double.infinity,
                 margin: const EdgeInsets.only(top: 16),
@@ -104,8 +95,6 @@ void initState() {
                   ],
                 ),
               ),
-
-              // 📝 Container: Laporan Terbaru
               Container(
                 width: double.infinity,
                 margin: const EdgeInsets.only(top: 16, bottom: 16),
@@ -122,7 +111,7 @@ void initState() {
                 ),
                 child: const RecentReportsSection(),
               ),
-              SizedBox(height: 15),
+              const SizedBox(height: 15),
             ],
           ),
         ),

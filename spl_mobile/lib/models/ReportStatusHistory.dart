@@ -14,21 +14,21 @@ class ReportStatusHistory {
     required this.newStatus,
     required this.message,
     required this.createdAt,
-    required this.admin, // ✅ Tambahkan admin agar sesuai dengan JSON
+    required this.admin, // ✅ Pastikan admin tidak null
   });
 
   factory ReportStatusHistory.fromJson(Map<String, dynamic> json) {
-    print("📢 Debugging JSON statusHistory di Flutter: $json"); // ✅ Debug tiap item statusHistory
+    print("📢 Debugging JSON statusHistory di Flutter: $json");
 
     return ReportStatusHistory(
       id: json['id'] ?? 0,
       previousStatus: json['previous_status'] ?? 'pending',
       newStatus: json['new_status'] ?? 'pending',
-      message: json['message'] ?? '',
-      createdAt: json['createdAt'] ?? '',
+      message: json['message'] ?? 'Tidak ada pesan',
+      createdAt: json['createdAt'] ?? '0000-00-00T00:00:00.000Z',
       admin: json.containsKey('admin') && json['admin'] != null
-          ? User.fromJson(json['admin']) // ✅ Parsing `admin` dengan benar
-          : User(id: 0, username: "Unknown", email: "", phoneNumber: "", type: 1),
+          ? User.fromJson(json['admin']) // ✅ Tangani admin jika tersedia
+          : User(id: 0, username: "Admin Tidak Diketahui", email: "unknown", phoneNumber: "", type: 1),
     );
   }
 
@@ -39,7 +39,7 @@ class ReportStatusHistory {
       "new_status": newStatus,
       "message": message,
       "createdAt": createdAt,
-      "admin": admin.toJson(), // ✅ Pastikan admin juga dikonversi ke JSON
+      "admin": admin.toJson(),
     };
   }
 }

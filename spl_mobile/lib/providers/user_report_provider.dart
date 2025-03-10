@@ -69,6 +69,9 @@ Future<Report?> getReportById(String reportId) async {
   }
 }
 
+  bool hasPendingReports() {
+    return _reports.any((report) => report.status != "closed");
+  }
 
 
   // ✅ Tambah laporan baru
@@ -87,6 +90,11 @@ Future<Report?> getReportById(String reportId) async {
     notifyListeners();
 
     try {
+
+      if (hasPendingReports()) {
+        throw Exception("🚫 Anda masih memiliki laporan yang belum selesai. Harap tunggu hingga laporan sebelumnya berstatus 'closed'.");
+      }
+
       final token = await _getToken();
       if (token == null || token.isEmpty) {
         throw Exception("❌ Tidak ada token. Silakan login ulang.");

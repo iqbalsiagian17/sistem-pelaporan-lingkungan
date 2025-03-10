@@ -48,9 +48,9 @@ class ReportDetailView extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         ReportDetailImage(
-                          imageUrl: (report.attachments.isNotEmpty && report.attachments.first.file.isNotEmpty)
-                              ? "${ApiConstants.baseUrl}/${report.attachments.first.file}"
-                              : "assets/images/default.jpg",
+                          imageUrls: report.attachments.isNotEmpty
+                              ? report.attachments.map((attachment) => "${ApiConstants.baseUrl}/${attachment.file}").toList()
+                              : ["assets/images/default.jpg"],
                         ),
                         Padding(
                           padding: const EdgeInsets.all(16.0),
