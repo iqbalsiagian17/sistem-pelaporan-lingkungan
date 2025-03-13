@@ -54,32 +54,34 @@ class _ProfileEditFormState extends State<ProfileEditForm> {
   }
 
   void _saveProfile() async {
-    if (!_formKey.currentState!.validate()) return;
+  if (!_formKey.currentState!.validate()) return;
 
-    setState(() => _isSaving = true);
+  setState(() => _isSaving = true);
 
-    final profileProvider = context.read<UserProfileProvider>();
-    final authProvider = context.read<AuthProvider>();
+  final profileProvider = context.read<UserProfileProvider>();
+  final authProvider = context.read<AuthProvider>();
 
-    bool success = await profileProvider.saveUser({
-      "username": _usernameController.text.trim(),
-      "email": _emailController.text.trim(),
-      "phone_number": _phoneController.text.trim(),
-    });
+  bool success = await profileProvider.saveUser({
+    "username": _usernameController.text.trim(),
+    "email": _emailController.text.trim(),
+    "phone_number": _phoneController.text.trim(),
+  });
 
-    if (!mounted) return;
-    setState(() => _isSaving = false);
+  if (!mounted) return;
+  setState(() => _isSaving = false);
 
-    if (success) {
-      await profileProvider.loadUser();
-      await authProvider.refreshUser();
+  if (success) {
+    await profileProvider.refreshUser(); // ✅ Pastikan data user diperbarui setelah update
+    await authProvider.refreshUser(); // ✅ Pastikan authProvider juga mendapatkan data terbaru
 
-      SnackbarHelper.showSnackbar(context, "Profil berhasil diperbarui!", isError: false);
-      Future.microtask(() => context.go(AppRoutes.profile));
-    } else {
-      SnackbarHelper.showSnackbar(context, "Gagal memperbarui profil", isError: true);
-    }
+    SnackbarHelper.showSnackbar(context, "Profil berhasil diperbarui!", isError: false);
+    Future.microtask(() => context.go(AppRoutes.profile)); // ✅ Kembali ke halaman profil setelah update
+  } else {
+    SnackbarHelper.showSnackbar(context, "Gagal memperbarui profil", isError: true);
   }
+}
+
+
 
   @override
   Widget build(BuildContext context) {

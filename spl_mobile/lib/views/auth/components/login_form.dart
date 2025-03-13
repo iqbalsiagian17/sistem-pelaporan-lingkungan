@@ -33,28 +33,43 @@ class _LoginFormState extends State<LoginForm> {
   void _login() async {
     if (!_formKey.currentState!.validate()) return;
 
+    // ✅ Tutup keyboard sebelum login
+    FocusScope.of(context).unfocus();
+
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    bool success = await authProvider.login(
-      _identifierController.text.trim(),
-      _passwordController.text.trim(),
-    );
 
-    if (success) {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('isLoggedIn', true);
+    try {
+      bool success = await authProvider.login(
+        _identifierController.text.trim(),
+        _passwordController.text.trim(),
+      );
 
-      if (mounted) {
-        SnackbarHelper.showSnackbar(context, "Login berhasil!", isError: false);
-        GoRouter.of(context).go(AppRoutes.home);
+      if (success) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('isLoggedIn', true);
+
+        if (mounted) {
+          SnackbarHelper.showSnackbar(context, "Login berhasil!", isError: false);
+          GoRouter.of(context).go(AppRoutes.home);
+        }
+      } else {
+        if (mounted) {
+          SnackbarHelper.showSnackbar(
+            context,
+            authProvider.errorMessage ?? "Login gagal. Periksa email/nomor telepon dan password!",
+            isError: true,
+          );
+        }
       }
-    } else {
+    } catch (e) {
       if (mounted) {
         SnackbarHelper.showSnackbar(
           context,
-          authProvider.errorMessage ?? "Login gagal. Periksa email/nomor telepon dan password!",
+          "Terjadi kesalahan saat login. Coba lagi nanti.",
           isError: true,
         );
       }
+      print("❌ Error saat login: $e");
     }
   }
 

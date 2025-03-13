@@ -21,86 +21,91 @@ class UserProfileProvider with ChangeNotifier {
   }
 
   // ✅ Ambil User dari Backend
-Future<void> loadUser() async {
-  try {
-    final response = await _userProfileService.getUserProfile();
-    if (response.containsKey("data")) {
-      _user = User.fromJson(response["data"]);
+  Future<void> loadUser() async {
+    try {
+      final response = await _userProfileService.getUserProfile();
+      if (response.containsKey("data")) {
+        _user = User.fromJson(response["data"]);
 
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString("username", _user!.username);
-      await prefs.setString("email", _user!.email);
-      await prefs.setString("phone_number", _user!.phoneNumber);
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString("username", _user!.username);
+        await prefs.setString("email", _user!.email);
+        await prefs.setString("phone_number", _user!.phoneNumber);
 
-      notifyListeners();
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint("❌ Error loading user: $e");
     }
-  } catch (e) {
-    debugPrint("❌ Error loading user: $e");
   }
-}
 
-
-
-Future<void> refreshUser() async {
-    await loadUser(); // Reload user data
+  // ✅ Paksa refresh user data dan update UI
+  Future<void> refreshUser() async {
+    await loadUser();
+    Future.microtask(() {
+      notifyListeners();
+    });
   }
 
   // ✅ Simpan / Update User
-Future<bool> saveUser(Map<String, dynamic> data) async {
-  _isLoading = true;
-  notifyListeners();
+  Future<bool> saveUser(Map<String, dynamic> data) async {
+    _isLoading = true;
+    notifyListeners();
 
-  try {
-    final response = await _userProfileService.updateUserProfile(data);
+    try {
+      final response = await _userProfileService.updateUserProfile(data);
 
-    if (response.containsKey("error")) {
-      throw Exception(response["error"]);
+      if (response.containsKey("error")) {
+        throw Exception(response["error"]);
+      }
+
+      // ✅ Perbarui SharedPreferences agar sinkron dengan server
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString("username", data["username"] ?? "");
+      await prefs.setString("email", data["email"] ?? "");
+      await prefs.setString("phone_number", data["phone_number"] ?? "");
+
+      await refreshUser(); // ✅ Ambil data terbaru setelah update
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _isLoading = false;
+      _errorMessage = "❌ Error menyimpan data user: $e";
+      notifyListeners();
+      debugPrint(_errorMessage);
+      return false;
     }
-
-    await loadUser(); // ✅ Ambil data terbaru setelah update
-    _isLoading = false;
-    notifyListeners();
-    return true;
-  } catch (e) {
-    _isLoading = false;
-    _errorMessage = "❌ Error menyimpan data user: $e";
-    notifyListeners();
-    debugPrint(_errorMessage);
-    return false;
   }
-}
-
 
   // ✅ Ubah Password
-Future<bool> changePassword(String oldPassword, String newPassword) async {
-  _isLoading = true;
-  notifyListeners();
+  Future<bool> changePassword(String oldPassword, String newPassword) async {
+    _isLoading = true;
+    notifyListeners();
 
-  try {
-    debugPrint("🔄 Mengubah password...");
+    try {
+      debugPrint("🔄 Mengubah password...");
 
-    final response = await _userProfileService.changePassword(oldPassword, newPassword);
-    debugPrint("✅ Respons API: $response");
+      final response = await _userProfileService.changePassword(oldPassword, newPassword);
+      debugPrint("✅ Respons API: $response");
 
-    if (response.containsKey("error")) {
-      throw Exception(response["error"]);
+      if (response.containsKey("error")) {
+        throw Exception(response["error"]);
+      }
+
+      // 🔥 Pastikan data user diperbarui setelah password berubah
+      await refreshUser();
+      debugPrint("✅ User data berhasil diperbarui setelah perubahan password");
+
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _isLoading = false;
+      _errorMessage = "❌ Error saat mengubah password: $e";
+      notifyListeners();
+      debugPrint(_errorMessage);
+      return false;
     }
-
-    // 🔥 Pastikan data user diperbarui setelah password berubah
-    await refreshUser();
-    debugPrint("✅ User data berhasil diperbarui setelah perubahan password");
-
-    _isLoading = false;
-    notifyListeners();
-    return true;
-  } catch (e) {
-    _isLoading = false;
-    _errorMessage = "❌ Error saat mengubah password: $e";
-    notifyListeners();
-    debugPrint(_errorMessage);
-    return false;
   }
-}
-
-
 }

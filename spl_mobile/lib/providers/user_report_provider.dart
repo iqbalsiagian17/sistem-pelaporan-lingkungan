@@ -70,8 +70,16 @@ Future<Report?> getReportById(String reportId) async {
 }
 
   bool hasPendingReports() {
-    return _reports.any((report) => report.status != "closed");
+    if (_reports.isEmpty) return false; // Jika belum ada laporan, langsung return false
+
+    int? userId = _reports.first.userId; // ✅ Ambil user ID dari laporan pertama
+
+    if (userId == null) return false; // Jika tidak ada user ID, anggap tidak ada laporan pending
+
+    return _reports.any(
+        (report) => report.userId == userId && report.status != "closed" && report.status != "rejected");
   }
+
 
 
   // ✅ Tambah laporan baru
@@ -99,6 +107,8 @@ Future<Report?> getReportById(String reportId) async {
       if (token == null || token.isEmpty) {
         throw Exception("❌ Tidak ada token. Silakan login ulang.");
       }
+
+      print("🔍 Menggunakan token untuk request: $token"); // ✅ Debugging token sebelum request
 
       bool success = await _reportService.createReport(
         title: title,

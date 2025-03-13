@@ -15,8 +15,18 @@ class User {
     this.blockedUntil,
   });
 
+  
+
   factory User.fromJson(Map<String, dynamic> json) {
-    return User(
+    // ✅ Debug jika gagal parsing tanggal
+    DateTime? parsedBlockedUntil;
+    if (json["blocked_until"] != null) {
+      parsedBlockedUntil = DateTime.tryParse(json["blocked_until"]);
+      if (parsedBlockedUntil == null) {
+        print("⚠️ Gagal parsing blocked_until: ${json["blocked_until"]}");
+      }
+    }
+        return User(
       id: json["id"] ?? 0,
       username: json["username"] ?? "Tidak diketahui",
       email: json["email"] ?? "Tidak ada email",
@@ -57,4 +67,10 @@ class User {
       blockedUntil: blockedUntil ?? this.blockedUntil,
     );
   }
+
+    @override
+  String toString() {
+    return "User(id: $id, username: $username, email: $email, phoneNumber: $phoneNumber, type: $type, blockedUntil: $blockedUntil)";
+  }
 }
+

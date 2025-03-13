@@ -60,7 +60,13 @@ const login = async (req, res) => {
         const accessToken = jwt.sign(
             { id: user.id, phone_number: user.phone_number, email: user.email, username: user.username, type: user.type, profile_picture: user.profile_picture },
             process.env.JWT_SECRET,
-            { expiresIn: "15m" } // **Access Token hanya berlaku 15 menit**
+            { expiresIn: "30s" } // **Access Token hanya berlaku 15 menit**
+        );
+
+        const refreshToken = jwt.sign(
+            { id: user.id },
+            process.env.JWT_SECRET,
+            { expiresIn: "7d" } // ✅ Refresh Token berlaku 7 hari
         );
 
         const userData = {
@@ -73,12 +79,17 @@ const login = async (req, res) => {
         };
 
         // **React & Flutter sama-sama menerima token dalam JSON response**
-        return res.json({
-            message: 'Login successful',
-            user: userData,
-            token: accessToken // ✅ Token dikirim langsung dalam response
-        });
-
+        if (client === "react") {
+            res.cookie("refreshToken", refreshToken, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "Strict",
+                maxAge: 7 * 24 * 60 * 60 * 1000, // 7 hari
+            });
+            return res.json({ message: "Login successful", user, token: accessToken });
+        } else {
+            return res.json({ message: "Login successful", user, token: accessToken, refresh_token: refreshToken });
+        }
     } catch (error) {
         res.status(500).json({ message: 'Server error', error: error.message });
     }
@@ -89,41 +100,49 @@ const login = async (req, res) => {
 
 
 const logout = (req, res) => {
-    res.clearCookie('refreshToken');
-    res.clearCookie('accessToken');
-    res.status(200).json({ message: 'Logout successful' });
+    if (req.cookies && req.cookies.refreshToken) {
+        res.clearCookie("refreshToken");
+    }
+    res.status(200).json({ message: "Logout successful" });
 };
 
 //jangan gunakan di flutter
 const refreshToken = (req, res) => {
-    const token = req.cookies.refreshToken;
+    console.log("🟢 [DEBUG] Request Headers:", req.headers);
+    console.log("🟢 [DEBUG] Request Body:", req.body);
+    console.log("🟢 [DEBUG] Request Cookies:", req.cookies);
 
-    if (!token) {
+    let refreshToken;
+
+    if (req.cookies && req.cookies.refreshToken) {
+        refreshToken = req.cookies.refreshToken;  // React menggunakan cookies
+    } else if (req.body && req.body.refresh_token) {
+        refreshToken = req.body.refresh_token;  // Flutter menggunakan body request
+    }
+
+    if (!refreshToken) {
+        console.log("❌ Tidak ada refresh token di request!");
         return res.status(401).json({ message: "No refresh token found" });
     }
 
-    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+    console.log("🔄 [DEBUG] Verifying refresh token:", refreshToken);
+
+    jwt.verify(refreshToken, process.env.JWT_SECRET, (err, decoded) => {
         if (err) {
+            console.log("❌ [DEBUG] Invalid refresh token!");
             return res.status(403).json({ message: "Invalid refresh token" });
         }
 
-        // Buat access token baru
         const newAccessToken = jwt.sign(
             { id: decoded.id },
             process.env.JWT_SECRET,
             { expiresIn: "15m" }
         );
 
-        res.cookie('accessToken', newAccessToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'Strict'
-        });
-
-        res.json({ message: "Access token refreshed" });
+        console.log("✅ [DEBUG] Refresh token valid! Mengirim access token baru.");
+        return res.json({ access_token: newAccessToken, refresh_token: refreshToken });
     });
 };
-
 
 
 

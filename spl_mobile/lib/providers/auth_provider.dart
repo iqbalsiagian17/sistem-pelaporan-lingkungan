@@ -20,21 +20,38 @@ class AuthProvider with ChangeNotifier {
   }
 
   Future<void> _loadUserFromPrefs() async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString("token");
-    
-    if (token == null) return; // ✅ Jika token tidak ada, berarti user tidak login
+  final prefs = await SharedPreferences.getInstance();
+  final token = prefs.getString("token");
 
-    _user = User(
-      id: prefs.getInt("id") ?? 0,
-      username: prefs.getString("username") ?? "",
-      email: prefs.getString("email") ?? "",
-      phoneNumber: prefs.getString("phone_number") ?? "",
-      type: prefs.getInt("type") ?? 0,
-    );
+  print("🔍 Token dari SharedPreferences: $token");
 
-    notifyListeners(); // ✅ Update UI setelah user dimuat
+  if (token == null) {
+    print("❌ Tidak ada token. User dianggap belum login.");
+    return;
   }
+
+  _user = User(
+    id: prefs.getInt("id") ?? 0,
+    username: prefs.getString("username") ?? "",
+    email: prefs.getString("email") ?? "",
+    phoneNumber: prefs.getString("phone_number") ?? "",
+    type: prefs.getInt("type") ?? 0,
+  );
+
+  print("✅ User berhasil dimuat dari SharedPreferences: ID=${_user?.id}, Username=${_user?.username}");
+
+  notifyListeners();
+}
+
+
+Future<bool> checkIsLoggedIn() async {
+  await _loadUserFromPrefs();
+  return _user != null;
+}
+
+
+
+
 
   Future<bool> login(String identifier, String password) async {
     _isLoading = true;
@@ -48,9 +65,17 @@ class AuthProvider with ChangeNotifier {
       _isLoading = false;
       notifyListeners();
       return false;
+    } 
+       
+    if (!response.containsKey("user") || response["user"] == null) {
+      _errorMessage = "Gagal mendapatkan data user.";
+      _isLoading = false;
+      notifyListeners();
+      return false;
     }
 
-    _user = User.fromJson(response["user"]);
+    _user = User.fromJson(response["user"]); // ✅ Pastikan _user sudah terisi
+
     if (_user!.type == 1) {
       _errorMessage = "Admin tidak dapat login ke aplikasi ini.";
       _user = null;
@@ -59,8 +84,34 @@ class AuthProvider with ChangeNotifier {
       return false;
     }
 
+
+    _user = User.fromJson(response["user"]);
     final prefs = await SharedPreferences.getInstance();
+
+      await prefs.setInt("id", _user!.id);
+    await prefs.setString("username", _user!.username);
+    await prefs.setString("email", _user!.email);
+    await prefs.setString("phone_number", _user!.phoneNumber);
+    await prefs.setInt("type", _user!.type);
+
+
+  if (response["token"] != null && response["refresh_token"] != null) {
     await prefs.setString("token", response["token"]);
+    await prefs.setString("refresh_token", response["refresh_token"]);
+  } else {
+    _errorMessage = "Token tidak valid.";
+    _isLoading = false;
+    notifyListeners();
+    return false;
+  }
+
+  print("✅ User ID tersimpan: ${prefs.getInt("id")}");
+  print("✅ Token tersimpan: ${prefs.getString("token")}");
+  print("✅ Refresh Token tersimpan: ${prefs.getString("refresh_token")}");
+
+
+    _authService.updateAuthorizationHeader(response["token"]); // Update header dengan token baru
+
 
     _isLoading = false;
     notifyListeners();
@@ -85,41 +136,68 @@ class AuthProvider with ChangeNotifier {
     return true;
   }
 
-  Future<void> logout() async {
-    _isLoading = true;
-    notifyListeners();
+Future<void> logout() async {
+  _isLoading = true;
+  notifyListeners();
 
-    final prefs = await SharedPreferences.getInstance();
+  final prefs = await SharedPreferences.getInstance();
+  bool onboardingCompleted = prefs.getBool('onboardingCompleted') ?? false;
 
-    // ✅ Preserve onboarding status while clearing user-related data
-    bool onboardingCompleted = prefs.getBool('onboardingCompleted') ?? false;
-
-    await prefs.clear(); // ✅ Clear all user-related data
-    await prefs.setBool('onboardingCompleted', onboardingCompleted); // ✅ Keep onboarding flag
-    await prefs.setBool('isLoggedIn', false); // ✅ Ensure login status is false
-
-    _user = null;
-    _errorMessage = null;
-    _isLoading = false;
-    notifyListeners();
+  bool success = await prefs.clear();
+  if (!success) {
+    print("❌ Gagal menghapus data SharedPreferences");
   }
 
-  Future<void> refreshUser() async {
-  final prefs = await SharedPreferences.getInstance();
-  final token = prefs.getString("token");
+  await prefs.setBool('onboardingCompleted', onboardingCompleted);
 
-  if (token == null) return;
-
-  _user = User(
-    id: prefs.getInt("id") ?? 0,
-    username: prefs.getString("username") ?? "",
-    email: prefs.getString("email") ?? "",
-    phoneNumber: prefs.getString("phone_number") ?? "",
-    type: prefs.getInt("type") ?? 0,
-  );
-
-  notifyListeners(); // ✅ Perbarui UI setelah refresh
+  _user = null;
+  _errorMessage = null;
+  _isLoading = false;
+  notifyListeners();
 }
+
+
+Future<bool> refreshUser() async {
+  final prefs = await SharedPreferences.getInstance();
+  String? token = prefs.getString("token");
+  String? refreshToken = prefs.getString("refresh_token");
+
+  if (token != null && token.isNotEmpty) {
+    print("✅ Token masih berlaku, tidak perlu refresh.");
+    return true;
+  }
+
+  if (refreshToken == null || refreshToken.isEmpty) {
+    print("❌ Token dan Refresh Token tidak ditemukan, user harus login ulang.");
+    await logout();
+    return false;
+  }
+
+  print("🔄 Token kosong, mencoba refresh token...");
+  bool refreshed = await _authService.refreshToken(); // Pastikan fungsi ini return `bool`
+  
+  if (!refreshed) {
+    print("❌ Refresh Token tidak valid, user harus login ulang.");
+    await logout();
+    return false;
+  }
+
+  token = prefs.getString("token");
+  if (token == null || token.isEmpty) {
+    print("❌ Gagal memperbarui token, user harus login ulang.");
+    await logout();
+    return false;
+  }
+
+  _authService.updateAuthorizationHeader(token);
+  print("✅ Token berhasil diperbarui!");
+  return true;
+}
+
+
+
+
+
 
   
 }

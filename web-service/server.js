@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');  // ✅ Tambahkan jika menggunakan cookies
 const path = require("path");
 
 // Import Routes
@@ -23,7 +24,10 @@ const PORT = process.env.PORT || 3000;
 
 // 📌 Middleware
 app.use(cors());
-app.use(bodyParser.json());
+app.use(express.json());  // ✅ Middleware untuk membaca JSON
+app.use(express.urlencoded({ extended: true }));  // ✅ Untuk mendukung form-data
+app.use(bodyParser.json());  // ✅ Pastikan JSON bisa terbaca
+app.use(cookieParser());  // ✅ Untuk membaca cookies jika ada
 
 // 📌 Routes
 // 🔹 Auth

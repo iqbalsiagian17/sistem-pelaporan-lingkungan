@@ -1,23 +1,20 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../../providers/auth_provider.dart'; // ✅ Ambil user dari sini
+import '../../../../providers/user_profile_provider.dart';
 
 class ProfileHeader extends StatelessWidget {
-  const ProfileHeader({super.key});
+  ProfileHeader({super.key});
 
-  // ✅ Fungsi untuk mendapatkan warna random
-  Color _getRandomColor() {
-    final random = Random();
-    return Color.fromARGB(
-      255,
-      random.nextInt(256),
-      random.nextInt(256),
-      random.nextInt(256),
-    );
+  // ✅ Warna berdasarkan hash dari username (agar tetap sama)
+  Color _generateColorFromUsername(String username) {
+    int hash = username.hashCode;
+    int r = (hash & 0xFF0000) >> 16;
+    int g = (hash & 0x00FF00) >> 8;
+    int b = (hash & 0x0000FF);
+    return Color.fromARGB(255, r, g, b);
   }
 
-  // ✅ Fungsi untuk mendapatkan inisial username
+  // ✅ Ambil inisial username
   String _getInitials(String? username) {
     if (username == null || username.isEmpty) return "?";
     List<String> names = username.split(" ");
@@ -30,11 +27,18 @@ class ProfileHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<AuthProvider>(
-      builder: (context, authProvider, child) {
-        final user = authProvider.user;
-        final String initials = _getInitials(user?.username);
-        final Color bgColor = _getRandomColor();
+    return Consumer<UserProfileProvider>(
+      builder: (context, profileProvider, child) {
+        final user = profileProvider.user;
+
+        if (user == null) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+
+        final String initials = _getInitials(user.username);
+        final Color bgColor = _generateColorFromUsername(user.username); // ✅ Warna tetap
 
         return Column(
           children: [
@@ -52,17 +56,17 @@ class ProfileHeader extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             Text(
-              user?.username ?? "Pengguna",
+              user.username,
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 5),
             Text(
-              user?.phoneNumber ?? "Tidak ada nomor",
+              user.phoneNumber.isNotEmpty ? user.phoneNumber : "Tidak ada nomor",
               style: const TextStyle(fontSize: 14, color: Colors.black54),
             ),
             const SizedBox(height: 5),
             Text(
-              user?.email ?? "Tidak ada email",
+              user.email.isNotEmpty ? user.email : "Tidak ada email",
               style: const TextStyle(fontSize: 14, color: Colors.black54),
             ),
           ],

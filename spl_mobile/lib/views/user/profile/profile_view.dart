@@ -30,12 +30,14 @@ class _ProfileViewState extends State<ProfileView> {
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
-    Future.microtask(() =>
-        Provider.of<UserProfileProvider>(context, listen: false).loadUser()); // ✅ Correct method
-  }
+@override
+void didChangeDependencies() {
+  super.didChangeDependencies();
+  Future.microtask(() async {
+    await Provider.of<UserProfileProvider>(context, listen: false).refreshUser();
+  });
+}
+
 
 
   @override
@@ -48,14 +50,14 @@ class _ProfileViewState extends State<ProfileView> {
         child: Consumer2<AuthProvider, UserProfileProvider>(
           builder: (context, authProvider, profileProvider, child) {
             return Column(
-              children: const [
+              children: [
                 ProfileHeader(),
                 SizedBox(height: 20),
                 ProfileStats(),
                 SizedBox(height: 30),
                 ProfileMenu(),
                 SizedBox(height: 15),
-              ],
+              ]
             );
           },
         ),

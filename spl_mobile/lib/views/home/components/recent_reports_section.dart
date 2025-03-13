@@ -54,13 +54,34 @@ class RecentReportsSection extends StatelessWidget {
             const SizedBox(height: 8),
 
             // 🔹 List Aduan Terbaru
-            if (reportProvider.isLoading)
-              const Center(child: CircularProgressIndicator()) // ⏳ Loading
-            else if (reportProvider.errorMessage != null)
-              Center(child: Text(reportProvider.errorMessage!, style: const TextStyle(color: Colors.red))) // ❌ Error
-            else if (filteredReports.isEmpty)
-              const Center(child: Text("Tidak ada aduan terbaru.")) // 📝 Tidak ada data
-            else
+              if (reportProvider.isLoading)
+                const Padding(
+                  padding: EdgeInsets.only(top: 20), // ✅ Tambahkan padding atas
+                  child: Center(child: CircularProgressIndicator()),
+                )
+              else if (reportProvider.errorMessage != null)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20), // ✅ Tambahkan padding
+                  child: Center(
+                    child: Text(
+                      reportProvider.errorMessage!,
+                      style: const TextStyle(color: Colors.red),
+                      textAlign: TextAlign.center, // ✅ Agar teks error tetap rapi di tengah
+                    ),
+                  ),
+                ) // ❌ Error
+              else if (filteredReports.isEmpty)
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 20), // ✅ Tambahkan padding
+                  child: Center(
+                    child: Text(
+                      "📭 Tidak ada aduan terbaru.",
+                      style: TextStyle(color: Colors.grey, fontSize: 14, fontStyle: FontStyle.italic),
+                      textAlign: TextAlign.center, // ✅ Teks tetap rapi di tengah
+                    ),
+                  ),
+                ) // 📝 Tidak ada data
+              else
               ListView.builder(
                 itemCount: filteredReports.length,
                 shrinkWrap: true,
