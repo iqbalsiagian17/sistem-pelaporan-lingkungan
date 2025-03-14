@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:spl_mobile/models/ReportStatusHistory.dart';
+import 'package:spl_mobile/core/utils/status_utils.dart';
 
 class ReportDetailStatusHistory extends StatelessWidget {
   final List<ReportStatusHistory> statusHistory; // ✅ Daftar riwayat status
@@ -66,13 +67,13 @@ class ReportDetailStatusHistory extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // 🔹 Status dengan ikon perubahan
+                        // 🔹 Status dengan ikon perubahan & warna
                         Row(
                           children: [
-                            const Icon(Icons.check_circle, color: Colors.blueGrey, size: 16),
+                            Icon(Icons.circle, color: StatusUtils.getStatusColor(history.newStatus), size: 14),
                             const SizedBox(width: 6),
                             Text(
-                              "${history.previousStatus} → ${history.newStatus}",
+                              "${StatusUtils.getTranslatedStatus(history.previousStatus)} → ${StatusUtils.getTranslatedStatus(history.newStatus)}",
                               style: const TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,

@@ -138,30 +138,27 @@ Future<Report?> getReportById(String reportId) async {
   }
 
   // ✅ Hapus laporan
-  Future<bool> deleteReport(String reportId) async {
-    _isLoading = true;
-    notifyListeners();
+Future<bool> deleteReport(String reportId) async {
+  _isLoading = true;
+  notifyListeners();
 
-    try {
-      final token = await _getToken();
-      if (token == null || token.isEmpty) {
-        throw Exception("❌ Tidak ada token yang tersedia. Silakan login ulang.");
-      }
+  try {
+    bool success = await _reportService.deleteReport(reportId);
 
-      bool success = await _reportService.deleteReport(reportId);
-
-      if (success) {
-        _reports.removeWhere((report) => report.id.toString() == reportId);
-        notifyListeners();
-      }
-
-      _isLoading = false;
-      return success;
-    } catch (e) {
-      _isLoading = false;
-      _errorMessage = e.toString();
+    if (success) {
+      _reports.removeWhere((report) => report.id.toString() == reportId);
+      print("✅ Laporan dengan ID $reportId berhasil dihapus dari daftar.");
       notifyListeners();
-      return false;
     }
+
+    _isLoading = false;
+    return success;
+  } catch (e) {
+    _isLoading = false;
+    _errorMessage = e.toString();
+    notifyListeners();
+    print("❌ Error saat menghapus laporan: $_errorMessage");
+    return false;
   }
+}
 }

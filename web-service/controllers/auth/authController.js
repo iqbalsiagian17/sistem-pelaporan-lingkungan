@@ -60,7 +60,7 @@ const login = async (req, res) => {
         const accessToken = jwt.sign(
             { id: user.id, phone_number: user.phone_number, email: user.email, username: user.username, type: user.type, profile_picture: user.profile_picture },
             process.env.JWT_SECRET,
-            { expiresIn: "30s" } // **Access Token hanya berlaku 15 menit**
+            { expiresIn: "15m" } // **Access Token hanya berlaku 15 menit**
         );
 
         const refreshToken = jwt.sign(

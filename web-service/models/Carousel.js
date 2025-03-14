@@ -11,9 +11,13 @@ module.exports = (sequelize, DataTypes) => {
                 type: DataTypes.STRING,
                 allowNull: false
             },
+            description: { // ✅ Tambahkan deskripsi
+                type: DataTypes.TEXT,
+                allowNull: true // Boleh kosong
+            },
             image: {
                 type: DataTypes.STRING,
-                allowNull: false // Gambar wajib diisi
+                allowNull: false
             }
         },
         {

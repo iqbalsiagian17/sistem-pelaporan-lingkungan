@@ -10,7 +10,11 @@ module.exports = {
           },
           title: {
               type: Sequelize.STRING,
-              allowNull: false
+              allowNull: true
+          },
+          description: { // ✅ Tambahkan deskripsi
+              type: Sequelize.TEXT,
+              allowNull: true // Boleh kosong
           },
           image: {
               type: Sequelize.STRING,

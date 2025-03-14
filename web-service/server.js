@@ -14,6 +14,9 @@ const adminCarouselRoutes = require("./routes/admin/carouselRoutes");
 const adminAnnouncementRoutes = require("./routes/admin/announcementRoutes");
 const forumRoutes = require("./routes/user/forumRoutes");
 const userManagementRoutes = require("./routes/admin/userManagementRoutes");
+const publicCarouselRoutes = require("./routes/public/carouselRoutes");
+const userReportSaveRoutes = require("./routes/user/userReportSaveRoutes");
+
 
 
 
@@ -33,13 +36,16 @@ app.use(cookieParser());  // ✅ Untuk membaca cookies jika ada
 // 🔹 Auth
 app.use('/api/auth', authRoutes);
 
+// 🔹 Public Routes
+app.use("/api/carousels", publicCarouselRoutes);
+
+
 // 🔹 User Routes
 app.use('/api/user/profile', userInfoRoutes); 
 app.use('/api/user/reports', userReportRoutes); // CRUD laporan untuk user
 app.use("/api/forum", forumRoutes);
 app.use("/api/admin/users", userManagementRoutes);
-
-
+app.use("/api/user/saved-reports", userReportSaveRoutes);
 
 // 🔹 Admin Routes
 app.use('/api/admin/reports', adminReportRoutes);

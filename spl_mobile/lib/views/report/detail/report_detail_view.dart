@@ -57,8 +57,11 @@ class ReportDetailView extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              ReportDetailStatus(status: report.status),
-                              const SizedBox(height: 10),
+                            ReportDetailStatus(
+                              reportId: report.id, // ✅ Tambahkan parameter reportId di sini
+                              status: report.status,
+                            ),
+                            const SizedBox(height: 10),
                               Text(
                                 report.title,
                                 style: const TextStyle(

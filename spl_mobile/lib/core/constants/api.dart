@@ -10,11 +10,9 @@ class ApiConstants {
   // Endpoint User Profile
   static const String userProfileBaseUrl = "$baseUrl/api/user/profile";
   
-  // Upload Profile Picture
-  static const String uploadProfilePictureUrl = "$userProfileBaseUrl/update-profile-picture";
-
-
   static const String userReportUrl = "$baseUrl/api/user/reports";
+
+static const String publicCarousel = "$baseUrl/api/carousels";  // ✅ Benar
   
 
 }

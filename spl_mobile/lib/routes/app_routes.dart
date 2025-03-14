@@ -71,6 +71,9 @@ class AppRoutes {
         path: '/report-detail',
         name: AppRoutes.reportDetail,
         builder: (context, state) {
+          final extra = state.extra;
+
+      
           final report = state.extra as Report; // ✅ Ambil `extra` sebagai Report
           return ReportDetailView(report: report);
         },

@@ -94,6 +94,7 @@ Future<Response> _retryRequest(RequestOptions requestOptions) async {
         String newAccessToken = response.data["access_token"];
         await prefs.setString("token", newAccessToken);
 
+        updateAuthorizationHeader(newAccessToken); // ✅ Update header di Dio
         _dio.options.headers["Authorization"] = "Bearer $newAccessToken";
         print("✅ Token berhasil diperbarui.");
         return true;

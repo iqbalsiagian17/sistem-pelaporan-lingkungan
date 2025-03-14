@@ -1,8 +1,10 @@
+import 'dart:async'; // ✅ Tambahkan ini
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:spl_mobile/core/services/auth/auth_service.dart';
+import 'package:spl_mobile/providers/carousel_provider.dart';
+import 'package:spl_mobile/providers/report_save_provider.dart';
 import 'package:spl_mobile/routes/app_routes.dart';
 import 'package:spl_mobile/providers/auth_provider.dart';
 import 'package:spl_mobile/providers/user_profile_provider.dart';
@@ -10,14 +12,13 @@ import 'package:spl_mobile/providers/user_report_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   await Geolocator.checkPermission();
   await Geolocator.requestPermission();
 
   /// ✅ Pastikan token terbaru digunakan sebelum menjalankan aplikasi
-  final prefs = await SharedPreferences.getInstance();
   AuthService authService = AuthService();
-
-  bool refreshed = await authService.refreshToken(); // ✅ Refresh token sebelum menjalankan aplikasi
+  bool refreshed = await authService.refreshToken();
 
   if (refreshed) {
     print("✅ Token diperbarui sebelum aplikasi dimulai.");
@@ -25,17 +26,8 @@ void main() async {
     print("⚠️ Tidak bisa refresh token, user mungkin perlu login ulang.");
   }
 
-  runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
-        ChangeNotifierProvider(create: (_) => UserProfileProvider()),
-        ChangeNotifierProvider(create: (_) => ReportProvider()),
-      ],
-      child: const BaligePeduliApp(),
-    ),
-  );
-
+  /// ✅ Jalankan auto refresh token setiap 25 menit
+  startAutoRefreshToken(authService);
 
   runApp(
     MultiProvider(
@@ -43,13 +35,23 @@ void main() async {
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => UserProfileProvider()),
         ChangeNotifierProvider(create: (_) => ReportProvider()),
+        ChangeNotifierProvider(create: (_) => CarouselProvider()),
+        ChangeNotifierProvider(create: (_) => ReportSaveProvider()), // ✅ Tambahkan ini
       ],
       child: const BaligePeduliApp(),
     ),
   );
 }
 
-
+/// ✅ Fungsi untuk Auto Refresh Token Setiap 25 Menit
+void startAutoRefreshToken(AuthService authService) {
+  Timer.periodic(const Duration(minutes: 25), (timer) async {
+    bool refreshed = await authService.refreshToken();
+    if (!refreshed) {
+      print("❌ Token gagal diperbarui, user mungkin harus login ulang.");
+    }
+  });
+}
 
 class BaligePeduliApp extends StatelessWidget {
   const BaligePeduliApp({super.key});

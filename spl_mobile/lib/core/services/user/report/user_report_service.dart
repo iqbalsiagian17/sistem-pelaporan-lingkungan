@@ -130,22 +130,37 @@ if (attachments != null && attachments.isNotEmpty) {
 
 
   // ✅ Hapus Laporan
-  Future<bool> deleteReport(String reportId) async {
+    Future<bool> deleteReport(String reportId) async {
     try {
       final token = await _getToken();
       if (token == null || token.isEmpty) {
-        throw Exception("❌ Tidak ada token yang tersedia. Silakan login ulang.");
+        throw Exception("❌ Tidak ada token. Silakan login ulang.");
       }
 
       final response = await _dio.delete(
-        '/$reportId',
+        '${ApiConstants.userReportUrl}/$reportId',
         options: Options(headers: {"Authorization": "Bearer $token"}),
       );
 
-      return response.statusCode == 200;
+      if (response.statusCode == 200) {
+        print("✅ Laporan dengan ID $reportId berhasil dihapus.");
+        return true;
+      } else if (response.statusCode == 400) {
+        print("⚠️ Laporan hanya bisa dihapus jika masih berstatus pending.");
+        return false;
+      } else if (response.statusCode == 403) {
+        print("🚫 Anda tidak memiliki izin untuk menghapus laporan ini.");
+        return false;
+      } else if (response.statusCode == 404) {
+        print("❌ Laporan tidak ditemukan.");
+        return false;
+      } else {
+        throw Exception("Gagal menghapus laporan. Status Code: ${response.statusCode}");
+      }
     } catch (e) {
-      debugPrint("❌ Error deleteReport: $e");
-      throw Exception("❌ Gagal menghapus laporan.");
+      print("❌ Error deleteReport: $e");
+      throw Exception("Gagal menghapus laporan: $e");
     }
   }
+
 }

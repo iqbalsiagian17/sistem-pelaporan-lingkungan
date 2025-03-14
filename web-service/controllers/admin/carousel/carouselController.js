@@ -20,29 +20,37 @@ const upload = multer({ storage }).single("image");
 
 // ✅ CREATE CAROUSEL (Admin Only)
 exports.createCarousel = async (req, res) => {
-    upload(req, res, async (err) => {
-        if (err) {
-            return res.status(400).json({ message: "File upload error", error: err.message });
+    try {
+        console.log("✅ Request Body:", req.body);
+        console.log("✅ Request File:", req.file); // Debug log
+
+        const { title, description } = req.body;
+        
+        if (!title) {
+            console.error("❌ Error: Title is missing!");
+            return res.status(400).json({ message: "Title is required" });
         }
 
-        try {
-            const { title } = req.body;
-            if (!title || !req.file) {
-                return res.status(400).json({ message: "Title and image are required" });
-            }
-
-            const newCarousel = await Carousel.create({
-                title,
-                image: `uploads/carousel/${req.file.filename}`
-            });
-
-            res.status(201).json({ message: "Carousel created successfully", carousel: newCarousel });
-        } catch (error) {
-            console.error("Error creating carousel:", error);
-            res.status(500).json({ message: "Server error", error: error.message });
+        if (!req.file) {
+            console.error("❌ Error: Image file is missing!");
+            return res.status(400).json({ message: "Image is required" });
         }
-    });
+
+        const newCarousel = await Carousel.create({
+            title,
+            description: description || "", // Default kosong jika tidak ada deskripsi
+            image: `uploads/carousel/${req.file.filename}`
+        });
+
+        console.log("✅ Carousel berhasil dibuat:", newCarousel);
+
+        res.status(201).json({ message: "Carousel created successfully", carousel: newCarousel });
+    } catch (error) {
+        console.error("❌ Error creating carousel:", error);
+        res.status(500).json({ message: "Server error", error: error.message });
+    }
 };
+
 
 // ✅ GET ALL CAROUSELS
 exports.getAllCarousels = async (req, res) => {
@@ -71,7 +79,6 @@ exports.getCarouselById = async (req, res) => {
         res.status(500).json({ message: "Server error", error: error.message });
     }
 };
-
 // ✅ UPDATE CAROUSEL (Admin Only)
 exports.updateCarousel = async (req, res) => {
     upload(req, res, async (err) => {
@@ -81,7 +88,7 @@ exports.updateCarousel = async (req, res) => {
 
         try {
             const { id } = req.params;
-            const { title } = req.body;
+            const { title, description } = req.body; // ✅ Ambil `description`
 
             const carousel = await Carousel.findByPk(id);
             if (!carousel) {
@@ -97,6 +104,7 @@ exports.updateCarousel = async (req, res) => {
             }
 
             carousel.title = title || carousel.title;
+            carousel.description = description || carousel.description; // ✅ Update `description`
             await carousel.save();
 
             res.status(200).json({ message: "Carousel updated successfully", carousel });

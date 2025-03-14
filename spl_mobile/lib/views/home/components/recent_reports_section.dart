@@ -6,15 +6,15 @@ import 'package:spl_mobile/core/constants/api.dart';
 import 'package:spl_mobile/core/utils/status_utils.dart';
 import '../../../routes/app_routes.dart';
 import '../../../providers/user_report_provider.dart';
+import '../../../providers/report_save_provider.dart';
 
 class RecentReportsSection extends StatelessWidget {
   const RecentReportsSection({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ReportProvider>(
-      builder: (context, reportProvider, child) {
-
+    return Consumer2<ReportProvider, ReportSaveProvider>(
+      builder: (context, reportProvider, reportSaveProvider, child) {
         final filteredReports = reportProvider.reports.where((report) =>
             ['verified', 'in_progress', 'completed', 'closed']
                 .contains(report.status)).toList();
@@ -56,31 +56,31 @@ class RecentReportsSection extends StatelessWidget {
             // 🔹 List Aduan Terbaru
               if (reportProvider.isLoading)
                 const Padding(
-                  padding: EdgeInsets.only(top: 20), // ✅ Tambahkan padding atas
+                  padding: EdgeInsets.only(top: 20),
                   child: Center(child: CircularProgressIndicator()),
                 )
               else if (reportProvider.errorMessage != null)
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20), // ✅ Tambahkan padding
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
                   child: Center(
                     child: Text(
                       reportProvider.errorMessage!,
                       style: const TextStyle(color: Colors.red),
-                      textAlign: TextAlign.center, // ✅ Agar teks error tetap rapi di tengah
+                      textAlign: TextAlign.center,
                     ),
                   ),
-                ) // ❌ Error
+                )
               else if (filteredReports.isEmpty)
                 const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 20), // ✅ Tambahkan padding
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 20),
                   child: Center(
                     child: Text(
                       "📭 Tidak ada aduan terbaru.",
                       style: TextStyle(color: Colors.grey, fontSize: 14, fontStyle: FontStyle.italic),
-                      textAlign: TextAlign.center, // ✅ Teks tetap rapi di tengah
+                      textAlign: TextAlign.center,
                     ),
                   ),
-                ) // 📝 Tidak ada data
+                )
               else
               ListView.builder(
                 itemCount: filteredReports.length,
@@ -95,12 +95,15 @@ class RecentReportsSection extends StatelessWidget {
                       ? "${ApiConstants.baseUrl}/${report.attachments.first.file}"
                       : "";
 
+                  // 🔖 **Cek apakah laporan sudah disimpan**
+                  bool isSaved = reportSaveProvider.isReportSaved(report.id);
+
                   return InkWell(
                     onTap: () {
                       context.push('/report-detail', extra: report);
                     },
                     borderRadius: BorderRadius.circular(12),
-                    splashColor: Colors.green.withOpacity(0.2), // ✅ Efek klik lebih interaktif
+                    splashColor: Colors.green.withOpacity(0.2),
                     child: Padding(
                       key: ValueKey(report.id),
                       padding: const EdgeInsets.only(bottom: 12.0),
@@ -137,12 +140,15 @@ class RecentReportsSection extends StatelessWidget {
                                   ),
                                 ),
                                 const SizedBox(height: 4),
-                                Text(
-                                  "${report.village?.isNotEmpty == true ? report.village : 'Tidak ada lokasi'}, ${report.date}",
-                                  style: const TextStyle(fontSize: 12, color: Colors.grey),
-                                ),
+                                  Text(
+                                    "${report.village?.isNotEmpty == true 
+                                        ? report.village 
+                                        : report.locationDetails?.isNotEmpty == true 
+                                          ? report.locationDetails 
+                                          : report.user.username}, ${report.date}",
+                                    style: const TextStyle(fontSize: 12, color: Colors.grey),
+                                  ),
                                 const SizedBox(height: 4),
-
                                 // 🔹 Status Aduan dengan Animasi Warna
                                 AnimatedContainer(
                                   duration: const Duration(milliseconds: 300),
@@ -164,12 +170,29 @@ class RecentReportsSection extends StatelessWidget {
                             ),
                           ),
 
-                          // 🔖 Icon Bookmark (Jika ada fitur bookmark nanti)
+                          // 🔖 **Bookmark**
                           IconButton(
-                            onPressed: () {
-                              // TODO: Implementasi fitur bookmark
+                            onPressed: () async {
+                              if (isSaved) {
+                                await reportSaveProvider.deleteSavedReport(report.id);
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text("🔖 Laporan dihapus dari tersimpan"))
+                                  );
+                                }
+                              } else {
+                                await reportSaveProvider.saveReport(report.id);
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text("✅ Laporan berhasil disimpan"))
+                                  );
+                                }
+                              }
                             },
-                            icon: const Icon(Icons.bookmark_border, color: Colors.black54),
+                            icon: Icon(
+                              isSaved ? Icons.bookmark : Icons.bookmark_border,
+                              color: isSaved ? Colors.green : Colors.black54,
+                            ),
                           ),
                         ],
                       ),
