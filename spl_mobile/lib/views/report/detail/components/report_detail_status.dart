@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:spl_mobile/core/utils/status_utils.dart'; // Import helper class
+import 'package:spl_mobile/core/utils/status_utils.dart';
 import 'package:spl_mobile/providers/report_save_provider.dart';
+import 'package:spl_mobile/providers/user_report_likes_provider.dart';
 
 class ReportDetailStatus extends StatelessWidget {
   final int reportId;
   final String? status;
+  final String token; // ✅ Tambahkan token untuk API
 
-  const ReportDetailStatus({super.key, required this.reportId, this.status});
+  const ReportDetailStatus({
+    super.key,
+    required this.reportId,
+    required this.token,
+    this.status,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -24,24 +31,37 @@ class ReportDetailStatus extends StatelessWidget {
           child: Text(
             StatusUtils.getTranslatedStatus(status),
             style: const TextStyle(
-              fontSize: 14, 
-              fontWeight: FontWeight.bold, 
-              color: Colors.white, // Pastikan teks terlihat jelas
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+              color: Colors.white, // ✅ Pastikan teks terlihat jelas
             ),
           ),
         ),
 
         Row(
           children: [
-            // ❤️ Tombol Like (Kosongan Dulu)
-            IconButton(
-              onPressed: () {
-                // TODO: Implementasi fitur like
+            // ❤️ **Tombol Like**
+            Consumer<ReportLikeProvider>(
+              builder: (context, likeProvider, child) {
+                bool isLiked = likeProvider.isLiked(reportId);
+
+                return IconButton(
+                  onPressed: () async {
+                    if (isLiked) {
+                      await likeProvider.unlikeReport(reportId, token);
+                    } else {
+                      await likeProvider.likeReport(reportId, token);
+                    }
+                  },
+                  icon: Icon(
+                    isLiked ? Icons.favorite : Icons.favorite_border,
+                    color: isLiked ? Colors.red : Colors.grey,
+                  ),
+                );
               },
-              icon: const Icon(Icons.favorite_border, color: Colors.red),
             ),
 
-            // 🔖 Tombol Bookmark (Simpan/Hapus)
+            // 🔖 **Tombol Bookmark (Simpan/Hapus)**
             Consumer<ReportSaveProvider>(
               builder: (context, reportSaveProvider, child) {
                 bool isSaved = reportSaveProvider.isReportSaved(reportId);

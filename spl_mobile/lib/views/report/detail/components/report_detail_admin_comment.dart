@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart'; // ✅ Import Intl untuk formatting
 import 'package:spl_mobile/models/ReportStatusHistory.dart';
 import 'package:spl_mobile/core/utils/status_utils.dart';
 
@@ -110,9 +111,9 @@ class ReportDetailStatusHistory extends StatelessWidget {
 
                         const SizedBox(height: 4),
 
-                        // 🔹 Tanggal Perubahan Status
+                        // 🔹 Tanggal Perubahan Status (Gunakan Intl)
                         Text(
-                          history.createdAt,
+                          _formatCreatedAt(history.createdAt),
                           style: const TextStyle(
                             fontSize: 12,
                             color: Colors.grey,
@@ -128,5 +129,14 @@ class ReportDetailStatusHistory extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _formatCreatedAt(String dateTime) {
+    try {
+      DateTime parsedDate = DateTime.parse(dateTime);
+      return DateFormat('dd MMM yyyy, HH:mm', 'id_ID').format(parsedDate);
+    } catch (e) {
+      return DateFormat('dd MMM yyyy, HH:mm', 'en_US').format(DateTime.parse(dateTime));
+    }
   }
 }

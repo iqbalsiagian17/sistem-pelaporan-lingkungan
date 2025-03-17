@@ -1,4 +1,4 @@
-const { UserReportSave,ReportAttachment, Report, User } = require("../../../models");
+const { UserReportSave,ReportAttachment, Report, User, ReportStatusHistory } = require("../../../models");
 
 // ✅ Simpan laporan ke daftar favorit
 exports.saveReport = async (req, res) => {
@@ -48,6 +48,18 @@ exports.getSavedReports = async (req, res) => {
               model: ReportAttachment,
               as: 'attachments',
               attributes: ['id', 'file'] // Menampilkan daftar lampiran
+            },
+            {
+              model: ReportStatusHistory, // 🔹 Tambahkan ini agar statusHistory ikut dikembalikan
+              as: 'statusHistory',
+              include: [
+                {
+                  model: User,
+                  as: 'admin',
+                  attributes: ['id', 'username', 'email'] // Tambahkan data admin
+                }
+              ],
+              order: [['createdAt', 'ASC']] // 🔹 Urutkan dari status awal ke terbaru
             }
           ]
         }

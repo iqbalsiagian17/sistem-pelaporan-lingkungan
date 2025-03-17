@@ -38,6 +38,7 @@ module.exports = {
       },
       status: {
         type: Sequelize.ENUM('pending', 'rejected', 'verified', 'in_progress', 'completed', 'closed'),
+        allowNull: false, // ✅ Pastikan tidak NULL
         defaultValue: 'pending'
       },
       likes: {
@@ -68,12 +69,12 @@ module.exports = {
       createdAt: {
         type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.fn('NOW') // ✅ Set default waktu dibuat
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') // ✅ Set default waktu dibuat
       },
       updatedAt: {
         type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.fn('NOW') // ✅ Set default waktu diperbarui
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP') // ✅ Pastikan updatedAt diperbarui otomatis
       }
     });
   },

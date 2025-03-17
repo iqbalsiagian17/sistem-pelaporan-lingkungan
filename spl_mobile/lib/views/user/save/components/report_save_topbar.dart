@@ -24,10 +24,6 @@ class SaveReportTopBar extends StatelessWidget implements PreferredSizeWidget {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
-          borderRadius: BorderRadius.only(
-            bottomLeft: Radius.circular(24),
-            bottomRight: Radius.circular(24),
-          ),
         ),
         child: AppBar(
           backgroundColor: Colors.transparent, // 🪟 Agar gradient terlihat

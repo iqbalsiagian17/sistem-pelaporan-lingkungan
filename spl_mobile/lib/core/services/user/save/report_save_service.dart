@@ -4,7 +4,8 @@ import '../../../../models/ReportSave.dart';
 
 class ReportSaveService {
   final Dio _dio = Dio(BaseOptions(
-    baseUrl: "${ApiConstants.baseUrl}/api/user/saved-reports",
+    
+    baseUrl: ApiConstants.userReportSave,
     connectTimeout: const Duration(seconds: 10),
     receiveTimeout: const Duration(seconds: 10),
   ));

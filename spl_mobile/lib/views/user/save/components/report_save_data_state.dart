@@ -40,6 +40,15 @@ class ReportSaveDataState extends StatelessWidget {
             final ReportSave report = savedReports[index];
 
             return InkWell(
+                onTap: () {
+                  context.push(
+                    AppRoutes.reportDetail,
+                    extra: {
+                      "type": "saved",  
+                      "data": report,   
+                    },
+                  );
+                },
               borderRadius: BorderRadius.circular(12),
               splashColor: Colors.green.withOpacity(0.2),
               child: Padding(

@@ -3,9 +3,8 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:spl_mobile/models/Report.dart';
 import 'package:spl_mobile/providers/user_report_provider.dart';
-import 'package:spl_mobile/routes/app_routes.dart';
-import '../../../widgets/custom_chip.dart';
 import 'dart:math';
+import '../../../widgets/custom_chip.dart';
 
 class TopicSection extends StatelessWidget {
   const TopicSection({super.key});
@@ -29,11 +28,10 @@ class TopicSection extends StatelessWidget {
           Consumer<ReportProvider>(
             builder: (context, reportProvider, child) {
               List<Report> validReports = reportProvider.reports.where((report) =>
-                ["verified", "in_progress", "completed", "closed"].contains(report.status) &&
+                ["verified", "in_progress", "completed"].contains(report.status) &&
                 report.title.isNotEmpty // ✅ Pastikan title tidak kosong
               ).toList();
 
-              // Jika tidak ada laporan, tampilkan teks kosong
               if (validReports.isEmpty) {
                 return const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -44,12 +42,14 @@ class TopicSection extends StatelessWidget {
                 );
               }
 
-              // Urutkan berdasarkan likes terbanyak
+              // Urutkan berdasarkan likes terbanyak (descending)
               validReports.sort((a, b) => (b.likes ?? 0).compareTo(a.likes ?? 0));
 
-              // Jika tidak ada laporan yang memiliki likes, ambil 5 laporan secara acak
-              if (validReports.every((report) => report.likes == 0)) {
-                validReports.shuffle(Random());
+              // Cek apakah semua laporan memiliki 0 likes
+              bool allZeroLikes = validReports.every((report) => (report.likes ?? 0) == 0);
+
+              if (allZeroLikes) {
+                validReports.shuffle(Random()); // Jika semua likes 0, acak urutannya
               }
 
               // Ambil hanya 5 laporan teratas
@@ -63,14 +63,7 @@ class TopicSection extends StatelessWidget {
                       padding: const EdgeInsets.only(right: 8),
                       child: GestureDetector(
                         onTap: () {
-                          try {
-                            GoRouter.of(context).push(
-                              AppRoutes.reportDetail, // ✅ Pastikan cocok dengan GoRoute
-                              extra: report, // ✅ Kirim data laporan
-                            );
-                          } catch (e) {
-                            print("❌ Error navigasi ke report-detail: $e");
-                          }
+                          context.push('/report-detail', extra: report);
                         },
                         child: CustomChip(label: "#${report.title}"),
                       ),

@@ -63,6 +63,7 @@ class NotificationList extends StatelessWidget {
         .toList();
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: const NotificationTopBar(), // ✅ Menggunakan TopBar khusus
       body: ListView(
         children: [

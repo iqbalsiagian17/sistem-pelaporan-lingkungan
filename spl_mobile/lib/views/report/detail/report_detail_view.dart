@@ -1,3 +1,5 @@
+import 'package:provider/provider.dart';
+import 'package:spl_mobile/providers/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:spl_mobile/core/constants/api.dart';
 import 'package:spl_mobile/models/Report.dart';
@@ -15,15 +17,27 @@ class ReportDetailView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 🔥 Debugging sebelum UI ditampilkan
-    print("🔥 Debugging statusHistory: ${report.statusHistory}");
+    return FutureBuilder<String?>(
+      future: Provider.of<AuthProvider>(context, listen: false).token, // ✅ Ambil token dari AuthProvider
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()), // 🔄 Loading saat mengambil token
+          );
+        }
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: ReportDetailTopBar(title: "Detail Laporan"),
-      body: Container(
-        color: Colors.white, // ✅ Background utama tetap putih
-        child: SingleChildScrollView(
+        if (snapshot.hasError || !snapshot.hasData || snapshot.data == null) {
+          return const Scaffold(
+            body: Center(child: Text("Anda harus login untuk melihat laporan.")),
+          );
+        }
+
+        final String token = snapshot.data!; // ✅ Gunakan token yang sudah diperoleh
+
+        return Scaffold(
+          backgroundColor: Colors.white,
+          appBar: ReportDetailTopBar(title: "Detail Laporan"),
+          body: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -51,17 +65,21 @@ class ReportDetailView extends StatelessWidget {
                           imageUrls: report.attachments.isNotEmpty
                               ? report.attachments.map((attachment) => "${ApiConstants.baseUrl}/${attachment.file}").toList()
                               : ["assets/images/default.jpg"],
+                          reportId: report.id,  // ✅ Pastikan reportId dikirim
+                          token: token, // ✅ Gunakan token dari Provider
                         ),
                         Padding(
                           padding: const EdgeInsets.all(16.0),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                            ReportDetailStatus(
-                              reportId: report.id, // ✅ Tambahkan parameter reportId di sini
+                              ReportDetailStatus(
+                              reportId: report.id, 
+                              token: token, // ✅ Pastikan token dikirim
                               status: report.status,
                             ),
-                            const SizedBox(height: 10),
+
+                              const SizedBox(height: 10),
                               Text(
                                 report.title,
                                 style: const TextStyle(
@@ -105,7 +123,7 @@ class ReportDetailView extends StatelessWidget {
 
                 // 🔹 Riwayat Perubahan Status (Jika Ada)
                 if (report.statusHistory.isNotEmpty) ...[
-                  ReportDetailStatusHistory(statusHistory: report.statusHistory),
+                ReportDetailStatusHistory(statusHistory: report.statusHistory),
                   const SizedBox(height: 16),
                 ] else ...[
                   Container(
@@ -175,7 +193,8 @@ class ReportDetailView extends StatelessWidget {
               ],
             ),
           ),
-        ),
-      );
+        );
+      },
+    );
   }
 }

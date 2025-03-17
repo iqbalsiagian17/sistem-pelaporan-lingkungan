@@ -38,11 +38,6 @@ module.exports = (sequelize, DataTypes) => {
               type: DataTypes.ENUM('pending', 'rejected', 'verified', 'in_progress', 'completed', 'closed'),
               defaultValue: 'pending'
           },
-          likes: {
-              type: DataTypes.INTEGER,
-              allowNull: false, // ✅ Pastikan tidak NULL
-              defaultValue: 0  // ✅ Default 0 jika belum ada likes
-          },
           village: {
               type: DataTypes.STRING(100),
               allowNull: true,
@@ -71,6 +66,11 @@ module.exports = (sequelize, DataTypes) => {
               return value !== null ? parseFloat(value) : 0.0;
             }
           },
+          likes: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            defaultValue: 0, // 🔹 Default 0 jika belum ada likes
+        },
           createdAt: {
             type: DataTypes.DATE,
             allowNull: false,
@@ -92,7 +92,8 @@ module.exports = (sequelize, DataTypes) => {
       Report.hasMany(models.ReportAttachment, { foreignKey: 'report_id', as: 'attachments' });
       Report.belongsTo(models.User, { foreignKey: 'user_id', as: 'user' });
       Report.hasMany(models.ReportStatusHistory, { foreignKey: 'report_id', as: 'statusHistory' });
-  };
+      Report.hasMany(models.ReportLikes, { foreignKey: 'report_id', as: 'likesRelation' });
+    };
 
   return Report;
 };
