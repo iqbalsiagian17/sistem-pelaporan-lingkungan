@@ -82,19 +82,24 @@ class _ReportCreateViewState extends State<ReportCreateView> {
     final List<File> uniqueFiles = attachments.where((file) {
       return uniquePaths.add(file.path);
     }).toList();
+print("📌 [DEBUG] Location Details: '${_detailLocationController.text}'");
 
 
-    bool success = await reportProvider.createReport(
-      title: _titleController.text,
-      description: _descriptionController.text,
-      date: DateTime.now().toIso8601String(),
-      locationDetails: isAtLocation ? _detailLocationController.text : null,
-      village: !isAtLocation ? _locationController.text : null,
-      latitude: isAtLocation ? latitude?.toString() ?? "0.0" : null,
-      longitude: isAtLocation ? longitude?.toString() ?? "0.0" : null,
-      isAtLocation: isAtLocation,
-      attachments: uniqueFiles,
-    );
+bool success = await reportProvider.createReport(
+  title: _titleController.text,
+  description: _descriptionController.text,
+  date: DateTime.now().toIso8601String(),
+  locationDetails: (_detailLocationController.text.isNotEmpty)
+      ? _detailLocationController.text
+      : "Tidak ada detail lokasi", // ✅ Pastikan tetap dikirim sebagai string
+  village: !isAtLocation ? _locationController.text : null,
+  latitude: isAtLocation ? latitude?.toString() ?? "0.0" : null,
+  longitude: isAtLocation ? longitude?.toString() ?? "0.0" : null,
+  isAtLocation: isAtLocation,
+  attachments: uniqueFiles,
+);
+
+
 
     setState(() => isSubmitting = false);
 
@@ -175,6 +180,8 @@ print("DEBUG: Paths gambar yang dikirim -> ${attachments.map((file) => file.path
     });
   },
 ),
+
+
 
 
 

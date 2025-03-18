@@ -108,27 +108,6 @@ class _ReportDetailImageState extends State<ReportDetailImage> {
           ],
         ),
 
-        Positioned(
-          top: 16,
-          right: 16,
-          child: GestureDetector(
-            onTap: () async {
-              if (isLiked) {
-                await likeProvider.unlikeReport(widget.reportId, widget.token);
-              } else {
-                await likeProvider.likeReport(widget.reportId, widget.token);
-              }
-            },
-            child: CircleAvatar(
-              backgroundColor: Colors.white.withOpacity(0.7),
-              child: Icon(
-                isLiked ? Icons.favorite : Icons.favorite_border,
-                color: isLiked ? Colors.red : Colors.grey,
-                size: 26,
-              ),
-            ),
-          ),
-        ),
       ],
     );
   }

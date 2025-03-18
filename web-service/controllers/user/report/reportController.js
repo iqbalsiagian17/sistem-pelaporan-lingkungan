@@ -1,5 +1,6 @@
 const { User, Report, ReportAttachment, ReportStatusHistory  } = require('../../../models');
 const { sequelize } = require('../../../models');
+const { Op } = require("sequelize");
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
@@ -116,33 +117,54 @@ exports.getReportById = async (req, res) => {
 exports.createReport = async (req, res) => {
   upload(req, res, async (err) => {
     if (err) {
-      return res.status(400).json({ message: 'File upload error', error: err.message });
+      return res.status(400).json({ message: "File upload error", error: err.message });
     }
+
+    console.log("🔍 [DEBUG] Data dari request body:", req.body); // ✅ Cek apakah location_details dikirim
+
 
     const { title, description, location_details, village, longitude, latitude, is_at_location, date } = req.body;
     const user_id = req.user.id; // Ambil ID user dari token
 
     if (!title || !description || !date) {
-      return res.status(400).json({ message: 'Judul, deskripsi, dan tanggal wajib diisi' });
+      return res.status(400).json({ message: "Judul, deskripsi, dan tanggal wajib diisi" });
     }
 
     try {
-      const report_number = `RPT-${Date.now()}`; // Tambahkan nomor laporan otomatis
+      // Ambil bulan dan tahun dari tanggal laporan
+      const reportDate = new Date(date);
+      const month = String(reportDate.getMonth() + 1).padStart(2, "0"); // MM
+      const year = reportDate.getFullYear(); // YYYY
+
+      // Ambil jumlah laporan yang sudah dibuat dalam bulan ini
+      const existingReports = await Report.count({
+        where: {
+          date: {
+            [Op.between]: [
+              new Date(`${year}-${month}-01 00:00:00`),
+              new Date(`${year}-${month}-31 23:59:59`),
+            ],
+          },
+        },
+      });
+
+      // Format nomor laporan: BB-MMYYYY-XXXX
+      const report_number = `BB-${month}${year}-${String(existingReports + 1).padStart(4, "0")}`;
 
       const result = await sequelize.transaction(async (t) => {
         const newReport = await Report.create(
           {
             user_id,
-            report_number, // Gunakan nomor laporan otomatis
+            report_number, // Gunakan nomor laporan yang baru dibuat
             title,
             description,
-            status: 'pending',
+            status: "pending",
             likes: 0,
             date, // Pastikan `date` tidak null
-            location_details: is_at_location === 'true' ? location_details : null,
-            village: is_at_location === 'false' ? village : null,
-            latitude: is_at_location === 'true' ? latitude : null,
-            longitude: is_at_location === 'true' ? longitude : null
+            location_details: location_details && location_details.trim() !== "" ? location_details.trim() : null, // ✅ Pastikan nilainya dikirim dan disimpan dengan benar
+            village: is_at_location === "false" ? village : null,
+            latitude: is_at_location === "true" ? latitude : null,
+            longitude: is_at_location === "true" ? longitude : null,
           },
           { transaction: t }
         );
@@ -150,7 +172,7 @@ exports.createReport = async (req, res) => {
         if (req.files.length > 0) {
           const attachments = req.files.map((file) => ({
             report_id: newReport.id,
-            file: `uploads/reports/${file.filename}`
+            file: `uploads/reports/${file.filename}`,
           }));
 
           await ReportAttachment.bulkCreate(attachments, { transaction: t });
@@ -160,17 +182,18 @@ exports.createReport = async (req, res) => {
       });
 
       const reportWithAttachments = await Report.findByPk(result.id, {
-        include: { model: ReportAttachment, as: 'attachments' }
+        include: { model: ReportAttachment, as: "attachments" },
       });
 
-      res.status(201).json({ message: 'Laporan berhasil dibuat!', report: reportWithAttachments });
+      console.log("✅ [DEBUG] Data yang disimpan:", reportWithAttachments);
+
+      res.status(201).json({ message: "Laporan berhasil dibuat!", report: reportWithAttachments });
     } catch (error) {
-      console.error('Error creating report:', error);
-      res.status(500).json({ message: 'Terjadi kesalahan server', error: error.message });
+      console.error("Error creating report:", error);
+      res.status(500).json({ message: "Terjadi kesalahan server", error: error.message });
     }
   });
 };
-
 
 // ✅ UPDATE REPORT (Hanya Bisa Jika Status Masih `pending` dan User yang Sama)
 exports.updateReport = async (req, res) => {

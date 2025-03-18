@@ -28,8 +28,8 @@ class TopicSection extends StatelessWidget {
           Consumer<ReportProvider>(
             builder: (context, reportProvider, child) {
               List<Report> validReports = reportProvider.reports.where((report) =>
-                ["verified", "in_progress", "completed"].contains(report.status) &&
-                report.title.isNotEmpty // ✅ Pastikan title tidak kosong
+                ["verified", "in_progress", "completed", "closed"].contains(report.status) &&
+                report.title.isNotEmpty 
               ).toList();
 
               if (validReports.isEmpty) {

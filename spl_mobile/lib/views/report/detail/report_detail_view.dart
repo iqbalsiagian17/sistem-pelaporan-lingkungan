@@ -77,6 +77,7 @@ class ReportDetailView extends StatelessWidget {
                               reportId: report.id, 
                               token: token, // ✅ Pastikan token dikirim
                               status: report.status,
+                              likes: report.likes, // ✅ Pastikan likes dikirim dari data laporan
                             ),
 
                               const SizedBox(height: 10),

@@ -19,6 +19,7 @@ class Report {
   final List<ReportAttachment> attachments;
   final User user;
   final List<ReportStatusHistory> statusHistory; // ✅ Tambahkan daftar status history
+    final bool isSaved; // ✅ Tambahkan field isSaved
 
   Report({
     required this.id,
@@ -36,6 +37,7 @@ class Report {
     required this.attachments,
     required this.user,
     required this.statusHistory, // ✅ Wajib ada
+        required this.isSaved, // ✅ Pastikan ada di constructor
   });
 
 factory Report.fromJson(Map<String, dynamic> json) {
@@ -80,6 +82,8 @@ factory Report.fromJson(Map<String, dynamic> json) {
                       );
             }).toList()
         : [], // ✅ Pastikan `statusHistory` tidak null
+      isSaved: json['is_saved'] ?? false, // ✅ Pastikan bisa diakses
+
   );
 }
 

@@ -19,6 +19,8 @@ class ReportSave {
   final String reportNumber;
   final User user;
   final List<ReportStatusHistory> statusHistory;
+  final bool isSaved; // ✅ Tambahkan properti isSaved
+
 
   ReportSave({
     required this.reportId,
@@ -35,6 +37,7 @@ class ReportSave {
     required this.reportNumber,
     required this.user,
     required this.statusHistory,
+    required this.isSaved, // ✅ Tambahkan di konstruktor
   });
 
   factory ReportSave.fromJson(Map<String, dynamic> json) {
@@ -79,7 +82,10 @@ class ReportSave {
         ? User.fromJson(reportData['user'])
         : User(id: 0, username: "Unknown", email: "", phoneNumber: "", type: 0),
     statusHistory: statusHistoryList, // ✅ Pastikan ini tidak kosong!
+    isSaved: reportData['is_saved'] ?? false, // ✅ Ambil dari JSON, default ke false jika null
+
   );
+  
 }
 
 
@@ -106,6 +112,9 @@ Report toReport() {
     attachments: attachments,
     user: user,
     statusHistory: statusHistory, // ✅ Pastikan ini tidak kosong!
+      isSaved: isSaved, // ✅ Pastikan isSaved dikonversi ke Report
+
+
   );
 }
 

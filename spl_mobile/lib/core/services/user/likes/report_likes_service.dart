@@ -23,6 +23,24 @@ class ReportLikeService {
     }
   }
 
+  /// 🔹 Mengambil jumlah likes dari laporan
+  Future<int> getLikeCount(int reportId, String token) async {
+      try {
+        final response = await _dio.get(
+          "/$reportId",
+          options: Options(headers: {"Authorization": "Bearer $token"}),
+        );
+
+        if (response.statusCode == 200) {
+          return response.data['report']['likes'] ?? 0; // ✅ Ambil dari `t_report.likes`
+        }
+        return 0;
+      } catch (e) {
+        print("❌ [getLikeCount] Error: $e");
+        return 0;
+      }
+    }
+
   /// 🔹 Menyukai laporan
   Future<bool> likeReport(int reportId, String token) async {
     try {

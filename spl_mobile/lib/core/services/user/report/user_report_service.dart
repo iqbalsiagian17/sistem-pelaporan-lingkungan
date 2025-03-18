@@ -82,7 +82,9 @@ Future<Report?> getReportById(String reportId) async {
       "title": title,
       "description": description,
       "date": date.split("T")[0],
-      "location_details": isAtLocation == true ? locationDetails : null,
+        "location_details": (locationDetails != null && locationDetails.isNotEmpty)
+            ? locationDetails.trim()
+            : "Tidak ada detail lokasi", // ✅ Pastikan tetap dikirim sebagai string
       "village": isAtLocation == false && (village?.isNotEmpty ?? false) ? village : null,
       "latitude": isAtLocation == true ? latitude : "0.0",
       "longitude": isAtLocation == true ? longitude : "0.0",
@@ -162,5 +164,49 @@ if (attachments != null && attachments.isNotEmpty) {
       throw Exception("Gagal menghapus laporan: $e");
     }
   }
+
+Future<List<Report>> getUserReports() async {
+  try {
+    final token = await _getToken();
+    if (token == null || token.isEmpty) {
+      throw Exception("❌ Tidak ada token. Silakan login ulang.");
+    }
+
+    debugPrint("🔍 Fetching user reports...");
+
+    final response = await _dio.get(
+      '${ApiConstants.userReportUrl}/all', // 🔹 Ambil semua laporan
+      options: Options(headers: {"Authorization": "Bearer $token"}),
+    );
+
+    if (response.statusCode == 200) {
+      List<dynamic> data = response.data['reports'];
+
+      // 🔍 **Ambil user ID dari SharedPreferences**
+      final prefs = await SharedPreferences.getInstance();
+      int? userId = prefs.getInt("user_id");
+
+      if (userId == null) {
+        throw Exception("❌ User ID tidak ditemukan di local storage.");
+      }
+
+      // 🔍 **Filter laporan berdasarkan user ID**
+      List<Report> userReports = data
+          .map((report) => Report.fromJson(report))
+          .where((report) => report.userId == userId)
+          .toList();
+
+      debugPrint("✅ Found ${userReports.length} reports for user ID: $userId");
+
+      return userReports;
+    } else {
+      throw Exception("❌ Gagal mengambil laporan. Status: ${response.statusCode}");
+    }
+  } catch (e) {
+    debugPrint("❌ Error fetching user reports: $e");
+    return []; // ✅ Jangan crash, return list kosong
+  }
+}
+
 
 }

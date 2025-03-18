@@ -49,15 +49,28 @@ class _ReportSubmitButtonState extends State<ReportSubmitButton> {
         throw Exception("❌ Token tidak ditemukan. Silakan login ulang.");
       }
 
+      // 🔍 **Debugging log sebelum mengirim ke API**
+      print("🔍 [ReportSubmitButton] Data yang dikirim ke API:");
+      print("📌 Title: ${widget.title.trim()}");
+      print("📌 Description: ${widget.description.trim()}");
+      print("📌 LocationDetails: '${widget.locationDetails?.trim() ?? "Tidak ada detail lokasi"}'"); // ✅ Pastikan tidak null
+      print("📌 Village: ${widget.village?.trim()}");
+      print("📌 Latitude: ${widget.latitude ?? "0.0"}");
+      print("📌 Longitude: ${widget.longitude ?? "0.0"}");
+      print("📌 IsAtLocation: ${widget.isAtLocation}");
+      
+
       final reportService = ReportService();
       bool success = await reportService.createReport(
-        title: widget.title,
-        description: widget.description,
+        title: widget.title.trim(),
+        description: widget.description.trim(),
         date: widget.date,
-        locationDetails: widget.locationDetails,
-        village: widget.village,
-        latitude: widget.latitude,
-        longitude: widget.longitude,
+        locationDetails: widget.locationDetails?.trim().isNotEmpty == true
+            ? widget.locationDetails!.trim()
+            : "Tidak ada detail lokasi", // ✅ Pastikan selalu dikirim
+        village: widget.village?.trim(),
+        latitude: widget.latitude ?? "0.0",
+        longitude: widget.longitude ?? "0.0",
         isAtLocation: widget.isAtLocation,
         attachments: widget.attachments,
       );
