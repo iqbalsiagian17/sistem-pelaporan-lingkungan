@@ -29,7 +29,9 @@ class QuickAccessMenu extends StatelessWidget {
             title: 'Forum',
             icon: Icons.forum_rounded,
             color: Colors.green.shade500, // ✅ Warna Hijau Medium
-            onTap: () {},
+            onTap: () {
+              context.go(AppRoutes.forum); // ✅ Navigasi ke ForumView
+            },          
           ),
           MenuItemWidget(
             title: 'Pengumuman',

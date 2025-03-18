@@ -6,6 +6,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:spl_mobile/core/services/auth/auth_service.dart';
 import 'package:spl_mobile/providers/carousel_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart'; // ✅ Simpan state halaman terakhir
+import 'package:spl_mobile/providers/forum_provider.dart';
 import 'package:spl_mobile/providers/report_save_provider.dart';
 import 'package:spl_mobile/providers/user_report_likes_provider.dart';
 import 'package:spl_mobile/routes/app_routes.dart';
@@ -41,6 +42,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => CarouselProvider()),
         ChangeNotifierProvider(create: (_) => ReportSaveProvider()),
         ChangeNotifierProvider(create: (_) => ReportLikeProvider()),
+        ChangeNotifierProvider(create: (_) => ForumProvider()), // ✅ Pastikan ini ada
       ],
       child: const BaligePeduliApp(),
     ),

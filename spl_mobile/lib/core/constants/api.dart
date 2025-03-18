@@ -18,5 +18,7 @@ class ApiConstants {
 
   static const String publicCarousel = "$baseUrl/api/carousels";  
 
+  // ✅ Endpoint Forum
+  static const String forumUrl = "$baseUrl/api/forum";  
 
 }

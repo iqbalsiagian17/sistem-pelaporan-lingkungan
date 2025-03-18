@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:spl_mobile/models/Forum.dart';
 import 'package:spl_mobile/models/Report.dart';
 import 'package:spl_mobile/models/ReportSave.dart';
+import 'package:spl_mobile/views/forum/detail/forum_detail_view.dart';
+import 'package:spl_mobile/views/forum/forum_view.dart';
 import '../views/auth/login_view.dart';
 import '../views/onboarding/onboarding_view.dart';
 import '../views/home/home_view.dart';
@@ -32,6 +35,8 @@ class AppRoutes {
   static const String editPassword = '/edit-password';
   static const String allReport = '/all-report';
   static const String reportDetail = '/report-detail';
+  static const String forum = '/forum';
+  static const String forumDetail = '/forum-detail';
   static const String splash = '/splash';
 
   static Future<String?> _redirectLogic(BuildContext context, GoRouterState state) async {
@@ -66,53 +71,94 @@ class AppRoutes {
       GoRoute(path: createReport, builder: (context, state) => const ReportCreateView()),
       GoRoute(path: allReport, builder: (context, state) => const ReportListAllView()),
       GoRoute(
-      path: '/report-detail',
-      name: AppRoutes.reportDetail,
-      builder: (context, state) {
-        final extra = state.extra;
+        path: '/report-detail',
+        name: AppRoutes.reportDetail,
+        builder: (context, state) {
+          final extra = state.extra;
 
-        // 🔍 Debugging untuk mengetahui bentuk `extra`
-        print("🔍 Debugging state.extra: $extra");
+          // 🔍 Debugging untuk mengetahui bentuk `extra`
+          print("🔍 Debugging state.extra: $extra");
 
-        // ✅ Jika `extra` adalah `Report`, langsung kirim ke `ReportDetailView`
-        if (extra is Report) {
-          return ReportDetailView(report: extra);
-        }
-
-        // ✅ Jika `extra` adalah `Map` yang berisi `data`
-        if (extra is Map<String, dynamic> && extra.containsKey("data")) {
-          final reportData = extra["data"];
-
-          if (reportData is Report) {
-            return ReportDetailView(report: reportData);
-          } else if (reportData is ReportSave) {
-            return ReportDetailView(report: reportData.toReport());
+          // ✅ Jika `extra` adalah `Report`, langsung kirim ke `ReportDetailView`
+          if (extra is Report) {
+            return ReportDetailView(report: extra);
           }
-        }
 
-        // 🔥 Jika data tidak valid, tampilkan error
-        return Scaffold(
-          body: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text(
-                  "❌ Error: Data tidak valid",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.red),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  "Debugging Data: $extra",
-                  style: const TextStyle(fontSize: 14, color: Colors.black54),
-                  textAlign: TextAlign.center,
-                ),
-              ],
+          // ✅ Jika `extra` adalah `Map` yang berisi `data`
+          if (extra is Map<String, dynamic> && extra.containsKey("data")) {
+            final reportData = extra["data"];
+
+            if (reportData is Report) {
+              return ReportDetailView(report: reportData);
+            } else if (reportData is ReportSave) {
+              return ReportDetailView(report: reportData.toReport());
+            }
+          }
+
+          // 🔥 Jika data tidak valid, tampilkan error
+          return Scaffold(
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text(
+                    "❌ Error: Data tidak valid",
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.red),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    "Debugging Data: $extra",
+                    style: const TextStyle(fontSize: 14, color: Colors.black54),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
             ),
-          ),
-        );
-      },
+          );
+        },
     ),
+    GoRoute(path: forum, builder: (context, state) => const ForumView()),
+    GoRoute(
+        path: forumDetail,
+        name: AppRoutes.forumDetail,
+        builder: (context, state) {
+          final extra = state.extra;
 
+          print("🔍 Debugging state.extra: $extra");
+
+          if (extra is ForumPost) {
+            return ForumDetailView(post: extra);
+          }
+
+          if (extra is Map<String, dynamic> && extra.containsKey("post")) {
+            final postData = extra["post"];
+
+            if (postData is ForumPost) {
+              return ForumDetailView(post: postData);
+            }
+          }
+
+          return Scaffold(
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text(
+                    "❌ Error: Data tidak valid",
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.red),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    "Debugging Data: $extra",
+                    style: const TextStyle(fontSize: 14, color: Colors.black54),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
     ],
     errorBuilder: (context, state) => const Scaffold(
       body: Center(child: Text('Halaman tidak ditemukan')),

@@ -26,6 +26,6 @@ class DateUtilsCustom {
     if (difference.inHours < 24) return '${difference.inHours} jam yang lalu';
     if (difference.inDays < 7) return '${difference.inDays} hari yang lalu';
 
-    return formatDate(date); // Kembali ke format tanggal jika lebih dari 7 hari
+    return DateFormat('dd MMM yyyy', 'id_ID').format(date); // Gunakan format tanggal jika lebih dari 7 hari
   }
 }
