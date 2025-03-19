@@ -19,6 +19,13 @@ class AuthProvider with ChangeNotifier {
     _loadUserFromPrefs(); // ✅ Load user saat AuthProvider dibuat
   }
 
+  Future<int?> get currentUserId async {
+    if (_user != null) return _user!.id; // Jika sudah login, langsung return ID user
+
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getInt("id"); // Jika user belum login, ambil dari SharedPreferences
+  }
+
   Future<String?> get token async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString("token");

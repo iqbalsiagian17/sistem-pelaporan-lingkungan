@@ -24,8 +24,9 @@ class _ForumViewState extends State<ForumView> {
     });
   }
 
-  void showCreatePostModal(BuildContext context) {
-    showModalBottomSheet(
+  /// **Tampilkan Modal untuk Membuat Postingan**
+  void showCreatePostModal(BuildContext context) async {
+    bool? result = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
@@ -33,6 +34,10 @@ class _ForumViewState extends State<ForumView> {
       ),
       builder: (context) => const CreatePostModal(),
     );
+
+    if (result == true && mounted) {
+      await Provider.of<ForumProvider>(context, listen: false).fetchAllPosts();
+    }
   }
 
   @override
@@ -55,6 +60,7 @@ class _ForumViewState extends State<ForumView> {
               await forumProvider.fetchAllPosts();
             },
             child: ListView.builder(
+              padding: const EdgeInsets.symmetric(vertical: 10),
               itemCount: forumProvider.posts.length,
               itemBuilder: (context, index) {
                 final post = forumProvider.posts[index];
@@ -64,10 +70,26 @@ class _ForumViewState extends State<ForumView> {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => showCreatePostModal(context),
-        backgroundColor: Colors.blue,
-        child: const Icon(Icons.add, color: Colors.white),
+      floatingActionButton: Container(
+        width: 56,
+        height: 56,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: const LinearGradient(
+            colors: [
+              Color(0xFF4CAF50), // Hijau terang
+              Color(0xFF81C784), // Hijau muda
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: FloatingActionButton(
+          onPressed: () => showCreatePostModal(context),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          child: const Icon(Icons.add, color: Colors.white),
+        ),
       ),
     );
   }

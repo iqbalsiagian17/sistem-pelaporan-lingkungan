@@ -76,15 +76,15 @@ class _CreatePostModalState extends State<CreatePostModal> {
             child: ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,
-                foregroundColor: Colors.blue,
+                foregroundColor: Color.fromRGBO(76, 175, 80, 1),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
-                  side: const BorderSide(color: Colors.blue),
+                  side: const BorderSide(color: Color.fromRGBO(76, 175, 80, 1)),
                 ),
                 padding: const EdgeInsets.symmetric(vertical: 14), // ✅ Padding lebih besar agar nyaman
               ),
               onPressed: _pickImage,
-              icon: const Icon(Icons.image, color: Colors.blue),
+              icon: const Icon(Icons.image, color: Color.fromRGBO(76, 175, 80, 1)),
               label: const Text("Tambah Gambar", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
             ),
           ),
@@ -101,7 +101,7 @@ class _CreatePostModalState extends State<CreatePostModal> {
               ),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
+                  backgroundColor: Color.fromRGBO(76, 175, 80, 1),
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -119,7 +119,9 @@ class _CreatePostModalState extends State<CreatePostModal> {
                           );
 
                           setState(() => _isLoading = false);
-                          Navigator.pop(context);
+                          
+                          // ✅ Tutup modal dan kembalikan nilai `true`
+                          Navigator.pop(context, true);
                         }
                       },
                 child: _isLoading

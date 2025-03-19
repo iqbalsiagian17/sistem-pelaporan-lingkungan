@@ -9,15 +9,46 @@ import 'package:spl_mobile/views/forum/detail/widget/forum_image_grid.dart';
 import 'package:spl_mobile/views/forum/detail/widget/forum_post_content.dart';
 import 'package:spl_mobile/views/forum/detail/widget/forum_user_info.dart';
 
-class ForumDetailView extends StatelessWidget {
+class ForumDetailView extends StatefulWidget {
   final ForumPost post;
 
   const ForumDetailView({super.key, required this.post});
 
   @override
+  _ForumDetailViewState createState() => _ForumDetailViewState();
+}
+
+class _ForumDetailViewState extends State<ForumDetailView> {
+  late ForumPost _post;
+
+  @override
+  void initState() {
+    super.initState();
+    _post = widget.post;
+
+    Future.microtask(() {
+      if (mounted) {
+        _refreshComments(); // 🔄 Ambil data terbaru saat halaman dibuka
+      }
+    });
+  }
+
+  /// **Fungsi untuk refresh komentar setelah komentar baru dikirim**
+  Future<void> _refreshComments() async {
+    final forumProvider = Provider.of<ForumProvider>(context, listen: false);
+    await forumProvider.fetchPostById(_post.id); // 🔄 Ambil data terbaru
+    
+    if (mounted) {
+      setState(() {
+        _post = forumProvider.selectedPost ?? _post; // Gunakan data terbaru
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: true, // ✅ Hindari overflow saat keyboard muncul
+      resizeToAvoidBottomInset: true,
       backgroundColor: Colors.white,
       appBar: ForumHeader(title: "Detail Postingan"),
       body: SafeArea(
@@ -25,45 +56,39 @@ class ForumDetailView extends StatelessWidget {
           children: [
             Expanded(
               child: SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(), // ✅ Pastikan tetap bisa di-scroll
+                physics: const AlwaysScrollableScrollPhysics(),
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // 🔹 **Informasi User**
-                    ForumUserInfo(post: post),
+                    ForumUserInfo(post: _post),
                     const SizedBox(height: 12),
-
-                    // 🔹 **Konten Postingan**
-                    ForumPostContent(post: post),
-                    if (post.images.isNotEmpty) ForumImageGrid(images: post.images),
-
-                    // 🔹 **Aksi Like & Komentar**
+                    ForumPostContent(post: _post),
+                    if (_post.images.isNotEmpty) ForumImageGrid(images: _post.images),
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          // 🔹 **Jumlah Komentar**
-                          _buildIconWithText(Icons.chat_bubble_outline, "${post.comments.length}"),
-
-                          // 🔹 **Jumlah Like (Dummy)**
-                          _buildIconWithText(Icons.favorite_border, "230"), // 🛑 Gantilah dengan jumlah like asli
+                          _buildIconWithText(Icons.chat_bubble_outline, "${_post.comments.length}"),
+                          _buildIconWithText(Icons.favorite_border, "230"),
                         ],
                       ),
                     ),
                     const Divider(thickness: 1),
-
-                    // 🔹 **List Komentar**
-                    ForumCommentList(post: post), // ✅ Pastikan bisa scroll komentar
+                  ForumCommentList(
+                    post: _post,
+                    onCommentDeleted: _refreshComments, // ✅ Refresh komentar setelah dihapus
+                  ),
                   ],
                 ),
               ),
             ),
-
-            // 🔹 **Input Komentar dengan SafeArea**
             SafeArea(
-              child: ForumCommentInput(postId: post.id), // ✅ Pastikan input tetap terlihat
+              child: ForumCommentInput(
+                postId: _post.id,
+                onCommentSent: _refreshComments, // ✅ Perbarui komentar setelah dikirim
+              ),
             ),
           ],
         ),

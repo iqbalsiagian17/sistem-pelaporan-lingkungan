@@ -3,9 +3,10 @@ import 'package:provider/provider.dart';
 import 'package:spl_mobile/providers/forum_provider.dart';
 
 class ForumCommentInput extends StatefulWidget {
-  final int postId; // ✅ ID Post untuk komentar
+  final int postId;
+  final Function() onCommentSent; // Callback untuk refresh
 
-  const ForumCommentInput({super.key, required this.postId});
+  const ForumCommentInput({super.key, required this.postId, required this.onCommentSent});
 
   @override
   _ForumCommentInputState createState() => _ForumCommentInputState();
@@ -13,11 +14,11 @@ class ForumCommentInput extends StatefulWidget {
 
 class _ForumCommentInputState extends State<ForumCommentInput> {
   final TextEditingController _commentController = TextEditingController();
-  bool _isLoading = false; // ✅ Indikator loading saat komentar dikirim
+  bool _isLoading = false;
 
   /// **Fungsi untuk mengirim komentar**
   Future<void> _sendComment() async {
-    if (_commentController.text.trim().isEmpty) return; // ⛔ Cegah komentar kosong
+    if (_commentController.text.trim().isEmpty) return;
 
     setState(() => _isLoading = true);
     final forumProvider = Provider.of<ForumProvider>(context, listen: false);
@@ -28,7 +29,8 @@ class _ForumCommentInputState extends State<ForumCommentInput> {
     );
 
     if (success) {
-      _commentController.clear(); // ✅ Reset input setelah berhasil
+      _commentController.clear(); // ✅ Reset input
+      widget.onCommentSent(); // 🔥 Refresh komentar setelah dikirim
     }
 
     setState(() => _isLoading = false);
@@ -66,7 +68,7 @@ class _ForumCommentInputState extends State<ForumCommentInput> {
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
                 : const Icon(Icons.send, color: Colors.blue),
-            onPressed: _isLoading ? null : _sendComment, // ✅ Cegah multi-klik saat loading
+            onPressed: _isLoading ? null : _sendComment,
           ),
         ],
       ),
