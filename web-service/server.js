@@ -17,6 +17,7 @@ const userManagementRoutes = require("./routes/admin/userManagementRoutes");
 const publicCarouselRoutes = require("./routes/public/carouselRoutes");
 const userReportSaveRoutes = require("./routes/user/userReportSaveRoutes");
 const userReportLikesRoutes = require("./routes/user/userRoutesLikes");
+const userPostLikesRoutes = require("./routes/user/userLikesPostRoutes");
 
 
 
@@ -48,6 +49,7 @@ app.use("/api/forum", forumRoutes);
 app.use("/api/admin/users", userManagementRoutes);
 app.use("/api/user/saved-reports", userReportSaveRoutes);
 app.use("/api/user/reports", userReportLikesRoutes);
+app.use("/api/user/post", userPostLikesRoutes);
 
 // 🔹 Admin Routes
 app.use('/api/admin/reports', adminReportRoutes);

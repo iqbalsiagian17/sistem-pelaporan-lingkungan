@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:spl_mobile/providers/auth_provider.dart';
 import 'package:spl_mobile/providers/forum_provider.dart';
-import 'package:spl_mobile/views/forum/widget/post_card.dart';
+import 'package:spl_mobile/providers/user_post_likes_provider.dart';
+import 'package:spl_mobile/views/forum/widget/forum_tab_bar.dart';
+import 'package:spl_mobile/views/forum/widget/forum_tab_view.dart';
 import 'package:spl_mobile/views/forum/widget/forum_header.dart';
 import 'package:spl_mobile/views/forum/widget/create_post_modal.dart';
 
@@ -12,20 +15,34 @@ class ForumView extends StatefulWidget {
   _ForumViewState createState() => _ForumViewState();
 }
 
-class _ForumViewState extends State<ForumView> {
+class _ForumViewState extends State<ForumView> with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
   @override
   void initState() {
     super.initState();
-    
-    Future.microtask(() {
-      if (mounted) {
-        Provider.of<ForumProvider>(context, listen: false).fetchAllPosts();
-      }
-    });
+    _tabController = TabController(length: 2, vsync: this);
+    Future.microtask(() => _refreshForumPosts());
   }
 
-  /// **Tampilkan Modal untuk Membuat Postingan**
-  void showCreatePostModal(BuildContext context) async {
+  /// 🔄 **Refresh daftar postingan**
+  Future<void> _refreshForumPosts() async {
+    final forumProvider = Provider.of<ForumProvider>(context, listen: false);
+    final postLikeProvider = Provider.of<PostLikeProvider>(context, listen: false);
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
+    await forumProvider.fetchAllPosts();
+
+    final String? token = await authProvider.token;
+    if (token != null) {
+      for (var post in forumProvider.posts) {
+        await postLikeProvider.fetchLikeCount(post.id, token);
+      }
+    }
+  }
+
+  /// ✍️ **Tampilkan Modal untuk Membuat Postingan**
+  Future<void> _showCreatePostModal(BuildContext context) async {
     bool? result = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
@@ -35,8 +52,8 @@ class _ForumViewState extends State<ForumView> {
       builder: (context) => const CreatePostModal(),
     );
 
-    if (result == true && mounted) {
-      await Provider.of<ForumProvider>(context, listen: false).fetchAllPosts();
+    if (result == true) {
+      await _refreshForumPosts();
     }
   }
 
@@ -44,52 +61,29 @@ class _ForumViewState extends State<ForumView> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: const ForumHeader(title: "Forum Diskusi"),
-      body: Consumer<ForumProvider>(
-        builder: (context, forumProvider, child) {
-          if (forumProvider.isLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (forumProvider.posts.isEmpty) {
-            return const Center(child: Text("Belum ada postingan."));
-          }
-
-          return RefreshIndicator(
-            onRefresh: () async {
-              await forumProvider.fetchAllPosts();
-            },
-            child: ListView.builder(
-              padding: const EdgeInsets.symmetric(vertical: 10),
-              itemCount: forumProvider.posts.length,
-              itemBuilder: (context, index) {
-                final post = forumProvider.posts[index];
-                return PostCard(post: post);
-              },
-            ),
-          );
-        },
+      
+      /// ✅ **Header Full (ForumHeader + ForumTabBar)**
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(110),
+        child: Column(
+          children: [
+            const ForumHeader(title: "Forum Diskusi"), // ✅ Header utama
+            ForumTabBar(tabController: _tabController), // ✅ TabBar dengan controller
+          ],
+        ),
       ),
-      floatingActionButton: Container(
-        width: 56,
-        height: 56,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          gradient: const LinearGradient(
-            colors: [
-              Color(0xFF4CAF50), // Hijau terang
-              Color(0xFF81C784), // Hijau muda
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: FloatingActionButton(
-          onPressed: () => showCreatePostModal(context),
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          child: const Icon(Icons.add, color: Colors.white),
-        ),
+
+      /// ✅ **Body dengan TabBarView (menggunakan ForumTabView)**
+      body: ForumTabView(
+        tabController: _tabController,
+        onRefresh: _refreshForumPosts,
+      ),
+
+      /// ✅ **Floating Action Button untuk Tambah Postingan**
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _showCreatePostModal(context),
+        backgroundColor: Colors.green.shade800,
+        child: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }

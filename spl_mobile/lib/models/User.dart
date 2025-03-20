@@ -72,5 +72,11 @@ class User {
   String toString() {
     return "User(id: $id, username: $username, email: $email, phoneNumber: $phoneNumber, type: $type, blockedUntil: $blockedUntil)";
   }
+
+    factory User.empty() {
+    return User(id: 0, username: 'Anonymous', email: '', phoneNumber: '', type: 0);
+  }
+
+  
 }
 

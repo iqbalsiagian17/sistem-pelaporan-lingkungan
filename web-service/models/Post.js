@@ -19,7 +19,12 @@ module.exports = (sequelize, DataTypes) => {
             content: {
                 type: DataTypes.TEXT,
                 allowNull: false
-            }
+            },
+            likes: {
+                type: DataTypes.INTEGER,
+                allowNull: false,
+                defaultValue: 0, // ✅ Default 0 likes
+            },
         },
         {
             tableName: "t_post",

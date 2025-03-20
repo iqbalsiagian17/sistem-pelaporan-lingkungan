@@ -9,6 +9,7 @@ class ForumPost {
   final String content;
   final String createdAt;
   final String updatedAt;
+  final int likes;
   final User user;
   final List<ForumImage> images;
   final List<ForumComment> comments;
@@ -22,6 +23,7 @@ class ForumPost {
     required this.user,
     required this.images,
     required this.comments,
+    required this.likes,
   });
 
   factory ForumPost.fromJson(Map<String, dynamic> json) {
@@ -38,6 +40,7 @@ class ForumPost {
       comments: (json['comments'] as List)
           .map((cmt) => ForumComment.fromJson(cmt))
           .toList(),
+      likes: json['likes']??0,
     );
   }
 }

@@ -21,4 +21,7 @@ class ApiConstants {
   // ✅ Endpoint Forum
   static const String forumUrl = "$baseUrl/api/forum";  
 
+  static const String userPostLike = "$baseUrl/api/user/post";
+
+
 }
