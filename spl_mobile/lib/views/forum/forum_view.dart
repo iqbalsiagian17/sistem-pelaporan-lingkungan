@@ -82,7 +82,7 @@ class _ForumViewState extends State<ForumView> with SingleTickerProviderStateMix
       /// ✅ **Floating Action Button untuk Tambah Postingan**
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showCreatePostModal(context),
-        backgroundColor: Colors.green.shade800,
+        backgroundColor: const Color.fromRGBO(76, 175, 80, 1),
         child: const Icon(Icons.add, color: Colors.white),
       ),
     );

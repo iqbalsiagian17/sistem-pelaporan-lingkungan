@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:spl_mobile/models/Forum.dart';
 import 'package:spl_mobile/core/utils/date_utils.dart';
 import 'package:spl_mobile/views/forum/widget/post_popup_menu.dart';
-import 'package:provider/provider.dart';
-import 'package:spl_mobile/providers/auth_provider.dart';
 
 class PostHeader extends StatelessWidget {
   final ForumPost post;
@@ -16,7 +14,7 @@ class PostHeader extends StatelessWidget {
       children: [
         CircleAvatar(
           radius: 22,
-          backgroundColor: Colors.green,
+          backgroundColor: const Color.fromRGBO(76, 175, 80, 1),
           child: Text(
             post.user.username[0].toUpperCase(),
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),

@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:spl_mobile/providers/forum_provider.dart';
 import 'package:spl_mobile/views/forum/widget/post_card.dart';
 
-class ForumTabView extends StatelessWidget {
+class ForumTabView extends StatefulWidget {
   final TabController tabController;
   final Future<void> Function() onRefresh;
 
@@ -14,8 +14,25 @@ class ForumTabView extends StatelessWidget {
   });
 
   @override
+  _ForumTabViewState createState() => _ForumTabViewState();
+}
+
+class _ForumTabViewState extends State<ForumTabView> {
+  @override
+  void initState() {
+    super.initState();
+    
+    // ✅ Tambahkan listener agar refresh otomatis saat tab berubah
+    widget.tabController.addListener(() {
+      if (widget.tabController.indexIsChanging) {
+        widget.onRefresh();
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Expanded( // ✅ Pakai Expanded agar langsung ke bawah
+    return Expanded(
       child: Consumer<ForumProvider>(
         builder: (context, forumProvider, child) {
           if (forumProvider.isLoading) {
@@ -23,11 +40,11 @@ class ForumTabView extends StatelessWidget {
           }
 
           return TabBarView(
-            controller: tabController,
-            physics: const NeverScrollableScrollPhysics(), // ✅ Hindari double scroll
+            controller: widget.tabController,
+            physics: const NeverScrollableScrollPhysics(),
             children: [
-              _buildPostList(forumProvider.posts), // Tab "Rekomendasi"
-              _buildPostList(_getPopularPosts(forumProvider)), // Tab "Populer"
+              _buildPostList(forumProvider.posts),
+              _buildPostList(_getPopularPosts(forumProvider)),
             ],
           );
         },
@@ -35,16 +52,15 @@ class ForumTabView extends StatelessWidget {
     );
   }
 
-  /// **📌 Widget untuk menampilkan daftar postingan**
   Widget _buildPostList(List posts) {
     if (posts.isEmpty) {
       return const Center(child: Text("Belum ada postingan."));
     }
 
     return RefreshIndicator(
-      onRefresh: onRefresh,
+      onRefresh: widget.onRefresh,
       child: ListView.builder(
-        padding: EdgeInsets.zero, // ✅ Hilangkan padding ekstra di atas
+        padding: EdgeInsets.zero,
         itemCount: posts.length,
         itemBuilder: (context, index) {
           return PostCard(post: posts[index]);
@@ -53,11 +69,10 @@ class ForumTabView extends StatelessWidget {
     );
   }
 
-  /// **📌 Ambil postingan populer berdasarkan jumlah likes**
   List _getPopularPosts(ForumProvider forumProvider) {
     return forumProvider.posts
-        .where((post) => post.likes > 0) // 🔥 Hanya postingan dengan likes > 0
+        .where((post) => post.likes > 0)
         .toList()
-      ..sort((a, b) => b.likes.compareTo(a.likes)); // 🔥 Urutkan dari yang terbanyak
+      ..sort((a, b) => b.likes.compareTo(a.likes));
   }
 }

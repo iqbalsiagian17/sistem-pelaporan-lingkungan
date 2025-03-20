@@ -15,18 +15,45 @@ class _CreatePostModalState extends State<CreatePostModal> {
   final TextEditingController _contentController = TextEditingController();
   final List<File> _selectedImages = [];
   bool _isLoading = false;
+  static const int _maxImages = 5; // ✅ Maksimal 5 gambar
 
-  /// 🔹 **Fungsi untuk memilih gambar**
-  Future<void> _pickImage() async {
-    final picker = ImagePicker();
-    final pickedFiles = await picker.pickMultiImage();
+  /// **📸 Pilih Gambar**
+Future<void> _pickImage() async {
+  if (_selectedImages.length >= _maxImages) {
+    _showMaxImageAlert(); // ✅ Tampilkan Alert jika sudah 5 gambar
+    return;
+  }
 
-    if (pickedFiles != null) {
+  final picker = ImagePicker();
+  final pickedFiles = await picker.pickMultiImage();
+
+  if (pickedFiles != null) {
+    if (_selectedImages.length + pickedFiles.length > _maxImages) {
+      _showMaxImageAlert(); // ✅ Jika jumlah total lebih dari 5, tampilkan alert
+    } else {
       setState(() {
         _selectedImages.addAll(pickedFiles.map((file) => File(file.path)));
       });
     }
   }
+}
+
+/// **🔔 Menampilkan Alert jika melebihi batas**
+void _showMaxImageAlert() {
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text("Batas Maksimum Tercapai"),
+      content: const Text("Anda hanya dapat mengunggah maksimal 5 gambar."),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text("OK", style: TextStyle(color: Colors.blue)),
+        ),
+      ],
+    ),
+  );
+}
 
   @override
   Widget build(BuildContext context) {
@@ -34,8 +61,8 @@ class _CreatePostModalState extends State<CreatePostModal> {
 
     return Container(
       decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        color: Colors.white, // ✅ Background putih
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       padding: EdgeInsets.only(
         left: 16,
@@ -45,67 +72,69 @@ class _CreatePostModalState extends State<CreatePostModal> {
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 🔹 **Judul Modal**
-          const Text(
-            "Buat Postingan Baru",
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          // **Header**
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                "Buat Postingan",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              IconButton(
+                icon: const Icon(Icons.close, color: Colors.black),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ],
           ),
           const SizedBox(height: 10),
 
-          // 🔹 **Input Postingan**
+          // **Input Postingan**
           TextField(
             controller: _contentController,
             decoration: InputDecoration(
               hintText: "Apa yang sedang terjadi?",
+              hintStyle: TextStyle(color: Colors.grey.shade500),
+              filled: true,
+              fillColor: Colors.grey.shade100,
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide.none,
               ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             ),
-            maxLines: 4,
+            maxLines: null,
+            keyboardType: TextInputType.multiline,
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
 
-          // 🔹 **Preview Gambar yang Dipilih**
+          // **Preview Gambar (Jika Ada)**
           if (_selectedImages.isNotEmpty) _buildImagePreview(),
 
-          // 🔹 **Tombol Tambah Gambar**
-          SizedBox(
-            width: double.infinity, // ✅ Lebar penuh
-            child: ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: Color.fromRGBO(76, 175, 80, 1),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  side: const BorderSide(color: Color.fromRGBO(76, 175, 80, 1)),
-                ),
-                padding: const EdgeInsets.symmetric(vertical: 14), // ✅ Padding lebih besar agar nyaman
-              ),
-              onPressed: _pickImage,
-              icon: const Icon(Icons.image, color: Color.fromRGBO(76, 175, 80, 1)),
-              label: const Text("Tambah Gambar", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
-            ),
-          ),
-
-          const SizedBox(height: 12),
-
-          // 🔹 **Tombol Aksi**
+          // **Aksi: Tambah Gambar & Posting**
           Row(
-            mainAxisAlignment: MainAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text("Batal", style: TextStyle(color: Colors.red)),
+              // **Tambah Gambar (Disabled jika sudah 5 gambar)**
+              IconButton(
+                icon: Icon(
+                  Icons.image,
+                  color: _selectedImages.length >= _maxImages ? Colors.grey : Colors.green,
+                  size: 28,
+                ),
+                onPressed: _selectedImages.length >= _maxImages ? null : _pickImage, // ✅ Disable tombol jika sudah 5 gambar
               ),
+
+              // **Tombol Posting**
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Color.fromRGBO(76, 175, 80, 1),
+                  backgroundColor: Colors.green,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(30),
                   ),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 ),
                 onPressed: _isLoading
                     ? null
@@ -118,10 +147,10 @@ class _CreatePostModalState extends State<CreatePostModal> {
                             imagePaths: _selectedImages.map((file) => file.path).toList(),
                           );
 
-                          setState(() => _isLoading = false);
-                          
-                          // ✅ Tutup modal dan kembalikan nilai `true`
-                          Navigator.pop(context, true);
+                          if (mounted) {
+                            setState(() => _isLoading = false);
+                            Navigator.pop(context, true);
+                          }
                         }
                       },
                 child: _isLoading
@@ -139,33 +168,25 @@ class _CreatePostModalState extends State<CreatePostModal> {
     );
   }
 
-  /// 🔹 **Widget Preview Gambar**
+  /// **📸 Widget Preview Gambar**
   Widget _buildImagePreview() {
-    return SizedBox(
-      height: 100,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: _selectedImages.length,
-        itemBuilder: (context, index) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        children: _selectedImages.map((image) {
           return Stack(
             alignment: Alignment.topRight,
             children: [
-              Container(
-                margin: const EdgeInsets.only(right: 8),
-                height: 100,
-                width: 100,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  image: DecorationImage(
-                    image: FileImage(_selectedImages[index]),
-                    fit: BoxFit.cover,
-                  ),
-                ),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Image.file(image, width: 80, height: 80, fit: BoxFit.cover),
               ),
               GestureDetector(
                 onTap: () {
                   setState(() {
-                    _selectedImages.removeAt(index);
+                    _selectedImages.remove(image);
                   });
                 },
                 child: Container(
@@ -179,7 +200,7 @@ class _CreatePostModalState extends State<CreatePostModal> {
               ),
             ],
           );
-        },
+        }).toList(),
       ),
     );
   }

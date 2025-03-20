@@ -21,32 +21,32 @@ class PostLikeProvider with ChangeNotifier {
   }
 
   /// 🔹 Fetch jumlah likes dari API
-  Future<void> fetchLikeCount(int postId, String token) async {
+Future<int> fetchLikeCount(int postId, String token) async {
     try {
       print("🔍 [fetchLikeCount] Mengambil jumlah like untuk Post ID: $postId");
-
       int count = await _postLikeService.getLikeCount(postId, token);
-      _likeCounts[postId] = count; // ✅ Update jumlah like ke dalam cache
-      notifyListeners(); // ✅ Perbarui UI
+      _likeCounts[postId] = count;
+      notifyListeners();
+      return count; // ✅ Perbaikan: Sekarang mengembalikan `int`
     } catch (e) {
       print("❌ [fetchLikeCount] Error: $e");
+      return 0;
     }
   }
 
-  /// 🔹 Fetch status like berdasarkan `userId`
-  Future<void> fetchLikeStatus(int userId, int postId, String token) async {
+  Future<bool> fetchLikeStatus(int userId, int postId, String token) async {
     try {
       bool liked = await _postLikeService.isLiked(postId, token);
-
       if (liked) {
         _likedPosts.putIfAbsent(userId, () => {}).add(postId);
       } else {
         _likedPosts[userId]?.remove(postId);
       }
-
       notifyListeners();
+      return liked; // ✅ Perbaikan: Sekarang mengembalikan `bool`
     } catch (e) {
       print("❌ [fetchLikeStatus] Error: $e");
+      return false;
     }
   }
 

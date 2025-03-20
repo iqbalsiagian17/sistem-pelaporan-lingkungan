@@ -16,7 +16,7 @@ class PostPopupMenu extends StatelessWidget {
       future: Provider.of<AuthProvider>(context, listen: false).currentUserId,
       builder: (context, snapshot) {
         if (!snapshot.hasData || snapshot.data != post.user.id) {
-          return const SizedBox(); // 🔹 Hanya tampilkan untuk pemilik postingan
+          return const SizedBox(); // 🔹 Hanya tampilkan jika user adalah pemilik postingan
         }
 
         return PopupMenuButton<String>(
@@ -95,8 +95,8 @@ class PostPopupMenu extends StatelessWidget {
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
                       onPressed: () async {
-                        Navigator.pop(context);
-                        await context.read<ForumProvider>().removePost(post.id);
+                        Navigator.pop(context); // ✅ Tutup modal sebelum penghapusan
+                        await _deletePost(context);
                       },
                       child: const Text("Hapus", style: TextStyle(color: Colors.white)),
                     ),
@@ -108,5 +108,24 @@ class PostPopupMenu extends StatelessWidget {
         );
       },
     );
+  }
+
+  /// **Fungsi Menghapus Postingan & Navigasi ke ForumView**
+  Future<void> _deletePost(BuildContext context) async {
+    final forumProvider = Provider.of<ForumProvider>(context, listen: false);
+    bool success = await forumProvider.removePost(post.id);
+
+    if (success) {
+      // ✅ Pastikan tidak crash saat pop halaman terakhir
+      if (Navigator.canPop(context)) {
+        Navigator.pop(context); // 🔥 Kembali ke halaman ForumView
+      } else {
+        Navigator.popUntil(context, (route) => route.isFirst); // 🔥 Balik ke halaman pertama jika perlu
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("❌ Gagal menghapus postingan")),
+      );
+    }
   }
 }

@@ -135,22 +135,24 @@ class _ForumCommentListState extends State<ForumCommentList> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+Widget build(BuildContext context) {
+  final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
-    return FutureBuilder<int?>(
-      future: authProvider.currentUserId, // Ambil ID pengguna yang login
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return const Center(child: CircularProgressIndicator());
-        }
+  return FutureBuilder<int?>(
+    future: authProvider.currentUserId,
+    builder: (context, snapshot) {
+      if (!snapshot.hasData) {
+        return const Center(child: CircularProgressIndicator());
+      }
 
-        final loggedInUserId = snapshot.data;
+      final loggedInUserId = snapshot.data;
 
-        return widget.post.comments.isNotEmpty
-            ? ListView.separated(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
+      return widget.post.comments.isNotEmpty
+          ? SizedBox(
+              height: MediaQuery.of(context).size.height * 0.4, // ✅ Batasi tinggi ListView
+              child: ListView.separated(
+                shrinkWrap: true, // ✅ Pastikan shrinkWrap digunakan dengan benar
+                physics: const AlwaysScrollableScrollPhysics(), // ✅ Pastikan bisa discroll
                 itemCount: widget.post.comments.length,
                 separatorBuilder: (context, index) => const Divider(
                   thickness: 0.5,
@@ -160,94 +162,103 @@ class _ForumCommentListState extends State<ForumCommentList> {
                 itemBuilder: (context, index) {
                   final comment = widget.post.comments[index];
 
-                  return Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // 🔹 **Avatar User**
-                            CircleAvatar(
-                              radius: 20,
-                              backgroundColor: _generateColorFromUsername(comment.user.username),
-                              child: Text(
-                                comment.user.username[0].toUpperCase(),
-                                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // 🔹 **Avatar User**
+                        CircleAvatar(
+                          radius: 20,
+                          backgroundColor: _generateColorFromUsername(comment.user.username),
+                          child: Text(
+                            comment.user.username[0].toUpperCase(),
+                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
 
-                            // 🔹 **Komentar**
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                        // 🔹 **Komentar**
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // 🔹 **Username & Waktu**
+                              Row(
                                 children: [
-                                  // 🔹 **Username & Waktu**
-                                  Row(
-                                    children: [
-                                      Text(
-                                        comment.user.username,
-                                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                                      ),
-                                      const SizedBox(width: 6),
-                                      Text(
-                                        "• ${DateUtilsCustom.timeAgo(DateTime.parse(comment.createdAt))}",
-                                        style: TextStyle(color: Colors.grey.shade500, fontSize: 12),
-                                      ),
-                                    ],
+                                  Text(
+                                    comment.user.username,
+                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                                   ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    "• ${DateUtilsCustom.timeAgo(DateTime.parse(comment.createdAt))}",
+                                    style: TextStyle(color: Colors.grey.shade500, fontSize: 12),
+                                  ),
+                                ],
+                              ),
 
-                                  // 🔹 **Isi Komentar**
-                                  Padding(
-                                    padding: const EdgeInsets.only(top: 6),
-                                    child: Text(
-                                      comment.content,
-                                      style: const TextStyle(fontSize: 14, height: 1.4),
+                              // 🔹 **Isi Komentar**
+                              Padding(
+                                padding: const EdgeInsets.only(top: 6),
+                                child: Text(
+                                  comment.content,
+                                  style: const TextStyle(fontSize: 14, height: 1.4),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        // 🔹 **Titik Tiga Menu (Hanya untuk pemilik komentar)**
+                        if (comment.user.id == loggedInUserId)
+                          PopupMenuButton<String>(
+                          onSelected: (value) {
+                            if (value == 'delete') {
+                              _showDeleteConfirmationSheet(context, comment.id);
+                            }
+                          },
+                          icon: const Icon(Icons.more_vert, color: Colors.black),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12), // 🔹 Sudut membulat
+                          ),
+                          color: Colors.white, // 🔹 Background putih
+                          elevation: 5, // 🔹 Efek shadow agar tampak melayang
+                          itemBuilder: (context) => [
+                            PopupMenuItem<String>(
+                              value: 'delete',
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.delete, color: Colors.red), // 🔹 Icon merah
+                                  const SizedBox(width: 12),
+                                  Text(
+                                    "Hapus Komentar",
+                                    style: TextStyle(
+                                      color: Colors.black, // 🔹 Warna teks hitam
+                                      fontWeight: FontWeight.w500,
                                     ),
                                   ),
                                 ],
                               ),
                             ),
-
-                            // 🔹 **Titik Tiga Menu (Hanya untuk pemilik komentar)**
-                            if (comment.user.id == loggedInUserId)
-                              PopupMenuButton<String>(
-                                onSelected: (value) {
-                                  if (value == 'delete') {
-                                    _showDeleteConfirmationSheet(context, comment.id);
-                                  }
-                                },
-                                icon: const Icon(Icons.more_vert, color: Colors.black),
-                                itemBuilder: (context) => [
-                                  PopupMenuItem<String>(
-                                    value: 'delete',
-                                    child: Row(
-                                      children: [
-                                        const Icon(Icons.delete_outline, color: Colors.red),
-                                        const SizedBox(width: 10),
-                                        const Text("Hapus Komentar", style: TextStyle(color: Colors.red)),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
                           ],
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   );
                 },
-              )
-            : const Center(
-                child: Padding(
-                  padding: EdgeInsets.all(20),
-                  child: Text("Belum ada komentar.", style: TextStyle(color: Colors.grey, fontSize: 14)),
-                ),
-              );
-      },
-    );
-  }
+              ),
+            )
+          : const Center(
+              child: Padding(
+                padding: EdgeInsets.all(20),
+                child: Text("Belum ada komentar.", style: TextStyle(color: Colors.grey, fontSize: 14)),
+              ),
+            );
+    },
+  );
+}
+
 
   /// **🔹 Fungsi untuk menghasilkan warna avatar berdasarkan username**
   Color _generateColorFromUsername(String username) {

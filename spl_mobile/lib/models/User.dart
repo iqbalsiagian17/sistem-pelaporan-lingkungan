@@ -77,6 +77,11 @@ class User {
     return User(id: 0, username: 'Anonymous', email: '', phoneNumber: '', type: 0);
   }
 
+    static User defaultUser() {
+    return User(id: 0, username: "Unknown", email: "", phoneNumber: "", type: 0);
+  }
+
+
   
 }
 

@@ -30,6 +30,7 @@ class PostCard extends StatelessWidget {
             PostHeader(post: post),  // 🔹 Header
             const SizedBox(height: 8),
             Text(post.content, style: const TextStyle(fontSize: 16)), // 🔹 Konten teks
+            const SizedBox(height: 12),
             if (post.images.isNotEmpty) 
               PostImageGrid(images: post.images.map((img) => img.imageUrl).toList()), // 🔹 Gambar
             const SizedBox(height: 10),
