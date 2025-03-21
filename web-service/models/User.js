@@ -21,11 +21,11 @@ module.exports = (sequelize, DataTypes) => {
     },
     phone_number: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: true
     },
     password: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: true
     },
     type: {
       type: DataTypes.INTEGER,
@@ -36,6 +36,11 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.DATE,
       allowNull: true,
       defaultValue: null // **User tidak diblokir secara default**
+    },
+    auth_provider:{
+      type: DataTypes.ENUM('manual', 'google'),
+      allowNull: false,
+      defaultValue: 'manual'
     }
   }, {
     sequelize,

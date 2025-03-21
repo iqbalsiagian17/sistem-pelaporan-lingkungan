@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "520871251104",
+    "project_id": "baligebersihauth",
+    "storage_bucket": "baligebersihauth.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:520871251104:android:da597e8f94872bba368dc5",
+        "android_client_info": {
+          "package_name": "com.example.spl_mobile"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "520871251104-ffr7pp8i3hr13sls92saukhotutenli2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.spl_mobile",
+            "certificate_hash": "3c8cd932746118b92be8e50092a94e68cb86a5b6"
+          }
+        },
+        {
+          "client_id": "520871251104-45jmj5b7fpl9ndhvpffc10hcj1a8d8s1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBhK5W-NmFd6ERfIiEDOJLDxUxbGoFMOG4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "520871251104-45jmj5b7fpl9ndhvpffc10hcj1a8d8s1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -18,6 +18,12 @@ const getUserById = async (user_id) => {
     });
 };
 
+const findByEmail = async (email) => {
+    return await User.findOne({
+        where: { email: email }
+    });
+};
+
 
 const updateUser = async (user_id, updateData) => {
     const [updated] = await User.update(updateData, { where: { id: user_id } });
@@ -56,4 +62,4 @@ const changePassword = async (user_id, oldPassword, newPassword) => {
 };
 
 
-module.exports = { findByPhoneOrEmail, createUser,changePassword,getUserById,updateUser };
+module.exports = { findByPhoneOrEmail, createUser,changePassword,getUserById,updateUser, findByEmail };

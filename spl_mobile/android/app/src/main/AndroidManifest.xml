@@ -3,13 +3,22 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
-
-
+    <uses-permission android:name="android.permission.INTERNET"/> <!-- Dibutuhkan untuk Google Sign-In -->
 
     <application
         android:label="spl_mobile"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+
+         <meta-data
+            android:name="com.google.android.gms.auth.api.credentials.CREDENTIALS_API"
+            android:value="true"/>
+
+        <meta-data
+            android:name="com.google.android.gms.auth.api.signin.CLIENT_ID"
+            android:value="4669818575-alr9ec9ojt8ncp5jdt5oeu4br822ceba.apps.googleusercontent.com" /> <!-- Gunakan Client ID kamu -->
+
+            
         <activity
             android:name=".MainActivity"
             android:exported="true"

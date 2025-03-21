@@ -15,7 +15,7 @@ module.exports = {
       },
       phone_number: {
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: true
       },
       email: {
         type: Sequelize.STRING,
@@ -33,7 +33,7 @@ module.exports = {
       },
       password: {
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: true
       },
       profile_picture: {
         type: Sequelize.STRING,
@@ -47,6 +47,11 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull: true,
         defaultValue: null
+      },
+      auth_provider: {
+        type: Sequelize.ENUM('manual', 'google'),
+        allowNull: false,
+        defaultValue: 'manual'
       },
       createdAt: {
         allowNull: false,
