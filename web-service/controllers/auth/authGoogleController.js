@@ -73,7 +73,7 @@ const googleLogin = async (req, res) => {
 
     // Buat access token & refresh token
     const accessToken = jwt.sign(
-      { id: user.id, email: user.email, username: user.username, type: user.type },
+      { id: user.id, email: user.email, username: user.username, type: user.type, auth_provider: user.auth_provider },
       process.env.JWT_SECRET,
       { expiresIn: '15m' }
     );

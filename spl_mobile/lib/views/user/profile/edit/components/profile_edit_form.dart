@@ -87,6 +87,8 @@ class _ProfileEditFormState extends State<ProfileEditForm> {
   Widget build(BuildContext context) {
     return Consumer2<AuthProvider, UserProfileProvider>(
       builder: (context, authProvider, profileProvider, child) {
+final isGoogleUser = profileProvider.user?.authProvider == 'google';
+
         return Form(
           key: _formKey,
           child: SingleChildScrollView(
@@ -101,6 +103,7 @@ class _ProfileEditFormState extends State<ProfileEditForm> {
                   icon: Icons.person,
                   validator: (value) => value!.isEmpty ? "Username tidak boleh kosong" : null,
                 ),
+if (!isGoogleUser)
                 CustomInputField(
                   controller: _emailController,
                   label: "Email",

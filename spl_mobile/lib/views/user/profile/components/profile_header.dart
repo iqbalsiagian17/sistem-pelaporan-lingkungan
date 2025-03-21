@@ -5,7 +5,6 @@ import '../../../../providers/user_profile_provider.dart';
 class ProfileHeader extends StatelessWidget {
   ProfileHeader({super.key});
 
-  // ✅ Warna berdasarkan hash dari username (agar tetap sama)
   Color _generateColorFromUsername(String username) {
     int hash = username.hashCode;
     int r = (hash & 0xFF0000) >> 16;
@@ -14,15 +13,12 @@ class ProfileHeader extends StatelessWidget {
     return Color.fromARGB(255, r, g, b);
   }
 
-  // ✅ Ambil inisial username
   String _getInitials(String? username) {
     if (username == null || username.isEmpty) return "?";
     List<String> names = username.split(" ");
-    if (names.length == 1) {
-      return names[0][0].toUpperCase();
-    } else {
-      return "${names[0][0]}${names[1][0]}".toUpperCase();
-    }
+    return names.length == 1
+        ? names[0][0].toUpperCase()
+        : "${names[0][0]}${names[1][0]}".toUpperCase();
   }
 
   @override
@@ -32,13 +28,12 @@ class ProfileHeader extends StatelessWidget {
         final user = profileProvider.user;
 
         if (user == null) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
+          return const Center(child: CircularProgressIndicator());
         }
 
         final String initials = _getInitials(user.username);
-        final Color bgColor = _generateColorFromUsername(user.username); // ✅ Warna tetap
+        final Color bgColor = _generateColorFromUsername(user.username);
+        final bool isGoogleUser = user.authProvider == 'google';
 
         return Column(
           children: [
@@ -69,6 +64,32 @@ class ProfileHeader extends StatelessWidget {
               user.email.isNotEmpty ? user.email : "Tidak ada email",
               style: const TextStyle(fontSize: 14, color: Colors.black54),
             ),
+            if (isGoogleUser) ...[
+              const SizedBox(height: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
+                  borderRadius: BorderRadius.circular(30),
+                  border: Border.all(color: Colors.grey.shade300),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Image.asset(
+                      'assets/images/google.png',
+                      width: 16,
+                      height: 16,
+                    ),
+                    const SizedBox(width: 6),
+                    const Text(
+                      "Terhubung ke Google",
+                      style: TextStyle(fontSize: 12, color: Colors.black87),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ],
         );
       },

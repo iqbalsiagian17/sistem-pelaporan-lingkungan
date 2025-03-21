@@ -3,8 +3,10 @@ class User {
   final String username;
   final String email;
   final String phoneNumber;
+  final String? password;
   final int type;
   final DateTime? blockedUntil;
+  final String authProvider; // 🔥 Pastikan ini tidak nullable
 
   User({
     required this.id,
@@ -13,9 +15,9 @@ class User {
     required this.phoneNumber,
     this.type = 0,
     this.blockedUntil,
+    this.authProvider = 'manual', // 🔥 Default jadi 'manual'
+    this.password,
   });
-
-  
 
   factory User.fromJson(Map<String, dynamic> json) {
     // ✅ Debug jika gagal parsing tanggal
@@ -26,15 +28,16 @@ class User {
         print("⚠️ Gagal parsing blocked_until: ${json["blocked_until"]}");
       }
     }
-        return User(
+
+    return User(
       id: json["id"] ?? 0,
       username: json["username"] ?? "Tidak diketahui",
       email: json["email"] ?? "Tidak ada email",
       phoneNumber: json["phone_number"] ?? "Tidak ada nomor",
       type: json["type"] ?? 0,
-      blockedUntil: json["blocked_until"] != null
-          ? DateTime.tryParse(json["blocked_until"])
-          : null,
+      blockedUntil: parsedBlockedUntil,
+      authProvider: json["auth_provider"] ?? 'manual', // 🔥 Pastikan selalu ada nilai
+      password: json["password"] ?? "", // 🔥 Hindari `null` pada password
     );
   }
 
@@ -46,6 +49,7 @@ class User {
       "phone_number": phoneNumber,
       "type": type,
       "blocked_until": blockedUntil?.toIso8601String(),
+      "auth_provider": authProvider,
     };
   }
 
@@ -57,6 +61,7 @@ class User {
     String? phoneNumber,
     int? type,
     DateTime? blockedUntil,
+    String? authProvider, // 🔥 Tambahkan authProvider
   }) {
     return User(
       id: id ?? this.id,
@@ -65,23 +70,20 @@ class User {
       phoneNumber: phoneNumber ?? this.phoneNumber,
       type: type ?? this.type,
       blockedUntil: blockedUntil ?? this.blockedUntil,
+      authProvider: authProvider ?? this.authProvider, // ✅ Pastikan bisa diupdate
     );
   }
 
-    @override
+  @override
   String toString() {
-    return "User(id: $id, username: $username, email: $email, phoneNumber: $phoneNumber, type: $type, blockedUntil: $blockedUntil)";
+    return "User(id: $id, username: $username, email: $email, phoneNumber: $phoneNumber, type: $type, blockedUntil: $blockedUntil, authProvider: $authProvider)";
   }
 
-    factory User.empty() {
-    return User(id: 0, username: 'Anonymous', email: '', phoneNumber: '', type: 0);
+  factory User.empty() {
+    return User(id: 0, username: 'Anonymous', email: '', phoneNumber: '', type: 0, authProvider: 'manual');
   }
 
-    static User defaultUser() {
-    return User(id: 0, username: "Unknown", email: "", phoneNumber: "", type: 0);
+  static User defaultUser() {
+    return User(id: 0, username: "Unknown", email: "", phoneNumber: "", type: 0, authProvider: 'manual');
   }
-
-
-  
 }
-

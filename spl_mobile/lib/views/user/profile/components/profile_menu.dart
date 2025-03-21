@@ -1,43 +1,63 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import '../../../../routes/app_routes.dart';
+import '../../../../providers/user_profile_provider.dart';
 
 class ProfileMenu extends StatelessWidget {
   const ProfileMenu({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-          child: Text(
-            "Akun",
-            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color.fromARGB(137, 0, 0, 0)),
-          ),
-        ),
-        _buildMenuItem(Icons.edit, "Edit Profil", () {
-          context.push(AppRoutes.editProfile); // ✅ Navigasi ke halaman edit profil
-        }),
-       _buildMenuItem(Icons.lock, "Ubah Password", () {
-          context.go(AppRoutes.editPassword);
-        }),
-        const SizedBox(height: 20),
-        const Padding(
-          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-          child: Text(
-            "Umum",
-            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black54),
-          ),
-        ),
-        _buildMenuItem(Icons.book, "Syarat & Ketentuan", () {
-          // TODO: Tambahkan navigasi ke halaman syarat & ketentuan
-        }),
-        _buildMenuItem(Icons.info, "Tentang Aplikasi", () {
-          // TODO: Tambahkan navigasi ke halaman tentang aplikasi
-        }),
-      ],
+    return Consumer<UserProfileProvider>(
+      builder: (context, userProvider, child) {
+        final user = userProvider.user;
+
+        print("🔍 Debugging user: $user"); // 🛠 Debug: Pastikan user ter-load
+
+        final isGoogleUser = user?.authProvider == 'google';
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+              child: Text(
+                "Akun",
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: Color.fromARGB(137, 0, 0, 0),
+                ),
+              ),
+            ),
+            _buildMenuItem(Icons.edit, "Edit Profil", () {
+              context.push(AppRoutes.editProfile);
+            }),
+
+            // ❌ Sembunyikan jika user login dengan Google
+            if (!isGoogleUser)
+              _buildMenuItem(Icons.lock, "Ubah Password", () {
+                context.go(AppRoutes.editPassword);
+              }),
+
+            const SizedBox(height: 20),
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+              child: Text(
+                "Umum",
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black54),
+              ),
+            ),
+            _buildMenuItem(Icons.book, "Syarat & Ketentuan", () {
+              // TODO: Tambahkan navigasi ke halaman syarat & ketentuan
+            }),
+            _buildMenuItem(Icons.info, "Tentang Aplikasi", () {
+              // TODO: Tambahkan navigasi ke halaman tentang aplikasi
+            }),
+          ],
+        );
+      },
     );
   }
 

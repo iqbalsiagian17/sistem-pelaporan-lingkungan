@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart'; // ⬅️ Pakai GoRouter
 import 'package:spl_mobile/providers/auth_google_provider.dart';
 import 'package:spl_mobile/routes/app_routes.dart';
+import 'package:spl_mobile/widgets/show_snackbar.dart';
 
 import 'components/login_header.dart';
 import 'components/login_form.dart';
@@ -34,18 +35,28 @@ class LoginView extends StatelessWidget {
                     bool success = await googleProvider.loginWithGoogle();
 
                     if (success) {
-                      debugPrint("✅ Login Google sukses! Navigasi ke ${AppRoutes.home}");
-                      context.go(AppRoutes.home); // ⬅️ GoRouter navigation
+                      debugPrint("✅ Login Google sukses! Menampilkan notifikasi custom...");
+
+                      // ✅ Tampilkan notifikasi dengan SnackbarHelper
+                      SnackbarHelper.showSnackbar(
+                        context,
+                        "Login Google berhasil!",
+                        isError: false,
+                      );
+
+                      // ✅ Delay redirect ke halaman home
+                      Future.delayed(const Duration(seconds: 1), () {
+                        if (context.mounted) {
+                          context.go(AppRoutes.home);
+                        }
+                      });
                     } else {
                       debugPrint("❌ Login Google gagal: ${googleProvider.errorMessage}");
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            googleProvider.errorMessage ?? 'Login gagal',
-                            style: const TextStyle(color: Colors.white),
-                          ),
-                          backgroundColor: Colors.red,
-                        ),
+
+                      SnackbarHelper.showSnackbar(
+                        context,
+                        googleProvider.errorMessage ?? "Login gagal",
+                        isError: true,
                       );
                     }
                   },

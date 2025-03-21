@@ -14,15 +14,17 @@ const findByPhoneOrEmail = async (identifier) => {
 const getUserById = async (user_id) => {
     return await User.findOne({
         where: { id: user_id },
-        attributes: ['id', 'username', 'phone_number', 'email', 'profile_picture']
+        attributes: ['id', 'username', 'phone_number', 'email', 'type', 'auth_provider']
     });
 };
 
 const findByEmail = async (email) => {
     return await User.findOne({
-        where: { email: email }
+      where: { email },
+      attributes: ['id', 'username', 'email', 'phone_number', 'type', 'auth_provider'], // ✅ Pastikan ini ada
     });
-};
+  };
+  
 
 
 const updateUser = async (user_id, updateData) => {
