@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:spl_mobile/core/constants/api.dart';
 import 'package:spl_mobile/core/utils/status_utils.dart';
+import 'package:spl_mobile/widgets/skeleton/skeleton_report_list.dart';
 import '../../../routes/app_routes.dart';
 import '../../../providers/user_report_provider.dart';
 import '../../../providers/report_save_provider.dart';
@@ -55,9 +56,14 @@ class RecentReportsSection extends StatelessWidget {
 
             // 🔹 List Aduan Terbaru
               if (reportProvider.isLoading)
-                const Padding(
-                  padding: EdgeInsets.only(top: 20),
-                  child: Center(child: CircularProgressIndicator()),
+                ListView.builder(
+                  itemCount: 3,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  itemBuilder: (context, index) {
+                    return const SkeletonReportList();
+                  },
                 )
               else if (reportProvider.errorMessage != null)
                 Padding(

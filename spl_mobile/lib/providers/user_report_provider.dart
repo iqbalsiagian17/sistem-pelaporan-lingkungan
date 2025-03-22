@@ -69,16 +69,16 @@ Future<Report?> getReportById(String reportId) async {
   }
 }
 
-  bool hasPendingReports() {
-    if (_reports.isEmpty) return false; // Jika belum ada laporan, langsung return false
 
-    int? userId = _reports.first.userId; // ✅ Ambil user ID dari laporan pertama
+bool hasPendingReports(int currentUserId) {
+  if (_reports.isEmpty) return false;
 
-    if (userId == null) return false; // Jika tidak ada user ID, anggap tidak ada laporan pending
+  return _reports.any((report) =>
+      report.userId == currentUserId &&
+      report.status != "closed" &&
+      report.status != "rejected");
+}
 
-    return _reports.any(
-        (report) => report.userId == userId && report.status != "closed" && report.status != "rejected");
-  }
 
 
 
@@ -99,7 +99,10 @@ Future<Report?> getReportById(String reportId) async {
 
     try {
 
-      if (hasPendingReports()) {
+      final prefs = await SharedPreferences.getInstance();
+      final currentUserId = prefs.getInt("id");
+
+      if (currentUserId != null && hasPendingReports(currentUserId)) {
         throw Exception("🚫 Anda masih memiliki laporan yang belum selesai. Harap tunggu hingga laporan sebelumnya berstatus 'closed'.");
       }
 

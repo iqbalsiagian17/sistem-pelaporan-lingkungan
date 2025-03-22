@@ -37,7 +37,9 @@ class QuickAccessMenu extends StatelessWidget {
             title: 'Pengumuman',
             icon: Icons.campaign_rounded,
             color: Colors.green.shade400, // ✅ Warna Hijau Muda
-            onTap: () {},
+            onTap: () {
+              context.go(AppRoutes.allAnnouncement);
+            },
           ),
           MenuItemWidget(
             title: 'Darurat',

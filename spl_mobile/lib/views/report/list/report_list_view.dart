@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:spl_mobile/widgets/skeleton/skeleton_report_list.dart';
 import '../../../routes/app_routes.dart';
 import '../../../widgets/bottom_navbar.dart';
 import '../../../providers/user_report_provider.dart';
@@ -61,11 +62,16 @@ class _ReportListAllViewState extends State<ReportListAllView> {
         },
       ),
       body: reportProvider.isLoading
-          ? const Center(child: CircularProgressIndicator()) // ✅ Loader saat fetch data
-          : ReportSaveDataState(
-              reports: reportProvider.reports, // ✅ Data laporan dari API
-              onRetry: _retryFetch, // ✅ Fungsi untuk refresh data jika gagal
-            ),
+      ? ListView.builder(
+          itemCount: 6, // jumlah skeleton item yang ditampilkan
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          itemBuilder: (_, __) => const SkeletonReportList(),
+        )
+      : ReportSaveDataState(
+          reports: reportProvider.reports,
+          onRetry: _retryFetch,
+        ),
+
       bottomNavigationBar: BottomNavbar(
         currentIndex: _selectedIndex,
         onTap: _onNavBarTap,

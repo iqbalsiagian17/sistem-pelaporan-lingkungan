@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:spl_mobile/widgets/skeleton/skeleton_header_profile.dart';
 import '../../../../providers/user_profile_provider.dart';
 
 class ProfileHeader extends StatelessWidget {
@@ -28,7 +29,7 @@ class ProfileHeader extends StatelessWidget {
         final user = profileProvider.user;
 
         if (user == null) {
-          return const Center(child: CircularProgressIndicator());
+          return const ProfileHeaderSkeleton(); // ✅ Skeleton hanya muncul saat data belum ada
         }
 
         final String initials = _getInitials(user.username);

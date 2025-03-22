@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:spl_mobile/core/services/auth/auth_service.dart';
+import 'package:spl_mobile/providers/announcement_provider.dart';
 import 'package:spl_mobile/providers/auth_google_provider.dart';
 import 'package:spl_mobile/providers/carousel_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart'; // ✅ Simpan state halaman terakhir
@@ -47,6 +48,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => ForumProvider()), // ✅ Pastikan ini ada
         ChangeNotifierProvider(create: (_) => PostLikeProvider()),
         ChangeNotifierProvider(create: (_) => AuthGoogleProvider()),
+        ChangeNotifierProvider(create: (_) => AnnouncementProvider()),
       ],
       child: const BaligePeduliApp(),
     ),

@@ -15,6 +15,7 @@ const adminAnnouncementRoutes = require("./routes/admin/announcementRoutes");
 const forumRoutes = require("./routes/user/forumRoutes");
 const userManagementRoutes = require("./routes/admin/userManagementRoutes");
 const publicCarouselRoutes = require("./routes/public/carouselRoutes");
+const publicAnnouncementRoutes = require("./routes/public/announcementRoutes");
 const userReportSaveRoutes = require("./routes/user/userReportSaveRoutes");
 const userReportLikesRoutes = require("./routes/user/userRoutesLikes");
 const userPostLikesRoutes = require("./routes/user/userLikesPostRoutes");
@@ -40,6 +41,7 @@ app.use('/api/auth', authRoutes);
 
 // 🔹 Public Routes
 app.use("/api/carousels", publicCarouselRoutes);
+app.use("/api/announcements", publicAnnouncementRoutes);
 
 
 // 🔹 User Routes

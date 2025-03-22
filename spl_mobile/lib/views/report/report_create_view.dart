@@ -67,7 +67,7 @@ class _ReportCreateViewState extends State<ReportCreateView> {
     final reportProvider = Provider.of<ReportProvider>(context, listen: false);
 
     // ✅ Cek apakah user masih memiliki laporan yang belum selesai
-    if (reportProvider.hasPendingReports()) {
+if (reportProvider.hasPendingReports(prefs.getInt("id") ?? 0)) {
       setState(() => isSubmitting = false);
       SnackbarHelper.showSnackbar(
         context,

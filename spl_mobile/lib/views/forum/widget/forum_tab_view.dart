@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:spl_mobile/providers/forum_provider.dart';
 import 'package:spl_mobile/views/forum/widget/post_card.dart';
+import 'package:spl_mobile/widgets/skeleton/skeleton_forum_post.dart';
 
 class ForumTabView extends StatefulWidget {
   final TabController tabController;
@@ -21,8 +22,6 @@ class _ForumTabViewState extends State<ForumTabView> {
   @override
   void initState() {
     super.initState();
-    
-    // ✅ Tambahkan listener agar refresh otomatis saat tab berubah
     widget.tabController.addListener(() {
       if (widget.tabController.indexIsChanging) {
         widget.onRefresh();
@@ -35,16 +34,16 @@ class _ForumTabViewState extends State<ForumTabView> {
     return Expanded(
       child: Consumer<ForumProvider>(
         builder: (context, forumProvider, child) {
-          if (forumProvider.isLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
           return TabBarView(
             controller: widget.tabController,
             physics: const NeverScrollableScrollPhysics(),
             children: [
-              _buildPostList(forumProvider.posts),
-              _buildPostList(_getPopularPosts(forumProvider)),
+              forumProvider.isLoading
+                  ? _buildSkeletonList()
+                  : _buildPostList(forumProvider.posts),
+              forumProvider.isLoading
+                  ? _buildSkeletonList()
+                  : _buildPostList(_getPopularPosts(forumProvider)),
             ],
           );
         },
@@ -62,10 +61,16 @@ class _ForumTabViewState extends State<ForumTabView> {
       child: ListView.builder(
         padding: EdgeInsets.zero,
         itemCount: posts.length,
-        itemBuilder: (context, index) {
-          return PostCard(post: posts[index]);
-        },
+        itemBuilder: (context, index) => PostCard(post: posts[index]),
       ),
+    );
+  }
+
+  Widget _buildSkeletonList() {
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      itemCount: 5,
+      itemBuilder: (context, index) => const SkeletonForumPost(),
     );
   }
 

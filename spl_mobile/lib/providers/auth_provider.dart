@@ -210,6 +210,23 @@ Future<bool> refreshUser() async {
 
 
 
+Future<void> setUserFromPrefs() async {
+  final prefs = await SharedPreferences.getInstance();
+  final id = prefs.getInt("id");
+  if (id == null) return;
+
+  _user = User(
+    id: id,
+    username: prefs.getString("username") ?? "",
+    email: prefs.getString("email") ?? "",
+    phoneNumber: prefs.getString("phone_number") ?? "",
+    type: prefs.getInt("type") ?? 0,
+  );
+
+  print("🔁 User diset ulang di AuthProvider dari SharedPreferences: ID=${_user!.id}");
+  notifyListeners();
+}
+
 
   
 }

@@ -19,6 +19,7 @@ final GoogleSignIn _googleSignIn = GoogleSignIn(
   Future<Map<String, dynamic>> loginWithGoogle() async {
     try {
       print("🔹 Memulai proses Google Sign-In...");
+      await _googleSignIn.signOut(); // ✅ Paksa logout agar dialog pilih akun muncul
       final googleUser = await _googleSignIn.signIn();
 
       if (googleUser == null) {

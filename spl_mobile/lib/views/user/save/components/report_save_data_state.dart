@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
+import 'package:spl_mobile/widgets/skeleton/skeleton_report_list.dart';
 import '../../../../providers/report_save_provider.dart';
 import '../../../../models/ReportSave.dart';
 import './report_save_empty_state.dart';
@@ -18,8 +19,15 @@ class ReportSaveDataState extends StatelessWidget {
     return Consumer<ReportSaveProvider>(
       builder: (context, reportSaveProvider, child) {
         if (reportSaveProvider.isLoading) {
-          return const Center(child: CircularProgressIndicator());
+          return ListView.builder(
+            itemCount: 3,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: 16.0).copyWith(top: 16.0),
+            itemBuilder: (context, index) => const SkeletonReportList(),
+          );
         }
+
 
         if (reportSaveProvider.errorMessage != null) {
           return Center(child: Text("❌ ${reportSaveProvider.errorMessage}"));

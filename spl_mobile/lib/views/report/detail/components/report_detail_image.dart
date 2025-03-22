@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:spl_mobile/providers/user_report_likes_provider.dart';
+import 'package:spl_mobile/widgets/skeleton/skeleton_image_card.dart';
 
 class ReportDetailImage extends StatefulWidget {
   final List<String> imageUrls;
@@ -35,79 +36,72 @@ class _ReportDetailImageState extends State<ReportDetailImage> {
 
   @override
   Widget build(BuildContext context) {
-    final likeProvider = Provider.of<ReportLikeProvider>(context);
-    final bool isLiked = likeProvider.isLiked(widget.reportId);
-
-    return Stack(
-      alignment: Alignment.topRight,
+    return Column(
       children: [
-        Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(5),
-              child: SizedBox(
-                height: 200,
-                child: PageView.builder(
-                  controller: _controller,
-                  itemCount: widget.imageUrls.isNotEmpty ? widget.imageUrls.length : 1,
-                  onPageChanged: (index) {
-                    setState(() {
-                      _currentIndex = index;
-                    });
-                  },
-                  itemBuilder: (context, index) {
-                    String imageUrl = widget.imageUrls.isNotEmpty
-                        ? widget.imageUrls[index]
-                        : "assets/images/default.jpg";
+        Padding(
+          padding: const EdgeInsets.all(5),
+          child: SizedBox(
+            height: 200,
+            child: PageView.builder(
+              controller: _controller,
+              itemCount: widget.imageUrls.isNotEmpty ? widget.imageUrls.length : 1,
+              onPageChanged: (index) {
+                setState(() {
+                  _currentIndex = index;
+                });
+              },
+              itemBuilder: (context, index) {
+                String imageUrl = widget.imageUrls.isNotEmpty
+                    ? widget.imageUrls[index]
+                    : "assets/images/default.jpg";
 
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      child: GestureDetector(
-                        onTap: () => _showFullImageDialog(context, imageUrl),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
-                          child: Hero(
-                            tag: imageUrl,
-                            child: imageUrl.startsWith("http")
-                                ? CachedNetworkImage(
-                                    imageUrl: imageUrl,
-                                    width: double.infinity,
-                                    height: 200,
-                                    fit: BoxFit.cover,
-                                    progressIndicatorBuilder: (context, url, progress) {
-                                      return _loadingPlaceholder();
-                                    },
-                                    errorWidget: (context, url, error) => _defaultImage(),
-                                  )
-                                : _defaultImage(),
-                          ),
-                        ),
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: GestureDetector(
+                    onTap: () => _showFullImageDialog(context, imageUrl),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Hero(
+                        tag: imageUrl,
+                        child: imageUrl.startsWith("http")
+                            ? CachedNetworkImage(
+                                imageUrl: imageUrl,
+                                width: double.infinity,
+                                height: 200,
+                                fit: BoxFit.cover,
+                                placeholder: (context, url) => const SkeletonImageCard(
+                                  height: 200,
+                                  borderRadius: 12,
+                                  margin: EdgeInsets.zero,
+                                ),
+                                errorWidget: (context, url, error) => _defaultImage(),
+                              )
+                            : _defaultImage(),
                       ),
-                    );
-                  },
-                ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+        if (widget.imageUrls.length > 1)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: SmoothPageIndicator(
+              controller: _controller,
+              count: widget.imageUrls.length,
+              effect: const ExpandingDotsEffect(
+                dotHeight: 10,
+                dotWidth: 10,
+                spacing: 8,
+                radius: 16,
+                dotColor: Colors.grey,
+                activeDotColor: Color(0xFF1976D2),
+                expansionFactor: 4,
               ),
             ),
-            if (widget.imageUrls.length > 1)
-              Padding(
-                padding: const EdgeInsets.only(top: 8),
-                child: SmoothPageIndicator(
-                  controller: _controller,
-                  count: widget.imageUrls.length,
-                  effect: const ExpandingDotsEffect(
-                    dotHeight: 10,
-                    dotWidth: 10,
-                    spacing: 8,
-                    radius: 16,
-                    dotColor: Colors.grey,
-                    activeDotColor: Color(0xFF1976D2),
-                    expansionFactor: 4,
-                  ),
-                ),
-              ),
-          ],
-        ),
-
+          ),
       ],
     );
   }
@@ -130,20 +124,6 @@ class _ReportDetailImageState extends State<ReportDetailImage> {
           ),
         ),
       ),
-    );
-  }
-
-
-  // 🔹 Placeholder saat gambar benar-benar masih loading
-  Widget _loadingPlaceholder() {
-    return Container(
-      width: double.infinity,
-      height: 200,
-      decoration: BoxDecoration(
-        color: Colors.grey[300],
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: const Center(child: CircularProgressIndicator(strokeWidth: 1.5)),
     );
   }
 

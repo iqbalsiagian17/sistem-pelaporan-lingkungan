@@ -10,6 +10,7 @@ import 'package:spl_mobile/views/forum/detail/widget/forum_image_grid.dart';
 import 'package:spl_mobile/views/forum/detail/widget/forum_post_content.dart';
 import 'package:spl_mobile/views/forum/detail/widget/forum_user_info.dart';
 import 'package:spl_mobile/views/forum/detail/widget/forum_action.dart';
+import 'package:spl_mobile/widgets/skeleton/skeleton_forum_post_detail.dart';
 
 class ForumDetailView extends StatefulWidget {
   final ForumPost post;
@@ -130,9 +131,6 @@ class _ForumDetailViewState extends State<ForumDetailView> {
 
   /// **🔥 Loading Screen dengan Background Putih**
   Widget _loadingScreen() {
-    return const Scaffold(
-      backgroundColor: Colors.white,
-      body: Center(child: CircularProgressIndicator(color: Colors.blue)),
-    );
+  return const ForumDetailSkeleton();
   }
 }

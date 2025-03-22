@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:spl_mobile/models/Announcement.dart';
 import 'package:spl_mobile/models/Forum.dart';
 import 'package:spl_mobile/models/Report.dart';
 import 'package:spl_mobile/models/ReportSave.dart';
+import 'package:spl_mobile/views/announcement/announcement_list_view.dart';
+import 'package:spl_mobile/views/announcement/detail/announcement_detail_view.dart';
 import 'package:spl_mobile/views/forum/detail/forum_detail_view.dart';
 import 'package:spl_mobile/views/forum/forum_view.dart';
 import '../views/auth/login_view.dart';
@@ -37,6 +40,8 @@ class AppRoutes {
   static const String reportDetail = '/report-detail';
   static const String forum = '/forum';
   static const String forumDetail = '/forum-detail';
+  static const String allAnnouncement =  '/announcement';
+  static const String announcementDetail = '/announcement-detail';
   static const String splash = '/splash';
 
   static Future<String?> _redirectLogic(BuildContext context, GoRouterState state) async {
@@ -159,6 +164,41 @@ class AppRoutes {
           );
         },
       ),
+    GoRoute(path: allAnnouncement, builder: (context, state) => const AnnouncementListView()),
+    GoRoute(
+      path: announcementDetail,
+      name: AppRoutes.announcementDetail,
+      builder: (context, state) {
+        final extra = state.extra;
+
+        // Debugging
+        print("🔍 Debugging state.extra (announcement): $extra");
+
+        if (extra is AnnouncementItem) {
+          return AnnouncementDetailView(announcement: extra);
+        }
+
+        return Scaffold(
+          body: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  "❌ Error: Data pengumuman tidak valid",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.red),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  "Debugging Data: $extra",
+                  style: const TextStyle(fontSize: 14, color: Colors.black54),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    ),
     ],
     errorBuilder: (context, state) => const Scaffold(
       body: Center(child: Text('Halaman tidak ditemukan')),

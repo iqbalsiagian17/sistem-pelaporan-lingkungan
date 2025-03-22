@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:spl_mobile/widgets/skeleton/skeleton_report_list.dart';
 import '../../../widgets/bottom_navbar.dart';
 import 'components/report_top_bar.dart';
 import 'components/report_data_state.dart';
@@ -28,37 +29,38 @@ class _MyReportViewState extends State<MyReportView> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    final authProvider = Provider.of<AuthProvider>(context);
-    final reportProvider = Provider.of<ReportProvider>(context);
+Widget build(BuildContext context) {
+  final authProvider = Provider.of<AuthProvider>(context);
+  final reportProvider = Provider.of<ReportProvider>(context);
 
-    // ✅ Ambil ID user yang sedang login
-    final int? currentUserId = authProvider.user?.id;
+  final int? currentUserId = authProvider.user?.id;
 
-    print("User ID yang sedang login: $currentUserId");
-    print("Daftar laporan sebelum difilter: ${reportProvider.reports.map((e) => e.toJson()).toList()}");
+  final List<Report> reports = reportProvider.reports
+      .where((report) => report.userId == currentUserId)
+      .toList();
 
-    // ✅ Filter laporan berdasarkan ID user yang sedang login
-    final List<Report> reports = reportProvider.reports
-        .where((report) => report is Report && report.userId == currentUserId)
-        .cast<Report>() // ✅ Explicitly cast to List<Report>
-        .toList();
+  return Scaffold(
+    backgroundColor: Colors.white,
+    appBar: const ReportTopBar(title: "Aduanku"),
+    body: Container(
+      color: Colors.white,
+      child: reportProvider.isLoading
+          ? ListView.builder(
+              itemCount: 6,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              itemBuilder: (_, __) => const SkeletonReportList(),
+            )
+          : isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : ReportDataState(reports: reports, onRetry: _retryFetch),
+    ),
+    bottomNavigationBar: BottomNavbar(
+      currentIndex: _selectedIndex,
+      onTap: (index) {
+        setState(() => _selectedIndex = index);
+      },
+    ),
+  );
+}
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: const ReportTopBar(title: "Aduanku"),
-      body: Container(
-        color: Colors.white,
-        child: isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : ReportDataState(reports: reports, onRetry: _retryFetch),
-      ),
-      bottomNavigationBar: BottomNavbar(
-        currentIndex: _selectedIndex,
-        onTap: (index) {
-          setState(() => _selectedIndex = index);
-        },
-      ),
-    );
-  }
 }
