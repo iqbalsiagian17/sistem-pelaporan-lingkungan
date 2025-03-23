@@ -9,6 +9,7 @@ import 'package:spl_mobile/providers/auth_google_provider.dart';
 import 'package:spl_mobile/providers/carousel_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart'; // ✅ Simpan state halaman terakhir
 import 'package:spl_mobile/providers/forum_provider.dart';
+import 'package:spl_mobile/providers/parameter_provider.dart';
 import 'package:spl_mobile/providers/report_save_provider.dart';
 import 'package:spl_mobile/providers/user_post_likes_provider.dart';
 import 'package:spl_mobile/providers/user_report_likes_provider.dart';
@@ -49,6 +50,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => PostLikeProvider()),
         ChangeNotifierProvider(create: (_) => AuthGoogleProvider()),
         ChangeNotifierProvider(create: (_) => AnnouncementProvider()),
+        ChangeNotifierProvider(create: (_) => ParameterProvider()),
       ],
       child: const BaligePeduliApp(),
     ),

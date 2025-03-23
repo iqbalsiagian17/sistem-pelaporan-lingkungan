@@ -29,6 +29,7 @@ class _AnnouncementListViewState extends State<AnnouncementListView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AnnouncementListTopBar(
         title: "Daftar Pengumuman",
         onSearch: () {

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../../routes/app_routes.dart';
+import '../../../../routes/app_routes.dart';
 
-class ReportTopBar extends StatelessWidget implements PreferredSizeWidget {
+class EmeregencyTopBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
 
-  const ReportTopBar({super.key, required this.title});
+  const EmeregencyTopBar({super.key, required this.title});
 
   @override
   Size get preferredSize => const Size.fromHeight(56);
@@ -18,8 +18,8 @@ class ReportTopBar extends StatelessWidget implements PreferredSizeWidget {
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Color(0xFF4CAF50), // Hijau terang
-              Color(0xFF81C784), // Hijau muda
+              Color(0xFF4CAF50), // 💚 Hijau terang
+              Color(0xFF81C784), // 💚 Hijau muda
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -47,15 +47,6 @@ class ReportTopBar extends StatelessWidget implements PreferredSizeWidget {
               }
             },
           ),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.help_outline_rounded),
-              tooltip: 'Tata Cara Pelaporan',
-              onPressed: () {
-                context.push(AppRoutes.reportGuide); // ⬅️ Pastikan route sudah benar
-              },
-            ),
-          ],
         ),
       ),
     );

@@ -13,7 +13,7 @@ class ReportSubmitButton extends StatefulWidget {
   final String? longitude;
   final bool isAtLocation;
   final List<File> attachments;
-  final VoidCallback? onSuccess; // ✅ Tambahkan callback jika berhasil
+  final VoidCallback? onSuccess;
 
   const ReportSubmitButton({
     super.key,
@@ -36,10 +36,70 @@ class ReportSubmitButton extends StatefulWidget {
 class _ReportSubmitButtonState extends State<ReportSubmitButton> {
   bool isLoading = false;
 
+  Future<void> _confirmBeforeSubmit() async {
+    final confirmed = await showModalBottomSheet<bool>(
+      context: context,
+      backgroundColor: Colors.white,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.warning_amber_rounded, size: 48, color: Colors.orange),
+            const SizedBox(height: 16),
+            const Text(
+              "Apakah Anda Yakin?",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              "Pastikan semua informasi aduan sudah benar. Setelah dikirim, Anda tidak bisa mengubahnya.",
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pop(context, false),
+                    style: OutlinedButton.styleFrom(
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      side: const BorderSide(color: Colors.grey),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                    ),
+                    child: const Text("Batal"),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.pop(context, true),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                    ),
+                    child: const Text("Ya, Kirim Sekarang", style: TextStyle(color: Colors.white)),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (confirmed == true) {
+      _submitReport();
+    }
+  }
+
   Future<void> _submitReport() async {
-    setState(() {
-      isLoading = true;
-    });
+    setState(() => isLoading = true);
 
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -49,17 +109,6 @@ class _ReportSubmitButtonState extends State<ReportSubmitButton> {
         throw Exception("❌ Token tidak ditemukan. Silakan login ulang.");
       }
 
-      // 🔍 **Debugging log sebelum mengirim ke API**
-      print("🔍 [ReportSubmitButton] Data yang dikirim ke API:");
-      print("📌 Title: ${widget.title.trim()}");
-      print("📌 Description: ${widget.description.trim()}");
-      print("📌 LocationDetails: '${widget.locationDetails?.trim() ?? "Tidak ada detail lokasi"}'"); // ✅ Pastikan tidak null
-      print("📌 Village: ${widget.village?.trim()}");
-      print("📌 Latitude: ${widget.latitude ?? "0.0"}");
-      print("📌 Longitude: ${widget.longitude ?? "0.0"}");
-      print("📌 IsAtLocation: ${widget.isAtLocation}");
-      
-
       final reportService = ReportService();
       bool success = await reportService.createReport(
         title: widget.title.trim(),
@@ -67,7 +116,7 @@ class _ReportSubmitButtonState extends State<ReportSubmitButton> {
         date: widget.date,
         locationDetails: widget.locationDetails?.trim().isNotEmpty == true
             ? widget.locationDetails!.trim()
-            : "Tidak ada detail lokasi", // ✅ Pastikan selalu dikirim
+            : "Tidak ada detail lokasi",
         village: widget.village?.trim(),
         latitude: widget.latitude ?? "0.0",
         longitude: widget.longitude ?? "0.0",
@@ -76,7 +125,7 @@ class _ReportSubmitButtonState extends State<ReportSubmitButton> {
       );
 
       if (success) {
-        widget.onSuccess?.call(); // ✅ Callback jika sukses
+        widget.onSuccess?.call();
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("✅ Laporan berhasil dikirim!")),
         );
@@ -88,9 +137,7 @@ class _ReportSubmitButtonState extends State<ReportSubmitButton> {
         SnackBar(content: Text("❌ Gagal mengirim laporan: $e")),
       );
     } finally {
-      setState(() {
-        isLoading = false;
-      });
+      setState(() => isLoading = false);
     }
   }
 
@@ -99,7 +146,7 @@ class _ReportSubmitButtonState extends State<ReportSubmitButton> {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
-        onPressed: isLoading ? null : _submitReport,
+        onPressed: isLoading ? null : _confirmBeforeSubmit,
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.green,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

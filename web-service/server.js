@@ -12,10 +12,12 @@ const userReportRoutes = require('./routes/user/reportRoutes');
 const adminReportRoutes = require('./routes/admin/reportRoutes');
 const adminCarouselRoutes = require("./routes/admin/carouselRoutes");
 const adminAnnouncementRoutes = require("./routes/admin/announcementRoutes");
+const adminParameterRoutes = require("./routes/admin/parameterRoutes");
 const forumRoutes = require("./routes/user/forumRoutes");
 const userManagementRoutes = require("./routes/admin/userManagementRoutes");
 const publicCarouselRoutes = require("./routes/public/carouselRoutes");
 const publicAnnouncementRoutes = require("./routes/public/announcementRoutes");
+const publicParameterRoutes = require("./routes/public/parameterRoutes")
 const userReportSaveRoutes = require("./routes/user/userReportSaveRoutes");
 const userReportLikesRoutes = require("./routes/user/userRoutesLikes");
 const userPostLikesRoutes = require("./routes/user/userLikesPostRoutes");
@@ -42,6 +44,7 @@ app.use('/api/auth', authRoutes);
 // 🔹 Public Routes
 app.use("/api/carousels", publicCarouselRoutes);
 app.use("/api/announcements", publicAnnouncementRoutes);
+app.use("/api/parameters", publicParameterRoutes);
 
 
 // 🔹 User Routes
@@ -57,6 +60,7 @@ app.use("/api/user/post", userPostLikesRoutes);
 app.use('/api/admin/reports', adminReportRoutes);
 app.use("/api/admin/carousels", adminCarouselRoutes);
 app.use("/api/admin/announcements", adminAnnouncementRoutes);
+app.use("/api/admin/parameters", adminParameterRoutes);
 
 // 🔹 Static Files
 app.use("/uploads", express.static("uploads"));

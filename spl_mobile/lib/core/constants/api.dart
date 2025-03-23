@@ -1,8 +1,8 @@
 class ApiConstants {
-   static const String baseUrl = "http://192.168.227.108:3000";
+/*    static const String baseUrl = "http://192.168.227.108:3000";
+ */ 
+     static const String baseUrl = "http://192.168.1.2:3000"; 
  
-/*     static const String baseUrl = "http://192.168.1.26:3000"; 
- */
   
   // Endpoint Autentikasi
   static const String authBaseUrl = "$baseUrl/api/auth";
@@ -19,6 +19,8 @@ class ApiConstants {
   static const String publicCarousel = "$baseUrl/api/carousels";  
 
   static const String publicAnnouncement = "$baseUrl/api/announcements";
+
+  static const String publicParameter = "$baseUrl/api/parameters";
 
   // ✅ Endpoint Forum
   static const String forumUrl = "$baseUrl/api/forum";  

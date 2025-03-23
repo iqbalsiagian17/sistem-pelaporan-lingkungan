@@ -50,10 +50,10 @@ class ProfileMenu extends StatelessWidget {
               ),
             ),
             _buildMenuItem(Icons.book, "Syarat & Ketentuan", () {
-              // TODO: Tambahkan navigasi ke halaman syarat & ketentuan
+              context.go(AppRoutes.terms);
             }),
             _buildMenuItem(Icons.info, "Tentang Aplikasi", () {
-              // TODO: Tambahkan navigasi ke halaman tentang aplikasi
+              context.go(AppRoutes.about);
             }),
           ],
         );

@@ -2,21 +2,26 @@ import 'package:flutter/material.dart';
 
 class SnackbarHelper {
   static void showSnackbar(BuildContext context, String message, {bool isError = false}) {
+    // ✅ Cegah error jika context sudah tidak aktif
+    if (!context.mounted) return;
+
     final icon = isError ? Icons.error_outline_rounded : Icons.check_circle_rounded;
     final List<Color> gradientColors = isError
-        ? [Colors.red.shade700, Colors.red.shade400] // 🔴 Gradient untuk error
-        : [Color(0xFF4CAF50), Color(0xFF81C784)]; // ✅ Gradient hijau terang → hijau muda
+        ? [Colors.red.shade700, Colors.red.shade400]
+        : [Color(0xFF4CAF50), Color(0xFF81C784)];
 
     final overlay = Overlay.of(context);
+    if (overlay == null) return; // ✅ Tambahan perlindungan
+
     final overlayEntry = OverlayEntry(
       builder: (context) => Positioned(
-        top: MediaQuery.of(context).padding.top + 10, // ✅ Muncul di bawah status bar
+        top: MediaQuery.of(context).padding.top + 10,
         left: 20,
         right: 20,
         child: Material(
           color: Colors.transparent,
           child: TweenAnimationBuilder(
-            tween: Tween<double>(begin: -1, end: 0), // ✅ Animasi slide-in dari atas
+            tween: Tween<double>(begin: -1, end: 0),
             duration: const Duration(milliseconds: 400),
             curve: Curves.easeOut,
             builder: (context, double value, child) {
@@ -29,7 +34,7 @@ class SnackbarHelper {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: gradientColors, // ✅ Gradient hijau terang → hijau muda
+                  colors: gradientColors,
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -46,7 +51,7 @@ class SnackbarHelper {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(icon, color: Colors.white, size: 22), // ✅ Icon minimalis
+                  Icon(icon, color: Colors.white, size: 22),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
@@ -68,10 +73,8 @@ class SnackbarHelper {
       ),
     );
 
-    // ✅ Tambahkan overlay ke layar
     overlay.insert(overlayEntry);
 
-    // ✅ Hapus dengan efek fade-out setelah 3 detik
     Future.delayed(const Duration(seconds: 3), () {
       overlayEntry.remove();
     });

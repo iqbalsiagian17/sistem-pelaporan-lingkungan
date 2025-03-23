@@ -36,7 +36,7 @@ class ReportSaveDataState extends StatelessWidget {
         final savedReports = reportSaveProvider.savedReports;
 
         if (savedReports.isEmpty) {
-          return ReportSaveEmptyState(onRetry: onRetry);
+          return ReportSaveEmptyState();
         }
 
         return ListView.builder(

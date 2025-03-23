@@ -13,14 +13,13 @@ import 'report_empty_state.dart';
 
 class ReportDataState extends StatelessWidget {
   final List<Report> reports;
-  final VoidCallback onRetry;
 
-  const ReportDataState({super.key, required this.reports, required this.onRetry});
+const ReportDataState({super.key, required this.reports});
 
   @override
   Widget build(BuildContext context) {
     return reports.isEmpty
-        ? ReportEmptyState(onRetry: onRetry)
+        ? ReportEmptyState()
         : ListView.builder(
             itemCount: reports.length,
             padding: const EdgeInsets.symmetric(horizontal: 16).copyWith(top: 16),
@@ -136,70 +135,67 @@ class ReportDataState extends StatelessWidget {
       fit: BoxFit.cover,
     );
   }
-  void _confirmDelete(BuildContext context, Report report) async {
-    HapticFeedback.mediumImpact(); // ✅ Efek getaran saat membuka modal
-    bool? confirmDelete = await showModalBottomSheet<bool>(
-      context: context,
-      isDismissible: true,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (context) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.delete_outline, size: 50, color: Colors.red), // 🔥 Ikon Delete Besar
-              const SizedBox(height: 12),
-              const Text(
-                "Hapus Laporan?",
+  void _confirmDelete(BuildContext scaffoldContext, Report report) async {
+    final bool? confirmDelete = await showModalBottomSheet<bool>(
+    context: scaffoldContext,
+    isDismissible: true,
+    backgroundColor: Colors.white,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+    ),
+    builder: (context) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.delete_outline, size: 50, color: Colors.red),
+            const SizedBox(height: 12),
+            const Text("Hapus Laporan?",
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                "Laporan yang dihapus tidak dapat dikembalikan. Apakah Anda yakin ingin melanjutkan?",
-                style: TextStyle(fontSize: 14, color: Colors.black54),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () => Navigator.pop(context, false),
-                      child: const Text("Batal", style: TextStyle(color: Colors.red)),
-                    ),
+                textAlign: TextAlign.center),
+            const SizedBox(height: 8),
+            const Text(
+              "Laporan yang dihapus tidak dapat dikembalikan. Apakah Anda yakin ingin melanjutkan?",
+              style: TextStyle(fontSize: 14, color: Colors.black54),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pop(context, false),
+                    child: const Text("Batal", style: TextStyle(color: Colors.red)),
                   ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                      onPressed: () => Navigator.pop(context, true),
-                      child: const Text("Hapus", style: TextStyle(color: Colors.white)),
-                    ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                    onPressed: () => Navigator.pop(context, true),
+                    child: const Text("Hapus", style: TextStyle(color: Colors.white)),
                   ),
-                ],
-              ),
-            ],
-          ),
-        );
-      },
-    );
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    },
+  );
 
-    if (confirmDelete == true) {
-      // ✅ Hapus laporan jika user mengonfirmasi
-      final reportProvider = Provider.of<ReportProvider>(context, listen: false);
-      bool success = await reportProvider.deleteReport(report.id.toString());
+  // ✅ Sekarang kita gunakan context yang valid
+  if (confirmDelete == true) {
+    final reportProvider = Provider.of<ReportProvider>(scaffoldContext, listen: false);
+    final success = await reportProvider.deleteReport(report.id.toString());
 
-      if (success) {
-        SnackbarHelper.showSnackbar(context, "Laporan berhasil dihapus"); // ✅ Notifikasi sukses
-      } else {
-        SnackbarHelper.showSnackbar(context, "Gagal menghapus laporan", isError: true); // ❌ Notifikasi gagal
-      }
+    if (success) {
+      SnackbarHelper.showSnackbar(scaffoldContext, "Laporan berhasil dihapus");
+    } else {
+      SnackbarHelper.showSnackbar(scaffoldContext, "Gagal menghapus laporan", isError: true);
     }
   }
+}
+
 }

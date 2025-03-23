@@ -19,15 +19,6 @@ class _MyReportViewState extends State<MyReportView> {
   int _selectedIndex = 1;
   bool isLoading = false;
 
-  void _retryFetch() {
-    setState(() => isLoading = true);
-    Future.delayed(const Duration(seconds: 2), () {
-      setState(() {
-        isLoading = false;
-      });
-    });
-  }
-
   @override
 Widget build(BuildContext context) {
   final authProvider = Provider.of<AuthProvider>(context);
@@ -52,7 +43,7 @@ Widget build(BuildContext context) {
             )
           : isLoading
               ? const Center(child: CircularProgressIndicator())
-              : ReportDataState(reports: reports, onRetry: _retryFetch),
+              : ReportDataState(reports: reports)
     ),
     bottomNavigationBar: BottomNavbar(
       currentIndex: _selectedIndex,

@@ -45,7 +45,9 @@ class QuickAccessMenu extends StatelessWidget {
             title: 'Darurat',
             icon: Icons.warning_amber_rounded,
             color: Colors.green.shade700, // ✅ Warna Hijau Tua
-            onTap: () {},
+            onTap: () {
+              context.go(AppRoutes.emergency);
+            },
           ),
         ],
       ),

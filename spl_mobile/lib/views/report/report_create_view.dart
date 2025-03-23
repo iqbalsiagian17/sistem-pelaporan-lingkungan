@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -24,6 +25,19 @@ class _ReportCreateViewState extends State<ReportCreateView> {
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
   final TextEditingController _detailLocationController = TextEditingController();
+  
+  List<String> _villages = [];
+  bool isVillageLoading = true;
+
+
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      showReportGuideTutorial(); // ⬅️ Wajib dipanggil di sini
+    });
+  }
+
 
   bool isAtLocation = true;
   int _selectedIndex = 2;
@@ -123,6 +137,70 @@ bool success = await reportProvider.createReport(
 
 
 
+Future<void> showReportGuideTutorial() async {
+  final prefs = await SharedPreferences.getInstance();
+  final hasSeenGuide = prefs.getBool('hasSeenReportGuideTutorial') ?? false;
+
+  if (!hasSeenGuide) {
+    await Future.delayed(const Duration(milliseconds: 500)); // beri waktu agar UI stabil
+
+    if (context.mounted) {
+      await showModalBottomSheet(
+        context: context,
+        backgroundColor: Colors.transparent, // agar bisa pakai Material custom
+        isDismissible: false,
+        isScrollControlled: true,
+        builder: (context) {
+          return Material(
+            color: Colors.white, // latar putih
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.help_outline_rounded, size: 48, color: Colors.green),
+                  const SizedBox(height: 16),
+                  const Text(
+                    "Wajib Membaca!",
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 12),
+                  const Text(
+                    "Sebelum mengirim aduan, silakan baca terlebih dahulu tata cara pelaporan agar aduan kamu valid dan dapat ditindaklanjuti dengan cepat.",
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        context.push(AppRoutes.reportGuide);
+                      },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                          foregroundColor: Colors.white, // ✅ teks jadi putih
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                      child: const Text("Lihat Tata Cara"),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      );
+
+      await prefs.setBool('hasSeenReportGuideTutorial', true);
+    }
+  }
+}
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -147,8 +225,96 @@ bool success = await reportProvider.createReport(
               hint: "Masukkan rincian aduan secara lengkap",
               maxLines: 5,
             ),
-            if (!isAtLocation)
-              ReportTextField(controller: _locationController, title: "Lokasi Kejadian", hint: "Masukkan Desa/Kelurahan"),
+  if (!isAtLocation)
+  Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      const Text(
+        "Lokasi Kejadian",
+        style: TextStyle(
+          fontWeight: FontWeight.w600,
+          fontSize: 16,
+        ),
+      ),
+      const SizedBox(height: 8),
+      GestureDetector(
+        onTap: () async {
+          final selected = await showModalBottomSheet<String>(
+            context: context,
+            backgroundColor: Colors.white,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            ),
+            isScrollControlled: true,
+            builder: (context) {
+              final List<String> villages = [
+                "Aekbolon Jae", "Aekbolon Julu", "Baru Ara", "Balige I", "Balige II", "Balige III",
+                "Bonan Dolok I", "Bonan Dolok II", "Bonan Dolok III", "Hinalang Bagasan",
+                "Huta Bulu Mejan", "Huta Dame", "Huta Namora", "Hutagaol Peatalun (Peatalum)",
+                "Longat", "Lumban Bul Bul", "Lumban Dolok Haumabange", "Lumban Gaol",
+                "Lumban Gorat", "Lumban Pea", "Lumban Pea Timur", "Lumban Silintong", "Tambunan Sunge",
+              ];
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text(
+                      "Pilih Desa/Kelurahan",
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.5,
+                      child: ListView.separated(
+                        itemCount: villages.length,
+                        separatorBuilder: (_, __) => const Divider(height: 1),
+                        itemBuilder: (context, index) {
+                          final item = villages[index];
+                          final isSelected = item == _locationController.text;
+                          return ListTile(
+                            title: Text(item, style: const TextStyle(fontSize: 14)),
+                            tileColor: isSelected ? Colors.green.withOpacity(0.1) : null,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            onTap: () => Navigator.pop(context, item),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          );
+
+          if (selected != null) {
+            setState(() => _locationController.text = selected);
+          }
+        },
+        child: AbsorbPointer(
+          child: TextFormField(
+            controller: _locationController,
+            decoration: InputDecoration(
+              prefixIcon: const Icon(Icons.location_on_outlined),
+              hintText: "Pilih Desa/Kelurahan",
+              filled: true,
+              fillColor: Colors.grey[100],
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            ),
+            style: const TextStyle(fontSize: 14),
+          ),
+        ),
+      ),
+    ],
+  ),
+
+
             const SizedBox(height: 16),
             ReportTextField(controller: _detailLocationController, title: "Detail Lokasi (Opsional)", hint: "Tambahkan detail lokasi kejadian"),
             const SizedBox(height: 16),
@@ -188,20 +354,85 @@ print("DEBUG: Paths gambar yang dikirim -> ${attachments.map((file) => file.path
 
 
             const SizedBox(height: 30),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: isSubmitting ? null : _submitReport,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-                child: isSubmitting
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text("Kirim Aduan", style: TextStyle(color: Colors.white)),
+SizedBox(
+  width: double.infinity,
+  child: ElevatedButton(
+    onPressed: isSubmitting
+        ? null
+        : () async {
+            final confirm = await showModalBottomSheet<bool>(
+              context: context,
+              backgroundColor: Colors.white,
+              isScrollControlled: true,
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
               ),
-            ),
+              builder: (context) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.warning_amber_rounded, size: 48, color: Colors.orange),
+                      const SizedBox(height: 16),
+                      const Text(
+                        "Apakah Anda Yakin?",
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 12),
+                      const Text(
+                        "Pastikan semua informasi aduan sudah benar. Setelah dikirim, Anda tidak bisa mengubahnya.",
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 24),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton(
+                              onPressed: () => Navigator.pop(context, false),
+                              style: OutlinedButton.styleFrom(
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                side: const BorderSide(color: Colors.grey),
+                                padding: const EdgeInsets.symmetric(vertical: 14),
+                              ),
+                              child: const Text("Lihat Lagi"),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: () => Navigator.pop(context, true),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.green,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                padding: const EdgeInsets.symmetric(vertical: 14),
+                              ),
+                              child: const Text("Ya, Kirim Sekarang", style: TextStyle(color: Colors.white)),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
+
+            if (confirm == true) {
+              _submitReport(); // ✅ Panggil fungsi submit jika konfirmasi 'Ya'
+            }
+          },
+    style: ElevatedButton.styleFrom(
+      backgroundColor: Colors.green,
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    ),
+    child: isSubmitting
+        ? const CircularProgressIndicator(color: Colors.white)
+        : const Text("Kirim Aduan", style: TextStyle(color: Colors.white)),
+  ),
+),
+
             const SizedBox(height: 10),
           ],
         ),

@@ -9,6 +9,11 @@ import 'package:spl_mobile/views/announcement/announcement_list_view.dart';
 import 'package:spl_mobile/views/announcement/detail/announcement_detail_view.dart';
 import 'package:spl_mobile/views/forum/detail/forum_detail_view.dart';
 import 'package:spl_mobile/views/forum/forum_view.dart';
+import 'package:spl_mobile/views/parameter/about/about_view.dart';
+import 'package:spl_mobile/views/parameter/emergency/emergency_view.dart';
+import 'package:spl_mobile/views/parameter/terms/terms_view.dart';
+import 'package:spl_mobile/views/report/report_guides_view.dart';
+import 'package:spl_mobile/widgets/error/invalid_data_view.dart';
 import '../views/auth/login_view.dart';
 import '../views/onboarding/onboarding_view.dart';
 import '../views/home/home_view.dart';
@@ -43,6 +48,10 @@ class AppRoutes {
   static const String allAnnouncement =  '/announcement';
   static const String announcementDetail = '/announcement-detail';
   static const String splash = '/splash';
+  static const String terms = '/terms';
+  static const String about = '/about';
+  static const String emergency ='/emergency';
+  static const String reportGuide = '/report-guide';
 
   static Future<String?> _redirectLogic(BuildContext context, GoRouterState state) async {
     final prefs = await SharedPreferences.getInstance();
@@ -76,7 +85,7 @@ class AppRoutes {
       GoRoute(path: createReport, builder: (context, state) => const ReportCreateView()),
       GoRoute(path: allReport, builder: (context, state) => const ReportListAllView()),
       GoRoute(
-        path: '/report-detail',
+        path: reportDetail,
         name: AppRoutes.reportDetail,
         builder: (context, state) {
           final extra = state.extra;
@@ -101,107 +110,61 @@ class AppRoutes {
           }
 
           // 🔥 Jika data tidak valid, tampilkan error
-          return Scaffold(
-            body: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text(
-                    "❌ Error: Data tidak valid",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.red),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    "Debugging Data: $extra",
-                    style: const TextStyle(fontSize: 14, color: Colors.black54),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
-            ),
-          );
+          return InvalidDataView(debug: extra.toString());
         },
-    ),
-    GoRoute(path: forum, builder: (context, state) => const ForumView()),
-    GoRoute(
-        path: forumDetail,
-        name: AppRoutes.forumDetail,
+      ),
+      GoRoute(path: forum, builder: (context, state) => const ForumView()),
+      GoRoute(
+          path: forumDetail,
+          name: AppRoutes.forumDetail,
+          builder: (context, state) {
+            final extra = state.extra;
+
+            print("🔍 Debugging state.extra: $extra");
+
+            if (extra is ForumPost) {
+              return ForumDetailView(post: extra);
+            }
+
+            if (extra is Map<String, dynamic> && extra.containsKey("post")) {
+              final postData = extra["post"];
+
+              if (postData is ForumPost) {
+                return ForumDetailView(post: postData);
+              }
+            }
+
+          // 🔥 Jika data tidak valid, tampilkan error
+          return InvalidDataView(debug: extra.toString());
+          },
+        ),
+      GoRoute(path: allAnnouncement, builder: (context, state) => const AnnouncementListView()),
+      GoRoute(
+        path: announcementDetail,
+        name: AppRoutes.announcementDetail,
         builder: (context, state) {
           final extra = state.extra;
 
-          print("🔍 Debugging state.extra: $extra");
+          // Debugging
+          print("🔍 Debugging state.extra (announcement): $extra");
 
-          if (extra is ForumPost) {
-            return ForumDetailView(post: extra);
+          if (extra is AnnouncementItem) {
+            return AnnouncementDetailView(announcement: extra);
           }
 
-          if (extra is Map<String, dynamic> && extra.containsKey("post")) {
-            final postData = extra["post"];
-
-            if (postData is ForumPost) {
-              return ForumDetailView(post: postData);
-            }
-          }
-
-          return Scaffold(
-            body: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text(
-                    "❌ Error: Data tidak valid",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.red),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    "Debugging Data: $extra",
-                    style: const TextStyle(fontSize: 14, color: Colors.black54),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
-            ),
-          );
+          // 🔥 Jika data tidak valid, tampilkan error
+          return InvalidDataView(debug: extra.toString());
         },
       ),
-    GoRoute(path: allAnnouncement, builder: (context, state) => const AnnouncementListView()),
-    GoRoute(
-      path: announcementDetail,
-      name: AppRoutes.announcementDetail,
-      builder: (context, state) {
-        final extra = state.extra;
-
-        // Debugging
-        print("🔍 Debugging state.extra (announcement): $extra");
-
-        if (extra is AnnouncementItem) {
-          return AnnouncementDetailView(announcement: extra);
-        }
-
-        return Scaffold(
-          body: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text(
-                  "❌ Error: Data pengumuman tidak valid",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.red),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  "Debugging Data: $extra",
-                  style: const TextStyle(fontSize: 14, color: Colors.black54),
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    ),
+      GoRoute(path: terms, builder: (context, state) => const TermsView()),
+      GoRoute(path: about, builder: (context, state) => const AboutView()),
+      GoRoute(path: emergency, builder: (context, state) => const EmergencyView()),
+      GoRoute(path: reportGuide, builder: (context, state) => const ReportGuidesView()),
     ],
     errorBuilder: (context, state) => const Scaffold(
       body: Center(child: Text('Halaman tidak ditemukan')),
     ),
   );
+
+  
 }
