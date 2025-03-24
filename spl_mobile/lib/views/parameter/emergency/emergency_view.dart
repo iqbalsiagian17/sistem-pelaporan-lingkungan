@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:spl_mobile/providers/parameter_provider.dart';
+import 'package:spl_mobile/providers/public/parameter_provider.dart';
 import 'components/emergency_topbar.dart';
 import 'components/emergency_card_list.dart';
 

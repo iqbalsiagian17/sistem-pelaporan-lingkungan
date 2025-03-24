@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import '../../../../../providers/user_profile_provider.dart'; // ✅ Gunakan UserProfileProvider
+import '../../../../../providers/user/user_profile_provider.dart'; // ✅ Gunakan UserProfileProvider
 import '../../../../../routes/app_routes.dart';
-import '../../../../../widgets/show_snackbar.dart';
-import '../../../../../widgets/custom_input_field.dart'; // ✅ Import CustomInputField
+import '../../../../../widgets/snackbar/snackbar_helper.dart';
+import '../../../../../widgets/input/custom_input_field.dart'; // ✅ Import CustomInputField
 
 class PasswordEditForm extends StatefulWidget {
   const PasswordEditForm({super.key});

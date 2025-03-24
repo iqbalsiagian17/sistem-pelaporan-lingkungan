@@ -1,5 +1,5 @@
 import 'package:provider/provider.dart';
-import 'package:spl_mobile/providers/auth_provider.dart';
+import 'package:spl_mobile/providers/auth/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:spl_mobile/core/constants/api.dart';
 import 'package:spl_mobile/models/Report.dart';

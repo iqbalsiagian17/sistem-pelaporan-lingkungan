@@ -3,10 +3,10 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/services.dart';
 import '../../../core/utils/validators.dart';
-import '../../../providers/auth_provider.dart';
-import '../../../widgets/show_snackbar.dart';
-import '../../../widgets/custom_input_field.dart';
-import '../../../widgets/custom_button.dart';
+import '../../../providers/auth/auth_provider.dart';
+import '../../../widgets/snackbar/snackbar_helper.dart';
+import '../../../widgets/input/custom_input_field.dart';
+import '../../../widgets/buttons/custom_button.dart';
 
 class RegisterForm extends StatefulWidget {
   const RegisterForm({super.key});

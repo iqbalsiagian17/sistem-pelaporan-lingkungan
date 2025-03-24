@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:spl_mobile/models/Forum.dart';
-import 'package:spl_mobile/providers/auth_provider.dart';
-import 'package:spl_mobile/providers/forum_provider.dart';
+import 'package:spl_mobile/providers/auth/auth_provider.dart';
+import 'package:spl_mobile/providers/forum/forum_provider.dart';
 import 'package:spl_mobile/views/forum/detail/widget/forum_comment_input.dart';
 import 'package:spl_mobile/views/forum/detail/widget/forum_comment_list.dart';
 import 'package:spl_mobile/views/forum/detail/widget/forum_detail_header.dart';

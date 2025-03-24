@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../widgets/custom_chip.dart'; // ✅ Import CustomChip
+import '../../../../widgets/chip/custom_chip.dart'; // ✅ Import CustomChip
 
 class ReportDetailTitle extends StatelessWidget {
   final String? title;

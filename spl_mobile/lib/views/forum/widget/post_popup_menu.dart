@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show HapticFeedback;
 import 'package:provider/provider.dart';
 import 'package:spl_mobile/models/Forum.dart';
-import 'package:spl_mobile/providers/forum_provider.dart';
-import 'package:spl_mobile/providers/auth_provider.dart';
+import 'package:spl_mobile/providers/forum/forum_provider.dart';
+import 'package:spl_mobile/providers/auth/auth_provider.dart';
 
 class PostPopupMenu extends StatelessWidget {
   final ForumPost post;

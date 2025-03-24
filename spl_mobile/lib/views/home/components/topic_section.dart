@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:spl_mobile/models/Report.dart';
-import 'package:spl_mobile/providers/user_report_provider.dart';
+import 'package:spl_mobile/providers/report/report_provider.dart';
 import 'dart:math';
-import '../../../widgets/custom_chip.dart';
+import '../../../widgets/chip/custom_chip.dart';
 
 class TopicSection extends StatelessWidget {
   const TopicSection({super.key});
@@ -33,14 +33,25 @@ class TopicSection extends StatelessWidget {
               ).toList();
 
               if (validReports.isEmpty) {
-                return const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                  child: Text(
-                    "📭 Tidak ada topik aduan tersedia.",
-                    style: TextStyle(fontSize: 14, color: Colors.grey),
+                return Padding(
+                  padding: const EdgeInsets.only(top: 20),
+                  child: Center(
+                    child: Column(
+                      children: [
+                        const Text(
+                          "Belum ada topik aduan populer.",
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 );
               }
+
 
               // Urutkan berdasarkan likes terbanyak (descending)
               validReports.sort((a, b) => (b.likes ?? 0).compareTo(a.likes ?? 0));

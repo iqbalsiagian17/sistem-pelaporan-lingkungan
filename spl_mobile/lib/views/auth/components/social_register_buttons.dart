@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../routes/app_routes.dart';
-import '../../../widgets/custom_button.dart';
+import '../../../widgets/buttons/custom_button.dart';
 
 class SocialRegisterButtons extends StatelessWidget {
   final bool isLoading;

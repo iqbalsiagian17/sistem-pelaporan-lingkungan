@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:spl_mobile/providers/parameter_provider.dart';
+import 'package:spl_mobile/providers/public/parameter_provider.dart';
 import 'package:spl_mobile/views/parameter/terms/components/terms_data_empty_state.dart';
 import 'package:spl_mobile/views/parameter/terms/components/terms_data_state.dart';
 import 'package:spl_mobile/views/parameter/terms/components/terms_topbar.dart';

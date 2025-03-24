@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../../routes/app_routes.dart';
-import '../../../../providers/user_profile_provider.dart';
+import '../../../../providers/user/user_profile_provider.dart';
 
 class ProfileMenu extends StatelessWidget {
   const ProfileMenu({super.key});

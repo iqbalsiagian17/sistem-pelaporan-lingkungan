@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:spl_mobile/providers/user_report_provider.dart';
-import '../../widgets/bottom_navbar.dart';
-import '../../widgets/top_navbar.dart';
+import 'package:spl_mobile/providers/report/report_provider.dart';
+import '../../widgets/navbar/bottom_navbar.dart';
+import '../../widgets/navbar/top_navbar.dart';
 import 'components/carousel_banner.dart';
 import 'components/quick_access_menu.dart';
 import 'components/topic_section.dart';

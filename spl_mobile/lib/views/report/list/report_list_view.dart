@@ -3,8 +3,8 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:spl_mobile/widgets/skeleton/skeleton_report_list.dart';
 import '../../../routes/app_routes.dart';
-import '../../../widgets/bottom_navbar.dart';
-import '../../../providers/user_report_provider.dart';
+import '../../../widgets/navbar/bottom_navbar.dart';
+import '../../../providers/report/report_provider.dart';
 import './components/report_list_topbar.dart';
 import './components/report_list_data_state.dart';
 

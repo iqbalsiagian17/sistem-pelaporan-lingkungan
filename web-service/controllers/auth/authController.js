@@ -25,9 +25,9 @@ const register = async (req, res) => {
 const login = async (req, res) => {
     try {
         const { identifier, password, client } = req.body;
-        
+
         if (!identifier || !password || !client) {
-            return res.status(400).json({ message: "Phone number/email, password, and client type are required" });
+            return res.status(400).json({ message: "Identifier, password, and client type are required" });
         }
 
         const user = await userService.findByPhoneOrEmail(identifier);
@@ -35,7 +35,6 @@ const login = async (req, res) => {
             return res.status(401).json({ message: 'Invalid phone number/email or password' });
         }
 
-        // **Cek apakah user sedang diblokir**
         if (user.blocked_until && new Date(user.blocked_until) > new Date()) {
             return res.status(403).json({
                 message: `Your account is blocked until ${user.blocked_until}`
@@ -47,7 +46,6 @@ const login = async (req, res) => {
             return res.status(401).json({ message: 'Invalid phone number/email or password' });
         }
 
-        // **Validasi akun berdasarkan `client`**
         if (client === "react" && user.type !== 1) {
             return res.status(403).json({ message: "Access denied. Only admin accounts can login in React." });
         }
@@ -56,17 +54,18 @@ const login = async (req, res) => {
             return res.status(403).json({ message: "Access denied. Only user accounts can login in Flutter." });
         }
 
-        // **Buat access token**
         const accessToken = jwt.sign(
-            { id: user.id, phone_number: user.phone_number, email: user.email, username: user.username, type: user.type, profile_picture: user.profile_picture },
+            {
+                id: user.id,
+                phone_number: user.phone_number,
+                email: user.email,
+                username: user.username,
+                type: user.type,
+            },
             process.env.JWT_SECRET,
-            { expiresIn: "15m" } // **Access Token hanya berlaku 15 menit**
-        );
-
-        const refreshToken = jwt.sign(
-            { id: user.id },
-            process.env.JWT_SECRET,
-            { expiresIn: "7d" } // ✅ Refresh Token berlaku 7 hari
+            { 
+                expiresIn: "15m" 
+            }
         );
 
         const userData = {
@@ -78,22 +77,33 @@ const login = async (req, res) => {
             profile_picture: user.profile_picture
         };
 
-        // **React & Flutter sama-sama menerima token dalam JSON response**
+        // ✅ Untuk React, cukup kirim access token saja
         if (client === "react") {
-            res.cookie("refreshToken", refreshToken, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: "Strict",
-                maxAge: 7 * 24 * 60 * 60 * 1000, // 7 hari
+            return res.json({
+                message: "Login successful",
+                user: userData,
+                token: accessToken
             });
-            return res.json({ message: "Login successful", user, token: accessToken });
-        } else {
-            return res.json({ message: "Login successful", user, token: accessToken, refresh_token: refreshToken });
         }
+
+        // Untuk Flutter, sertakan juga refresh token
+        const refreshToken = jwt.sign(
+            { id: user.id },
+            process.env.JWT_SECRET,
+            { expiresIn: "7d" }
+        );
+
+        return res.json({
+            message: "Login successful",
+            user: userData,
+            token: accessToken,
+            refresh_token: refreshToken
+        });
     } catch (error) {
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
+
 
 
 

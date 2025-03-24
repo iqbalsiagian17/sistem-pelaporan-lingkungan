@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:spl_mobile/providers/forum_provider.dart';
+import 'package:spl_mobile/providers/forum/forum_provider.dart';
 import 'package:spl_mobile/views/forum/widget/post_card.dart';
 import 'package:spl_mobile/widgets/skeleton/skeleton_forum_post.dart';
 

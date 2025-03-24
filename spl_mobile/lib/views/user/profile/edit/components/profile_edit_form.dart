@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:spl_mobile/routes/app_routes.dart';
-import '../../../../../providers/auth_provider.dart';
-import '../../../../../providers/user_profile_provider.dart';
-import '../../../../../widgets/show_snackbar.dart';
-import '../../../../../widgets/custom_input_field.dart'; // ✅ Import Global Input
+import '../../../../../providers/auth/auth_provider.dart';
+import '../../../../../providers/user/user_profile_provider.dart';
+import '../../../../../widgets/snackbar/snackbar_helper.dart';
+import '../../../../../widgets/input/custom_input_field.dart'; // ✅ Import Global Input
 import '../../../../../core/utils/validators.dart'; 
 
 class ProfileEditForm extends StatefulWidget {

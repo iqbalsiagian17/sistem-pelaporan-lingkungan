@@ -1,10 +1,10 @@
   import 'package:flutter/material.dart';
   import 'package:provider/provider.dart';
   import 'package:go_router/go_router.dart'; // ⬅️ Pakai GoRouter
-  import 'package:spl_mobile/providers/auth_google_provider.dart';
-  import 'package:spl_mobile/providers/auth_provider.dart';
+  import 'package:spl_mobile/providers/auth/google_auth_provider.dart';
+  import 'package:spl_mobile/providers/auth/auth_provider.dart';
   import 'package:spl_mobile/routes/app_routes.dart';
-  import 'package:spl_mobile/widgets/show_snackbar.dart';
+  import 'package:spl_mobile/widgets/snackbar/snackbar_helper.dart';
 
   import 'components/login_header.dart';
   import 'components/login_form.dart';
@@ -53,7 +53,7 @@
 
                         // ✅ Redirect ke home setelah delay
                         Future.delayed(const Duration(seconds: 1), () {
-                          if (context.mounted) context.go(AppRoutes.home);
+                          if (context.mounted) context.pushReplacement(AppRoutes.home);
                         });
                       } else {
                         debugPrint("❌ Login Google gagal: ${googleProvider.errorMessage}");

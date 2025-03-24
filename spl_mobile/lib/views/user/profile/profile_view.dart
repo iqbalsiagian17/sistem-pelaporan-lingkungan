@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../providers/auth_provider.dart'; // ✅ Ambil autentikasi dari AuthProvider
-import '../../../providers/user_profile_provider.dart'; // ✅ Ambil data user dari UserProfileProvider
-import '../../../widgets/bottom_navbar.dart';
+import '../../../providers/auth/auth_provider.dart'; // ✅ Ambil autentikasi dari AuthProvider
+import '../../../providers/user/user_profile_provider.dart'; // ✅ Ambil data user dari UserProfileProvider
+import '../../../widgets/navbar/bottom_navbar.dart';
 import 'components/profile_top_bar.dart';
 import 'components/profile_header.dart';
 import 'components/profile_stats.dart';

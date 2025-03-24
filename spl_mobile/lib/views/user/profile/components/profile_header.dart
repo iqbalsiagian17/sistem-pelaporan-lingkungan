@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:spl_mobile/widgets/skeleton/skeleton_header_profile.dart';
-import '../../../../providers/user_profile_provider.dart';
+import '../../../../providers/user/user_profile_provider.dart';
 
 class ProfileHeader extends StatelessWidget {
   ProfileHeader({super.key});

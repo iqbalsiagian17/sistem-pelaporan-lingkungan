@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:spl_mobile/widgets/skeleton/skeleton_report_list.dart';
-import '../../../widgets/bottom_navbar.dart';
+import '../../../widgets/navbar/bottom_navbar.dart';
 import 'components/report_top_bar.dart';
 import 'components/report_data_state.dart';
-import '../../../providers/auth_provider.dart';
-import '../../../providers/user_report_provider.dart';
+import '../../../providers/auth/auth_provider.dart';
+import '../../../providers/report/report_provider.dart';
 import '../../../models/Report.dart'; // ✅ Import model Report
 
 class MyReportView extends StatefulWidget {

@@ -6,7 +6,10 @@ const isAdmin = require("../../middleware/adminMiddleware");
 const multer = require("multer");
 const fs = require("fs"); // ✅ Tambahkan ini
 const path = require("path");
+const extendTokenIfNeeded = require('../../middleware/extendTokenIfNeeded');
 
+
+router.use(extendTokenIfNeeded); 
 
 // ✅ Konfigurasi multer harus ada di sini juga
 const storage = multer.diskStorage({

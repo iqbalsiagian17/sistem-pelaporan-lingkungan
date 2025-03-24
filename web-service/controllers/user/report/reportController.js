@@ -187,6 +187,11 @@ exports.createReport = async (req, res) => {
 
       console.log("✅ [DEBUG] Data yang disimpan:", reportWithAttachments);
 
+      console.log("🛠 Data disimpan:", {
+        title, description, date, location_details, village, latitude, longitude, is_at_location
+      });
+      
+
       res.status(201).json({ message: "Laporan berhasil dibuat!", report: reportWithAttachments });
     } catch (error) {
       console.error("Error creating report:", error);

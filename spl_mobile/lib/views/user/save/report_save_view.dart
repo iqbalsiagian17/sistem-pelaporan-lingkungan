@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../providers/report_save_provider.dart';
-import '../../../widgets/bottom_navbar.dart';
+import '../../../providers/report/report_save_provider.dart';
+import '../../../widgets/navbar/bottom_navbar.dart';
 import './components/report_save_topbar.dart';
 import './components/report_save_data_state.dart';
 

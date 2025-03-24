@@ -2,7 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
-import 'package:spl_mobile/providers/user_report_likes_provider.dart';
+import 'package:spl_mobile/providers/report/report_likes_provider.dart';
 import 'package:spl_mobile/widgets/skeleton/skeleton_image_card.dart';
 
 class ReportDetailImage extends StatefulWidget {

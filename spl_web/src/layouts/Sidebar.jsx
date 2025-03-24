@@ -18,10 +18,10 @@ const Sidebar = () => {
 
                     {/* Teks dengan Styling */}
                     <div className="text-start">
-                        <span className=" demo menu-text fw-bold d-block" style={{ fontSize: "0.7rem" }}>
+                        <span className=" demo menu-text fw-bold d-block" style={{ fontSize: "0.75rem" }}>
                             Dinas Lingkungan Hidup
                         </span>
-                        <span className="text-muted fw-semibold" style={{ fontSize: "0.9rem" }}>
+                        <span className="text-muted fw-semibold" style={{ fontSize: "0.75rem" }}>
                             Toba
                         </span>
                     </div>
@@ -30,7 +30,7 @@ const Sidebar = () => {
 
             <div className="menu-inner-shadow"></div>
 
-            <ul className="menu-inner py-1">
+            <ul className="menu-inner py-1 mt-3">
                 {menuData.map((section, sectionIndex) => (
                     <React.Fragment key={`section-${sectionIndex}`}>
                         {section.header && <li className="menu-header small" key={`header-${sectionIndex}`}>{section.header}</li>}

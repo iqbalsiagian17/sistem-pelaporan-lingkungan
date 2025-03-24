@@ -6,8 +6,8 @@ import 'package:spl_mobile/core/constants/api.dart';
 import 'package:spl_mobile/core/utils/status_utils.dart';
 import 'package:spl_mobile/widgets/skeleton/skeleton_report_list.dart';
 import '../../../routes/app_routes.dart';
-import '../../../providers/user_report_provider.dart';
-import '../../../providers/report_save_provider.dart';
+import '../../../providers/report/report_provider.dart';
+import '../../../providers/report/report_save_provider.dart';
 
 class RecentReportsSection extends StatelessWidget {
   const RecentReportsSection({super.key});
@@ -16,9 +16,11 @@ class RecentReportsSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer2<ReportProvider, ReportSaveProvider>(
       builder: (context, reportProvider, reportSaveProvider, child) {
-        final filteredReports = reportProvider.reports.where((report) =>
-            ['verified', 'in_progress', 'completed', 'closed']
-                .contains(report.status)).toList();
+        final filteredReports = reportProvider.reports
+            .where((report) => ['verified', 'in_progress', 'completed', 'closed'].contains(report.status))
+            .take(5) // 👈 Ambil hanya 5 data
+            .toList();
+
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -77,16 +79,46 @@ class RecentReportsSection extends StatelessWidget {
                   ),
                 )
               else if (filteredReports.isEmpty)
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-                  child: Center(
-                    child: Text(
-                      "📭 Tidak ada aduan terbaru.",
-                      style: TextStyle(color: Colors.grey, fontSize: 14, fontStyle: FontStyle.italic),
-                      textAlign: TextAlign.center,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+                child: Column(
+                  children: [
+                    const Text(
+                      "Belum Ada Aduan",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
                     ),
-                  ),
-                )
+                    const SizedBox(height: 8),
+                    const Text(
+                      "Yuk jadi yang pertama menyampaikan aduan!\nKami siap mendengarkan dan menindaklanjuti.",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        context.go(AppRoutes.createReport); // 💡 arahkan ke halaman buat laporan
+                      },
+                      icon: const Icon(Icons.add, color: Colors.white),
+                      label: const Text("Buat Aduan"),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      ),
+                    ),
+                  ],
+                ),
+              )
               else
               ListView.builder(
                 itemCount: filteredReports.length,

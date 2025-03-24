@@ -4,19 +4,18 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:spl_mobile/core/services/auth/auth_service.dart';
-import 'package:spl_mobile/providers/announcement_provider.dart';
-import 'package:spl_mobile/providers/auth_google_provider.dart';
-import 'package:spl_mobile/providers/carousel_provider.dart';
-import 'package:shared_preferences/shared_preferences.dart'; // ✅ Simpan state halaman terakhir
-import 'package:spl_mobile/providers/forum_provider.dart';
-import 'package:spl_mobile/providers/parameter_provider.dart';
-import 'package:spl_mobile/providers/report_save_provider.dart';
-import 'package:spl_mobile/providers/user_post_likes_provider.dart';
-import 'package:spl_mobile/providers/user_report_likes_provider.dart';
+import 'package:spl_mobile/providers/public/announcement_provider.dart';
+import 'package:spl_mobile/providers/auth/google_auth_provider.dart';
+import 'package:spl_mobile/providers/public/carousel_provider.dart';
+import 'package:spl_mobile/providers/forum/forum_provider.dart';
+import 'package:spl_mobile/providers/public/parameter_provider.dart';
+import 'package:spl_mobile/providers/report/report_save_provider.dart';
+import 'package:spl_mobile/providers/forum/forum_likes_provider.dart';
+import 'package:spl_mobile/providers/report/report_likes_provider.dart';
 import 'package:spl_mobile/routes/app_routes.dart';
-import 'package:spl_mobile/providers/auth_provider.dart';
-import 'package:spl_mobile/providers/user_profile_provider.dart';
-import 'package:spl_mobile/providers/user_report_provider.dart';
+import 'package:spl_mobile/providers/auth/auth_provider.dart';
+import 'package:spl_mobile/providers/user/user_profile_provider.dart';
+import 'package:spl_mobile/providers/report/report_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

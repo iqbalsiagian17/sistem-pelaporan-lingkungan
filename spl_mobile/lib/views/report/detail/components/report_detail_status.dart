@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:spl_mobile/core/utils/status_utils.dart';
-import 'package:spl_mobile/providers/report_save_provider.dart';
-import 'package:spl_mobile/providers/user_report_likes_provider.dart';
+import 'package:spl_mobile/providers/report/report_save_provider.dart';
+import 'package:spl_mobile/providers/report/report_likes_provider.dart';
 
 class ReportDetailStatus extends StatefulWidget {
   final int reportId;

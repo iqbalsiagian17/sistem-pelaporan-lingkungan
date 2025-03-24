@@ -3,11 +3,11 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/utils/validators.dart';
-import '../../../providers/auth_provider.dart';
+import '../../../providers/auth/auth_provider.dart';
 import '../../../routes/app_routes.dart';
-import '../../../widgets/show_snackbar.dart';
-import '../../../widgets/custom_input_field.dart'; // ✅ Gunakan CustomInputField
-import '../../../widgets/custom_button.dart'; // ✅ Gunakan CustomInputField
+import '../../../widgets/snackbar/snackbar_helper.dart';
+import '../../../widgets/input/custom_input_field.dart'; // ✅ Gunakan CustomInputField
+import '../../../widgets/buttons/custom_button.dart'; // ✅ Gunakan CustomInputField
 
 
 class LoginForm extends StatefulWidget {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:spl_mobile/providers/announcement_provider.dart';
+import 'package:spl_mobile/providers/public/announcement_provider.dart';
 import 'package:spl_mobile/widgets/skeleton/skeleton_report_list.dart';
 import 'package:spl_mobile/views/announcement/components/announcement_list_data_state.dart';
 import 'package:spl_mobile/views/announcement/components/announcement_list_empety.dart';

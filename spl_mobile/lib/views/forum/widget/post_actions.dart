@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:spl_mobile/models/Forum.dart';
-import 'package:spl_mobile/providers/user_post_likes_provider.dart';
-import 'package:spl_mobile/providers/auth_provider.dart';
+import 'package:spl_mobile/providers/forum/forum_likes_provider.dart';
+import 'package:spl_mobile/providers/auth/auth_provider.dart';
 
 class PostActions extends StatelessWidget {
   final ForumPost post;

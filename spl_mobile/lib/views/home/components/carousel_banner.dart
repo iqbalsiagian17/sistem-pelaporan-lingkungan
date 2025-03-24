@@ -4,7 +4,7 @@ import 'package:shimmer/shimmer.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:spl_mobile/widgets/skeleton/skeleton_image_card.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import '../../../providers/carousel_provider.dart';
+import '../../../providers/public/carousel_provider.dart';
 
 const String kDefaultImage = "assets/images/slider_1.jpg";
 

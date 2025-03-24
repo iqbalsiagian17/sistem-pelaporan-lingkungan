@@ -5,13 +5,15 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:spl_mobile/routes/app_routes.dart';
-import 'package:spl_mobile/widgets/show_snackbar.dart';
-import '../../providers/user_report_provider.dart';
-import '../../widgets/bottom_navbar.dart';
+import 'package:spl_mobile/widgets/snackbar/snackbar_helper.dart';
+import '../../providers/report/report_provider.dart';
+import '../../widgets/navbar/bottom_navbar.dart';
 import 'components/report_topbar.dart';
 import 'components/report_location_toggle.dart';
 import 'components/report_text_field.dart';
 import 'components/report_upload_buttons.dart';
+import 'package:spl_mobile/widgets/wrapper/safe_back_wrapper.dart';
+
 
 class ReportCreateView extends StatefulWidget {
   const ReportCreateView({super.key});
@@ -204,6 +206,7 @@ Future<void> showReportGuideTutorial() async {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: const ReportTopBar(title: "Isi Aduan"),
@@ -225,127 +228,125 @@ Future<void> showReportGuideTutorial() async {
               hint: "Masukkan rincian aduan secara lengkap",
               maxLines: 5,
             ),
-  if (!isAtLocation)
-  Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      const Text(
-        "Lokasi Kejadian",
-        style: TextStyle(
-          fontWeight: FontWeight.w600,
-          fontSize: 16,
-        ),
-      ),
-      const SizedBox(height: 8),
-      GestureDetector(
-        onTap: () async {
-          final selected = await showModalBottomSheet<String>(
-            context: context,
-            backgroundColor: Colors.white,
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-            ),
-            isScrollControlled: true,
-            builder: (context) {
-              final List<String> villages = [
-                "Aekbolon Jae", "Aekbolon Julu", "Baru Ara", "Balige I", "Balige II", "Balige III",
-                "Bonan Dolok I", "Bonan Dolok II", "Bonan Dolok III", "Hinalang Bagasan",
-                "Huta Bulu Mejan", "Huta Dame", "Huta Namora", "Hutagaol Peatalun (Peatalum)",
-                "Longat", "Lumban Bul Bul", "Lumban Dolok Haumabange", "Lumban Gaol",
-                "Lumban Gorat", "Lumban Pea", "Lumban Pea Timur", "Lumban Silintong", "Tambunan Sunge",
-              ];
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text(
-                      "Pilih Desa/Kelurahan",
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 12),
-                    SizedBox(
-                      height: MediaQuery.of(context).size.height * 0.5,
-                      child: ListView.separated(
-                        itemCount: villages.length,
-                        separatorBuilder: (_, __) => const Divider(height: 1),
-                        itemBuilder: (context, index) {
-                          final item = villages[index];
-                          final isSelected = item == _locationController.text;
-                          return ListTile(
-                            title: Text(item, style: const TextStyle(fontSize: 14)),
-                            tileColor: isSelected ? Colors.green.withOpacity(0.1) : null,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            onTap: () => Navigator.pop(context, item),
-                          );
-                        },
-                      ),
-                    ),
-                  ],
+            if (!isAtLocation)
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  "Lokasi Kejadian",
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
+                  ),
                 ),
-              );
-            },
-          );
+                const SizedBox(height: 8),
+                GestureDetector(
+                  onTap: () async {
+                    final selected = await showModalBottomSheet<String>(
+                      context: context,
+                      backgroundColor: Colors.white,
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                      ),
+                      isScrollControlled: true,
+                      builder: (context) {
+                        final List<String> villages = [
+                          "Aekbolon Jae", "Aekbolon Julu", "Baru Ara", "Balige I", "Balige II", "Balige III",
+                          "Bonan Dolok I", "Bonan Dolok II", "Bonan Dolok III", "Hinalang Bagasan",
+                          "Huta Bulu Mejan", "Huta Dame", "Huta Namora", "Hutagaol Peatalun (Peatalum)",
+                          "Longat", "Lumban Bul Bul", "Lumban Dolok Haumabange", "Lumban Gaol",
+                          "Lumban Gorat", "Lumban Pea", "Lumban Pea Timur", "Lumban Silintong", "Tambunan Sunge",
+                        ];
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Text(
+                                "Pilih Desa/Kelurahan",
+                                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(height: 12),
+                              SizedBox(
+                                height: MediaQuery.of(context).size.height * 0.5,
+                                child: ListView.separated(
+                                  itemCount: villages.length,
+                                  separatorBuilder: (_, __) => const Divider(height: 1),
+                                  itemBuilder: (context, index) {
+                                    final item = villages[index];
+                                    final isSelected = item == _locationController.text;
+                                    return ListTile(
+                                      title: Text(item, style: const TextStyle(fontSize: 14)),
+                                      tileColor: isSelected ? Colors.green.withOpacity(0.1) : null,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      onTap: () => Navigator.pop(context, item),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    );
 
-          if (selected != null) {
-            setState(() => _locationController.text = selected);
-          }
-        },
-        child: AbsorbPointer(
-          child: TextFormField(
-            controller: _locationController,
-            decoration: InputDecoration(
-              prefixIcon: const Icon(Icons.location_on_outlined),
-              hintText: "Pilih Desa/Kelurahan",
-              filled: true,
-              fillColor: Colors.grey[100],
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide.none,
-              ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    if (selected != null) {
+                      setState(() => _locationController.text = selected);
+                    }
+                  },
+                  child: AbsorbPointer(
+                    child: TextFormField(
+                      controller: _locationController,
+                      decoration: InputDecoration(
+                        prefixIcon: const Icon(Icons.location_on_outlined),
+                        hintText: "Pilih Desa/Kelurahan",
+                        filled: true,
+                        fillColor: Colors.grey[100],
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                      ),
+                      style: const TextStyle(fontSize: 14),
+                    ),
+                  ),
+                ),
+              ],
             ),
-            style: const TextStyle(fontSize: 14),
-          ),
-        ),
-      ),
-    ],
-  ),
-
-
             const SizedBox(height: 16),
             ReportTextField(controller: _detailLocationController, title: "Detail Lokasi (Opsional)", hint: "Tambahkan detail lokasi kejadian"),
             const SizedBox(height: 16),
             
- // ✅ Pastikan ReportUploadButtons mengirim koordinat ke ReportCreateView
-ReportUploadButtons(
-  isAtLocation: isAtLocation,
-  onFilesSelected: (files) {
-    setState(() {
-      final Set<String> uniquePaths = {};
-      List<File> uniqueFiles = [];
+            // ✅ Pastikan ReportUploadButtons mengirim koordinat ke ReportCreateView
+            ReportUploadButtons(
+              isAtLocation: isAtLocation,
+              onFilesSelected: (files) {
+                setState(() {
+                  final Set<String> uniquePaths = {};
+                  List<File> uniqueFiles = [];
 
-      for (var file in files) {
-        if (uniquePaths.add(file.path)) { 
-          uniqueFiles.add(file);
-        }
-      }
+                  for (var file in files) {
+                    if (uniquePaths.add(file.path)) { 
+                      uniqueFiles.add(file);
+                    }
+                  }
 
-      attachments = uniqueFiles; // Pastikan hanya menyimpan gambar unik
-    });
+                  attachments = uniqueFiles; // Pastikan hanya menyimpan gambar unik
+                });
 
-print("DEBUG: Jumlah gambar yang dikirim ke API -> ${attachments.length}");
-print("DEBUG: Paths gambar yang dikirim -> ${attachments.map((file) => file.path).toList()}");
-  },
-  onLocationCaptured: (lat, long) {
-    setState(() {
-      latitude = lat;
-      longitude = long;
-    });
-  },
-),
+            print("DEBUG: Jumlah gambar yang dikirim ke API -> ${attachments.length}");
+            print("DEBUG: Paths gambar yang dikirim -> ${attachments.map((file) => file.path).toList()}");
+              },
+              onLocationCaptured: (lat, long) {
+                setState(() {
+                  latitude = lat;
+                  longitude = long;
+                });
+              },
+            ),
 
 
 
@@ -354,84 +355,92 @@ print("DEBUG: Paths gambar yang dikirim -> ${attachments.map((file) => file.path
 
 
             const SizedBox(height: 30),
-SizedBox(
-  width: double.infinity,
-  child: ElevatedButton(
-    onPressed: isSubmitting
-        ? null
-        : () async {
-            final confirm = await showModalBottomSheet<bool>(
-              context: context,
-              backgroundColor: Colors.white,
-              isScrollControlled: true,
-              shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-              ),
-              builder: (context) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.warning_amber_rounded, size: 48, color: Colors.orange),
-                      const SizedBox(height: 16),
-                      const Text(
-                        "Apakah Anda Yakin?",
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 12),
-                      const Text(
-                        "Pastikan semua informasi aduan sudah benar. Setelah dikirim, Anda tidak bisa mengubahnya.",
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 24),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: OutlinedButton(
-                              onPressed: () => Navigator.pop(context, false),
-                              style: OutlinedButton.styleFrom(
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                side: const BorderSide(color: Colors.grey),
-                                padding: const EdgeInsets.symmetric(vertical: 14),
-                              ),
-                              child: const Text("Lihat Lagi"),
-                            ),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: isSubmitting
+                    ? null
+                    : () async {
+                        bool? confirm = await showModalBottomSheet<bool>(
+                          context: context,
+                          isDismissible: true,
+                          backgroundColor: Colors.white,
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
                           ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: ElevatedButton(
-                              onPressed: () => Navigator.pop(context, true),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.green,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                padding: const EdgeInsets.symmetric(vertical: 14),
+                          builder: (context) {
+                            return Padding(
+                              padding: const EdgeInsets.all(20),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(Icons.warning_amber_rounded, size: 50, color: Colors.red),
+                                  const SizedBox(height: 12),
+                                  const Text(
+                                    "Apakah Kamu Yakin Ingin Mengirim Aduan?",
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black87,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 10),
+                                  const Text(
+                                    "Setelah dikirim, aduan tidak dapat diubah atau diedit.\nPastikan semua data sudah benar.",
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(fontSize: 14, color: Colors.black54),
+                                  ),
+                                  const SizedBox(height: 24),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: OutlinedButton(
+                                          onPressed: () => Navigator.pop(context, false),
+                                          style: OutlinedButton.styleFrom(
+                                            side: const BorderSide(color: Colors.grey),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(12),
+                                            ),
+                                          ),
+                                          child: const Text("Batal", style: TextStyle(color: Colors.grey)),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: ElevatedButton(
+                                          onPressed: () => Navigator.pop(context, true),
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Colors.green,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(12),
+                                            ),
+                                          ),
+                                          child: const Text("Ya, Kirim", style: TextStyle(color: Colors.white)),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ),
-                              child: const Text("Ya, Kirim Sekarang", style: TextStyle(color: Colors.white)),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                );
-              },
-            );
+                            );
+                          },
+                        );
 
-            if (confirm == true) {
-              _submitReport(); // ✅ Panggil fungsi submit jika konfirmasi 'Ya'
-            }
-          },
-    style: ElevatedButton.styleFrom(
-      backgroundColor: Colors.green,
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-    ),
-    child: isSubmitting
-        ? const CircularProgressIndicator(color: Colors.white)
-        : const Text("Kirim Aduan", style: TextStyle(color: Colors.white)),
-  ),
-),
+                        if (confirm == true) {
+                          _submitReport(); // ⬅️ Kirim jika pengguna yakin
+                        }
+                      },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                child: isSubmitting
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : const Text("Kirim Aduan", style: TextStyle(color: Colors.white, fontSize: 16)),
+              ),
+            ),
 
             const SizedBox(height: 10),
           ],

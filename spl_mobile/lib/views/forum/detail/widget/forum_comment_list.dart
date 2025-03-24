@@ -3,8 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:spl_mobile/core/utils/date_utils.dart';
 import 'package:spl_mobile/models/Forum.dart';
-import 'package:spl_mobile/providers/auth_provider.dart';
-import 'package:spl_mobile/providers/forum_provider.dart';
+import 'package:spl_mobile/providers/auth/auth_provider.dart';
+import 'package:spl_mobile/providers/forum/forum_provider.dart';
 
 class ForumCommentList extends StatefulWidget {
   final ForumPost post;

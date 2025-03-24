@@ -80,40 +80,36 @@ exports.getCarouselById = async (req, res) => {
     }
 };
 // ✅ UPDATE CAROUSEL (Admin Only)
+// ✅ FIXED: updateCarousel tanpa upload(req, res)
 exports.updateCarousel = async (req, res) => {
-    upload(req, res, async (err) => {
-        if (err) {
-            return res.status(400).json({ message: "File upload error", error: err.message });
+    try {
+      const { id } = req.params;
+      const { title, description } = req.body;
+  
+      const carousel = await Carousel.findByPk(id);
+      if (!carousel) {
+        return res.status(404).json({ message: "Carousel not found" });
+      }
+  
+      if (req.file) {
+        // Hapus gambar lama
+        if (fs.existsSync(carousel.image)) {
+          fs.unlinkSync(carousel.image);
         }
-
-        try {
-            const { id } = req.params;
-            const { title, description } = req.body; // ✅ Ambil `description`
-
-            const carousel = await Carousel.findByPk(id);
-            if (!carousel) {
-                return res.status(404).json({ message: "Carousel not found" });
-            }
-
-            if (req.file) {
-                // Hapus gambar lama
-                if (fs.existsSync(carousel.image)) {
-                    fs.unlinkSync(carousel.image);
-                }
-                carousel.image = `uploads/carousel/${req.file.filename}`;
-            }
-
-            carousel.title = title || carousel.title;
-            carousel.description = description || carousel.description; // ✅ Update `description`
-            await carousel.save();
-
-            res.status(200).json({ message: "Carousel updated successfully", carousel });
-        } catch (error) {
-            console.error("Error updating carousel:", error);
-            res.status(500).json({ message: "Server error", error: error.message });
-        }
-    });
-};
+        carousel.image = `uploads/carousel/${req.file.filename}`;
+      }
+  
+      carousel.title = title || carousel.title;
+      carousel.description = description || carousel.description;
+      await carousel.save();
+  
+      res.status(200).json({ message: "Carousel updated successfully", carousel });
+    } catch (error) {
+      console.error("Error updating carousel:", error);
+      res.status(500).json({ message: "Server error", error: error.message });
+    }
+  };
+  
 
 // ✅ DELETE CAROUSEL (Admin Only)
 exports.deleteCarousel = async (req, res) => {
