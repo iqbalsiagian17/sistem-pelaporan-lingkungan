@@ -11,7 +11,8 @@ router.post('/register', authController.register);
 router.post('/login', loginLimiter,authController.login);
 router.post('/logout', authController.logout);
 
-//jangan gunakan di flutter
+router.post('/refresh-token', authController.refreshToken);
+
 router.post('/google', googleLogin);
 
 module.exports = router;

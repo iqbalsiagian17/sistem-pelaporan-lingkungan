@@ -72,21 +72,33 @@ Future<bool> checkIsLoggedIn() async {
     notifyListeners();
 
     final response = await _authService.login(identifier, password);
+
     if (response.containsKey("error")) {
       _errorMessage = response["error"];
       _isLoading = false;
       notifyListeners();
       return false;
-    } 
-       
-    if (!response.containsKey("user") || response["user"] == null) {
+    }
+
+    final userData = response["user"];
+    if (userData == null) {
       _errorMessage = "Gagal mendapatkan data user.";
       _isLoading = false;
       notifyListeners();
       return false;
     }
 
-    _user = User.fromJson(response["user"]); // ✅ Pastikan _user sudah terisi
+    final token = response["token"];
+    final refreshToken = response["refresh_token"];
+
+    if (token == null || refreshToken == null) {
+      _errorMessage = "Token tidak valid.";
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+
+    _user = User.fromJson(userData);
 
     if (_user!.type == 1) {
       _errorMessage = "Admin tidak dapat login ke aplikasi ini.";
@@ -96,34 +108,33 @@ Future<bool> checkIsLoggedIn() async {
       return false;
     }
 
+    if (_user!.blockedUntil != null) {
+      final now = DateTime.now();
+      if (_user!.blockedUntil!.isAfter(now)) {
+        _errorMessage =
+            "Akun Anda diblokir hingga ${_user!.blockedUntil!.toLocal()}. Silakan coba lagi nanti.";
+        _user = null;
+        _isLoading = false;
+        notifyListeners();
+        return false;
+      }
+    }
 
-    _user = User.fromJson(response["user"]);
     final prefs = await SharedPreferences.getInstance();
-
-      await prefs.setInt("id", _user!.id);
+    await prefs.setInt("id", _user!.id);
     await prefs.setString("username", _user!.username);
     await prefs.setString("email", _user!.email);
     await prefs.setString("phone_number", _user!.phoneNumber);
     await prefs.setInt("type", _user!.type);
+    await prefs.setString("token", token);
+    await prefs.setString("refresh_token", refreshToken);
 
+    // ✅ Update token ke header service
+    _authService.updateAuthorizationHeader(token);
 
-  if (response["token"] != null && response["refresh_token"] != null) {
-    await prefs.setString("token", response["token"]);
-    await prefs.setString("refresh_token", response["refresh_token"]);
-  } else {
-    _errorMessage = "Token tidak valid.";
-    _isLoading = false;
-    notifyListeners();
-    return false;
-  }
-
-  print("✅ User ID tersimpan: ${prefs.getInt("id")}");
-  print("✅ Token tersimpan: ${prefs.getString("token")}");
-  print("✅ Refresh Token tersimpan: ${prefs.getString("refresh_token")}");
-
-
-    _authService.updateAuthorizationHeader(response["token"]); // Update header dengan token baru
-
+    print("✅ User ID tersimpan: ${prefs.getInt("id")}");
+    print("✅ Token tersimpan: ${prefs.getString("token")}");
+    print("✅ Refresh Token tersimpan: ${prefs.getString("refresh_token")}");
 
     _isLoading = false;
     notifyListeners();

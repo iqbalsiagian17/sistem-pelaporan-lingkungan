@@ -1,31 +1,37 @@
 import React from "react";
-import { NavLink } from "react-router-dom";
-import menuData from "../data/menuData.json"; // Pastikan ini mengarah ke menu yang benar
+import menuData from "../data/menuData.json";
 
 const Sidebar = () => {
+    const handleMenuClick = (link) => {
+        if (window.location.pathname === link) {
+            // Reload halaman jika sudah di halaman tersebut
+            window.location.href = link;
+        } else {
+            // Navigasi biasa dengan reload
+            window.location.href = link;
+        }
+    };
+
     return (
         <aside id="layout-menu" className="layout-menu menu-vertical menu bg-menu-theme">
             <div className="app-brand demo d-flex align-items-center justify-content-center py-3">
-                <NavLink to="/" className="app-brand-link d-flex align-items-center text-decoration-none">
-                    {/* Logo dengan Shadow dan Border Radius */}
+                <a href="/" className="app-brand-link d-flex align-items-center text-decoration-none">
                     <img 
-                        src="/assets/img/icons/brands/logo.png" 
+                        src="/assets/img/logo/logo.png" 
                         alt="Logo Dinas Lingkungan Hidup" 
                         className="img-fluid rounded shadow-sm me-2" 
                         width={40}
                         height={40}
                     />
-
-                    {/* Teks dengan Styling */}
                     <div className="text-start">
-                        <span className=" demo menu-text fw-bold d-block" style={{ fontSize: "0.75rem" }}>
+                        <span className="demo menu-text fw-bold d-block" style={{ fontSize: "0.75rem" }}>
                             Dinas Lingkungan Hidup
                         </span>
                         <span className="text-muted fw-semibold" style={{ fontSize: "0.75rem" }}>
                             Toba
                         </span>
                     </div>
-                </NavLink>
+                </a>
             </div>
 
             <div className="menu-inner-shadow"></div>
@@ -33,13 +39,20 @@ const Sidebar = () => {
             <ul className="menu-inner py-1 mt-3">
                 {menuData.map((section, sectionIndex) => (
                     <React.Fragment key={`section-${sectionIndex}`}>
-                        {section.header && <li className="menu-header small" key={`header-${sectionIndex}`}>{section.header}</li>}
+                        {section.header && <li className="menu-header small">{section.header}</li>}
                         {section.items.map((item, itemIndex) => (
                             <li key={`menu-${sectionIndex}-${itemIndex}`} className="menu-item">
-                                <NavLink to={item.link} className="menu-link">
+                                <a
+                                    href={item.link}
+                                    onClick={(e) => {
+                                        e.preventDefault(); // Mencegah default behavior dulu
+                                        handleMenuClick(item.link);
+                                    }}
+                                    className="menu-link"
+                                >
                                     <i className={`menu-icon ${item.icon}`}></i>
                                     <div>{item.text}</div>
-                                </NavLink>
+                                </a>
                             </li>
                         ))}
                     </React.Fragment>

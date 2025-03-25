@@ -3,14 +3,17 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../constants/api.dart';
 
 class AuthService {
-  final Dio _dio = Dio(BaseOptions(
-    baseUrl: ApiConstants.authBaseUrl,
-    connectTimeout: const Duration(seconds: 10),
-    receiveTimeout: const Duration(seconds: 10),
-  ));
 
-  AuthService() {
-    _dio.interceptors.clear(); // Pastikan tidak ada interceptor ganda
+  final Dio _dio;
+
+  AuthService()
+      : _dio = Dio(BaseOptions(
+          baseUrl: ApiConstants.authBaseUrl,
+          connectTimeout: const Duration(seconds: 10),
+          receiveTimeout: const Duration(seconds: 10),
+        )) {
+    _dio.interceptors.clear();
+  
     _dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) async {
         final prefs = await SharedPreferences.getInstance();
@@ -192,7 +195,7 @@ String _handleDioError(DioException e) {
       case 401:
         return "Akses tidak sah, silakan login ulang";
       case 403:
-        return "Anda tidak memiliki izin untuk mengakses sumber daya ini";
+        return "Anda tidak memiliki izin untuk mengakses akun ini";
       case 404:
         return "Sumber daya tidak ditemukan";
       case 500:

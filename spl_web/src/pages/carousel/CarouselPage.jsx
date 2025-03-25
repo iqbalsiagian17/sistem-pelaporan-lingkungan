@@ -2,9 +2,10 @@ import { useState } from "react";
 import CarouselTable from "./components/CarouselTable";
 import CarouselCreateModal from "./components/CreateCarouselModal";
 import CarouselEditModal from "./components/EditCarouselModal";
-import CarouselDeleteModal from "./components/DeleteCarouselModal";
 import CarouselDetailModal from "./components/DetailCarouselModal";
 import { useCarousel } from "../../context/CarouselContext";
+import ConfirmModal from "../../components/common/ConfirmModal";
+
 
 const CarouselPage = () => {
   const {
@@ -96,10 +97,14 @@ const CarouselPage = () => {
         onSave={handleSaveEdit}
       />
 
-      <CarouselDeleteModal
+      <ConfirmModal
         show={showDeleteModal}
         onHide={() => setShowDeleteModal(false)}
         onConfirm={handleConfirmDelete}
+        title="🗑️ Hapus Carousel"
+        body={`Yakin ingin menghapus carousel "${selectedCarousel?.title}"?`}
+        confirmText="Hapus"
+        variant="danger"
       />
 
       <CarouselDetailModal

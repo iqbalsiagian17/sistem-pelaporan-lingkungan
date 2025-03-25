@@ -30,6 +30,14 @@ class AuthGoogleProvider with ChangeNotifier {
       return false;
     }
 
+    // ✅ Jangan parsing user sebelum yakin datanya valid
+    if (!response.containsKey("user") || response["user"] == null) {
+    _errorMessage = "Gagal mendapatkan data user.";
+    _isLoading = false;
+    notifyListeners();
+    return false;
+    }
+
     final user = response["user"];
     _user = User.fromJson(user);
 
@@ -41,6 +49,15 @@ class AuthGoogleProvider with ChangeNotifier {
       notifyListeners();
       return false;
     }
+
+if (_user!.blockedUntil != null && _user!.blockedUntil!.isAfter(DateTime.now())) {
+  _errorMessage =
+      "Akun Anda diblokir hingga ${_user!.blockedUntil!.toLocal()}. Silakan coba lagi nanti.";
+  _user = null;
+  _isLoading = false;
+  notifyListeners();
+  return false;
+}
 
     // ✅ Simpan data user ke SharedPreferences
     final prefs = await SharedPreferences.getInstance();

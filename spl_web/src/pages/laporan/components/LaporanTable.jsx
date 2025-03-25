@@ -1,12 +1,16 @@
 import { useState, useEffect, useRef } from "react";
 import { Dropdown, Table, Badge, Card, Form, Row, Col, InputGroup, Button } from "react-bootstrap";
 import statusData from "../../../data/statusData.json"; // ✅ Import data status dari JSON
+import CustomPagination from "../../../components/common/CustomPagination";
+
 
 const LaporanTable = ({ reports, handleOpenDetailModal, handleOpenStatusModal, handleDeleteReport }) => {
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedStatus, setSelectedStatus] = useState("");
     const [showStatusDropdown, setShowStatusDropdown] = useState(false);
     const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
+    const [currentPage, setCurrentPage] = useState(1);
+    const reportsPerPage = 10;
 
     const dropdownRef = useRef(null);
     const statusHeaderRef = useRef(null);
@@ -48,6 +52,12 @@ const LaporanTable = ({ reports, handleOpenDetailModal, handleOpenStatusModal, h
         }
         setShowStatusDropdown((prev) => !prev);
     };
+
+    const indexOfLastReport = currentPage * reportsPerPage;
+    const indexOfFirstReport = indexOfLastReport - reportsPerPage;
+    const currentReports = filteredReports.slice(indexOfFirstReport, indexOfLastReport);
+    const totalPages = Math.ceil(filteredReports.length / reportsPerPage);
+    const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
     return (
         <Card className="shadow-sm border-0">
@@ -104,10 +114,10 @@ const LaporanTable = ({ reports, handleOpenDetailModal, handleOpenStatusModal, h
                         </tr>
                     </thead>
                     <tbody>
-                        {filteredReports.length > 0 ? (
-                            filteredReports.map((report, index) => (
+                        {currentReports.length > 0 ? (
+                            currentReports.map((report, index) => (
                                 <tr key={report.id}>
-                                    <td>{index + 1}</td>
+                                    <td>{indexOfFirstReport + index + 1}</td>
                                     <td>{report.user?.username || "-"}</td>
                                     <td><strong>{report.title || "-"}</strong></td>
                                     <td>{report.report_number || "-"}</td>
@@ -118,23 +128,22 @@ const LaporanTable = ({ reports, handleOpenDetailModal, handleOpenStatusModal, h
                                         </Badge>
                                     </td>
                                     <td>
-                                    <Dropdown align="end">
-                                        <Dropdown.Toggle as="span" style={{ cursor: "pointer", fontSize: "18px" }}>
-                                            <i className="bx bx-dots-vertical-rounded"></i>
-                                        </Dropdown.Toggle>
-                                        <Dropdown.Menu align="end">
-                                            <Dropdown.Item onClick={() => handleOpenDetailModal(report.id)}>
-                                                Lihat Laporan
-                                            </Dropdown.Item>
-                                            <Dropdown.Item onClick={() => handleOpenStatusModal(report)}>
-                                                Tindak Lanjuti
-                                            </Dropdown.Item>
-                                            <Dropdown.Item className="text-danger" onClick={() => handleDeleteReport(report.id)}>
-                                                Hapus
-                                            </Dropdown.Item>
-                                        </Dropdown.Menu>
-                                    </Dropdown>
-
+                                        <Dropdown align="end">
+                                            <Dropdown.Toggle as="span" style={{ cursor: "pointer", fontSize: "18px" }}>
+                                                <i className="bx bx-dots-vertical-rounded"></i>
+                                            </Dropdown.Toggle>
+                                            <Dropdown.Menu align="end">
+                                                <Dropdown.Item onClick={() => handleOpenDetailModal(report.id)}>
+                                                    Lihat Laporan
+                                                </Dropdown.Item>
+                                                <Dropdown.Item onClick={() => handleOpenStatusModal(report)}>
+                                                    Tindak Lanjuti
+                                                </Dropdown.Item>
+                                                <Dropdown.Item className="text-danger" onClick={() => handleDeleteReport(report.id)}>
+                                                    Hapus
+                                                </Dropdown.Item>
+                                            </Dropdown.Menu>
+                                        </Dropdown>
                                     </td>
                                 </tr>
                             ))
@@ -147,6 +156,15 @@ const LaporanTable = ({ reports, handleOpenDetailModal, handleOpenStatusModal, h
                         )}
                     </tbody>
                 </Table>
+                {filteredReports.length > reportsPerPage && (
+                          <div className="d-flex justify-content-center my-3">
+                            <CustomPagination
+                              currentPage={currentPage}
+                              totalPages={totalPages}
+                              onPageChange={paginate}
+                            />
+                          </div>
+                        )}
             </div>
 
             {/* 🔥 Dropdown Status di Luar Tabel */}

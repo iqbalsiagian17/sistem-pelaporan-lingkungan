@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import CustomPagination from "../../../components/common/CustomPagination";
+
 import {
   Dropdown,
   Table,
@@ -11,12 +13,29 @@ import {
   Badge,
 } from "react-bootstrap";
 
+
 const UserTable = ({ users, onDelete, onBlock, onUnblock, onEdit }) => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const usersPerPage = 10;
 
+  // Filter user berdasarkan search
   const filteredUsers = users.filter((user) =>
     user.username.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  // Pagination logic
+  const indexOfLastUser = currentPage * usersPerPage;
+  const indexOfFirstUser = indexOfLastUser - usersPerPage;
+  const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
+  const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  // Reset ke halaman 1 saat pencarian berubah
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
 
   return (
     <Card className="shadow-sm border-0">
@@ -56,15 +75,16 @@ const UserTable = ({ users, onDelete, onBlock, onUnblock, onEdit }) => {
               <th>Email</th>
               <th>No HP</th>
               <th>Role</th>
+              <th>Jenis Akun</th> {/* Kolom baru */}
               <th>Status Blokir</th>
               <th>Aksi</th>
             </tr>
           </thead>
           <tbody>
-            {filteredUsers.length > 0 ? (
-              filteredUsers.map((user, index) => (
+            {currentUsers.length > 0 ? (
+              currentUsers.map((user, index) => (
                 <tr key={user.id}>
-                  <td>{index + 1}</td>
+                  <td>{indexOfFirstUser + index + 1}</td>
                   <td>{user.username}</td>
                   <td>{user.email}</td>
                   <td>{user.phone_number}</td>
@@ -74,9 +94,15 @@ const UserTable = ({ users, onDelete, onBlock, onUnblock, onEdit }) => {
                     </Badge>
                   </td>
                   <td>
+                    <Badge bg={user.auth_provider === "google" ? "danger" : "secondary"}>
+                      {user.auth_provider === "google" ? "Google" : "manual"}
+                    </Badge>
+                  </td>
+                  <td>
                     {user.blocked_until ? (
                       <Badge bg="danger">
-                        Sampai {new Date(user.blocked_until).toLocaleDateString("id-ID")}
+                        Sampai{" "}
+                        {new Date(user.blocked_until).toLocaleDateString("id-ID")}
                       </Badge>
                     ) : (
                       <Badge bg="success">Aktif</Badge>
@@ -120,6 +146,17 @@ const UserTable = ({ users, onDelete, onBlock, onUnblock, onEdit }) => {
             )}
           </tbody>
         </Table>
+
+        {filteredUsers.length > usersPerPage && (
+          <div className="d-flex justify-content-center my-3">
+            <CustomPagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={paginate}
+            />
+          </div>
+        )}
+
       </div>
     </Card>
   );

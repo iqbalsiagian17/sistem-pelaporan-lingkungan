@@ -56,59 +56,56 @@ export const LoginPage = () => {
 
     return (
         <AuthWrapper>
-            <h4 className="mb-2">Welcome to Sneat! 👋</h4>
-            <p className="mb-4">Please sign in to your account and start the adventure</p>
+    <h4 className="mb-2 text-center">Balige Bersih</h4>
 
-            {error && <div className="alert alert-danger">{error}</div>}
+    <p className="mb-1 text-center text-danger fw-bold">
+        Halaman ini khusus untuk <strong>Admin</strong>.
+    </p>
 
-            <form id="formAuthentication" className="mb-3" onSubmit={handleSubmit}>
-                <div className="mb-3">
-                    <label htmlFor="identifier" className="form-label">Email or Phone Number</label>
-                    <input
-                        type="text"
-                        className="form-control"
-                        id="identifier"
-                        value={formData.identifier}
-                        onChange={handleChange}
-                        name="identifier"
-                        placeholder="Enter your email or phone number"
-                        autoFocus
-                    />
-                </div>
-                <div className="mb-3 form-password-toggle">
-                    <div className="d-flex justify-content-between">
-                        <label className="form-label" htmlFor="password">Password</label>
-                        <Link aria-label="Go to Forgot Password Page" to="/auth/forgot-password">
-                            <small>Forgot Password?</small>
-                        </Link>
-                    </div>
-                    <div className="input-group input-group-merge">
-                        <input
-                            type="password"
-                            autoComplete="true"
-                            id="password"
-                            value={formData.password}
-                            onChange={handleChange}
-                            className="form-control"
-                            name="password"
-                            placeholder="••••••••"
-                            aria-describedby="password"
-                        />
-                    </div>
-                </div>
-                <div className="mb-3">
-                    <button aria-label='Click me' className="btn btn-primary d-grid w-100" type="submit">
-                        Sign in
-                    </button>
-                </div>
-            </form>
+    <p className="mb-4 text-center">Silakan masuk ke akun Anda untuk mulai menggunakan sistem.</p>
 
-            <p className="text-center">
-                <span>New on our platform? </span>
-                <Link aria-label="Go to Register Page" to='/auth/register' className="registration-link">
-                    <span>Create an account</span>
-                </Link>
-            </p>
-        </AuthWrapper>
+    {error && <div className="alert alert-danger">{error}</div>}
+
+    <form id="formAuthentication" className="mb-3" onSubmit={handleSubmit}>
+        <div className="mb-3">
+            <label htmlFor="identifier" className="form-label">Email atau Nomor Telepon</label>
+            <input
+                type="text"
+                className="form-control"
+                id="identifier"
+                value={formData.identifier}
+                onChange={handleChange}
+                name="identifier"
+                placeholder="Masukkan email atau nomor telepon"
+                autoFocus
+            />
+        </div>
+        <div className="mb-3 form-password-toggle">
+            <div className="d-flex justify-content-between">
+                <label className="form-label" htmlFor="password">Kata Sandi</label>
+            </div>
+            <div className="input-group input-group-merge">
+                <input
+                    type="password"
+                    autoComplete="true"
+                    id="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    className="form-control"
+                    name="password"
+                    placeholder="••••••••"
+                    aria-describedby="password"
+                />
+            </div>
+        </div>
+        <div className="mb-3">
+            <button aria-label="Klik untuk masuk" className="btn btn-primary d-grid w-100" type="submit">
+                Masuk
+            </button>
+        </div>
+    </form>
+
+</AuthWrapper>
+
     );
 };

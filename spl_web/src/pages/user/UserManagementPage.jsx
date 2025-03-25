@@ -3,7 +3,7 @@ import { useState } from "react";
 import UserTable from "./components/UserTable";
 import UserBlockModal from "./components/UserBlockModal";
 import UserEditModal from "./components/UserEditModal";
-import UserDeleteConfirm from "./components/UserDeleteConfirm";
+import ConfirmModal from "../../components/common/ConfirmModal";
 
 const UserManagementPage = () => {
   const {
@@ -88,10 +88,14 @@ const UserManagementPage = () => {
         onSave={confirmEdit}
       />
 
-      <UserDeleteConfirm
+      <ConfirmModal
         show={showDeleteModal}
         onHide={() => setShowDeleteModal(false)}
         onConfirm={confirmDelete}
+        title="Hapus Pengguna"
+        body={`Apakah kamu yakin ingin menghapus pengguna ${selectedUser?.username}?`}
+        confirmText="Hapus"
+        variant="danger"
       />
     </div>
   );

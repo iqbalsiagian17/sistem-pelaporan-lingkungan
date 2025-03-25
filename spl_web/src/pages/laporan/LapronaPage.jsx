@@ -2,7 +2,10 @@ import { useState } from "react";
 import LaporanTable from "./components/LaporanTable";
 import DetailLaporanModal from "./components/DetailLaporanModal";
 import StatusLaporanModal from "./components/StatusLaporanModal";
+import ConfirmModal from "../../components/common/ConfirmModal";
 import { useReport  } from '../../context/ReportContext';
+import ToastNotification from "../../components/common/ToastNotification";
+
 
 const LaporanPage = () => {
   const {
@@ -20,7 +23,13 @@ const LaporanPage = () => {
   const [newStatus, setNewStatus] = useState("");
   const [message, setMessage] = useState("");
   const [showStatusModal, setShowStatusModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
+
+  const [toast, setToast] = useState({ show: false, message: "", variant: "success" });
+  const showToast = (msg, variant = "success") => {
+    setToast({ show: true, message: msg, variant });
+  };
 
   const handleOpenDetailModal = async (id) => {
     try {
@@ -28,7 +37,7 @@ const LaporanPage = () => {
       setSelectedReport(report);
       setShowDetailModal(true);
     } catch (error) {
-      alert(`Terjadi kesalahan: ${error.message}`);
+      showToast(`Terjadi kesalahan: ${error.message}`);
     }
   };
 
@@ -49,12 +58,12 @@ const LaporanPage = () => {
 
   const handleChangeStatus = async () => {
     if (!selectedReport?.id || !newStatus || !message) {
-      alert("❌ Harap isi semua field.");
+      showToast("Harap isi semua field.");
       return;
     }
 
     if (selectedReport.status === newStatus) {
-      alert(`❌ Status sudah berada di '${newStatus}'`);
+      showToast(`Status sudah berada di '${newStatus}'`);
       return;
     }
 
@@ -68,8 +77,8 @@ const LaporanPage = () => {
     };
 
     if (!allowed[selectedReport.status]?.includes(newStatus)) {
-      alert(
-        `❌ Tidak bisa ubah dari '${selectedReport.status}' ke '${newStatus}'`
+      showToast(
+        `Tidak bisa ubah dari '${selectedReport.status}' ke '${newStatus}'`
       );
       return;
     }
@@ -79,24 +88,37 @@ const LaporanPage = () => {
         new_status: newStatus,
         message,
       });
-      alert("✅ Status berhasil diubah!");
+      showToast("Status berhasil diubah!");
       updateReportLocally(selectedReport.id, newStatus);
       setShowStatusModal(false);
     } catch (error) {
-      alert(`❌ ${error.message}`);
+      showToast(`❌ ${error.message}`);
     }
   };
 
-  const handleDeleteReport = async (id) => {
-    if (!window.confirm("Yakin hapus laporan ini?")) return;
+  const [reportToDelete, setReportToDelete] = useState(null);
+
+  const handleDeleteReport = (reportId) => {
+    const report = reports.find(r => r.id === reportId);
+    setReportToDelete(report);
+    setShowDeleteModal(true);
+  };
+  
+  const confirmDeleteReport = async () => {
+    if (!reportToDelete) return;
+  
     try {
-      await deleteReport(id);
-      alert("✅ Laporan berhasil dihapus");
-      removeReport(id);
+      await deleteReport(reportToDelete.id);
+      showToast("Laporan berhasil dihapus");
+      removeReport(reportToDelete.id);
     } catch (error) {
-      alert(`❌ ${error.message}`);
+      showToast(`❌ ${error.message}`);
+    } finally {
+      setShowDeleteModal(false);
+      setReportToDelete(null);
     }
   };
+  
 
   return (
     <>
@@ -123,6 +145,21 @@ const LaporanPage = () => {
         setMessage={setMessage}
         handleChangeStatus={handleChangeStatus}
         statusHierarchy={statusHierarchy}
+      />
+      <ConfirmModal
+        show={showDeleteModal}
+        onHide={() => setShowDeleteModal(false)}
+        onConfirm={confirmDeleteReport}
+        title="Hapus Laporan"
+        body={`Yakin ingin menghapus laporan "${reportToDelete?.report_number}"? `}
+        confirmText="Hapus"
+      />
+
+      <ToastNotification
+        show={toast.show}
+        onClose={() => setToast({ ...toast, show: false })}
+        message={toast.message}
+        variant={toast.variant}
       />
     </>
   );
