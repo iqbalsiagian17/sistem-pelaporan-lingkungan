@@ -1,4 +1,5 @@
-// src/utils/fetchWithAuth.js
+import { showSessionExpiredModal } from "./modalTrigger"; // helper untuk akses context
+
 export const fetchWithAuth = async (url, options = {}) => {
   const token = localStorage.getItem("accessToken");
   const isFormData = options.body instanceof FormData;
@@ -16,26 +17,21 @@ export const fetchWithAuth = async (url, options = {}) => {
 
   const response = await fetch(url, config);
 
-  // 🔁 Perpanjang token kalau ada
   const newToken = response.headers.get("x-new-token");
   if (newToken) {
     localStorage.setItem("accessToken", newToken);
     console.log("🔁 Token admin diperpanjang otomatis");
   }
 
-  // ⛔️ Jangan langsung response.json() di sini
-  // Cukup kembalikan response untuk di-handle oleh pemanggilnya
   if (response.status === 400 || response.status === 401) {
-    const cloned = response.clone(); // ✅ Clone agar response.json() tidak crash
+    const cloned = response.clone();
     try {
-      const errorData = await cloned.json(); 
+      const errorData = await cloned.json();
       const isTokenInvalid = errorData?.message?.toLowerCase().includes("invalid token");
       const isAlreadyOnLoginPage = window.location.pathname.includes("/auth/login");
 
       if (isTokenInvalid && !isAlreadyOnLoginPage) {
-        alert("⚠️ Sesi Anda telah berakhir. Silakan login ulang.");
-        localStorage.removeItem("accessToken");
-        window.location.href = "/auth/login";
+        showSessionExpiredModal(); // 🚀 panggil modal global
         return;
       }
     } catch (e) {
@@ -43,5 +39,5 @@ export const fetchWithAuth = async (url, options = {}) => {
     }
   }
 
-  return response; // 💡 response.json() hanya boleh dipanggil di service
+  return response;
 };

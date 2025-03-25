@@ -80,28 +80,29 @@ const CarouselTable = ({ carousels, onView, onEdit, onDelete }) => {
                     })}
                   </td>
                   <td>
-                    <Dropdown align="end">
-                      <Dropdown.Toggle
-                        as="span"
-                        style={{ cursor: "pointer", fontSize: "18px" }}
+                    <div className="dropdown">
+                      <button
+                        type="button"
+                        className="btn p-0 dropdown-toggle hide-arrow"
+                        data-bs-toggle="dropdown"
                       >
-                        <i className="bx bx-dots-vertical-rounded"></i>
-                      </Dropdown.Toggle>
-                      <Dropdown.Menu align="end">
-                        <Dropdown.Item onClick={() => onView(item.id)}>
+                        <i className="bx bx-dots-vertical-rounded" style={{ fontSize: "18px" }}></i>
+                      </button>
+                      <div className="dropdown-menu dropdown-menu-end">
+                        <button className="dropdown-item" onClick={() => onView(item.id)}>
                           📄 Lihat Detail
-                        </Dropdown.Item>
-                        <Dropdown.Item onClick={() => onEdit(item)}>
+                        </button>
+                        <button className="dropdown-item" onClick={() => onEdit(item)}>
                           ✏️ Edit
-                        </Dropdown.Item>
-                        <Dropdown.Item
-                          className="text-danger"
+                        </button>
+                        <button
+                          className="dropdown-item text-danger"
                           onClick={() => onDelete(item)}
                         >
                           🗑️ Hapus
-                        </Dropdown.Item>
-                      </Dropdown.Menu>
-                    </Dropdown>
+                        </button>
+                      </div>
+                    </div>
                   </td>
                 </tr>
               ))

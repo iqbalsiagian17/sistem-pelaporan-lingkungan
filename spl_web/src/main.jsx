@@ -7,6 +7,8 @@ import { UserProvider } from "./context/UserContext";
 import { ReportProvider  } from './context/ReportContext';
 import { AnnouncementProvider } from './context/AnnouncementContext.jsx';
 import { CarouselProvider } from './context/CarouselContext.jsx';
+import { ParameterProvider } from './context/ParameterContext.jsx';
+import { ModalProvider } from './context/ModalContext.jsx';
 
 
 ReactDOM.createRoot(document.getElementById("root")).render(
@@ -15,7 +17,11 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       <ReportProvider >
         <AnnouncementProvider>
           <CarouselProvider>
-            <App />
+            <ParameterProvider>
+              <ModalProvider>
+                <App />
+              </ModalProvider>
+            </ParameterProvider>
           </CarouselProvider>
         </AnnouncementProvider>
       </ReportProvider >

@@ -6,6 +6,7 @@ import LaporanPage from "../pages/laporan/LapronaPage";
 import UserManagementPage from "../pages/user/UserManagementPage";
 import AnnouncementPage from "../pages/announcement/AnnouncementPage";
 import CarouselPage from "../pages/carousel/CarouselPage";
+import ParameterPage from "../pages/parameter/ParameterPage";
 
 const AppRoutes = () => {
     return (
@@ -20,6 +21,7 @@ const AppRoutes = () => {
                 <Route path="/users/" element={<UserManagementPage  />} />
                 <Route path="/announcements/" element={<AnnouncementPage  />} />
                 <Route path= "/banners/" element={<CarouselPage  />} />
+                <Route path="/parameters/" element={<ParameterPage />} />
             </Route>
         </Routes>
     );

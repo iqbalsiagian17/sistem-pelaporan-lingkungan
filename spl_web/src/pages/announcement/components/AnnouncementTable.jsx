@@ -64,21 +64,29 @@ const AnnouncementTable = ({ announcements,onView, onDelete, onEdit }) => {
                   </td>
                   <td>{new Date(a.createdAt).toLocaleDateString("id-ID")}</td>
                   <td>
-                    <Dropdown align="end">
-                      <Dropdown.Toggle
-                        as="span"
-                        style={{ cursor: "pointer", fontSize: "18px" }}
+                    <div className="dropdown">
+                      <button
+                        type="button"
+                        className="btn p-0 dropdown-toggle hide-arrow"
+                        data-bs-toggle="dropdown"
                       >
-                        <i className="bx bx-dots-vertical-rounded"></i>
-                      </Dropdown.Toggle>
-                      <Dropdown.Menu align="end">
-                        <Dropdown.Item onClick={() => onView(a.id)}>📄 Lihat Detail</Dropdown.Item>
-                        <Dropdown.Item onClick={() => onEdit(a)}>✏️ Edit</Dropdown.Item>
-                        <Dropdown.Item className="text-danger" onClick={() => onDelete(a)}>
+                        <i className="bx bx-dots-vertical-rounded" style={{ fontSize: "18px" }}></i>
+                      </button>
+                      <div className="dropdown-menu dropdown-menu-end">
+                        <button className="dropdown-item" onClick={() => onView(a.id)}>
+                          📄 Lihat Detail
+                        </button>
+                        <button className="dropdown-item" onClick={() => onEdit(a)}>
+                          ✏️ Edit
+                        </button>
+                        <button
+                          className="dropdown-item text-danger"
+                          onClick={() => onDelete(a)}
+                        >
                           🗑️ Hapus
-                        </Dropdown.Item>
-                      </Dropdown.Menu>
-                    </Dropdown>
+                        </button>
+                      </div>
+                    </div>
                   </td>
                 </tr>
               ))

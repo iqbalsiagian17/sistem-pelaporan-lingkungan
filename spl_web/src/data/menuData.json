@@ -64,5 +64,16 @@
                 "link": "/banners"
             }
         ]
+    },
+    {
+        "header": "MASTER DATA",
+        "items": [
+            {
+                "text": "Parameter",
+                "icon": "bx bx-cog",
+                "available": true,
+                "link": "/parameters"
+            }
+        ]
     }
 ]

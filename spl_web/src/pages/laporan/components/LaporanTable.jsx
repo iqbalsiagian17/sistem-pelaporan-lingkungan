@@ -128,23 +128,37 @@ const LaporanTable = ({ reports, handleOpenDetailModal, handleOpenStatusModal, h
                                         </Badge>
                                     </td>
                                     <td>
-                                        <Dropdown align="end">
-                                            <Dropdown.Toggle as="span" style={{ cursor: "pointer", fontSize: "18px" }}>
-                                                <i className="bx bx-dots-vertical-rounded"></i>
-                                            </Dropdown.Toggle>
-                                            <Dropdown.Menu align="end">
-                                                <Dropdown.Item onClick={() => handleOpenDetailModal(report.id)}>
-                                                    Lihat Laporan
-                                                </Dropdown.Item>
-                                                <Dropdown.Item onClick={() => handleOpenStatusModal(report)}>
-                                                    Tindak Lanjuti
-                                                </Dropdown.Item>
-                                                <Dropdown.Item className="text-danger" onClick={() => handleDeleteReport(report.id)}>
-                                                    Hapus
-                                                </Dropdown.Item>
-                                            </Dropdown.Menu>
-                                        </Dropdown>
-                                    </td>
+  <div className="dropdown">
+    <button
+      type="button"
+      className="btn p-0 dropdown-toggle hide-arrow"
+      data-bs-toggle="dropdown"
+    >
+      <i className="bx bx-dots-vertical-rounded" style={{ fontSize: "18px" }}></i>
+    </button>
+    <div className="dropdown-menu dropdown-menu-end">
+      <button
+        className="dropdown-item"
+        onClick={() => handleOpenDetailModal(report.id)}
+      >
+        <i className="bx bx-show me-1"></i> Lihat Laporan
+      </button>
+      <button
+        className="dropdown-item"
+        onClick={() => handleOpenStatusModal(report)}
+      >
+        <i className="bx bx-task me-1"></i> Tindak Lanjuti
+      </button>
+      <button
+        className="dropdown-item text-danger"
+        onClick={() => handleDeleteReport(report.id)}
+      >
+        <i className="bx bx-trash me-1"></i> Hapus
+      </button>
+    </div>
+  </div>
+</td>
+
                                 </tr>
                             ))
                         ) : (

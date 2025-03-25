@@ -81,70 +81,72 @@ const UserTable = ({ users, onDelete, onBlock, onUnblock, onEdit }) => {
             </tr>
           </thead>
           <tbody>
-            {currentUsers.length > 0 ? (
-              currentUsers.map((user, index) => (
-                <tr key={user.id}>
-                  <td>{indexOfFirstUser + index + 1}</td>
-                  <td>{user.username}</td>
-                  <td>{user.email}</td>
-                  <td>{user.phone_number}</td>
-                  <td>
-                    <Badge bg={user.type === 1 ? "primary" : "success"}>
-                      {user.type === 1 ? "Admin" : "User"}
-                    </Badge>
-                  </td>
-                  <td>
-                    <Badge bg={user.auth_provider === "google" ? "danger" : "secondary"}>
-                      {user.auth_provider === "google" ? "Google" : "manual"}
-                    </Badge>
-                  </td>
-                  <td>
-                    {user.blocked_until ? (
-                      <Badge bg="danger">
-                        Sampai{" "}
-                        {new Date(user.blocked_until).toLocaleDateString("id-ID")}
-                      </Badge>
-                    ) : (
-                      <Badge bg="success">Aktif</Badge>
-                    )}
-                  </td>
-                  <td>
-                    <Dropdown align="end">
-                      <Dropdown.Toggle
-                        as="span"
-                        style={{ cursor: "pointer", fontSize: "18px" }}
-                      >
-                        <i className="bx bx-dots-vertical-rounded"></i>
-                      </Dropdown.Toggle>
-                      <Dropdown.Menu align="end">
-                        <Dropdown.Item onClick={() => onEdit(user)}>
-                          ✏️ Edit
-                        </Dropdown.Item>
-                        <Dropdown.Item onClick={() => onDelete(user)}>
-                          🗑️ Hapus
-                        </Dropdown.Item>
-                        {user.blocked_until ? (
-                          <Dropdown.Item onClick={() => onUnblock(user)}>
-                            ✅ Unblock
-                          </Dropdown.Item>
-                        ) : (
-                          <Dropdown.Item onClick={() => onBlock(user)}>
-                            🚫 Block
-                          </Dropdown.Item>
-                        )}
-                      </Dropdown.Menu>
-                    </Dropdown>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="7" className="text-center text-muted">
-                  Tidak ada pengguna ditemukan.
-                </td>
-              </tr>
-            )}
-          </tbody>
+  {currentUsers.length > 0 ? (
+    currentUsers.map((user, index) => (
+      <tr key={user.id}>
+        <td>{indexOfFirstUser + index + 1}</td>
+        <td>{user.username}</td>
+        <td>{user.email}</td>
+        <td>{user.phone_number}</td>
+        <td>
+          <Badge bg={user.type === 1 ? "primary" : "success"}>
+            {user.type === 1 ? "Admin" : "User"}
+          </Badge>
+        </td>
+        <td>
+          <Badge bg={user.auth_provider === "google" ? "danger" : "secondary"}>
+            {user.auth_provider === "google" ? "Google" : "manual"}
+          </Badge>
+        </td>
+        <td>
+          {user.blocked_until ? (
+            <Badge bg="danger">
+              Sampai {new Date(user.blocked_until).toLocaleDateString("id-ID")}
+            </Badge>
+          ) : (
+            <Badge bg="success">Aktif</Badge>
+          )}
+        </td>
+        <td>
+          <div className="dropdown">
+            <button
+              type="button"
+              className="btn p-0 dropdown-toggle hide-arrow"
+              data-bs-toggle="dropdown"
+            >
+              <i className="icon-base bx bx-dots-vertical-rounded"></i>
+            </button>
+            <div className="dropdown-menu">
+              <button className="dropdown-item" onClick={() => onEdit(user)}>
+                <i className="icon-base bx bx-edit-alt me-1"></i> Edit
+              </button>
+              <button className="dropdown-item" onClick={() => onDelete(user)}>
+                <i className="icon-base bx bx-trash me-1"></i> Delete
+              </button>
+              {user.blocked_until ? (
+                <button className="dropdown-item" onClick={() => onUnblock(user)}>
+                  <i className="icon-base bx bx-check-circle me-1"></i> Unblock
+                </button>
+              ) : (
+                <button className="dropdown-item" onClick={() => onBlock(user)}>
+                  <i className="icon-base bx bx-block me-1"></i> Block
+                </button>
+              )}
+            </div>
+          </div>
+        </td>
+
+      </tr>
+    ))
+  ) : (
+    <tr>
+      <td colSpan="8" className="text-center text-muted">
+        Tidak ada pengguna ditemukan.
+      </td>
+    </tr>
+  )}
+</tbody>
+
         </Table>
 
         {filteredUsers.length > usersPerPage && (
