@@ -25,6 +25,11 @@ module.exports = (sequelize, DataTypes) => {
                 allowNull: false,
                 defaultValue: 0, // ✅ Default 0 likes
             },
+            is_pinned: {
+                type: DataTypes.BOOLEAN,
+                allowNull: false,
+                defaultValue: false
+            },
         },
         {
             tableName: "t_post",

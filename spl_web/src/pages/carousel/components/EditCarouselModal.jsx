@@ -1,8 +1,6 @@
 // src/pages/carousel/components/CarouselEditModal.jsx
 import { useState, useEffect } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
-import ReactQuill from "react-quill";
-import "react-quill/dist/quill.snow.css";
 
 const CarouselEditModal = ({ show, onHide, carousel, onSave }) => {
   const [title, setTitle] = useState("");
@@ -51,33 +49,32 @@ const CarouselEditModal = ({ show, onHide, carousel, onSave }) => {
 
           <Form.Group className="mb-3">
             <Form.Label>Deskripsi</Form.Label>
-            <div style={{ height: "300px" }}>
-              <ReactQuill
-                theme="snow"
-                value={description}
-                onChange={setDescription}
-                placeholder="Tulis deskripsi carousel..."
-                style={{ height: "100%" }}
-              />
-            </div>
+            <Form.Control
+              as="textarea"
+              rows={4}
+              placeholder="Tulis deskripsi carousel..."
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
           </Form.Group>
+
           <Form.Group>
             <Form.Label>Gambar</Form.Label>
             <Form.Control type="file" onChange={(e) => setImage(e.target.files[0])} />
 
             {!image && carousel?.image && (
-                <div className="mt-3">
+              <div className="mt-3">
                 <Form.Label>Pratinjau Gambar Saat Ini</Form.Label>
                 <br />
                 <img
-                    src={`http://localhost:3000/${carousel.image}`}
-                    alt="Preview"
-                    className="img-fluid rounded shadow-sm border"
-                    style={{ maxHeight: "180px", objectFit: "cover" }}
+                  src={`http://localhost:3000/${carousel.image}`}
+                  alt="Preview"
+                  className="img-fluid rounded shadow-sm border"
+                  style={{ maxHeight: "180px", objectFit: "cover" }}
                 />
-                </div>
+              </div>
             )}
-        </Form.Group>
+          </Form.Group>
         </Form>
       </Modal.Body>
       <Modal.Footer>

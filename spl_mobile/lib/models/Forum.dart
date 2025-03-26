@@ -10,6 +10,7 @@ class ForumPost {
   final String createdAt;
   final String updatedAt;
   final int likes;
+  final bool isPinned;
   final User user;
   final List<ForumImage> images;
   final List<ForumComment> comments;
@@ -24,6 +25,7 @@ class ForumPost {
     required this.images,
     required this.comments,
     required this.likes,
+    required this.isPinned,
   });
 
   factory ForumPost.fromJson(Map<String, dynamic> json) {
@@ -40,7 +42,10 @@ class ForumPost {
       comments: (json['comments'] as List)
           .map((cmt) => ForumComment.fromJson(cmt))
           .toList(),
-      likes: json['likes']??0,
+      likes: json['likes'] ?? 0,
+isPinned: json['is_pinned'] ?? false, // ✅ Ambil langsung boolean
     );
   }
+
+  
 }

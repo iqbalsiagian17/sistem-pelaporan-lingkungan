@@ -19,6 +19,7 @@ class _ForumViewState extends State<ForumView> with SingleTickerProviderStateMix
   late TabController _tabController;
 
   @override
+  /// Inisialisasi `TabController` dan refresh daftar postingan.
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);

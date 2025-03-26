@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_html/flutter_html.dart';
 
 class AnnouncementDescription extends StatelessWidget {
   final String description;
@@ -7,14 +8,15 @@ class AnnouncementDescription extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      description,
-      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: Colors.black87,
-            height: 1.6,
-            fontSize: 14,
-          ),
-      textAlign: TextAlign.justify,
+    // Render the description as HTML content
+    return Html(
+      data: description,
+      style: {
+        "p": Style(
+          fontSize: FontSize(14),
+          color: Colors.black87,
+        ),
+      },
     );
   }
 }

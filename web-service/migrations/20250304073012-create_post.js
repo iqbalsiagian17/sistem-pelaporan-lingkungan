@@ -26,6 +26,11 @@ module.exports = {
               allowNull: false,
               defaultValue: 0
           },
+          is_pinned: {
+            type: Sequelize.BOOLEAN,
+            allowNull: false,
+            defaultValue: false
+        },
           createdAt: {
               type: Sequelize.DATE,
               allowNull: false,

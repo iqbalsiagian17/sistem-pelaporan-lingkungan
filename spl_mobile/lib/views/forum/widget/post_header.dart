@@ -26,13 +26,17 @@ class PostHeader extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(post.user.username, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-              Text("• ${DateUtilsCustom.timeAgo(DateTime.parse(post.createdAt))}",
-                  style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
+              Row(
+                children: [
+                  Text(
+                    "• ${DateUtilsCustom.timeAgo(DateTime.parse(post.createdAt))}",
+                    style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+                  ),
+                ],
+              ),
             ],
           ),
         ),
-        
-        // 🔹 **Gunakan PostPopupMenu dengan parameter yang benar**
         PostPopupMenu(post: post),
       ],
     );

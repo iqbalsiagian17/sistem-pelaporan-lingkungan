@@ -1,8 +1,6 @@
 // src/pages/carousel/components/CarouselCreateModal.jsx
 import { useState } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
-import ReactQuill from "react-quill";
-import "react-quill/dist/quill.snow.css";
 
 const CarouselCreateModal = ({ show, onHide, onCreate }) => {
   const [title, setTitle] = useState("");
@@ -48,15 +46,13 @@ const CarouselCreateModal = ({ show, onHide, onCreate }) => {
 
           <Form.Group className="mb-3">
             <Form.Label>Deskripsi</Form.Label>
-            <div style={{ height: "250px" }}>
-              <ReactQuill
-                theme="snow"
-                value={description}
-                onChange={setDescription}
-                placeholder="Tulis deskripsi carousel..."
-                style={{ height: "100%", borderRadius: "5px" }}
-              />
-            </div>
+            <Form.Control
+              as="textarea"
+              rows={3}
+              placeholder="Tulis deskripsi carousel..."
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
           </Form.Group>
 
           <Form.Group className="mb-3">

@@ -49,6 +49,7 @@ const CarouselTable = ({ carousels, onView, onEdit, onDelete }) => {
             <tr>
               <th>#</th>
               <th>Judul</th>
+              <th>Deskripsi</th>
               <th>Gambar</th>
               <th>Dibuat</th>
               <th>Aksi</th>
@@ -60,6 +61,7 @@ const CarouselTable = ({ carousels, onView, onEdit, onDelete }) => {
                 <tr key={item.id}>
                   <td>{index + 1}</td>
                   <td>{item.title}</td>
+                  <td>{item.description}</td>
                   <td>
                         {item.image ? (
                             <img

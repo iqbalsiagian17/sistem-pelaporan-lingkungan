@@ -9,7 +9,7 @@ import { AnnouncementProvider } from './context/AnnouncementContext.jsx';
 import { CarouselProvider } from './context/CarouselContext.jsx';
 import { ParameterProvider } from './context/ParameterContext.jsx';
 import { ModalProvider } from './context/ModalContext.jsx';
-
+import { PostProvider } from './context/PostContext.jsx'; 
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <BrowserRouter>
@@ -19,7 +19,9 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           <CarouselProvider>
             <ParameterProvider>
               <ModalProvider>
-                <App />
+                <PostProvider> 
+                  <App />
+                </PostProvider>
               </ModalProvider>
             </ParameterProvider>
           </CarouselProvider>

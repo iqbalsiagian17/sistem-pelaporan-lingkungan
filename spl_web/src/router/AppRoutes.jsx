@@ -7,6 +7,7 @@ import UserManagementPage from "../pages/user/UserManagementPage";
 import AnnouncementPage from "../pages/announcement/AnnouncementPage";
 import CarouselPage from "../pages/carousel/CarouselPage";
 import ParameterPage from "../pages/parameter/ParameterPage";
+import ForumPage from "../pages/forum/ForumPage";
 
 const AppRoutes = () => {
     return (
@@ -22,6 +23,7 @@ const AppRoutes = () => {
                 <Route path="/announcements/" element={<AnnouncementPage  />} />
                 <Route path= "/banners/" element={<CarouselPage  />} />
                 <Route path="/parameters/" element={<ParameterPage />} />
+                <Route path="/forum" element={<ForumPage/>} />
             </Route>
         </Routes>
     );

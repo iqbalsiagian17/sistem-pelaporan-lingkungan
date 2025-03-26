@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 import 'package:spl_mobile/models/Announcement.dart';
 import 'package:spl_mobile/routes/app_routes.dart';
-import './announcement_list_empety.dart';
+import 'package:flutter_html/flutter_html.dart';  // Import the flutter_html package
 
+import './announcement_list_empety.dart';
 class AnnouncementListDataState extends StatefulWidget {
   final List<AnnouncementItem> announcements;
   final VoidCallback onRetry;
@@ -28,6 +28,15 @@ class _AnnouncementListDataStateState extends State<AnnouncementListDataState> {
     return now.difference(createdAt).inHours < 24;
   }
 
+  // Function to limit the text to 20 words
+  String truncateDescription(String description, int wordLimit) {
+    final words = description.split(' ');
+    if (words.length > wordLimit) {
+      return words.sublist(0, wordLimit).join(' ') + '...';
+    }
+    return description;
+  }
+
   @override
   Widget build(BuildContext context) {
     final totalItems = widget.announcements.length;
@@ -44,6 +53,8 @@ class _AnnouncementListDataStateState extends State<AnnouncementListDataState> {
                 children: [
                   ...List.generate(visibleItems.length, (index) {
                     final announcement = visibleItems[index];
+                    final truncatedDescription = truncateDescription(announcement.description, 10);
+
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 12),
                       child: Material(
@@ -69,7 +80,7 @@ class _AnnouncementListDataStateState extends State<AnnouncementListDataState> {
                                           Expanded(
                                             child: Text(
                                               announcement.title,
-                                              maxLines: 2,
+                                              maxLines: 1,
                                               overflow: TextOverflow.ellipsis,
                                               style: const TextStyle(
                                                 fontSize: 16,
@@ -98,14 +109,14 @@ class _AnnouncementListDataStateState extends State<AnnouncementListDataState> {
                                         ],
                                       ),
                                       const SizedBox(height: 8),
-                                      Text(
-                                        announcement.description,
-                                        maxLines: 3,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: const TextStyle(
-                                          fontSize: 13,
-                                          color: Colors.black54,
-                                        ),
+                                      Html(
+                                        data: truncatedDescription,
+                                        style: {
+                                          "p": Style(
+                                            fontSize: FontSize(13),
+                                            color: Colors.black54,
+                                          ),
+                                        },
                                       ),
                                     ],
                                   ),

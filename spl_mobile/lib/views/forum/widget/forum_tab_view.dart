@@ -51,20 +51,26 @@ class _ForumTabViewState extends State<ForumTabView> {
     );
   }
 
-  Widget _buildPostList(List posts) {
-    if (posts.isEmpty) {
-      return const Center(child: Text("Belum ada postingan."));
-    }
-
-    return RefreshIndicator(
-      onRefresh: widget.onRefresh,
-      child: ListView.builder(
-        padding: EdgeInsets.zero,
-        itemCount: posts.length,
-        itemBuilder: (context, index) => PostCard(post: posts[index]),
-      ),
-    );
+Widget _buildPostList(List posts) {
+  if (posts.isEmpty) {
+    return const Center(child: Text("Belum ada postingan."));
   }
+
+  // Urutkan pinned post ke atas
+  final pinned = posts.where((p) => p.isPinned).toList();
+  final notPinned = posts.where((p) => !p.isPinned).toList();
+  final sorted = [...pinned, ...notPinned];
+
+  return RefreshIndicator(
+    onRefresh: widget.onRefresh,
+    child: ListView.builder(
+      padding: EdgeInsets.zero,
+      itemCount: sorted.length,
+      itemBuilder: (context, index) => PostCard(post: sorted[index]),
+    ),
+  );
+}
+
 
   Widget _buildSkeletonList() {
     return ListView.builder(

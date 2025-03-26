@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { Modal, Button, Form, Row, Col } from "react-bootstrap";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 
 const CreateParameterModal = ({ show, onHide, onCreate }) => {
   const [form, setForm] = useState({
@@ -12,12 +14,15 @@ const CreateParameterModal = ({ show, onHide, onCreate }) => {
     firefighter_contact: "",
   });
 
+  const handleQuillChange = (field, value) => {
+    setForm((prev) => ({ ...prev, [field]: value }));
+  };
+
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = () => {
-    // Validasi sederhana
     if (!form.about || !form.terms || !form.report_guidelines) {
       alert("❌ Harap lengkapi kolom utama (About, Terms, Guidelines)");
       return;
@@ -43,38 +48,32 @@ const CreateParameterModal = ({ show, onHide, onCreate }) => {
       </Modal.Header>
       <Modal.Body>
         <Form>
-          <Form.Group className="mb-3">
-            <Form.Label>About</Form.Label>
-            <Form.Control
-              as="textarea"
-              rows={2}
-              name="about"
+          <Form.Group className="mb-4">
+            <Form.Label>Tentang Aplikasi</Form.Label>
+            <ReactQuill
               value={form.about}
-              onChange={handleChange}
+              onChange={(val) => handleQuillChange("about", val)}
+              theme="snow"
               placeholder="Tentang aplikasi..."
             />
           </Form.Group>
 
-          <Form.Group className="mb-3">
-            <Form.Label>Terms</Form.Label>
-            <Form.Control
-              as="textarea"
-              rows={2}
-              name="terms"
+          <Form.Group className="mb-4">
+            <Form.Label>Syarat & Ketentuan</Form.Label>
+            <ReactQuill
               value={form.terms}
-              onChange={handleChange}
-              placeholder="Syarat & Ketentuan..."
+              onChange={(val) => handleQuillChange("terms", val)}
+              theme="snow"
+              placeholder="Syarat dan ketentuan..."
             />
           </Form.Group>
 
-          <Form.Group className="mb-3">
+          <Form.Group className="mb-4">
             <Form.Label>Panduan Pelaporan</Form.Label>
-            <Form.Control
-              as="textarea"
-              rows={2}
-              name="report_guidelines"
+            <ReactQuill
               value={form.report_guidelines}
-              onChange={handleChange}
+              onChange={(val) => handleQuillChange("report_guidelines", val)}
+              theme="snow"
               placeholder="Tata cara pelaporan..."
             />
           </Form.Group>
@@ -88,7 +87,7 @@ const CreateParameterModal = ({ show, onHide, onCreate }) => {
                   name="emergency_contact"
                   value={form.emergency_contact}
                   onChange={handleChange}
-                  placeholder="08xxxx / 112 / lainnya"
+                  placeholder="08xxxx / 112"
                 />
               </Form.Group>
             </Col>
@@ -101,7 +100,7 @@ const CreateParameterModal = ({ show, onHide, onCreate }) => {
                   name="ambulance_contact"
                   value={form.ambulance_contact}
                   onChange={handleChange}
-                  placeholder="08xxxx / 119 / lainnya"
+                  placeholder="08xxxx / 119"
                 />
               </Form.Group>
             </Col>
@@ -116,7 +115,7 @@ const CreateParameterModal = ({ show, onHide, onCreate }) => {
                   name="police_contact"
                   value={form.police_contact}
                   onChange={handleChange}
-                  placeholder="110 / kontak polisi"
+                  placeholder="110"
                 />
               </Form.Group>
             </Col>
@@ -129,7 +128,7 @@ const CreateParameterModal = ({ show, onHide, onCreate }) => {
                   name="firefighter_contact"
                   value={form.firefighter_contact}
                   onChange={handleChange}
-                  placeholder="113 / kontak damkar"
+                  placeholder="113"
                 />
               </Form.Group>
             </Col>

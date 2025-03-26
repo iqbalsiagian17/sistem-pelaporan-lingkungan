@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:spl_mobile/core/constants/api.dart';
 import 'package:spl_mobile/widgets/skeleton/skeleton_image_card.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../providers/public/carousel_provider.dart';
@@ -67,7 +68,7 @@ class _CarouselBannerState extends State<CarouselBanner> {
           items: carouselItems.map((carousel) {
             return _carouselCard(
               image: CachedNetworkImage(
-                imageUrl: "http://localhost:3000/${carousel.imageUrl}",
+                imageUrl: "${ApiConstants.baseUrl}/${carousel.imageUrl}",
                 fit: BoxFit.cover,
                 width: double.infinity,
                 placeholder: (context, url) => _loadingPlaceholder(),
@@ -115,59 +116,60 @@ class _CarouselBannerState extends State<CarouselBanner> {
   required String title,
   required String description,
 }) {
-  return Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 10.0),
-    child: SizedBox(
-      width: double.infinity,
-      height: 180,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
-        child: Stack(
-          fit: StackFit.expand, // ✅ Tambahkan agar child mengisi penuh
-          children: [
-            ShaderMask(
-              shaderCallback: (rect) => LinearGradient(
-                begin: Alignment.centerRight,
-                end: Alignment.centerLeft,
-                colors: [
-                  Colors.black.withOpacity(0.3),
-                  Colors.black.withOpacity(0.7),
-                ],
-              ).createShader(rect),
-              blendMode: BlendMode.darken,
-              child: image,
-            ),
-            Positioned(
-              bottom: 16,
-              left: 16,
-              right: 16,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    description,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: Colors.white70,
-                    ),
-                  ),
-                ],
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10.0),
+      child: SizedBox(
+        width: double.infinity,
+        height: 180,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: Stack(
+            fit: StackFit.expand, // ✅ Child expands to fill the available space
+            children: [
+              ShaderMask(
+                shaderCallback: (rect) => LinearGradient(
+                  begin: Alignment.centerRight,
+                  end: Alignment.centerLeft,
+                  colors: [
+                    Colors.black.withOpacity(0.3),
+                    Colors.black.withOpacity(0.7),
+                  ],
+                ).createShader(rect),
+                blendMode: BlendMode.darken,
+                child: image,
               ),
-            ),
-          ],
+              Positioned(
+                bottom: 16,
+                left: 16,
+                right: 16,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      description,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Colors.white70,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
-    ),
-  );
+    );
+
 }
 
   Widget _loadingPlaceholder() {
