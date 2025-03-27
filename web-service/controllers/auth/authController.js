@@ -1,6 +1,8 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const userService = require('../../services/userService');
+const { Notification } = require('../../models');
+
 
 const register = async (req, res) => {
     try {
@@ -14,6 +16,15 @@ const register = async (req, res) => {
 
         // Simpan user baru dengan phone_number
         const newUser = await userService.createUser({ phone_number, username, email, password: hashedPassword, type: 0 });
+
+        await Notification.create({
+            user_id: newUser.id,
+            title: "Pengguna Baru",
+            message: `Akun ${newUser.username} telah mendaftar.`,
+            type: "account",
+            sent_by: "system",
+            role_target: "admin"
+          });
 
         res.status(201).json({ message: 'User registered successfully', user: newUser });
     } catch (error) {

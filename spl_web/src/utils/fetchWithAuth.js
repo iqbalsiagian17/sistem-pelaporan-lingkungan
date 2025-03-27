@@ -29,15 +29,16 @@ export const fetchWithAuth = async (url, options = {}) => {
       const errorData = await cloned.json();
       const isTokenInvalid = errorData?.message?.toLowerCase().includes("invalid token");
       const isAlreadyOnLoginPage = window.location.pathname.includes("/auth/login");
-
+  
       if (isTokenInvalid && !isAlreadyOnLoginPage) {
-        showSessionExpiredModal(); // 🚀 panggil modal global
-        return;
+        showSessionExpiredModal(); // tampilkan modal
+        throw new Error("Token tidak valid atau sudah kadaluarsa");
       }
     } catch (e) {
       console.warn("❗ Error parsing error response:", e);
     }
   }
+  
 
   return response;
 };

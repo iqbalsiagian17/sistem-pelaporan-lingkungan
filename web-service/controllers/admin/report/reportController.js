@@ -1,4 +1,4 @@
-const { Report, ReportAttachment, ReportStatusHistory, User, sequelize } = require('../../../models');
+const { Report, ReportAttachment, ReportStatusHistory, User, Notification, sequelize } = require('../../../models');
 const fs = require('fs');
 
 // ✅ MELIHAT SEMUA LAPORAN (Admin Only)
@@ -124,6 +124,16 @@ exports.updateReportStatus = async (req, res) => {
       new_status,
       message
     });
+
+    await Notification.create({
+      user_id: report.user_id,
+      title: "Status Laporan Diperbarui",
+      message: `Status laporan Anda telah berubah dari "${previous_status}" menjadi "${new_status}".`,
+      type: "verification",
+      sent_by: "system",
+      role_target: "user"
+    });
+
 
     res.status(200).json({ message: 'Status laporan berhasil diperbarui' });
 

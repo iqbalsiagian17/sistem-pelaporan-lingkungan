@@ -23,6 +23,8 @@ const userReportLikesRoutes = require("./routes/user/userRoutesLikes");
 const userPostLikesRoutes = require("./routes/user/userLikesPostRoutes");
 const adminForumRoutes = require("./routes/admin/forumRoutes");
 const adminAnalyticsRoutes = require("./routes/admin/analyticsRoute")
+const notificationRoutes = require("./routes/notification/notificationRoutes");
+
 
 
 
@@ -40,6 +42,7 @@ app.use(bodyParser.json());  // ✅ Pastikan JSON bisa terbaca
 app.use(cookieParser());  // ✅ Untuk membaca cookies jika ada
 
 // 📌 Routes
+
 // 🔹 Auth
 app.use('/api/auth', authRoutes);
 
@@ -48,6 +51,8 @@ app.use("/api/carousels", publicCarouselRoutes);
 app.use("/api/announcements", publicAnnouncementRoutes);
 app.use("/api/parameters", publicParameterRoutes);
 
+// 🔹 Nontification Routes
+app.use("/api/notifications", notificationRoutes);
 
 // 🔹 User Routes
 app.use('/api/user/profile', userInfoRoutes); 

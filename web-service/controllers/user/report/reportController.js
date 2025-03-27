@@ -1,4 +1,4 @@
-const { User, Report, ReportAttachment, ReportStatusHistory  } = require('../../../models');
+const { User, Report, ReportAttachment, ReportStatusHistory, Notification  } = require('../../../models');
 const { sequelize } = require('../../../models');
 const { Op } = require("sequelize");
 const multer = require('multer');
@@ -168,6 +168,15 @@ exports.createReport = async (req, res) => {
           },
           { transaction: t }
         );
+
+          await Notification.create({
+            user_id: null, // Dikirim ke admin, bukan ke user spesifik
+            title: "Laporan Baru",
+            message: `Pengguna ${user.username} telah mengirim laporan baru dengan judul "${title}".`,
+            type: "report",
+            sent_by: "system",
+            role_target: "admin"
+          });        
 
         if (req.files.length > 0) {
           const attachments = req.files.map((file) => ({

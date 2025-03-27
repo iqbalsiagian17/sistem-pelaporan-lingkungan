@@ -1,6 +1,10 @@
 import getGreetingMessage from '../utils/greetingHandler';
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { fetchAdminNotifications } from "../services/notificationService";
+import React, { useState, useEffect } from "react";
+import NotificationItem from "../components/common/NotificationItem";
+
+
 
 
 
@@ -8,7 +12,21 @@ const Navbar = () => {
 
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
+  const [notifications, setNotifications] = useState([]);
 
+  useEffect(() => {
+    const getNotifications = async () => {
+      try {
+        const data = await fetchAdminNotifications();
+        setNotifications(data.slice(0, 5)); // tampilkan 5 terbaru
+      } catch (err) {
+        console.error("Gagal mengambil notifikasi:", err);
+      }
+    };
+  
+    getNotifications();
+  }, []);
+  
 
     // Ambil data user dari localStorage saat komponen dimuat
     useEffect(() => {
@@ -38,98 +56,78 @@ const Navbar = () => {
 
       <div className="navbar-nav-right d-flex align-items-center w-100" id="navbar-collapse">
         {user ? getGreetingMessage(user.username) : getGreetingMessage('User')}
-      <ul className="navbar-nav flex-row align-items-center ms-auto">
+      <ul className="navbar-nav flex-row align-items-center ms-auto" >
+        
           
           {/* Notification Bell Icon - Mobile Friendly */}
-          <li className="nav-item dropdown position-relative me-3">
-            <a
-              aria-label="Notifications"
-              className="nav-link"
-              href="#"
-              data-bs-toggle="dropdown"
-              role="button"
-              aria-expanded="false"
-              style={{ position: "relative", display: "flex", alignItems: "center" }}
+          <li className="nav-item dropdown-notifications navbar-dropdown dropdown me-3 me-xl-2">
+  <a
+    className="nav-link dropdown-toggle hide-arrow"
+    href="#"
+    data-bs-toggle="dropdown"
+    data-bs-auto-close="outside"
+    aria-expanded="false"
+  >
+    <span className="position-relative">
+      <i className="icon-base bx bx-bell icon-md"></i>
+      {notifications.filter(n => !n.is_read).length > 0 && (
+        <span className="badge rounded-pill bg-danger badge-dot badge-notifications border"></span>
+      )}
+    </span>
+  </a>
+
+  <ul className="dropdown-menu dropdown-menu-end p-0"   style={{ minWidth: "500px", maxWidth: "650px" }}
+  >
+    <li className="dropdown-menu-header border-bottom">
+      <div className="dropdown-header d-flex align-items-center py-3">
+        <h6 className="mb-0 me-auto">Notifikasi</h6>
+        <div className="d-flex align-items-center h6 mb-0">
+          <span className="badge bg-label-primary me-2">
+            {notifications.filter(n => !n.is_read).length} Baru
+          </span>
+          <a
+            href="#"
+            className="dropdown-notifications-all p-2"
+            title="Tandai semua telah dibaca"
+          >
+            <i className="icon-base bx bx-envelope-open text-heading"></i>
+          </a>
+        </div>
+      </div>
+    </li>
+
+    <li className="dropdown-notifications-list scrollable-container">
+      <ul className="list-group list-group-flush">
+        {notifications.length > 0 ? (
+          notifications.slice(0, 5).map((notif, index) => (
+            <li
+              className={`list-group-item list-group-item-action dropdown-notifications-item ${
+                notif.is_read ? "marked-as-read" : ""
+              }`}
+              key={index}
             >
-              <i className="bx bx-bell bx-sm"></i>
-              <span
-                className="badge rounded-pill bg-danger position-absolute"
-                style={{
-                  fontSize: "0.75rem",
-                  padding: "4px 6px",
-                  top: "5px",
-                  right: "-2px",
-                }}
-              >
-                3
-              </span>
-            </a>
-
-            {/* Dropdown Menu - Adjusted for Mobile */}
-            <ul
-                className="dropdown-menu dropdown-menu-end shadow-lg border-0 p-2"
-                data-bs-auto-close="outside"
-                style={{
-                  maxWidth: "350px",
-                  minWidth: "260px",
-                  borderRadius: "10px",
-                  overflow: "hidden",
-                  position: "absolute",
-                  right: "0",
-                  left: "auto",
-                  transform: "translateX(0%)",
-                  backgroundColor: "#ffffff",
-                }}
-              >
-                {/* Header */}
-                <li className="dropdown-header bg-primary text-white fw-bold py-2 px-3 d-flex align-items-center">
-                  <i className="bx bx-bell text-white fs-5 me-2"></i> Notifikasi
-                </li>
-
-                <li><hr className="dropdown-divider m-0" /></li>
-
-                {/* Notification Items */}
-                <li className="px-3 py-2">
-                  <a className="dropdown-item d-flex align-items-center p-2 rounded" href="#" style={{ transition: "0.2s ease-in-out" }}>
-                    <i className="bx bx-envelope text-primary fs-4 me-3"></i>
-                    <div>
-                      <span className="fw-semibold">Pesan Baru</span>
-                      <small className="d-block text-muted">Baru saja</small>
-                    </div>
-                  </a>
-                </li>
-
-                <li className="px-3 py-2">
-                  <a className="dropdown-item d-flex align-items-center p-2 rounded" href="#" style={{ transition: "0.2s ease-in-out" }}>
-                    <i className="bx bx-user-plus text-success fs-4 me-3"></i>
-                    <div>
-                      <span className="fw-semibold">Pengguna Baru</span>
-                      <small className="d-block text-muted">5 menit lalu</small>
-                    </div>
-                  </a>
-                </li>
-
-                <li className="px-3 py-2">
-                  <a className="dropdown-item d-flex align-items-center p-2 rounded" href="#" style={{ transition: "0.2s ease-in-out" }}>
-                    <i className="bx bx-error-circle text-danger fs-4 me-3"></i>
-                    <div>
-                      <span className="fw-semibold">Peringatan Sistem</span>
-                      <small className="d-block text-muted">10 menit lalu</small>
-                    </div>
-                  </a>
-                </li>
-
-                <li><hr className="dropdown-divider m-0" /></li>
-
-                {/* View All Notifications */}
-                <li className="text-center py-2">
-                  <a className="dropdown-item text-primary fw-bold p-2 rounded" href="#" style={{ transition: "0.2s ease-in-out" }}>
-                    Lihat semua notifikasi
-                  </a>
-                </li>
-              </ul>
-
+              <NotificationItem notif={notif} />
+            </li>
+          ))
+        ) : (
+          <li className="list-group-item text-center text-muted">
+            Tidak ada notifikasi
           </li>
+        )}
+      </ul>
+    </li>
+
+    <li className="border-top">
+      <div className="d-grid p-3">
+        <a className="btn btn-sm btn-primary d-block" href="/notifications">
+          Lihat semua notifikasi
+        </a>
+      </div>
+    </li>
+  </ul>
+</li>
+
+
 
           {/* User Avatar Dropdown */}
           <li className="nav-item navbar-dropdown dropdown-user dropdown">
