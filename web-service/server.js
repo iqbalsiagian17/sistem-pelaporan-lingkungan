@@ -22,6 +22,7 @@ const userReportSaveRoutes = require("./routes/user/userReportSaveRoutes");
 const userReportLikesRoutes = require("./routes/user/userRoutesLikes");
 const userPostLikesRoutes = require("./routes/user/userLikesPostRoutes");
 const adminForumRoutes = require("./routes/admin/forumRoutes");
+const adminAnalyticsRoutes = require("./routes/admin/analyticsRoute")
 
 
 
@@ -63,6 +64,7 @@ app.use("/api/admin/carousels", adminCarouselRoutes);
 app.use("/api/admin/announcements", adminAnnouncementRoutes);
 app.use("/api/admin/parameters", adminParameterRoutes);
 app.use("/api/admin/post", adminForumRoutes);
+app.use("/api/admin/analytics", adminAnalyticsRoutes);
 
 // 🔹 Static Files
 app.use("/uploads", express.static("uploads"));

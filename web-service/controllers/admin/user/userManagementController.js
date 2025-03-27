@@ -4,7 +4,7 @@ const { User } = require('../../../models');
 exports.getAllUsers = async (req, res) => {
     try {
         const users = await User.findAll({
-            attributes: ["id", "username", "email", "phone_number", "type", "blocked_until","auth_provider"],
+            attributes: ["id", "username", "email", "phone_number", "type", "blocked_until","auth_provider","createdAt"],
             order: [["createdAt", "DESC"]]
         });
 

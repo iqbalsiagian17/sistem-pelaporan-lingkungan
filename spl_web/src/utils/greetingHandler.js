@@ -7,14 +7,14 @@ const getGreetingMessage = (name) => {
     let greeting;
 
     if (currentHour >= 5 && currentHour < 12) {
-        greeting = 'Selamat Pagi 😎';
+        greeting = 'Selamat Pagi ';
     } else if (currentHour >= 12 && currentHour < 18) {
-        greeting = 'Selamat Siang 🌤️';
+        greeting = 'Selamat Siang';
     } else {
-        greeting = 'Selamat Malam 🌙';
+        greeting = 'Selamat Malam';
     }
 
-    return `👋 Hello ${name}, ${greeting}!`;
+    return `Hello ${name}, ${greeting}!`;
 };
 
 export default getGreetingMessage;
