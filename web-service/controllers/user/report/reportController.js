@@ -169,14 +169,16 @@ exports.createReport = async (req, res) => {
           { transaction: t }
         );
 
-          await Notification.create({
-            user_id: null, // Dikirim ke admin, bukan ke user spesifik
-            title: "Laporan Baru",
-            message: `Pengguna ${user.username} telah mengirim laporan baru dengan judul "${title}".`,
-            type: "report",
-            sent_by: "system",
-            role_target: "admin"
-          });        
+        const user = await User.findByPk(user_id);
+
+        await Notification.create({
+          user_id: null, // Dikirim ke admin
+          title: "Laporan Baru",
+          message: `Pengguna ${user.username} telah mengirim laporan baru dengan judul "${title}".`,
+          type: "report",
+          sent_by: "system",
+          role_target: "admin"
+        });      
 
         if (req.files.length > 0) {
           const attachments = req.files.map((file) => ({
@@ -318,3 +320,5 @@ exports.deleteReport = async (req, res) => {
     res.status(500).json({ message: 'Terjadi kesalahan server', error: error.message });
   }
 };
+
+

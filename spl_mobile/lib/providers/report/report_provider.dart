@@ -33,7 +33,7 @@ Future<void> fetchReports() async {
     try {
       final token = await _getToken();
       if (token == null || token.isEmpty) {
-        throw Exception("❌ Tidak ada token yang tersedia. Silakan login ulang.");
+        throw Exception("Tidak ada token yang tersedia. Silakan login ulang.");
       }
 
       debugPrint("🔍 Mengambil laporan dari API...");
@@ -103,12 +103,12 @@ bool hasPendingReports(int currentUserId) {
       final currentUserId = prefs.getInt("id");
 
       if (currentUserId != null && hasPendingReports(currentUserId)) {
-        throw Exception("🚫 Anda masih memiliki laporan yang belum selesai. Harap tunggu hingga laporan sebelumnya berstatus 'closed'.");
+        throw Exception("Anda masih memiliki laporan yang belum selesai. Harap tunggu hingga laporan sebelumnya berstatus 'closed'.");
       }
 
       final token = await _getToken();
       if (token == null || token.isEmpty) {
-        throw Exception("❌ Tidak ada token. Silakan login ulang.");
+        throw Exception("Tidak ada token. Silakan login ulang.");
       }
 
       print("🔍 Menggunakan token untuk request: $token"); // ✅ Debugging token sebelum request
@@ -150,7 +150,7 @@ Future<bool> deleteReport(String reportId) async {
 
     if (success) {
       _reports.removeWhere((report) => report.id.toString() == reportId);
-      print("✅ Laporan dengan ID $reportId berhasil dihapus dari daftar.");
+      print("Laporan dengan ID $reportId berhasil dihapus dari daftar.");
       notifyListeners();
     }
 
@@ -160,7 +160,7 @@ Future<bool> deleteReport(String reportId) async {
     _isLoading = false;
     _errorMessage = e.toString();
     notifyListeners();
-    print("❌ Error saat menghapus laporan: $_errorMessage");
+    print("Error saat menghapus laporan: $_errorMessage");
     return false;
   }
 }

@@ -178,14 +178,12 @@ class RecentReportsSection extends StatelessWidget {
                                   ),
                                 ),
                                 const SizedBox(height: 4),
-                                  Text(
-                                    "${report.village?.isNotEmpty == true 
-                                        ? report.village 
-                                        : report.locationDetails?.isNotEmpty == true 
-                                          ? report.locationDetails 
-                                          : report.user.username}, ${report.date}",
-                                    style: const TextStyle(fontSize: 12, color: Colors.grey),
-                                  ),
+                                Text(
+                                  report.village?.isNotEmpty == true
+                                      ? "${report.village}, ${report.date}"
+                                      : "${report.date}",
+                                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+                                ),
                                 const SizedBox(height: 4),
                                 // 🔹 Status Aduan dengan Animasi Warna
                                 AnimatedContainer(

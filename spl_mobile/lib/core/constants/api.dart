@@ -1,5 +1,5 @@
 class ApiConstants {
-     static const String baseUrl = "http://192.168.237.108:3000";
+     static const String baseUrl = "http://192.168.181.108:3000";
  
 /*       static const String baseUrl = "http://172.25.42.159:3000"; 
  */ 
@@ -27,5 +27,8 @@ class ApiConstants {
 
   static const String userPostLike = "$baseUrl/api/user/post";
 
+
+  // Endpoint Notifikasi
+  static const String userNotificationUrl = "$baseUrl/api/notifications/user";
 
 }

@@ -3,7 +3,13 @@ import { useState } from "react";
 import UserTable from "./components/UserTable";
 import UserBlockModal from "./components/UserBlockModal";
 import UserEditModal from "./components/UserEditModal";
+import UserChangePasswordModal from "./components/UserChangePasswordModal";
 import ConfirmModal from "../../components/common/ConfirmModal";
+import ToastNotification from "../../components/common/ToastNotification";
+import UserDetailModal from "./components/UserDetailModal";
+import { getUserDetails } from "../../services/userService";
+
+
 
 const UserManagementPage = () => {
   const {
@@ -14,13 +20,28 @@ const UserManagementPage = () => {
     updateUser,
     removeUser,
     updateUserLocal,
+    changeUserPassword,
   } = useUser();
 
   const [selectedUser, setSelectedUser] = useState(null);
   const [showBlockModal, setShowBlockModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [blockingUntil, setBlockingUntil] = useState("");
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [detailUser, setDetailUser] = useState(null);
+
+
+  const [toast, setToast] = useState({
+    show: false,
+    message: "",
+    variant: "success",
+  });
+
+  const showToast = (message, variant = "success") => {
+    setToast({ show: true, message, variant });
+  };
 
   const handleDelete = (user) => {
     setSelectedUser(user);
@@ -31,6 +52,7 @@ const UserManagementPage = () => {
     await deleteUser(selectedUser.id);
     removeUser(selectedUser.id);
     setShowDeleteModal(false);
+    showToast("Pengguna berhasil dihapus", "success");
   };
 
   const handleBlock = (user) => {
@@ -40,16 +62,21 @@ const UserManagementPage = () => {
   };
 
   const confirmBlock = async () => {
-    if (!blockingUntil) return alert("Isi tanggal block!");
+    if (!blockingUntil) {
+      showToast("Tanggal blokir wajib diisi!", "danger");
+      return;
+    }
     await blockUser(selectedUser.id, blockingUntil);
     updateUserLocal(selectedUser.id, { blocked_until: blockingUntil });
     setBlockingUntil("");
     setShowBlockModal(false);
+    showToast("Pengguna berhasil diblokir", "success");
   };
 
   const handleUnblock = async (user) => {
     await unblockUser(user.id);
     updateUserLocal(user.id, { blocked_until: null });
+    showToast("Pengguna berhasil di-unblock", "success");
   };
 
   const handleEdit = (user) => {
@@ -61,7 +88,26 @@ const UserManagementPage = () => {
     await updateUser(id, newData);
     updateUserLocal(id, newData);
     setShowEditModal(false);
+    showToast("Data pengguna berhasil diperbarui", "success");
   };
+
+  const handleChangePassword = (user) => {
+    setSelectedUser(user);
+    setShowPasswordModal(true);
+  };
+
+  const confirmChangePassword = async (id, newPassword) => {
+    await changeUserPassword(id, newPassword);
+    setShowPasswordModal(false);
+    showToast("Password berhasil diubah", "success");
+  };
+
+  const handleViewDetail = async (userId) => {
+    const data = await getUserDetails(userId); // ✅ sesuaikan dengan nama fungsi
+    setDetailUser(data);
+    setShowDetailModal(true);
+  };
+  
 
   return (
     <div>
@@ -71,6 +117,8 @@ const UserManagementPage = () => {
         onBlock={handleBlock}
         onUnblock={handleUnblock}
         onEdit={handleEdit}
+        onChangePassword={handleChangePassword}
+        onDetail={handleViewDetail}
       />
 
       <UserBlockModal
@@ -88,6 +136,13 @@ const UserManagementPage = () => {
         onSave={confirmEdit}
       />
 
+      <UserChangePasswordModal
+        show={showPasswordModal}
+        onHide={() => setShowPasswordModal(false)}
+        user={selectedUser}
+        onConfirm={confirmChangePassword}
+      />
+
       <ConfirmModal
         show={showDeleteModal}
         onHide={() => setShowDeleteModal(false)}
@@ -96,6 +151,20 @@ const UserManagementPage = () => {
         body={`Apakah kamu yakin ingin menghapus pengguna ${selectedUser?.username}?`}
         confirmText="Hapus"
         variant="danger"
+      />
+
+      <ToastNotification
+        show={toast.show}
+        onClose={() => setToast({ ...toast, show: false })}
+        message={toast.message}
+        title={toast.variant === "danger" ? "Gagal" : "Berhasil"}
+        variant={toast.variant}
+      />
+
+      <UserDetailModal
+        show={showDetailModal}
+        onHide={() => setShowDetailModal(false)}
+        user={detailUser}
       />
     </div>
   );

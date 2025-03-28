@@ -43,3 +43,17 @@ export const unblockUser = async (id) => {
   });
   return await response.json();
 };
+
+export const changeUserPassword = async (id, newPassword) => {
+  const response = await fetchWithAuth(`${BASE_URL}/change-password/${id}`, {
+    method: "PUT",
+    body: JSON.stringify({ newPassword })
+  });
+  return await response.json();
+};
+
+export const getUserDetails = async (id) => {
+  const response = await fetchWithAuth(`${BASE_URL}/details/${id}`);
+  const data = await response.json();
+  return data;
+};

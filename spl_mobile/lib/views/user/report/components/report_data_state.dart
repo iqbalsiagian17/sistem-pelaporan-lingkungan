@@ -104,7 +104,9 @@ class _ReportDataStateState extends State<ReportDataState> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    "${report.village?.isNotEmpty == true ? report.village : report.locationDetails ?? "Lokasi tidak tersedia"}, ${report.date.isNotEmpty ? report.date : "Tanggal tidak diketahui"}",
+                    report.village?.isNotEmpty == true
+                        ? "${report.village}, ${report.date}"
+                        : "${report.date}",
                     style: const TextStyle(fontSize: 12, color: Colors.grey),
                   ),
                   const SizedBox(height: 4),

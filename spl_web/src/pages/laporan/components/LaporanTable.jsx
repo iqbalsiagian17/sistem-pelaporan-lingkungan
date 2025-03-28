@@ -121,44 +121,48 @@ const LaporanTable = ({ reports, handleOpenDetailModal, handleOpenStatusModal, h
                                     <td>{report.user?.username || "-"}</td>
                                     <td><strong>{report.title || "-"}</strong></td>
                                     <td>{report.report_number || "-"}</td>
-                                    <td>{new Date(report.createdAt).toLocaleDateString("id-ID")}</td>
+                                    <td>
+                                        {new Date(report.createdAt).toLocaleDateString("id-ID")}{" "}
+                                        {Date.now() - new Date(report.createdAt).getTime() < 24 * 60 * 60 * 1000 && (
+                                            <span className="badge bg-success ms-1">Baru</span>
+                                        )}
+                                    </td>
                                     <td>
                                         <Badge bg={statusMappings[report.status]?.color || "secondary"} className="text-uppercase">
                                             {statusMappings[report.status]?.label || "Tidak Diketahui"}
                                         </Badge>
                                     </td>
                                     <td>
-  <div className="dropdown">
-    <button
-      type="button"
-      className="btn p-0 dropdown-toggle hide-arrow"
-      data-bs-toggle="dropdown"
-    >
-      <i className="bx bx-dots-vertical-rounded" style={{ fontSize: "18px" }}></i>
-    </button>
-    <div className="dropdown-menu dropdown-menu-end">
-      <button
-        className="dropdown-item"
-        onClick={() => handleOpenDetailModal(report.id)}
-      >
-        <i className="bx bx-show me-1"></i> Lihat Laporan
-      </button>
-      <button
-        className="dropdown-item"
-        onClick={() => handleOpenStatusModal(report)}
-      >
-        <i className="bx bx-task me-1"></i> Tindak Lanjuti
-      </button>
-      <button
-        className="dropdown-item text-danger"
-        onClick={() => handleDeleteReport(report.id)}
-      >
-        <i className="bx bx-trash me-1"></i> Hapus
-      </button>
-    </div>
-  </div>
-</td>
-
+                                        <div className="dropdown">
+                                            <button
+                                            type="button"
+                                            className="btn p-0 dropdown-toggle hide-arrow"
+                                            data-bs-toggle="dropdown"
+                                            >
+                                            <i className="bx bx-dots-vertical-rounded" style={{ fontSize: "18px" }}></i>
+                                            </button>
+                                            <div className="dropdown-menu dropdown-menu-end">
+                                            <button
+                                                className="dropdown-item"
+                                                onClick={() => handleOpenDetailModal(report.id)}
+                                            >
+                                                <i className="bx bx-show me-1"></i> Lihat Laporan
+                                            </button>
+                                            <button
+                                                className="dropdown-item"
+                                                onClick={() => handleOpenStatusModal(report)}
+                                            >
+                                                <i className="bx bx-task me-1"></i> Tindak Lanjuti
+                                            </button>
+                                            <button
+                                                className="dropdown-item text-danger"
+                                                onClick={() => handleDeleteReport(report.id)}
+                                            >
+                                                <i className="bx bx-trash me-1"></i> Hapus
+                                            </button>
+                                            </div>
+                                        </div>
+                                    </td>
                                 </tr>
                             ))
                         ) : (
@@ -170,15 +174,16 @@ const LaporanTable = ({ reports, handleOpenDetailModal, handleOpenStatusModal, h
                         )}
                     </tbody>
                 </Table>
+                    
                 {filteredReports.length > reportsPerPage && (
-                          <div className="d-flex justify-content-center my-3">
-                            <CustomPagination
-                              currentPage={currentPage}
-                              totalPages={totalPages}
-                              onPageChange={paginate}
-                            />
-                          </div>
-                        )}
+                    <div className="d-flex justify-content-center my-3">
+                        <CustomPagination
+                            currentPage={currentPage}
+                            totalPages={totalPages}
+                            onPageChange={paginate}
+                        />
+                    </div>
+                )}
             </div>
 
             {/* 🔥 Dropdown Status di Luar Tabel */}

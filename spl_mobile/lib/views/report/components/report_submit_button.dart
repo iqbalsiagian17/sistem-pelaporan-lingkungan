@@ -127,14 +127,14 @@ class _ReportSubmitButtonState extends State<ReportSubmitButton> {
       if (success) {
         widget.onSuccess?.call();
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("✅ Laporan berhasil dikirim!")),
+          const SnackBar(content: Text("Laporan berhasil dikirim!")),
         );
       } else {
-        throw Exception("❌ Gagal mengirim laporan.");
+        throw Exception("Gagal mengirim laporan.");
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("❌ Gagal mengirim laporan: $e")),
+        SnackBar(content: Text("Gagal mengirim laporan: $e")),
       );
     } finally {
       setState(() => isLoading = false);

@@ -1,4 +1,6 @@
-const { User } = require('../../../models');
+const { User, Post, Report, ReportLikes, PostImage, PostLikes, Comment, ReportAttachment } = require("../../../models");
+const bcrypt = require("bcryptjs"); // pastikan sudah diimport
+
 
 // ✅ GET ALL USERS
 exports.getAllUsers = async (req, res) => {
@@ -113,3 +115,132 @@ exports.unblockUser = async (req, res) => {
         res.status(500).json({ message: "Server error", error: error.message });
     }
 };
+
+exports.changeUserPassword = async (req, res) => {
+    try {
+      const { id } = req.params; // ID user yang ingin diubah password-nya
+      const { newPassword } = req.body;
+  
+      if (!newPassword) {
+        return res.status(400).json({ message: "New password is required" });
+      }
+  
+      const user = await User.findByPk(id);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+  
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      await user.update({ password: hashedPassword });
+  
+      res.status(200).json({ message: "Password updated successfully by admin" });
+    } catch (error) {
+      console.error("Error updating password:", error);
+      res.status(500).json({ message: "Server error", error: error.message });
+    }
+  };
+
+  exports.getUserDetails = async (req, res) => {
+    try {
+      const { id } = req.params;
+  
+      // ✅ 1. Ambil data user
+      const user = await User.findByPk(id, {
+        attributes: [
+          "id",
+          "username",
+          "email",
+          "phone_number",
+          "type",
+          "auth_provider",
+          "blocked_until",
+          "createdAt"
+        ]
+      });
+  
+      if (!user) {
+        return res.status(404).json({ message: "User tidak ditemukan" });
+      }
+  
+      // ✅ 2. Ambil semua post user
+      const posts = await Post.findAll({
+        where: { user_id: id },
+        attributes: ["id", "content", "likes", "is_pinned", "createdAt"],
+        include: {
+          model: PostImage,
+          as: "images",
+          attributes: ["id", "image"]
+        },
+        order: [["createdAt", "DESC"]],
+      });
+      
+  
+      // ✅ 3. Ambil semua laporan user
+      const reports = await Report.findAll({
+        where: { user_id: id },
+        attributes: [
+          "id",
+          "report_number",
+          "title",
+          "description",
+          "status",
+          "date",
+          "likes",
+          "village",
+          "location_details",
+          "latitude",
+          "longitude",
+          "createdAt"
+        ],
+        include: {
+          model: ReportAttachment,
+          as: "attachments",
+          attributes: ["id", "file"]
+        },
+        order: [["createdAt", "DESC"]],
+      });
+  
+      // ✅ 4. Ambil semua laporan yang disukai user
+      const likedReportsRaw = await ReportLikes.findAll({
+        where: { user_id: id },
+        include: {
+          model: Report,
+          as: "report",
+          attributes: [
+            "id",
+            "report_number",
+            "title",
+            "description",
+            "status",
+            "date",
+            "likes",
+            "village",
+            "location_details",
+            "latitude",
+            "longitude"
+          ],
+          include: {
+            model: ReportAttachment,
+            as: "attachments",
+            attributes: ["id", "file"]
+          }
+        },
+        order: [["createdAt", "DESC"]]
+      });
+  
+      const liked_reports = likedReportsRaw.map((item) => item.report);
+  
+      // ✅ 5. Kirim response lengkap
+      return res.status(200).json({
+        message: "Detail user berhasil diambil",
+        user,
+        posts,
+        reports,
+        liked_reports
+      });
+  
+    } catch (error) {
+      console.error("❌ Error fetching user details:", error);
+      return res.status(500).json({ message: "Terjadi kesalahan server", error: error.message });
+    }
+  };

@@ -6,12 +6,14 @@ const ToastNotification = ({
   title = "Notifikasi",
   time = "Baru saja",
   message = "Ini pesan toast",
+  variant = "success"
 }) => {
+  const bgColor = variant === "danger" ? "#f44336" : "#4caf50"; // merah atau hijau
+
   return (
     <ToastContainer
       position="bottom-end"
       className="p-3"
-      containerPosition="fixed"
       style={{
         position: "fixed",
         bottom: 20,
@@ -28,6 +30,7 @@ const ToastNotification = ({
           minWidth: 320,
           borderRadius: 8,
           boxShadow: "0 8px 16px rgba(0,0,0,0.15)",
+          borderLeft: `5px solid ${bgColor}`,
         }}
       >
         <div className="toast-header">

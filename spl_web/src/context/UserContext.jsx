@@ -6,6 +6,8 @@ import {
   deleteUser,
   blockUser,
   unblockUser,
+  changeUserPassword,
+  getUserDetails
 } from "../services/userService";
 
 const UserContext = createContext();
@@ -42,8 +44,10 @@ export const UserProvider = ({ children }) => {
         deleteUser,
         blockUser,
         unblockUser,
+        changeUserPassword,
         removeUser,
         updateUserLocal,
+        getUserDetails
       }}
     >
       {children}

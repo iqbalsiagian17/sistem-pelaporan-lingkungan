@@ -1,4 +1,3 @@
-// NotificationItem.jsx
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { markNotificationAsRead } from "../../services/notificationService";
@@ -9,15 +8,13 @@ const NotificationItem = ({ notif }) => {
   const handleClick = async () => {
     await markNotificationAsRead(notif.id);
 
-    if (notif.type === "report") {
-      navigate("/reports");
-    } else if (notif.type === "status_change") {
-      navigate("/reports");
+    if (notif.type === "report" || notif.type === "status_change") {
+      window.location.href = "/reports"; // ✅ langsung reload halaman laporan
     } else if (notif.type === "account") {
-      navigate("/users");
+      window.location.href = "/users"; // ✅ langsung reload halaman pengguna
     } else {
-      navigate("/notifications");
-    }
+      window.location.href = "/notifications"; // fallback
+    }  
   };
 
   const getIcon = () => {
@@ -29,38 +26,35 @@ const NotificationItem = ({ notif }) => {
 
   return (
     <div
-      className={`list-group-item list-group-item-action dropdown-notifications-item ${
-        notif.is_read ? "marked-as-read" : ""
+      className={`list-group-item list-group-item-action dropdown-notifications-item d-flex border-0 p-3 mb-1 rounded shadow-sm ${
+        notif.is_read
+          ? "bg-white text-muted"
+          : "bg-light border-start border-4 border-primary"
       }`}
       onClick={handleClick}
-      style={{ cursor: "pointer" }}
+      style={{ cursor: "pointer", opacity: notif.is_read ? 0.85 : 1 }}
     >
-      <div className="d-flex">
-        <div className="flex-shrink-0 me-3">
-          <div className="avatar">
-            <span className="avatar-initial rounded-circle bg-label-secondary">
-              <i className={`icon-base ${getIcon()}`}></i>
-            </span>
-          </div>
-        </div>
-        <div className="flex-grow-1">
-          <h6 className="small mb-0">{notif.title}</h6>
-          <small className="mb-1 d-block text-body">{notif.message}</small>
-          <small className="text-body-secondary">
-            {new Date(notif.createdAt).toLocaleString("id-ID")}
-          </small>
-        </div>
-        <div className="flex-shrink-0 dropdown-notifications-actions">
-          {!notif.is_read && (
-            <a href="#" className="dropdown-notifications-read">
-              <span className="badge badge-dot"></span>
-            </a>
-          )}
-          <a href="#" className="dropdown-notifications-archive">
-            <span className="icon-base bx bx-x"></span>
-          </a>
+      <div className="flex-shrink-0 me-3">
+        <div className="avatar">
+          <span className="avatar-initial rounded-circle bg-label-secondary">
+            <i className={`icon-base ${getIcon()}`}></i>
+          </span>
         </div>
       </div>
+      <div className="flex-grow-1">
+        <h6 className={`mb-1 small ${!notif.is_read ? "fw-bold text-dark" : "text-muted"}`}>
+          {notif.title}
+        </h6>
+        <small className="d-block">{notif.message}</small>
+        <small className="text-secondary">
+          {new Date(notif.createdAt).toLocaleString("id-ID")}
+        </small>
+      </div>
+      {!notif.is_read && (
+        <div className="flex-shrink-0 ms-2 d-flex align-items-center">
+          <span className="badge bg-danger rounded-circle" style={{ width: 10, height: 10 }}></span>
+        </div>
+      )}
     </div>
   );
 };

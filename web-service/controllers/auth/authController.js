@@ -75,7 +75,7 @@ const login = async (req, res) => {
             },
             process.env.JWT_SECRET,
             { 
-                expiresIn: "15m" 
+                expiresIn: client === "react" && user.type === 1 ? "1h" : "15m"
             }
         );
 

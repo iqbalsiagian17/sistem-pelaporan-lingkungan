@@ -120,18 +120,18 @@ bool success = await reportProvider.createReport(
     setState(() => isSubmitting = false);
 
     if (success) {
-      SnackbarHelper.showSnackbar(context, "✅ Laporan berhasil dikirim!");
+      SnackbarHelper.showSnackbar(context, "Laporan berhasil dikirim!");
       Future.delayed(const Duration(milliseconds: 500), () {
         if (context.mounted) {
           context.go(AppRoutes.home);
         }
       });
     } else {
-      SnackbarHelper.showSnackbar(context, "❌ Gagal mengirim laporan.", isError: true);
+      SnackbarHelper.showSnackbar(context, "Gagal mengirim laporan.", isError: true);
     }
   } catch (e) {
     setState(() => isSubmitting = false);
-    SnackbarHelper.showSnackbar(context, "⚠️ Error: $e", isError: true);
+    SnackbarHelper.showSnackbar(context, "Error: $e", isError: true);
   }
 }
 

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:spl_mobile/core/services/auth/auth_service.dart';
+import 'package:spl_mobile/providers/notification/user_notification_provider.dart';
 import 'package:spl_mobile/providers/public/announcement_provider.dart';
 import 'package:spl_mobile/providers/auth/google_auth_provider.dart';
 import 'package:spl_mobile/providers/public/carousel_provider.dart';
@@ -50,6 +51,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => AuthGoogleProvider()),
         ChangeNotifierProvider(create: (_) => AnnouncementProvider()),
         ChangeNotifierProvider(create: (_) => ParameterProvider()),
+        ChangeNotifierProvider(create: (_) => UserNotificationProvider()),
       ],
       child: const BaligePeduliApp(),
     ),
