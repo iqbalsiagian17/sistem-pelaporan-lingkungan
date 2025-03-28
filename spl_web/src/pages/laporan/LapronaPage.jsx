@@ -3,9 +3,8 @@ import LaporanTable from "./components/LaporanTable";
 import DetailLaporanModal from "./components/DetailLaporanModal";
 import StatusLaporanModal from "./components/StatusLaporanModal";
 import ConfirmModal from "../../components/common/ConfirmModal";
-import { useReport  } from '../../context/ReportContext';
+import { useReport } from '../../context/ReportContext';
 import ToastNotification from "../../components/common/ToastNotification";
-
 
 const LaporanPage = () => {
   const {
@@ -15,9 +14,7 @@ const LaporanPage = () => {
     deleteReport,
     updateReportLocally,
     removeReport,
-  } = useReport ();
-
-
+  } = useReport();
 
   const [selectedReport, setSelectedReport] = useState(null);
   const [newStatus, setNewStatus] = useState("");
@@ -25,6 +22,7 @@ const LaporanPage = () => {
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [reportToDelete, setReportToDelete] = useState(null);
 
   const [toast, setToast] = useState({ show: false, message: "", variant: "success" });
   const showToast = (msg, variant = "success") => {
@@ -47,16 +45,7 @@ const LaporanPage = () => {
     setShowStatusModal(true);
   };
 
-  const statusHierarchy = [
-    "pending",
-    "rejected",
-    "verified",
-    "in_progress",
-    "completed",
-    "closed",
-  ];
-
-  const handleChangeStatus = async () => {
+  const handleChangeStatus = async (evidences = []) => {
     if (!selectedReport?.id || !newStatus || !message) {
       showToast("Harap isi semua field.");
       return;
@@ -77,9 +66,7 @@ const LaporanPage = () => {
     };
 
     if (!allowed[selectedReport.status]?.includes(newStatus)) {
-      showToast(
-        `Tidak bisa ubah dari '${selectedReport.status}' ke '${newStatus}'`
-      );
+      showToast(`Tidak bisa ubah dari '${selectedReport.status}' ke '${newStatus}'`);
       return;
     }
 
@@ -87,26 +74,24 @@ const LaporanPage = () => {
       await updateReportStatus(selectedReport.id, {
         new_status: newStatus,
         message,
-      });
-      showToast("Status berhasil diubah!");
+      }, evidences);
       updateReportLocally(selectedReport.id, newStatus);
+      showToast("Status berhasil diubah!");
       setShowStatusModal(false);
     } catch (error) {
       showToast(`❌ ${error.message}`);
     }
   };
 
-  const [reportToDelete, setReportToDelete] = useState(null);
-
   const handleDeleteReport = (reportId) => {
     const report = reports.find(r => r.id === reportId);
     setReportToDelete(report);
     setShowDeleteModal(true);
   };
-  
+
   const confirmDeleteReport = async () => {
     if (!reportToDelete) return;
-  
+
     try {
       await deleteReport(reportToDelete.id);
       showToast("Laporan berhasil dihapus");
@@ -118,7 +103,6 @@ const LaporanPage = () => {
       setReportToDelete(null);
     }
   };
-  
 
   return (
     <>
@@ -126,7 +110,7 @@ const LaporanPage = () => {
         reports={reports}
         handleOpenDetailModal={handleOpenDetailModal}
         handleOpenStatusModal={handleOpenStatusModal}
-        handleDeleteReport={handleDeleteReport} // ✅ ini yang kurang!
+        handleDeleteReport={handleDeleteReport}
       />
 
       <DetailLaporanModal
@@ -144,14 +128,14 @@ const LaporanPage = () => {
         message={message}
         setMessage={setMessage}
         handleChangeStatus={handleChangeStatus}
-        statusHierarchy={statusHierarchy}
       />
+
       <ConfirmModal
         show={showDeleteModal}
         onHide={() => setShowDeleteModal(false)}
         onConfirm={confirmDeleteReport}
         title="Hapus Laporan"
-        body={`Yakin ingin menghapus laporan "${reportToDelete?.report_number}"? `}
+        body={`Yakin ingin menghapus laporan "${reportToDelete?.report_number}"?`}
         confirmText="Hapus"
       />
 

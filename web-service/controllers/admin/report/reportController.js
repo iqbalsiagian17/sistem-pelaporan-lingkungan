@@ -1,5 +1,22 @@
-const { Report, ReportAttachment, ReportStatusHistory, User, Notification, sequelize } = require('../../../models');
+const { Report, ReportAttachment, ReportStatusHistory, ReportEvidence, User, Notification, sequelize } = require('../../../models');
 const fs = require('fs');
+const path = require('path');
+const multer = require('multer');
+
+// ✅ Setup multer untuk upload bukti
+const evidenceStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/evidences/');
+  },
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    const uniqueName = `${Date.now()}-${Math.round(Math.random() * 1E9)}${ext}`;
+    cb(null, uniqueName);
+  }
+});
+const uploadEvidence = multer({ storage: evidenceStorage }).array('evidences', 5); // maksimal 5 bukti
+
+
 
 // ✅ MELIHAT SEMUA LAPORAN (Admin Only)
 exports.getAllReports = async (req, res) => {
@@ -143,7 +160,7 @@ const generateNotificationMessage = (status, reportNumber) => {
 
 exports.updateReportStatus = async (req, res) => {
   try {
-    const admin_id = req.user.id; // Admin yang melakukan perubahan status
+    const admin_id = req.user.id;
     const { id } = req.params;
     const { new_status, message } = req.body;
 
@@ -151,28 +168,14 @@ exports.updateReportStatus = async (req, res) => {
       return res.status(400).json({ message: 'Status baru dan pesan wajib diisi' });
     }
 
-    // Cek apakah user yang login adalah admin (type = 1)
-    const adminUser = await User.findByPk(admin_id);
-    if (!adminUser || adminUser.type !== 1) {
-      return res.status(403).json({ message: 'Akses ditolak. Hanya admin yang bisa mengubah status laporan.' });
-    }
-
     const report = await Report.findByPk(id);
-    if (!report) {
-      return res.status(404).json({ message: 'Laporan tidak ditemukan' });
-    }
-
-    if (report.status === new_status) {
-      return res.status(400).json({ message: 'Laporan sudah berada dalam status ini' });
-    }
+    if (!report) return res.status(404).json({ message: 'Laporan tidak ditemukan' });
 
     const previous_status = report.status;
 
-    // Update status laporan
     report.status = new_status;
     await report.save();
 
-    // Simpan riwayat perubahan status
     await ReportStatusHistory.create({
       report_id: id,
       changed_by: admin_id,
@@ -180,6 +183,16 @@ exports.updateReportStatus = async (req, res) => {
       new_status,
       message
     });
+
+    // ✅ Upload bukti jika ada
+    if (new_status === "completed" && req.files && req.files.length > 0) {
+      const evidences = req.files.map(file => ({
+        report_id: id,
+        file: `uploads/evidences/${file.filename}`,
+        uploaded_by: admin_id
+      }));
+      await ReportEvidence.bulkCreate(evidences);
+    }
 
     await Notification.create({
       user_id: report.user_id,
@@ -190,11 +203,12 @@ exports.updateReportStatus = async (req, res) => {
       role_target: "user"
     });
 
-
     res.status(200).json({ message: 'Status laporan berhasil diperbarui' });
 
   } catch (error) {
-    console.error('Error updating report status:', error);
-    res.status(500).json({ message: 'Terjadi kesalahan server', error: error.message });
+    console.error("❌ Error:", error);
+    res.status(500).json({ message: "Terjadi kesalahan", error: error.message });
   }
 };
+
+

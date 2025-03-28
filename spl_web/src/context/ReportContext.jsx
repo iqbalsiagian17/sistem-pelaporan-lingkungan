@@ -38,6 +38,18 @@ export const ReportProvider = ({ children }) => {
     );
   };
 
+  const handleUpdateReportStatus = async (id, payload, evidences = []) => {
+    try {
+      const res = await updateReportStatus(id, payload, evidences);
+      updateReportLocally(id, payload.new_status);
+      return res;
+    } catch (err) {
+      console.error("❌ Gagal update status:", err.message);
+      throw err;
+    }
+  };
+  
+
   const removeReport = (id) => {
     setReports((prev) => prev.filter((r) => r.id !== id));
   };
@@ -53,7 +65,7 @@ export const ReportProvider = ({ children }) => {
         loading,
         fetchReports,
         getReportById,
-        updateReportStatus,
+        updateReportStatus: handleUpdateReportStatus,
         deleteReport,
         updateReportLocally,
         removeReport

@@ -20,15 +20,25 @@ export const getReportById = async (id) => {
 };
 
 // Ubah status laporan
-export const updateReportStatus = async (id, payload) => {
-    const response = await fetchWithAuth(`${BASE_URL}/${id}/status`, {
-        method: "PUT",
-        body: JSON.stringify(payload),
+export const updateReportStatus = async (id, payload, evidences = []) => {
+    const formData = new FormData();
+    formData.append("new_status", payload.new_status);
+    formData.append("message", payload.message);
+    evidences.forEach((file) => {
+      formData.append("evidences", file); // 👈 ini harus sama!
     });
+  
+    const response = await fetchWithAuth(`${BASE_URL}/${id}/status`, {
+      method: "PUT",
+      body: formData,
+    });
+  
     const data = await response.json();
     if (!response.ok) throw new Error(data.message || "Gagal mengubah status laporan.");
     return data;
-};
+  };
+
+  
 
 // Hapus laporan
 export const deleteReport = async (id) => {
