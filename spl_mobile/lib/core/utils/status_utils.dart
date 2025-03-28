@@ -40,4 +40,23 @@ class StatusUtils {
         return Colors.grey.shade300; // ❓ Status tidak dikenal
     }
   }
+
+static String replaceStatusKeywords(String message) {
+  const statusKeys = [
+    'pending',
+    'rejected',
+    'verified',
+    'in_progress',
+    'completed',
+    'closed',
+  ];
+
+  for (final key in statusKeys) {
+    message = message.replaceAll('"$key"', '"${getTranslatedStatus(key)}"');
+  }
+  return message;
+}
+
+
+
 }

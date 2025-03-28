@@ -85,6 +85,62 @@ exports.deleteReport = async (req, res) => {
   }
 };
 
+
+const getTranslatedStatus = (status) => {
+  const map = {
+    pending: "Menunggu Konfirmasi",
+    rejected: "Ditolak",
+    verified: "Diverifikasi",
+    in_progress: "Sedang Diproses",
+    completed: "Selesai",
+    closed: "Ditutup"
+  };
+  return map[status] || "Status Tidak Diketahui";
+};
+
+const getNotificationTitleByStatus = (status) => {
+  switch (status) {
+    case "pending":
+      return "Laporan Sedang Diperiksa";
+    case "verified":
+      return "Laporan Telah Diverifikasi";
+    case "in_progress":
+      return "Laporan Sedang Ditindaklanjuti";
+    case "completed":
+      return "Laporan Telah Diselesaikan";
+    case "rejected":
+      return "Laporan Tidak Dapat Diproses";
+    case "closed":
+      return "Laporan Telah Ditutup";
+    default:
+      return "Status Laporan Diperbarui";
+  }
+};
+
+const generateNotificationMessage = (status, reportNumber) => {
+  switch (status) {
+    case "pending":
+      return `Laporan Anda dengan nomor ${reportNumber} telah berhasil dikirim dan sedang diperiksa oleh tim Dinas Lingkungan Hidup Toba.`;
+    case "verified":
+      return `Laporan Anda dengan nomor ${reportNumber} telah diverifikasi dan dinyatakan valid. Selanjutnya akan ditindaklanjuti.`;
+    case "in_progress":
+      return `Laporan Anda dengan nomor ${reportNumber} sedang dalam proses penanganan oleh tim Dinas. Mohon tunggu informasi selanjutnya.`;
+    case "completed":
+      return `Laporan Anda dengan nomor ${reportNumber} telah ditangani dan dinyatakan selesai. Terima kasih atas kontribusinya.`;
+    case "rejected":
+      return `Mohon maaf, laporan Anda dengan nomor ${reportNumber} tidak dapat diproses karena tidak memenuhi kriteria yang ditetapkan.`;
+    case "closed":
+      return `Laporan Anda dengan nomor ${reportNumber} telah resmi ditutup. Terima kasih telah peduli terhadap lingkungan.`;
+    default:
+      return `Laporan Anda dengan nomor ${reportNumber} mengalami pembaruan status. Silakan cek untuk informasi lengkap.`;
+  }
+};
+
+
+
+
+
+
 exports.updateReportStatus = async (req, res) => {
   try {
     const admin_id = req.user.id; // Admin yang melakukan perubahan status
@@ -127,8 +183,8 @@ exports.updateReportStatus = async (req, res) => {
 
     await Notification.create({
       user_id: report.user_id,
-      title: "Status Laporan Diperbarui",
-      message: `Status laporan Anda telah berubah dari "${previous_status}" menjadi "${new_status}".`,
+      title: getNotificationTitleByStatus(new_status),
+      message: generateNotificationMessage(new_status, report.report_number),
       type: "verification",
       sent_by: "system",
       role_target: "user"

@@ -142,7 +142,7 @@ class _ReportDataStateState extends State<ReportDataState> {
   }
 
   Widget _loadingPlaceholder() => Container(
-        width: 80,
+        width: 80, 
         height: 80,
         decoration: BoxDecoration(
           color: Colors.grey[300],

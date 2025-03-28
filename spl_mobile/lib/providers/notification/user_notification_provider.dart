@@ -18,6 +18,15 @@ class UserNotificationProvider with ChangeNotifier {
     _init(); // 🔁 langsung load saat provider dibuat
   }
 
+  Future<void> refresh() async {
+  final prefs = await SharedPreferences.getInstance();
+  final userId = prefs.getInt("id");
+  if (userId != null) {
+    await loadNotifications(userId);
+  }
+}
+
+
   Future<void> _init() async {
     final prefs = await SharedPreferences.getInstance();
     final userId = prefs.getInt("id");
@@ -61,4 +70,15 @@ class UserNotificationProvider with ChangeNotifier {
 
   int get unreadCount =>
       _notifications.where((n) => n.isRead == false).length;
+
+      Future<void> loadNotificationsFromLocal() async {
+  final prefs = await SharedPreferences.getInstance();
+  final userId = prefs.getInt("id");
+  if (userId != null) {
+    await loadNotifications(userId);
+  }
 }
+
+}
+
+

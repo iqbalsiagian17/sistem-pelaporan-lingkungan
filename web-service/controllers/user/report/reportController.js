@@ -178,7 +178,17 @@ exports.createReport = async (req, res) => {
           type: "report",
           sent_by: "system",
           role_target: "admin"
-        });      
+        });
+        
+        await Notification.create({
+          user_id, // Notifikasi ke user itu sendiri
+          title: "Laporan Sedang Diperiksa",
+          message: `Laporan Anda dengan nomor ${report_number} telah berhasil dikirim dan sedang diperiksa oleh tim Dinas Lingkungan Hidup Toba.`,
+          type: "verification",
+          sent_by: "system",
+          role_target: "user"
+        });
+        
 
         if (req.files.length > 0) {
           const attachments = req.files.map((file) => ({

@@ -5,37 +5,46 @@ import 'components/notification_section.dart';
 import 'components/notification_topbar.dart';
 import '../../providers/notification/user_notification_provider.dart';
 
-class NotificationList extends StatelessWidget {
+class NotificationList extends StatefulWidget {
   const NotificationList({super.key});
+
+  @override
+  State<NotificationList> createState() => _NotificationListState();
+}
+
+class _NotificationListState extends State<NotificationList> {
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      final notifProvider = Provider.of<UserNotificationProvider>(context, listen: false);
+      notifProvider.refresh(); // ⏱️ Ambil ulang data notifikasi saat halaman dibuka
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final notificationProvider = Provider.of<UserNotificationProvider>(context);
     final notifications = notificationProvider.notifications;
-
+    
     final today = DateTime.now();
     final yesterday = today.subtract(const Duration(days: 1));
 
-    // Filter notifikasi Hari Ini
     final todayNotifications = notifications.where((notif) {
       final notifDate = notif.createdAt.toLocal();
-      return DateFormat('yyyy-MM-dd').format(notifDate) ==
-          DateFormat('yyyy-MM-dd').format(today);
+      return DateFormat('yyyy-MM-dd').format(notifDate) == DateFormat('yyyy-MM-dd').format(today);
     }).toList();
 
-    // Filter notifikasi Kemarin
     final yesterdayNotifications = notifications.where((notif) {
       final notifDate = notif.createdAt.toLocal();
-      return DateFormat('yyyy-MM-dd').format(notifDate) ==
-          DateFormat('yyyy-MM-dd').format(yesterday);
+      return DateFormat('yyyy-MM-dd').format(notifDate) == DateFormat('yyyy-MM-dd').format(yesterday);
     }).toList();
 
-    // Notifikasi lainnya (bukan hari ini atau kemarin)
     final otherNotifications = notifications.where((notif) {
       final notifDate = notif.createdAt.toLocal();
       final notifFormatted = DateFormat('yyyy-MM-dd').format(notifDate);
       return notifFormatted != DateFormat('yyyy-MM-dd').format(today) &&
-          notifFormatted != DateFormat('yyyy-MM-dd').format(yesterday);
+             notifFormatted != DateFormat('yyyy-MM-dd').format(yesterday);
     }).toList();
 
     return Scaffold(
@@ -48,20 +57,14 @@ class NotificationList extends StatelessWidget {
               : ListView(
                   children: [
                     if (todayNotifications.isNotEmpty)
-                      NotificationSection(
-                        title: 'Hari ini',
-                        items: todayNotifications,
-                      ),
+                      NotificationSection(title: 'Hari ini', items: todayNotifications),
                     if (yesterdayNotifications.isNotEmpty)
                       NotificationSection(
                         title: DateFormat('dd MMM yyyy').format(yesterday),
                         items: yesterdayNotifications,
                       ),
                     if (otherNotifications.isNotEmpty)
-                      NotificationSection(
-                        title: 'Sebelumnya',
-                        items: otherNotifications,
-                      ),
+                      NotificationSection(title: 'Sebelumnya', items: otherNotifications),
                   ],
                 ),
     );
