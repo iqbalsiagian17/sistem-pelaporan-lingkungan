@@ -49,13 +49,28 @@ Future<Report?> getReportById(String reportId) async {
   try {
     final response = await _dio.get('/reports/$reportId');
 
+    print("📡 [API Response] Status Code: ${response.statusCode}");
+    print("📄 [API Response] Body: ${response.data}");
+
     if (response.statusCode == 200) {
-      return Report.fromJson(response.data['report']);
+      final reportJson = response.data['report'];
+      print("🧩 [DEBUG] Data report diambil dari response: $reportJson");
+
+      final report = Report.fromJson(reportJson);
+      print("📸 [DEBUG] Jumlah evidences: ${report.evidences.length}");
+      for (var ev in report.evidences) {
+        print("📎 Evidence: ${ev.id} - ${ev.file}");
+      }
+
+      return report;
     } else {
-      return null; // ✅ Kembalikan `null` jika tidak ada laporan
+      print("⚠️ [ERROR] Gagal mengambil laporan, status code: ${response.statusCode}");
+      return null;
     }
-  } catch (e) {
-    return null; // ✅ Tangani error dengan mengembalikan `null`
+  } catch (e, stacktrace) {
+    print("❌ [EXCEPTION] Gagal fetch report: $e");
+    print("📍 Stacktrace: $stacktrace");
+    return null;
   }
 }
 

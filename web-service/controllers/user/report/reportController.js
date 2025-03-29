@@ -1,4 +1,4 @@
-const { User, Report, ReportAttachment, ReportStatusHistory, Notification  } = require('../../../models');
+const { User, Report, ReportAttachment, ReportStatusHistory, Notification, ReportEvidence  } = require('../../../models');
 const { sequelize } = require('../../../models');
 const { Op } = require("sequelize");
 const multer = require('multer');
@@ -49,6 +49,11 @@ exports.getAllReports = async (req, res) => {
           ],
           attributes: ['id', 'previous_status', 'new_status', 'message', 'createdAt'], // Ambil hanya kolom penting
           order: [['createdAt', 'DESC']], // Urutkan status dari yang terbaru
+        },
+        {
+          model: ReportEvidence,
+          as: 'evidences',
+          attributes: ['id', 'file'] // ✅ Tambahkan ini
         }
       ],
       order: [['createdAt', 'DESC']] // Urutkan laporan dari yang terbaru
@@ -82,7 +87,7 @@ exports.getReportById = async (req, res) => {
         {
           model: ReportAttachment,
           as: 'attachments',
-          attributes: ['id', 'file'] // Menampilkan daftar lampiran
+          attributes: ['id', 'file']
         },
         {
           model: ReportStatusHistory,
@@ -90,9 +95,14 @@ exports.getReportById = async (req, res) => {
           include: {
             model: User,
             as: 'admin',
-            attributes: ['id', 'username', 'email'] // Admin yang mengubah status
+            attributes: ['id', 'username', 'email']
           },
           attributes: ['id', 'previous_status', 'new_status', 'message', 'createdAt']
+        },
+        {
+          model: ReportEvidence,
+          as: 'evidences', // ⬅️ Tambahkan ini
+          attributes: ['id', 'file']
         }
       ]
     });
@@ -110,6 +120,7 @@ exports.getReportById = async (req, res) => {
     res.status(500).json({ message: 'Terjadi kesalahan server', error: error.message });
   }
 };
+
 
 
 

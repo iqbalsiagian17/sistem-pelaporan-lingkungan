@@ -99,6 +99,7 @@ class ReportDetailView extends StatelessWidget {
                 ),
 
                 const SizedBox(height: 16),
+                
 
                 // 🔹 Informasi Detail Laporan
                 Container(
@@ -124,7 +125,7 @@ class ReportDetailView extends StatelessWidget {
 
                 // 🔹 Riwayat Perubahan Status (Jika Ada)
                 if (report.statusHistory.isNotEmpty) ...[
-                ReportDetailStatusHistory(statusHistory: report.statusHistory),
+                ReportDetailStatusHistory(statusHistory: report.statusHistory,evidences: report.evidences,status: report.status,),
                   const SizedBox(height: 16),
                 ] else ...[
                   Container(

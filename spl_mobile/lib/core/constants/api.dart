@@ -1,5 +1,5 @@
 class ApiConstants {
-     static const String baseUrl = "http://192.168.181.108:3000";
+     static const String baseUrl = "http://192.168.17.108:3000";
  
 /*       static const String baseUrl = "http://172.25.42.159:3000"; 
  */ 

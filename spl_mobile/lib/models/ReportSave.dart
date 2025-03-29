@@ -1,4 +1,5 @@
 import 'package:spl_mobile/core/constants/api.dart';
+import 'package:spl_mobile/models/ReportEvidences.dart';
 import './ReportAttachment.dart';
 import './Report.dart';
 import './user.dart';
@@ -20,6 +21,7 @@ class ReportSave {
   final User user;
   final List<ReportStatusHistory> statusHistory;
   final bool isSaved; // ✅ Tambahkan properti isSaved
+  final List<ReportEvidence> evidences;
 
 
   ReportSave({
@@ -38,6 +40,7 @@ class ReportSave {
     required this.user,
     required this.statusHistory,
     required this.isSaved, // ✅ Tambahkan di konstruktor
+    required this.evidences
   });
 
   factory ReportSave.fromJson(Map<String, dynamic> json) {
@@ -83,6 +86,11 @@ class ReportSave {
         : User(id: 0, username: "Unknown", email: "", phoneNumber: "", type: 0),
     statusHistory: statusHistoryList, // ✅ Pastikan ini tidak kosong!
     isSaved: reportData['is_saved'] ?? false, // ✅ Ambil dari JSON, default ke false jika null
+    evidences: reportData.containsKey('evidences') && reportData['evidences'] is List
+        ? (reportData['evidences'] as List)
+            .map((evidence) => ReportEvidence.fromJson(evidence))
+            .toList()
+        : [],
 
   );
   
@@ -112,7 +120,8 @@ Report toReport() {
     attachments: attachments,
     user: user,
     statusHistory: statusHistory, // ✅ Pastikan ini tidak kosong!
-      isSaved: isSaved, // ✅ Pastikan isSaved dikonversi ke Report
+    isSaved: isSaved, // ✅ Pastikan isSaved dikonversi ke Report
+    evidences: evidences
 
 
   );
