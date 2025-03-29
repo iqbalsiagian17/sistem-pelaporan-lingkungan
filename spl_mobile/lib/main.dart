@@ -3,6 +3,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:spl_mobile/core/constants/dio_client.dart';
 import 'package:spl_mobile/core/services/auth/auth_service.dart';
 import 'package:spl_mobile/providers/notification/user_notification_provider.dart';
 import 'package:spl_mobile/providers/public/announcement_provider.dart';
@@ -23,6 +24,8 @@ void main() async {
   await initializeDateFormatting('id_ID', null);
   await Geolocator.checkPermission();
   await Geolocator.requestPermission();
+  await DioClient.initialize(); // ⬅️ Pasang interceptor global sebelum app jalan
+
 
   /// ✅ Pastikan token terbaru digunakan sebelum menjalankan aplikasi
   AuthService authService = AuthService();

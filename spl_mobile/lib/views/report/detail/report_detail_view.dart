@@ -3,6 +3,7 @@ import 'package:spl_mobile/providers/auth/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:spl_mobile/core/constants/api.dart';
 import 'package:spl_mobile/models/Report.dart';
+import 'package:spl_mobile/views/report/detail/components/report_detail_location.dart';
 import 'components/report_detail_topbar.dart';
 import 'components/report_detail_image.dart';
 import 'components/report_detail_status.dart';
@@ -122,6 +123,33 @@ class ReportDetailView extends StatelessWidget {
                 ),
 
                 const SizedBox(height: 16),
+
+// 🔹 Informasi Detail Laporan
+                Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.08),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: ReportDetailLocation(
+  latitude: report.latitude,
+  longitude: report.longitude,
+  village: report.village,
+  locationDetails: report.locationDetails,
+
+                  ),
+                ),
+
+                const SizedBox(height: 16),
+
+
 
                 // 🔹 Riwayat Perubahan Status (Jika Ada)
                 if (report.statusHistory.isNotEmpty) ...[
