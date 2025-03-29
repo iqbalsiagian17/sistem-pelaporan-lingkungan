@@ -1,4 +1,5 @@
 const { Report, ReportAttachment, ReportStatusHistory, ReportEvidence, User, Notification, sequelize } = require('../../../models');
+const { sendNotificationToUser } = require('../../../services/firebaseService');
 const fs = require('fs');
 const path = require('path');
 const multer = require('multer');
@@ -103,18 +104,6 @@ exports.deleteReport = async (req, res) => {
 };
 
 
-const getTranslatedStatus = (status) => {
-  const map = {
-    pending: "Menunggu Konfirmasi",
-    rejected: "Ditolak",
-    verified: "Diverifikasi",
-    in_progress: "Sedang Diproses",
-    completed: "Selesai",
-    closed: "Ditutup"
-  };
-  return map[status] || "Status Tidak Diketahui";
-};
-
 const getNotificationTitleByStatus = (status) => {
   switch (status) {
     case "pending":
@@ -168,7 +157,12 @@ exports.updateReportStatus = async (req, res) => {
       return res.status(400).json({ message: 'Status baru dan pesan wajib diisi' });
     }
 
-    const report = await Report.findByPk(id);
+    const report = await Report.findByPk(id, {
+      include: [
+        { model: User, as: 'user', attributes: ['id', 'fcm_token'] }
+      ]
+    });
+    
     if (!report) return res.status(404).json({ message: 'Laporan tidak ditemukan' });
 
     const previous_status = report.status;
@@ -194,14 +188,24 @@ exports.updateReportStatus = async (req, res) => {
       await ReportEvidence.bulkCreate(evidences);
     }
 
+    const notifTitle = getNotificationTitleByStatus(new_status);
+    const notifMessage = generateNotificationMessage(new_status, report.report_number);
+
+
     await Notification.create({
       user_id: report.user_id,
-      title: getNotificationTitleByStatus(new_status),
-      message: generateNotificationMessage(new_status, report.report_number),
+      title: notifTitle,
+      message: notifMessage,
       type: "verification",
       sent_by: "system",
       role_target: "user"
     });
+
+        // ✅ Kirim FCM jika user punya token
+    if (report.user.fcm_token) {
+      await sendNotificationToUser(report.user.fcm_token, notifTitle, notifMessage);
+    }
+    
 
     res.status(200).json({ message: 'Status laporan berhasil diperbarui' });
 

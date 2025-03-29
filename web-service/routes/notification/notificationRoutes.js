@@ -26,4 +26,7 @@ router.post("/trigger/status-changed", NotificationController.notifyStatusChange
 // ✅ [OTOMATIS] Notifikasi: user baru mendaftar
 router.post("/trigger/user-registered", NotificationController.notifyUserRegistered);
 
+router.post("/fcm-token", NotificationController.registerFcmToken);
+
+
 module.exports = router;

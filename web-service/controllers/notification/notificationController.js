@@ -1,7 +1,26 @@
 const { Notification, User, Report, ReportStatusHistory } = require("../../models");
 const { Op } = require("sequelize");
 
-const NotificationController = {
+
+const registerFcmToken = async (req, res) => {
+  const { user_id, fcm_token } = req.body;
+
+  if (!user_id || !fcm_token) {
+    return res.status(400).json({ error: "user_id dan fcm_token wajib diisi." });
+  }
+
+  // Simpan token ke model Users (atau model terpisah FCMToken)
+  const user = await User.findByPk(user_id);
+  if (!user) return res.status(404).json({ error: "User tidak ditemukan." });
+
+  await user.update({ fcm_token });
+  return res.json({ message: "Token FCM berhasil disimpan." });
+};
+
+
+const NotificationController = {  
+
+  registerFcmToken,
   // Buat notifikasi (oleh sistem)
   async create(req, res) {
     try {
@@ -151,5 +170,7 @@ const NotificationController = {
     }
   }
 };
+
+
 
 module.exports = NotificationController;

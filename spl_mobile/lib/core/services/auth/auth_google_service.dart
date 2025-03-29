@@ -1,6 +1,7 @@
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:spl_mobile/core/services/firebase/firebase_token_helper.dart';
 import 'package:spl_mobile/core/utils/auth_interceptor.dart';
 import '../../constants/api.dart';
 
@@ -69,6 +70,9 @@ final GoogleSignIn _googleSignIn = GoogleSignIn(
     await prefs.setString("email", user["email"]);
     await prefs.setString("phone_number", user["phone_number"] ?? "");
     await prefs.setInt("type", user["type"]);
+
+    await saveFcmTokenToBackend(response.data["user"]["id"]);
+
 
     return response.data;
   } on DioError catch (e) {

@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:spl_mobile/core/services/firebase/firebase_token_helper.dart';
 import '../../constants/api.dart';
 
 class AuthService {
@@ -137,6 +138,10 @@ Future<Response> _retryRequest(RequestOptions requestOptions) async {
       await prefs.setString("email", data["user"]["email"]);
       await prefs.setString("phone_number", data["user"]["phone_number"]);
       await prefs.setInt("type", data["user"]["type"]);
+      
+
+      await saveFcmTokenToBackend(data["user"]["id"]);
+
 
       return data;
     } on DioException catch (e) {

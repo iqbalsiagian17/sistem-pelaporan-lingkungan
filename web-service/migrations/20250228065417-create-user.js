@@ -53,6 +53,10 @@ module.exports = {
         allowNull: false,
         defaultValue: 'manual'
       },
+      fcm_token: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,

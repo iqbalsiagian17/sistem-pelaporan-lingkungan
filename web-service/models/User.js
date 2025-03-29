@@ -41,7 +41,11 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.ENUM('manual', 'google'),
       allowNull: false,
       defaultValue: 'manual'
-    }
+    },
+    fcm_token:{
+      type: DataTypes.STRING,
+      allowNull: true
+    },
   }, {
     sequelize,
     modelName: 'User',

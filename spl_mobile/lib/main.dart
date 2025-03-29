@@ -18,6 +18,8 @@ import 'package:spl_mobile/routes/app_routes.dart';
 import 'package:spl_mobile/providers/auth/auth_provider.dart';
 import 'package:spl_mobile/providers/user/user_profile_provider.dart';
 import 'package:spl_mobile/providers/report/report_provider.dart';
+import 'package:spl_mobile/core/services/firebase/firebase_messaging_helper.dart'; // ✅ Tambahkan ini
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,6 +29,9 @@ void main() async {
   await DioClient.initialize(); // ⬅️ Pasang interceptor global sebelum app jalan
 
 
+  // ✅ Inisialisasi Firebase Messaging
+  await setupFirebaseMessaging();
+  
   /// ✅ Pastikan token terbaru digunakan sebelum menjalankan aplikasi
   AuthService authService = AuthService();
   bool refreshed = await authService.refreshToken();
