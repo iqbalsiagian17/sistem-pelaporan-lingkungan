@@ -201,9 +201,17 @@ exports.updateReportStatus = async (req, res) => {
       role_target: "user"
     });
 
-        // ✅ Kirim FCM jika user punya token
+    // ✅ Kirim FCM jika user punya token
     if (report.user.fcm_token) {
-      await sendNotificationToUser(report.user.fcm_token, notifTitle, notifMessage);
+      await sendNotificationToUser(
+        report.user.fcm_token,
+        notifTitle,
+        notifMessage,
+        {
+          report_id: report.id.toString(), // ✅ kirim report_id
+          type: "report_status_update"     // optional, kalau kamu mau filter jenis
+        }
+      );
     }
     
 

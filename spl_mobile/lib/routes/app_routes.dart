@@ -30,6 +30,9 @@ import '../views/report/detail/report_detail_view.dart';
 import '../views/splash/splash_screen.dart';
 
 class AppRoutes {
+
+    static String initialRoute = AppRoutes.splash;
+
   static const String onboarding = '/onboarding';
   static const String login = '/login';
   static const String register = '/register';
