@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import '../../../../routes/app_routes.dart';
+import '../../../../providers/auth/google_auth_provider.dart';
+import '../../../../providers/auth/auth_provider.dart';
+import '../../../../providers/user/user_profile_provider.dart';
 
 class ProfileTopBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
@@ -42,7 +46,6 @@ class ProfileTopBar extends StatelessWidget implements PreferredSizeWidget {
               ),
               const SizedBox(height: 20),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(
                     child: OutlinedButton(
@@ -64,7 +67,18 @@ class ProfileTopBar extends StatelessWidget implements PreferredSizeWidget {
                       onPressed: () async {
                         HapticFeedback.heavyImpact();
                         Navigator.pop(context);
-                        onLogout();
+
+                        // ✅ Cek apakah akun Google
+                        final user = context.read<UserProfileProvider>().user;
+                        final isGoogleUser = user?.authProvider == 'google';
+
+                        if (isGoogleUser) {
+                          await context.read<AuthGoogleProvider>().logoutFromGoogle();
+                        } else {
+                          await context.read<AuthProvider>().logout();
+                        }
+
+                        if (context.mounted) context.go(AppRoutes.login);
                       },
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 12),
@@ -101,13 +115,7 @@ class ProfileTopBar extends StatelessWidget implements PreferredSizeWidget {
         child: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
-          title: Text(
-            title,
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 18,
-            ),
-          ),
+          title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
           centerTitle: true,
           foregroundColor: Colors.white,
           leading: IconButton(

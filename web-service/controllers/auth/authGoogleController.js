@@ -95,7 +95,7 @@ const googleLogin = async (req, res) => {
         auth_provider: user.auth_provider,
       },
       process.env.JWT_SECRET,
-      { expiresIn: '15m' }
+      { expiresIn: '30m' }
     );
 
     const refreshToken = jwt.sign(

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:spl_mobile/models/Notification.dart';
 import 'package:spl_mobile/core/services/user/notification/user_notification_service.dart';
+import 'package:spl_mobile/core/services/auth/global_auth_service.dart';
 
 class UserNotificationProvider with ChangeNotifier {
   final UserNotificationService _service = UserNotificationService();
@@ -15,26 +15,23 @@ class UserNotificationProvider with ChangeNotifier {
   String? get error => _error;
 
   UserNotificationProvider() {
-    _init(); // 🔁 langsung load saat provider dibuat
+    _init(); // 🔁 Auto load saat inisialisasi
   }
-
-  Future<void> refresh() async {
-  final prefs = await SharedPreferences.getInstance();
-  final userId = prefs.getInt("id");
-  if (userId != null) {
-    await loadNotifications(userId);
-  }
-}
-
 
   Future<void> _init() async {
-    final prefs = await SharedPreferences.getInstance();
-    final userId = prefs.getInt("id");
+    final userId = await globalAuthService.getUserId();
     if (userId != null) {
       await loadNotifications(userId);
     } else {
       _error = "User ID tidak ditemukan.";
       notifyListeners();
+    }
+  }
+
+  Future<void> refresh() async {
+    final userId = await globalAuthService.getUserId();
+    if (userId != null) {
+      await loadNotifications(userId);
     }
   }
 
@@ -64,21 +61,10 @@ class UserNotificationProvider with ChangeNotifier {
         notifyListeners();
       }
     } catch (e) {
-      debugPrint("❌ Gagal menandai notifikasi: $e");
+      debugPrint("❌ Gagal menandai notifikasi sebagai dibaca: $e");
     }
   }
 
   int get unreadCount =>
       _notifications.where((n) => n.isRead == false).length;
-
-      Future<void> loadNotificationsFromLocal() async {
-  final prefs = await SharedPreferences.getInstance();
-  final userId = prefs.getInt("id");
-  if (userId != null) {
-    await loadNotifications(userId);
-  }
 }
-
-}
-
-

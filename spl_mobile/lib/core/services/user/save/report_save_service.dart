@@ -1,21 +1,15 @@
 import 'package:dio/dio.dart';
-import 'package:spl_mobile/core/constants/api.dart';
+import 'package:spl_mobile/core/constants/dio_client.dart';
+import 'package:spl_mobile/core/constants/api.dart'; // ✅ Tambahkan ini
 import '../../../../models/ReportSave.dart';
 
 class ReportSaveService {
-  final Dio _dio = Dio(BaseOptions(
-    
-    baseUrl: ApiConstants.userReportSave,
-    connectTimeout: const Duration(seconds: 10),
-    receiveTimeout: const Duration(seconds: 10),
-  ));
+  final Dio _dio = DioClient.instance; // ✅ Gunakan Dio dengan interceptor
 
-  Future<List<ReportSave>> fetchSavedReports(String token) async {
+  /// ✅ Ambil semua laporan yang disimpan user
+  Future<List<ReportSave>> fetchSavedReports() async {
     try {
-      final response = await _dio.get(
-        "/",
-        options: Options(headers: {"Authorization": "Bearer $token"}),
-      );
+      final response = await _dio.get("${ApiConstants.userReportSave}/");
 
       if (response.statusCode == 200) {
         List<dynamic> data = response.data['savedReports'];
@@ -28,24 +22,21 @@ class ReportSaveService {
     }
   }
 
-  Future<void> saveReport(int reportId, String token) async {
+  /// ✅ Simpan laporan ke favorit
+  Future<void> saveReport(int reportId) async {
     try {
-      await _dio.post(
-        "/",
-        data: {"report_id": reportId},
-        options: Options(headers: {"Authorization": "Bearer $token"}),
-      );
+      await _dio.post("${ApiConstants.userReportSave}/", data: {
+        "report_id": reportId,
+      });
     } catch (e) {
       throw Exception("Terjadi kesalahan saat menyimpan laporan: $e");
     }
   }
 
-  Future<void> deleteSavedReport(int reportId, String token) async {
+  /// ✅ Hapus laporan dari favorit
+  Future<void> deleteSavedReport(int reportId) async {
     try {
-      await _dio.delete(
-        "/$reportId",
-        options: Options(headers: {"Authorization": "Bearer $token"}),
-      );
+      await _dio.delete("${ApiConstants.userReportSave}/$reportId");
     } catch (e) {
       throw Exception("Terjadi kesalahan saat menghapus laporan: $e");
     }

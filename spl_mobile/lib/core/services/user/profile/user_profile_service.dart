@@ -1,67 +1,60 @@
 import 'package:dio/dio.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import '../../../constants/api.dart'; // ✅ Import Base URL
+import 'package:spl_mobile/core/constants/dio_client.dart';
+import 'package:spl_mobile/core/constants/api.dart';
 
 class UserProfileService {
-  final Dio _dio = Dio(BaseOptions(
-    baseUrl: ApiConstants.userProfileBaseUrl, // ✅ Gunakan base URL dari ApiConstants
-    connectTimeout: const Duration(seconds: 10),
-    receiveTimeout: const Duration(seconds: 10),
-  ));
+  final Dio _dio = DioClient.instance;
 
-  // ✅ Ambil informasi user dari backend
+  /// ✅ Ambil profil user
   Future<Map<String, dynamic>> getUserProfile() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString("token");
-
       final response = await _dio.get(
-        "/",
-        options: Options(headers: {"Authorization": "Bearer $token"}),
+        "${ApiConstants.userProfileBaseUrl}/",
       );
-
       return response.data;
+    } on DioException catch (e) {
+      return {
+        "error": e.response?.data["error"] ?? "Gagal mengambil data pengguna: ${e.message}"
+      };
     } catch (e) {
-      return {"error": "Gagal mengambil data pengguna: ${e.toString()}"};
+      return {"error": "Terjadi kesalahan: $e"};
     }
   }
 
-  // ✅ Update informasi pengguna
+  /// ✅ Update profil
   Future<Map<String, dynamic>> updateUserProfile(Map<String, dynamic> data) async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString("token");
-
       final response = await _dio.put(
-        "/update",
+        "${ApiConstants.userProfileBaseUrl}/update",
         data: data,
-        options: Options(headers: {"Authorization": "Bearer $token"}),
       );
-
       return response.data;
+    } on DioException catch (e) {
+      return {
+        "error": e.response?.data["error"] ?? "Gagal memperbarui profil: ${e.message}"
+      };
     } catch (e) {
-      return {"error": "Gagal memperbarui profil: ${e.toString()}"};
+      return {"error": "Terjadi kesalahan: $e"};
     }
   }
 
-  // ✅ Ubah password
+  /// ✅ Ganti password
   Future<Map<String, dynamic>> changePassword(String oldPassword, String newPassword) async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString("token");
-
       final response = await _dio.put(
-        "/change-password",
+        "${ApiConstants.userProfileBaseUrl}/change-password",
         data: {
           "oldPassword": oldPassword,
           "newPassword": newPassword,
         },
-        options: Options(headers: {"Authorization": "Bearer $token"}),
       );
-
       return response.data;
+    } on DioException catch (e) {
+      return {
+        "error": e.response?.data["error"] ?? "Gagal mengubah password: ${e.message}"
+      };
     } catch (e) {
-      return {"error": "Gagal mengubah password: ${e.toString()}"};
+      return {"error": "Terjadi kesalahan: $e"};
     }
   }
 }

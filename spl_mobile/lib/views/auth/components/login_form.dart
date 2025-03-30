@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import '../../../core/utils/validators.dart';
 import '../../../providers/auth/auth_provider.dart';
 import '../../../routes/app_routes.dart';
 import '../../../widgets/snackbar/snackbar_helper.dart';
-import '../../../widgets/input/custom_input_field.dart'; // ✅ Gunakan CustomInputField
-import '../../../widgets/buttons/custom_button.dart'; // ✅ Gunakan CustomInputField
-
+import '../../../widgets/input/custom_input_field.dart';
+import '../../../widgets/buttons/custom_button.dart';
 
 class LoginForm extends StatefulWidget {
   const LoginForm({super.key});
@@ -30,16 +30,14 @@ class _LoginFormState extends State<LoginForm> {
     super.dispose();
   }
 
-  void _login() async {
+  Future<void> _login() async {
     if (!_formKey.currentState!.validate()) return;
 
-    // ✅ Tutup keyboard sebelum login
     FocusScope.of(context).unfocus();
-
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final authProvider = context.read<AuthProvider>();
 
     try {
-      bool success = await authProvider.login(
+      final success = await authProvider.login(
         _identifierController.text.trim(),
         _passwordController.text.trim(),
       );
@@ -50,13 +48,14 @@ class _LoginFormState extends State<LoginForm> {
 
         if (mounted) {
           SnackbarHelper.showSnackbar(context, "Login berhasil!", isError: false);
-          GoRouter.of(context).go(AppRoutes.home);
+          context.go(AppRoutes.home);
         }
       } else {
         if (mounted) {
           SnackbarHelper.showSnackbar(
             context,
-            authProvider.errorMessage ?? "Login gagal. Periksa email/nomor telepon dan password!",
+            authProvider.errorMessage ??
+                "Login gagal. Periksa email/nomor telepon dan password!",
             isError: true,
           );
         }
@@ -69,7 +68,7 @@ class _LoginFormState extends State<LoginForm> {
           isError: true,
         );
       }
-      print("❌ Error saat login: $e");
+      debugPrint("❌ Error saat login: $e");
     }
   }
 
@@ -92,21 +91,20 @@ class _LoginFormState extends State<LoginForm> {
             label: 'Password',
             icon: Icons.lock_outline,
             isObscure: _isObscurePassword,
-            onToggleObscure: () => setState(() => _isObscurePassword = !_isObscurePassword),
+            onToggleObscure: () =>
+                setState(() => _isObscurePassword = !_isObscurePassword),
             validator: Validators.validatePassword,
           ),
           const SizedBox(height: 10),
           Consumer<AuthProvider>(
-            builder: (context, auth, child) {
-              return CustomButton(
-                text: "Masuk",
-                onPressed: auth.isLoading ? () {} : _login, // ✅ Gunakan fungsi kosong jika loading
-                isLoading: auth.isLoading,
-                isOutlined: true, // Menggunakan outlined button
-                textColor: const Color(0xFF6c757d),
-                borderColor: const Color(0xFF6c757d),
-              );
-            },
+            builder: (_, auth, __) => CustomButton(
+              text: "Masuk",
+              onPressed: auth.isLoading ? null : _login,
+              isLoading: auth.isLoading,
+              isOutlined: true,
+              textColor: const Color(0xFF6c757d),
+              borderColor: const Color(0xFF6c757d),
+            ),
           ),
         ],
       ),

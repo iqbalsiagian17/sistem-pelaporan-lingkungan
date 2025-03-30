@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:spl_mobile/routes/app_routes.dart';
-import '../../../../../providers/auth/auth_provider.dart';
+import '../../../../../routes/app_routes.dart';
 import '../../../../../providers/user/user_profile_provider.dart';
 import '../../../../../widgets/snackbar/snackbar_helper.dart';
-import '../../../../../widgets/input/custom_input_field.dart'; // ✅ Import Global Input
-import '../../../../../core/utils/validators.dart'; 
+import '../../../../../widgets/input/custom_input_field.dart';
+import '../../../../../core/utils/validators.dart';
 
 class ProfileEditForm extends StatefulWidget {
   const ProfileEditForm({super.key});
@@ -17,27 +16,20 @@ class ProfileEditForm extends StatefulWidget {
 
 class _ProfileEditFormState extends State<ProfileEditForm> {
   final _formKey = GlobalKey<FormState>();
-
-  final TextEditingController _usernameController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _phoneController = TextEditingController();
-
+  final _usernameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _phoneController = TextEditingController();
   bool _isSaving = false;
 
   @override
   void initState() {
     super.initState();
     Future.microtask(() async {
-      final authProvider = context.read<AuthProvider>();
       final profileProvider = context.read<UserProfileProvider>();
+      await profileProvider.loadUser();
 
-      await profileProvider.loadUser(); 
-
-      if (!mounted) return;
-
-      final user = authProvider.user;
-
-      if (user != null) {
+      final user = profileProvider.user;
+      if (user != null && mounted) {
         _usernameController.text = user.username;
         _emailController.text = user.email;
         _phoneController.text = user.phoneNumber;
@@ -54,40 +46,38 @@ class _ProfileEditFormState extends State<ProfileEditForm> {
   }
 
   void _saveProfile() async {
-  if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) return;
 
-  setState(() => _isSaving = true);
+    setState(() => _isSaving = true);
+    final profileProvider = context.read<UserProfileProvider>();
 
-  final profileProvider = context.read<UserProfileProvider>();
-  final authProvider = context.read<AuthProvider>();
+    final success = await profileProvider.saveUser({
+      "username": _usernameController.text.trim(),
+      "email": _emailController.text.trim(),
+      "phone_number": _phoneController.text.trim(),
+    });
 
-  bool success = await profileProvider.saveUser({
-    "username": _usernameController.text.trim(),
-    "email": _emailController.text.trim(),
-    "phone_number": _phoneController.text.trim(),
-  });
+    setState(() => _isSaving = false);
 
-  if (!mounted) return;
-  setState(() => _isSaving = false);
+    if (!mounted) return;
 
-  if (success) {
-    await profileProvider.refreshUser(); // ✅ Pastikan data user diperbarui setelah update
-    await authProvider.refreshUser(); // ✅ Pastikan authProvider juga mendapatkan data terbaru
-
-    SnackbarHelper.showSnackbar(context, "Profil berhasil diperbarui!", isError: false);
-    Future.microtask(() => context.go(AppRoutes.profile)); // ✅ Kembali ke halaman profil setelah update
-  } else {
-    SnackbarHelper.showSnackbar(context, "Gagal memperbarui profil", isError: true);
+    if (success) {
+      SnackbarHelper.showSnackbar(context, "Profil berhasil diperbarui!", isError: false);
+      context.go(AppRoutes.profile);
+    } else {
+      SnackbarHelper.showSnackbar(
+        context,
+        profileProvider.errorMessage ?? "Gagal memperbarui profil",
+        isError: true,
+      );
+    }
   }
-}
-
-
 
   @override
   Widget build(BuildContext context) {
-    return Consumer2<AuthProvider, UserProfileProvider>(
-      builder: (context, authProvider, profileProvider, child) {
-final isGoogleUser = profileProvider.user?.authProvider == 'google';
+    return Consumer<UserProfileProvider>(
+      builder: (context, profileProvider, _) {
+        final isGoogleUser = profileProvider.user?.authProvider == 'google';
 
         return Form(
           key: _formKey,
@@ -96,21 +86,20 @@ final isGoogleUser = profileProvider.user?.authProvider == 'google';
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text("Informasi Akun", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                
                 CustomInputField(
                   controller: _usernameController,
                   label: "Username",
                   icon: Icons.person,
                   validator: (value) => value!.isEmpty ? "Username tidak boleh kosong" : null,
                 ),
-if (!isGoogleUser)
-                CustomInputField(
-                  controller: _emailController,
-                  label: "Email",
-                  icon: Icons.email,
-                  keyboardType: TextInputType.emailAddress,
-                  validator: Validators.validateEmail,
-                ),
+                if (!isGoogleUser)
+                  CustomInputField(
+                    controller: _emailController,
+                    label: "Email",
+                    icon: Icons.email,
+                    keyboardType: TextInputType.emailAddress,
+                    validator: Validators.validateEmail,
+                  ),
                 CustomInputField(
                   controller: _phoneController,
                   label: "Nomor Telepon",
@@ -118,7 +107,6 @@ if (!isGoogleUser)
                   keyboardType: TextInputType.phone,
                   validator: Validators.validatePhone,
                 ),
-
                 const SizedBox(height: 30),
                 SizedBox(
                   width: double.infinity,

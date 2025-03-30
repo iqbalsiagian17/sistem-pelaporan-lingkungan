@@ -8,13 +8,11 @@ import 'package:spl_mobile/widgets/skeleton/skeleton_image_card.dart';
 class ReportDetailImage extends StatefulWidget {
   final List<String> imageUrls;
   final int reportId;
-  final String token;
 
   const ReportDetailImage({
     super.key,
     required this.imageUrls,
     required this.reportId,
-    required this.token,
   });
 
   @override
@@ -30,7 +28,7 @@ class _ReportDetailImageState extends State<ReportDetailImage> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await Provider.of<ReportLikeProvider>(context, listen: false)
-          .fetchLikeStatus(widget.reportId, widget.token);
+          .fetchLikeStatus(widget.reportId);
     });
   }
 
@@ -127,7 +125,6 @@ class _ReportDetailImageState extends State<ReportDetailImage> {
     );
   }
 
-  // 🔹 Gambar default jika tidak tersedia
   Widget _defaultImage() {
     return Image.asset(
       "assets/images/default.jpg",

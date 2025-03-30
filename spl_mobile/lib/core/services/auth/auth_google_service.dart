@@ -1,101 +1,97 @@
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:dio/dio.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:spl_mobile/core/services/firebase/firebase_token_helper.dart';
-import 'package:spl_mobile/core/utils/auth_interceptor.dart';
-import '../../constants/api.dart';
+import 'package:spl_mobile/core/constants/api.dart';
+import 'package:spl_mobile/core/constants/dio_client.dart';
+import 'package:spl_mobile/core/services/auth/global_auth_service.dart';
 
 class AuthGoogleService {
-late Dio _dio;
-final GoogleSignIn _googleSignIn = GoogleSignIn(
-  scopes: ['email'],
-);
+  static final AuthGoogleService _instance = AuthGoogleService._internal();
+  factory AuthGoogleService() => _instance;
 
-  
-  AuthGoogleService() {
-    _dio = Dio(BaseOptions(
-      baseUrl: ApiConstants.authBaseUrl,
-      connectTimeout: const Duration(seconds: 10),
-      receiveTimeout: const Duration(seconds: 10),
-    ));
+  final Dio _dio = DioClient.instance;
+  final GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email']);
 
-    _dio.interceptors.add(AuthInterceptor(_dio)); // ✅ Ini sekarang aman
-  }
-  
+  AuthGoogleService._internal();
+
   Future<Map<String, dynamic>> loginWithGoogle() async {
-  try {
-    print("🔹 Memulai proses Google Sign-In...");
-    await _googleSignIn.signOut();
-    final googleUser = await _googleSignIn.signIn();
+    try {
+      print("🔹 Memulai proses Google Sign-In...");
+      await _googleSignIn.signOut(); // Biar bersih
+      final googleUser = await _googleSignIn.signIn();
 
-    if (googleUser == null) {
-      return {'error': 'Login dibatalkan oleh pengguna'};
-    }
-
-    final googleAuth = await googleUser.authentication;
-    final idToken = googleAuth.idToken;
-
-    if (idToken == null) {
-      return {'error': 'Id Token tidak tersedia'};
-    }
-
-    final response = await _dio.post(
-      "/google",
-      data: {
-        "email": googleUser.email,
-        "username": googleUser.displayName,
-        "idToken": idToken,
-        "client": "flutter",
-      },
-    );
-
-    // 🔍 Cek apakah user diblokir
-    final user = response.data["user"];
-    if (user != null && user["blocked_until"] != null) {
-      final blockedUntil = DateTime.tryParse(user["blocked_until"]);
-      if (blockedUntil != null && blockedUntil.isAfter(DateTime.now())) {
-        return {
-          "error":
-              "Akun Anda diblokir hingga ${blockedUntil.toLocal()}. Silakan coba lagi nanti."
-        };
+      if (googleUser == null) {
+        return {'error': 'Login dibatalkan oleh pengguna.'};
       }
-    }
 
-    // ✅ Simpan token & user hanya jika aman
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString("token", response.data["token"]);
-    await prefs.setString("refresh_token", response.data["refresh_token"]);
-    await prefs.setInt("id", user["id"]);
-    await prefs.setString("username", user["username"]);
-    await prefs.setString("email", user["email"]);
-    await prefs.setString("phone_number", user["phone_number"] ?? "");
-    await prefs.setInt("type", user["type"]);
+      final googleAuth = await googleUser.authentication;
+      final idToken = googleAuth.idToken;
 
-    await saveFcmTokenToBackend(response.data["user"]["id"]);
+      if (idToken == null) {
+        return {'error': 'Id Token tidak tersedia.'};
+      }
 
+      final response = await _dio.post(
+        "${ApiConstants.authBaseUrl}/google",
+        data: {
+          "email": googleUser.email,
+          "username": googleUser.displayName,
+          "idToken": idToken,
+          "client": "flutter",
+        },
+      );
 
-    return response.data;
-  } on DioError catch (e) {
-    // ✅ Handle 403 diblokir dari backend
-    if (e.response?.statusCode == 403) {
+      final user = response.data["user"];
+      final accessToken = response.data["token"];
+      final refreshToken = response.data["refresh_token"];
+
+      if (user != null && accessToken != null && refreshToken != null) {
+        // Cek apakah akun diblokir
+        if (user["blocked_until"] != null) {
+          final blockedUntil = DateTime.tryParse(user["blocked_until"]);
+          if (blockedUntil != null && blockedUntil.isAfter(DateTime.now())) {
+            return {
+              "error":
+                  "Akun Anda diblokir hingga ${blockedUntil.toLocal()}. Silakan coba lagi nanti."
+            };
+          }
+        }
+
+        await globalAuthService.saveToken(accessToken, refreshToken);
+        await globalAuthService.saveUserInfo(user);
+        await saveFcmTokenToBackend(user["id"]);
+
+        return response.data;
+      }
+
+      return {'error': 'Login gagal. Data tidak lengkap.'};
+    } on DioException catch (e) {
+      final status = e.response?.statusCode;
       final data = e.response?.data;
-      if (data != null &&
-          data["user"] != null &&
-          data["user"]["blocked_until"] != null) {
-        final blockedUntil = DateTime.tryParse(data["user"]["blocked_until"]);
+
+      if (status == 403 && data != null) {
+        final blockedUntil = DateTime.tryParse(data["user"]?["blocked_until"] ?? "");
         if (blockedUntil != null && blockedUntil.isAfter(DateTime.now())) {
           return {
-            "error":
-                "Akun Anda diblokir hingga ${blockedUntil.toLocal()}. Silakan coba lagi nanti."
+            "error": "Akun Anda diblokir hingga ${blockedUntil.toLocal()}. Silakan coba lagi nanti."
           };
         }
+        return {"error": data["error"] ?? "Akses ditolak oleh server"};
       }
-      return {"error": data?["error"] ?? "Akses ditolak oleh server"};
-    }
 
-    return {"error": "Login gagal: ${e.message}"};
+      return {"error": "Login gagal: ${e.message}"};
+    } catch (e) {
+      return {"error": "Terjadi kesalahan: $e"};
+    }
+  }
+  
+  Future<void> logoutFromGoogle() async {
+  try {
+    await _googleSignIn.signOut(); // Hapus sesi Google
+    await globalAuthService.clearAuthData(); // Bersihkan token dan data user
+    print("✅ Logout Google berhasil.");
   } catch (e) {
-    return {"error": "Terjadi kesalahan: $e"};
+    print("❌ Gagal logout Google: $e");
   }
 }
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:spl_mobile/core/services/auth/global_auth_service.dart';
 import 'package:spl_mobile/models/Announcement.dart';
 import 'package:spl_mobile/models/Forum.dart';
 import 'package:spl_mobile/models/Report.dart';
@@ -69,6 +70,7 @@ class AppRoutes {
 
   static final GoRouter router = GoRouter(
     initialLocation: AppRoutes.splash,
+    navigatorKey: globalAuthService.navigatorKey, // ✅ Tambahkan ini
     redirect: (context, state) async {
       final result = await Future.microtask(() => _redirectLogic(context, state));
       return result;

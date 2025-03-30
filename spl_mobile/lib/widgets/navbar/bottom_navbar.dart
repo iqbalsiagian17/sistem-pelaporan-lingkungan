@@ -37,7 +37,8 @@ class BottomNavbar extends StatelessWidget {
         child: BottomNavigationBar(
           currentIndex: currentIndex,
           onTap: (index) {
-            onTap(index); // Update UI
+  if (index == currentIndex) return; // ⛔ Hindari refresh kalau sudah di halaman itu
+  onTap(index);
 
             switch (index) {
               case 0:

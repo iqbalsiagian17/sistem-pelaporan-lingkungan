@@ -1,9 +1,8 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import '../../core/services/user/report/user_report_service.dart';
-import 'package:spl_mobile/models/Report.dart'; // ✅ Gunakan konsisten huruf besar
+import 'package:spl_mobile/core/services/user/report/user_report_service.dart';
+import 'package:spl_mobile/models/Report.dart';
+import 'package:spl_mobile/core/services/auth/global_auth_service.dart';
 
 class ReportProvider with ChangeNotifier {
   final ReportService _reportService = ReportService();
@@ -16,73 +15,50 @@ class ReportProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
-  // ✅ Ambil Token dari SharedPreferences
-  Future<String?> _getToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString("token");
+  /// ✅ Cek apakah user punya laporan yang masih belum selesai
+  bool hasPendingReports(int currentUserId) {
+    if (_reports.isEmpty) return false;
+
+    return _reports.any((report) =>
+        report.userId == currentUserId &&
+        report.status != "closed" &&
+        report.status != "rejected");
   }
 
-  
-
-  // ✅ Ambil semua laporan
-Future<void> fetchReports() async {
+  /// ✅ Ambil semua laporan dari backend
+  Future<void> fetchReports() async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      final token = await _getToken();
-      if (token == null || token.isEmpty) {
-        throw Exception("Tidak ada token yang tersedia. Silakan login ulang.");
-      }
-
       debugPrint("🔍 Mengambil laporan dari API...");
       final fetchedReports = await _reportService.getAllReports();
-      
-      debugPrint("📢 Data diterima dari API: ${fetchedReports.length}");
+      debugPrint("📢 Data laporan: ${fetchedReports.length}");
+
       _reports = List<Report>.from(fetchedReports);
-      
     } catch (e) {
-      debugPrint("❌ Error saat fetchReports: $e");
+      debugPrint("❌ Gagal fetch laporan: $e");
       _errorMessage = e.toString();
     } finally {
       _isLoading = false;
       notifyListeners();
     }
-}
-
-
-  // ✅ Ambil laporan berdasarkan ID
-Future<Report?> getReportById(String reportId) async {
-  try {
-    final token = await _getToken();
-    if (token == null || token.isEmpty) {
-      throw Exception("❌ Tidak ada token yang tersedia. Silakan login ulang.");
-    }
-
-    final report = await _reportService.getReportById(reportId);
-    return report as Report?;  // ✅ Paksa casting agar cocok
-  } catch (e) {
-    _errorMessage = e.toString();
-    notifyListeners();
-    return null;
   }
-}
 
+  /// ✅ Ambil laporan berdasarkan ID
+  Future<Report?> getReportById(String reportId) async {
+    try {
+      final report = await _reportService.getReportById(reportId);
+      return report;
+    } catch (e) {
+      _errorMessage = e.toString();
+      notifyListeners();
+      return null;
+    }
+  }
 
-bool hasPendingReports(int currentUserId) {
-  if (_reports.isEmpty) return false;
-
-  return _reports.any((report) =>
-      report.userId == currentUserId &&
-      report.status != "closed" &&
-      report.status != "rejected");
-}
-
-
-
-
-  // ✅ Tambah laporan baru
+  /// ✅ Buat laporan baru
   Future<bool> createReport({
     required String title,
     required String description,
@@ -92,26 +68,17 @@ bool hasPendingReports(int currentUserId) {
     String? latitude,
     String? longitude,
     bool? isAtLocation,
-    List<File>? attachments, // ✅ Tambahkan attachments sebagai parameter
+    List<File>? attachments,
   }) async {
     _isLoading = true;
     notifyListeners();
 
     try {
-
-      final prefs = await SharedPreferences.getInstance();
-      final currentUserId = prefs.getInt("id");
+      final currentUserId = await globalAuthService.getUserId();
 
       if (currentUserId != null && hasPendingReports(currentUserId)) {
-        throw Exception("Anda masih memiliki laporan yang belum selesai. Harap tunggu hingga laporan sebelumnya berstatus 'closed'.");
+        throw Exception("Anda masih memiliki laporan yang belum selesai.");
       }
-
-      final token = await _getToken();
-      if (token == null || token.isEmpty) {
-        throw Exception("Tidak ada token. Silakan login ulang.");
-      }
-
-      print("🔍 Menggunakan token untuk request: $token"); // ✅ Debugging token sebelum request
 
       bool success = await _reportService.createReport(
         title: title,
@@ -122,46 +89,45 @@ bool hasPendingReports(int currentUserId) {
         latitude: latitude,
         longitude: longitude,
         isAtLocation: isAtLocation,
-        attachments: attachments, // ✅ Kirim attachments ke service
+        attachments: attachments,
       );
 
       if (success) {
         await fetchReports();
       }
 
-      _isLoading = false;
-      notifyListeners();
       return success;
     } catch (e) {
-      _isLoading = false;
       _errorMessage = e.toString();
-      notifyListeners();
       return false;
-    }
-  }
-
-  // ✅ Hapus laporan
-Future<bool> deleteReport(String reportId) async {
-  _isLoading = true;
-  notifyListeners();
-
-  try {
-    bool success = await _reportService.deleteReport(reportId);
-
-    if (success) {
-      _reports.removeWhere((report) => report.id.toString() == reportId);
-      print("Laporan dengan ID $reportId berhasil dihapus dari daftar.");
+    } finally {
+      _isLoading = false;
       notifyListeners();
     }
-
-    _isLoading = false;
-    return success;
-  } catch (e) {
-    _isLoading = false;
-    _errorMessage = e.toString();
-    notifyListeners();
-    print("Error saat menghapus laporan: $_errorMessage");
-    return false;
   }
-}
+
+  /// ✅ Hapus laporan
+  Future<bool> deleteReport(String reportId) async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      bool success = await _reportService.deleteReport(reportId);
+
+      if (success) {
+        _reports.removeWhere((report) => report.id.toString() == reportId);
+        debugPrint("🗑️ Laporan dengan ID $reportId dihapus.");
+        notifyListeners();
+      }
+
+      return success;
+    } catch (e) {
+      _errorMessage = e.toString();
+      debugPrint("❌ Error hapus laporan: $_errorMessage");
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
 }

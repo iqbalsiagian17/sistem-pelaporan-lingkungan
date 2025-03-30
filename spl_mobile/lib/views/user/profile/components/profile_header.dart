@@ -16,25 +16,25 @@ class ProfileHeader extends StatelessWidget {
 
   String _getInitials(String? username) {
     if (username == null || username.isEmpty) return "?";
-    List<String> names = username.split(" ");
-    return names.length == 1
-        ? names[0][0].toUpperCase()
-        : "${names[0][0]}${names[1][0]}".toUpperCase();
+    List<String> parts = username.split(" ");
+    return parts.length == 1
+        ? parts[0][0].toUpperCase()
+        : "${parts[0][0]}${parts[1][0]}".toUpperCase();
   }
 
   @override
   Widget build(BuildContext context) {
     return Consumer<UserProfileProvider>(
-      builder: (context, profileProvider, child) {
+      builder: (context, profileProvider, _) {
         final user = profileProvider.user;
 
-        if (user == null) {
-          return const ProfileHeaderSkeleton(); // ✅ Skeleton hanya muncul saat data belum ada
+        if (profileProvider.isLoading || user == null) {
+          return const ProfileHeaderSkeleton();
         }
 
-        final String initials = _getInitials(user.username);
-        final Color bgColor = _generateColorFromUsername(user.username);
-        final bool isGoogleUser = user.authProvider == 'google';
+        final initials = _getInitials(user.username);
+        final bgColor = _generateColorFromUsername(user.username);
+        final isGoogleUser = user.authProvider == 'google';
 
         return Column(
           children: [
@@ -43,11 +43,7 @@ class ProfileHeader extends StatelessWidget {
               backgroundColor: bgColor,
               child: Text(
                 initials,
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
+                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
               ),
             ),
             const SizedBox(height: 10),
@@ -65,9 +61,9 @@ class ProfileHeader extends StatelessWidget {
               user.email.isNotEmpty ? user.email : "Tidak ada email",
               style: const TextStyle(fontSize: 14, color: Colors.black54),
             ),
-            if (isGoogleUser) ...[
-              const SizedBox(height: 8),
+            if (isGoogleUser)
               Container(
+                margin: const EdgeInsets.only(top: 8),
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: Colors.grey.shade100,
@@ -77,11 +73,7 @@ class ProfileHeader extends StatelessWidget {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Image.asset(
-                      'assets/images/google.png',
-                      width: 16,
-                      height: 16,
-                    ),
+                    Image.asset('assets/images/google.png', width: 16, height: 16),
                     const SizedBox(width: 6),
                     const Text(
                       "Terhubung ke Google",
@@ -90,7 +82,6 @@ class ProfileHeader extends StatelessWidget {
                   ],
                 ),
               ),
-            ],
           ],
         );
       },

@@ -67,7 +67,6 @@ class ReportDetailView extends StatelessWidget {
                               ? report.attachments.map((attachment) => "${ApiConstants.baseUrl}/${attachment.file}").toList()
                               : ["assets/images/default.jpg"],
                           reportId: report.id,  // ✅ Pastikan reportId dikirim
-                          token: token, // ✅ Gunakan token dari Provider
                         ),
                         Padding(
                           padding: const EdgeInsets.all(16.0),
@@ -76,7 +75,6 @@ class ReportDetailView extends StatelessWidget {
                             children: [
                               ReportDetailStatus(
                               reportId: report.id, 
-                              token: token, // ✅ Pastikan token dikirim
                               status: report.status,
                               likes: report.likes, // ✅ Pastikan likes dikirim dari data laporan
                             ),

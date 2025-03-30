@@ -7,13 +7,11 @@ import 'package:spl_mobile/providers/report/report_likes_provider.dart';
 class ReportDetailStatus extends StatefulWidget {
   final int reportId;
   final String? status;
-  final String token;
-  final int likes; // ✅ Ambil nilai awal likes dari backend (t_report.likes)
+  final int likes; // ✅ Ambil nilai awal likes dari backend
 
   const ReportDetailStatus({
     super.key,
     required this.reportId,
-    required this.token,
     required this.likes,
     this.status,
   });
@@ -28,7 +26,9 @@ class _ReportDetailStatusState extends State<ReportDetailStatus> {
     super.initState();
     Future.microtask(() {
       Provider.of<ReportLikeProvider>(context, listen: false)
-          .fetchLikeCount(widget.reportId, widget.token);
+          .fetchLikeCount(widget.reportId);
+      Provider.of<ReportLikeProvider>(context, listen: false)
+          .fetchLikeStatus(widget.reportId);
     });
   }
 
@@ -37,7 +37,7 @@ class _ReportDetailStatusState extends State<ReportDetailStatus> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        // 🔹 **Status Aduan**
+        // 🔹 Status Aduan
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
@@ -56,23 +56,22 @@ class _ReportDetailStatusState extends State<ReportDetailStatus> {
 
         Row(
           children: [
-            // ❤️ **Tombol Like & Jumlah Likes**
+            // ❤️ Like Button + Count
             Consumer<ReportLikeProvider>(
               builder: (context, likeProvider, child) {
                 bool isLiked = likeProvider.isLiked(widget.reportId);
-                int likeCount =
-                    likeProvider.getLikeCount(widget.reportId) > 0
-                        ? likeProvider.getLikeCount(widget.reportId)
-                        : widget.likes; // ✅ Gunakan nilai awal dari database
+                int likeCount = likeProvider.getLikeCount(widget.reportId) > 0
+                    ? likeProvider.getLikeCount(widget.reportId)
+                    : widget.likes;
 
                 return Row(
                   children: [
                     IconButton(
                       onPressed: () async {
                         if (isLiked) {
-                          await likeProvider.unlikeReport(widget.reportId, widget.token);
+                          await likeProvider.unlikeReport(widget.reportId);
                         } else {
-                          await likeProvider.likeReport(widget.reportId, widget.token);
+                          await likeProvider.likeReport(widget.reportId);
                         }
                       },
                       icon: Icon(
@@ -81,7 +80,7 @@ class _ReportDetailStatusState extends State<ReportDetailStatus> {
                       ),
                     ),
                     Text(
-                      "$likeCount", // ✅ Tampilkan jumlah likes dari database atau API
+                      "$likeCount",
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
@@ -93,7 +92,7 @@ class _ReportDetailStatusState extends State<ReportDetailStatus> {
               },
             ),
 
-            // 🔖 **Tombol Bookmark (Simpan/Hapus)**
+            // 🔖 Save Button
             Consumer<ReportSaveProvider>(
               builder: (context, reportSaveProvider, child) {
                 bool isSaved = reportSaveProvider.isReportSaved(widget.reportId);

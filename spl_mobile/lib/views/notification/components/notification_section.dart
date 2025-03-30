@@ -39,7 +39,7 @@ class NotificationSection extends StatelessWidget {
                 await notificationProvider.markAsRead(notif.id);
 
                 if (notif.type == "verification") {
-context.push(AppRoutes.myReport); // push ke path, bukan name
+                  context.go(AppRoutes.myReport);
                 }
               },
               leading: const Icon(

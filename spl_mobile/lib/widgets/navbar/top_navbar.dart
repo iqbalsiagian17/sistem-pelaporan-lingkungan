@@ -26,7 +26,7 @@ class _TopBarState extends State<TopBar> with WidgetsBindingObserver {
 
   void _refreshNotif() {
     final provider = context.read<UserNotificationProvider>();
-    provider.loadNotificationsFromLocal(); // fungsi baru: ambil ID dari shared prefs dan fetch ulang
+    provider.refresh(); // ✅ Ganti fungsi lama dengan fungsi baru yang sudah disesuaikan
   }
 
   @override

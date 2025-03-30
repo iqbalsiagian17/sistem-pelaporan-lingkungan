@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:spl_mobile/core/services/auth/global_auth_service.dart';
 import 'package:spl_mobile/routes/app_routes.dart';
 import 'package:spl_mobile/widgets/snackbar/snackbar_helper.dart';
 import '../../providers/report/report_provider.dart';
@@ -77,8 +78,25 @@ class _ReportCreateViewState extends State<ReportCreateView> {
     final token = prefs.getString("token");
 
     if (token == null || token.isEmpty) {
-      throw Exception("❌ Tidak ada token. Silakan login ulang.");
+      final refreshed = await globalAuthService.refreshToken();
+      if (!refreshed) {
+        await globalAuthService.clearAuthData();
+        if (context.mounted) {
+          context.go(AppRoutes.login);
+        }
+        SnackbarHelper.showSnackbar(context, "Sesi kamu telah berakhir. Silakan login ulang.", isError: true);
+        return;
+      }
+
+      // ✅ Jika berhasil refresh, ambil ulang token baru
+      final newToken = await globalAuthService.getAccessToken();
+      if (newToken == null || newToken.isEmpty) {
+        SnackbarHelper.showSnackbar(context, "Gagal mendapatkan token setelah refresh.", isError: true);
+        return;
+      }
     }
+
+
 
     final reportProvider = Provider.of<ReportProvider>(context, listen: false);
 
@@ -120,6 +138,14 @@ bool success = await reportProvider.createReport(
     setState(() => isSubmitting = false);
 
     if (success) {
+      _titleController.clear();
+      _descriptionController.clear();
+      _locationController.clear();
+      _detailLocationController.clear();
+      setState(() {
+        attachments.clear();
+        isAtLocation = true;
+      });
       SnackbarHelper.showSnackbar(context, "Laporan berhasil dikirim!");
       Future.delayed(const Duration(milliseconds: 500), () {
         if (context.mounted) {

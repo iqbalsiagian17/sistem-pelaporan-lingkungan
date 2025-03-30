@@ -1,110 +1,110 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import '../../../core/services/user/profile/user_profile_service.dart';
-import '../../../models/User.dart'; // ✅ Gunakan model User
+import 'package:spl_mobile/core/services/user/profile/user_profile_service.dart';
+import 'package:spl_mobile/models/User.dart';
+import 'package:spl_mobile/core/services/auth/global_auth_service.dart';
 
 class UserProfileProvider with ChangeNotifier {
   final UserProfileService _userProfileService = UserProfileService();
 
   bool _isLoading = false;
   String? _errorMessage;
-  User? _user; // ✅ Simpan user langsung dari API
+  User? _user;
 
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
-  User? get user => _user; // ✅ Ambil user dari backend
+  User? get user => _user;
 
+  /// ✅ Hapus data user lokal
   void clearUserData() {
     _user = null;
     _errorMessage = null;
     notifyListeners();
   }
 
-  // ✅ Ambil User dari Backend
+  /// ✅ Ambil user dari backend dan simpan lokal
   Future<void> loadUser() async {
+    _isLoading = true;
+    notifyListeners();
+
     try {
       final response = await _userProfileService.getUserProfile();
       if (response.containsKey("data")) {
         _user = User.fromJson(response["data"]);
 
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString("username", _user!.username);
-        await prefs.setString("email", _user!.email);
-        await prefs.setString("phone_number", _user!.phoneNumber);
+        // Simpan info dasar ke SharedPreferences
+        await globalAuthService.saveUserInfo(response["data"]);
 
-        notifyListeners();
+        _errorMessage = null;
+      } else {
+        _errorMessage = response["error"] ?? "Gagal memuat data user.";
       }
     } catch (e) {
-      debugPrint("❌ Error loading user: $e");
+      _errorMessage = "Terjadi kesalahan: $e";
     }
+
+    _isLoading = false;
+    notifyListeners();
   }
 
-  // ✅ Paksa refresh user data dan update UI
+  /// ✅ Paksa refresh user
   Future<void> refreshUser() async {
     await loadUser();
-    Future.microtask(() {
-      notifyListeners();
-    });
   }
 
-  // ✅ Simpan / Update User
+  /// ✅ Simpan perubahan profil
   Future<bool> saveUser(Map<String, dynamic> data) async {
     _isLoading = true;
+    _errorMessage = null;
     notifyListeners();
 
     try {
       final response = await _userProfileService.updateUserProfile(data);
 
       if (response.containsKey("error")) {
-        throw Exception(response["error"]);
+        _errorMessage = response["error"];
+        _isLoading = false;
+        notifyListeners();
+        return false;
       }
 
-      // ✅ Perbarui SharedPreferences agar sinkron dengan server
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString("username", data["username"] ?? "");
-      await prefs.setString("email", data["email"] ?? "");
-      await prefs.setString("phone_number", data["phone_number"] ?? "");
+      // Sinkronkan data user di SharedPreferences
+      await globalAuthService.saveUserInfo(data);
+      await refreshUser();
 
-      await refreshUser(); // ✅ Ambil data terbaru setelah update
       _isLoading = false;
-      notifyListeners();
       return true;
     } catch (e) {
+      _errorMessage = "Gagal menyimpan data: $e";
       _isLoading = false;
-      _errorMessage = "❌ Error menyimpan data user: $e";
       notifyListeners();
-      debugPrint(_errorMessage);
       return false;
     }
   }
 
-  // ✅ Ubah Password
+  /// ✅ Ganti password
   Future<bool> changePassword(String oldPassword, String newPassword) async {
     _isLoading = true;
+    _errorMessage = null;
     notifyListeners();
 
     try {
-      debugPrint("🔄 Mengubah password...");
-
       final response = await _userProfileService.changePassword(oldPassword, newPassword);
-      debugPrint("✅ Respons API: $response");
 
       if (response.containsKey("error")) {
-        throw Exception(response["error"]);
+        _errorMessage = response["error"];
+        _isLoading = false;
+        notifyListeners();
+        return false;
       }
 
-      // 🔥 Pastikan data user diperbarui setelah password berubah
       await refreshUser();
-      debugPrint("✅ User data berhasil diperbarui setelah perubahan password");
 
       _isLoading = false;
-      notifyListeners();
       return true;
     } catch (e) {
+      _errorMessage = "Gagal mengubah password: $e";
       _isLoading = false;
-      _errorMessage = "❌ Error saat mengubah password: $e";
       notifyListeners();
-      debugPrint(_errorMessage);
       return false;
     }
   }

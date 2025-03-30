@@ -1,8 +1,8 @@
   import 'dart:io';
   import 'package:dio/dio.dart';
   import 'package:http_parser/http_parser.dart';
-  import 'package:shared_preferences/shared_preferences.dart';
 import 'package:spl_mobile/core/constants/dio_client.dart';
+import 'package:spl_mobile/core/services/auth/global_auth_service.dart';
   import '../../../constants/api.dart';
   import '../../../../models/Report.dart';
 
@@ -26,10 +26,6 @@ import 'package:spl_mobile/core/constants/dio_client.dart';
         throw Exception("❌ Terjadi kesalahan saat mengambil laporan: $e");
       }
     }
-
-
-
-
 
     // ✅ Ambil Laporan Berdasarkan ID
     Future<Report?> getReportById(String reportId) async {
@@ -65,9 +61,10 @@ import 'package:spl_mobile/core/constants/dio_client.dart';
         "description": description,
         "date": date.split("T")[0],
         "location_details": locationDetails?.trim() ?? "Tidak ada detail lokasi",
-        "village": isAtLocation == false ? village : null,
-        "latitude": isAtLocation == true ? latitude : "0.0",
-        "longitude": isAtLocation == true ? longitude : "0.0",
+  if (isAtLocation == false && village != null) "village": village,
+  if (isAtLocation == true && latitude != null) "latitude": latitude,
+  if (isAtLocation == true && longitude != null) "longitude": longitude,
+
         "is_at_location": isAtLocation.toString(),
       });
 
@@ -111,8 +108,7 @@ import 'package:spl_mobile/core/constants/dio_client.dart';
       final response = await _dio.get('${ApiConstants.userReportUrl}/all');
 
       if (response.statusCode == 200) {
-        final prefs = await SharedPreferences.getInstance();
-        int? userId = prefs.getInt("user_id");
+        int? userId = await globalAuthService.getUserId();
 
         List<dynamic> data = response.data['reports'];
         return data
