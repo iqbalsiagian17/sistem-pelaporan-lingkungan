@@ -223,4 +223,76 @@ exports.updateReportStatus = async (req, res) => {
   }
 };
 
+// Auto-close laporan setelah 24 jam
+exports.autoCloseCompletedReports = async () => {
+  const { Report, ReportStatusHistory, Notification, User, sequelize } = require('../../../models');
+  const { sendNotificationToUser } = require('../../../services/firebaseService');
+  const { Op } = require('sequelize');
+  const SYSTEM_USER_ID = 1; // Gunakan ID admin sistem default
+
+  try {
+    const batasWaktu = new Date(Date.now() - 24 * 60 * 60 * 1000); // 24 jam
+
+    const reports = await Report.findAll({
+      where: {
+        status: 'completed',
+        updatedAt: { [Op.lte]: batasWaktu }
+      },
+      include: [
+        { model: User, as: 'user', attributes: ['id', 'fcm_token'] }
+      ]
+    });
+
+    for (const report of reports) {
+      const previous_status = report.status;
+      const new_status = 'closed';
+
+      // ✅ Update status
+      report.status = new_status;
+      await report.save();
+
+      // ✅ Simpan ke riwayat status
+      await ReportStatusHistory.create({
+        report_id: report.id,
+        changed_by: SYSTEM_USER_ID,
+        previous_status,
+        new_status,
+        message: 'Laporan otomatis ditutup oleh sistem setelah 24 jam.'
+      });
+
+      // ✅ Siapkan notifikasi
+      const notifTitle = getNotificationTitleByStatus(new_status);
+      const notifMessage = generateNotificationMessage(new_status, report.report_number);
+
+      await Notification.create({
+        user_id: report.user_id,
+        title: notifTitle,
+        message: notifMessage,
+        type: "verification", // Konsisten seperti updateReportStatus
+        sent_by: "system",
+        role_target: "user"
+      });
+
+      // ✅ Kirim FCM jika ada token
+      if (report.user?.fcm_token) {
+        await sendNotificationToUser(
+          report.user.fcm_token,
+          notifTitle,
+          notifMessage,
+          {
+            report_id: report.id.toString(),
+            type: "report_status_update" // Konsisten seperti updateReportStatus
+          }
+        );
+      }
+
+      console.log(`✅ Report #${report.report_number} closed automatically.`);
+    }
+  } catch (err) {
+    console.error("❌ Auto-close error:", err.message);
+  }
+};
+
+
+
 

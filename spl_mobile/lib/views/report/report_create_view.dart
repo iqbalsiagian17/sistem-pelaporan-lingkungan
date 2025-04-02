@@ -56,10 +56,17 @@ class _ReportCreateViewState extends State<ReportCreateView> {
     return;
   }
 
-  if (!isAtLocation && _locationController.text.isEmpty) {
+if (isAtLocation) {
+  if (latitude == null || longitude == null) {
+    SnackbarHelper.showSnackbar(context, "Lokasi GPS belum tersedia. Pastikan izin lokasi diaktifkan.", isError: true);
+    return;
+  }
+} else {
+  if (_locationController.text.isEmpty) {
     SnackbarHelper.showSnackbar(context, "Lokasi kejadian (Desa/Kelurahan) wajib diisi!", isError: true);
     return;
   }
+}
 
   if (attachments.isEmpty) {
     SnackbarHelper.showSnackbar(context, "Minimal 1 gambar harus diunggah!", isError: true);
@@ -244,6 +251,7 @@ Future<void> showReportGuideTutorial() async {
             ReportLocationToggle(
               isAtLocation: isAtLocation,
               onChange: (value) => setState(() => isAtLocation = value),
+              isLocationAvailable: latitude != null && longitude != null,
             ),
             const SizedBox(height: 20),
             ReportTextField(controller: _titleController, title: "Judul Aduan", hint: "Masukkan judul laporan"),
@@ -381,92 +389,92 @@ Future<void> showReportGuideTutorial() async {
 
 
             const SizedBox(height: 30),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: isSubmitting
-                    ? null
-                    : () async {
-                        bool? confirm = await showModalBottomSheet<bool>(
-                          context: context,
-                          isDismissible: true,
-                          backgroundColor: Colors.white,
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-                          ),
-                          builder: (context) {
-                            return Padding(
-                              padding: const EdgeInsets.all(20),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(Icons.warning_amber_rounded, size: 50, color: Colors.red),
-                                  const SizedBox(height: 12),
-                                  const Text(
-                                    "Apakah Kamu Yakin Ingin Mengirim Aduan?",
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black87,
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: isSubmitting
+                      ? null
+                      : () async {
+                          bool? confirm = await showModalBottomSheet<bool>(
+                            context: context,
+                            isDismissible: true,
+                            backgroundColor: Colors.white,
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                            ),
+                            builder: (context) {
+                              return Padding(
+                                padding: const EdgeInsets.all(20),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(Icons.warning_amber_rounded, size: 50, color: Colors.red),
+                                    const SizedBox(height: 12),
+                                    const Text(
+                                      "Apakah Kamu Yakin Ingin Mengirim Aduan?",
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black87,
+                                      ),
                                     ),
-                                  ),
-                                  const SizedBox(height: 10),
-                                  const Text(
-                                    "Setelah dikirim, aduan tidak dapat diubah atau diedit.\nPastikan semua data sudah benar.",
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(fontSize: 14, color: Colors.black54),
-                                  ),
-                                  const SizedBox(height: 24),
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: OutlinedButton(
-                                          onPressed: () => Navigator.pop(context, false),
-                                          style: OutlinedButton.styleFrom(
-                                            side: const BorderSide(color: Colors.grey),
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(12),
+                                    const SizedBox(height: 10),
+                                    const Text(
+                                      "Setelah dikirim, aduan tidak dapat diubah atau diedit.\nPastikan semua data sudah benar.",
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(fontSize: 14, color: Colors.black54),
+                                    ),
+                                    const SizedBox(height: 24),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: OutlinedButton(
+                                            onPressed: () => Navigator.pop(context, false),
+                                            style: OutlinedButton.styleFrom(
+                                              side: const BorderSide(color: Colors.grey),
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(12),
+                                              ),
                                             ),
+                                            child: const Text("Batal", style: TextStyle(color: Colors.grey)),
                                           ),
-                                          child: const Text("Batal", style: TextStyle(color: Colors.grey)),
                                         ),
-                                      ),
-                                      const SizedBox(width: 12),
-                                      Expanded(
-                                        child: ElevatedButton(
-                                          onPressed: () => Navigator.pop(context, true),
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: Colors.green,
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(12),
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: ElevatedButton(
+                                            onPressed: () => Navigator.pop(context, true),
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: Colors.green,
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(12),
+                                              ),
                                             ),
+                                            child: const Text("Ya, Kirim", style: TextStyle(color: Colors.white)),
                                           ),
-                                          child: const Text("Ya, Kirim", style: TextStyle(color: Colors.white)),
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                        );
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          );
 
-                        if (confirm == true) {
-                          _submitReport(); // ⬅️ Kirim jika pengguna yakin
-                        }
-                      },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          if (confirm == true) {
+                            _submitReport(); // ⬅️ Kirim jika pengguna yakin
+                          }
+                        },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: isSubmitting
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : const Text("Kirim Aduan", style: TextStyle(color: Colors.white, fontSize: 16)),
                 ),
-                child: isSubmitting
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text("Kirim Aduan", style: TextStyle(color: Colors.white, fontSize: 16)),
               ),
-            ),
 
             const SizedBox(height: 10),
           ],

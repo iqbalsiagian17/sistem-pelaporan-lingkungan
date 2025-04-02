@@ -20,46 +20,65 @@ class NotificationItem extends StatelessWidget {
 
     final IconData icon = notif['icon'] is IconData ? notif['icon'] : Icons.notifications;
 
-    return Column(
-      children: [
-        ListTile(
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: ListTile(
+          contentPadding: const EdgeInsets.all(12),
           leading: Container(
-            padding: const EdgeInsets.all(10),
+            width: 48,
+            height: 48,
             decoration: BoxDecoration(
-              color: const Color(0xFFE3E9FA),
-              borderRadius: BorderRadius.circular(12),
+              color: const Color(0xFFE3F2FD),
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.blue.withOpacity(0.2),
+                  blurRadius: 6,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
-            child: Icon(
-              icon,
-              color: const Color(0xFF1976D2),
-              size: 26,
-            ),
+            child: Icon(icon, color: const Color(0xFF1976D2), size: 26),
           ),
           title: Text(
             title,
             style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-            ),
-            overflow: TextOverflow.ellipsis,
-          ),
-          subtitle: Padding(
-            padding: const EdgeInsets.only(top: 4.0),
-            child: Text(
-              translatedMessage,
-              style: const TextStyle(fontSize: 13),
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
             ),
           ),
-          trailing: Text(
-            formattedTime,
-            style: const TextStyle(fontSize: 12, color: Colors.grey),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 4),
+              Text(
+                translatedMessage,
+                style: const TextStyle(fontSize: 13.5, color: Colors.black87),
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 6),
+              Text(
+                formattedTime,
+                style: const TextStyle(fontSize: 11.5, color: Colors.grey),
+              ),
+            ],
           ),
         ),
-        const Divider(height: 1, thickness: 0.4),
-      ],
+      ),
     );
   }
 }

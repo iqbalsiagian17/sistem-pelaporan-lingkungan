@@ -48,12 +48,6 @@ class ReportListAllTopBar extends StatelessWidget implements PreferredSizeWidget
               }
             },
           ),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.search, color: Colors.white), // 🔍 Search icon
-              onPressed: onSearch, // ✅ Execute search callback
-            ),
-          ],
         ),
       ),
     );

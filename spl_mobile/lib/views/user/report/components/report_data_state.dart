@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:spl_mobile/models/Report.dart';
 import 'package:spl_mobile/providers/report/report_provider.dart';
 import 'package:spl_mobile/routes/app_routes.dart';
@@ -141,15 +142,20 @@ class _ReportDataStateState extends State<ReportDataState> {
     );
   }
 
-  Widget _loadingPlaceholder() => Container(
-        width: 80, 
+  Widget _loadingPlaceholder() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: Container(
+        width: 80,
         height: 80,
         decoration: BoxDecoration(
-          color: Colors.grey[300],
+          color: Colors.white,
           borderRadius: BorderRadius.circular(12),
         ),
-        child: const Center(child: CircularProgressIndicator(strokeWidth: 1.5)),
-      );
+      ),
+    );
+}
 
   Widget _defaultImage() => Image.asset(
         "assets/images/report/report1.jpg",

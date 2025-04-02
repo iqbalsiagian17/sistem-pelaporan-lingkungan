@@ -2,7 +2,7 @@ class UserNotification {
   final int id;
   final String title;
   final String message;
-  final bool isRead;
+  bool isRead;
   final String type;
   final DateTime createdAt;
 

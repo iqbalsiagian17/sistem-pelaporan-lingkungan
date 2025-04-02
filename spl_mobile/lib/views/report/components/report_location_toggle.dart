@@ -2,12 +2,26 @@ import 'package:flutter/material.dart';
 
 class ReportLocationToggle extends StatelessWidget {
   final bool isAtLocation;
+  final bool isLocationAvailable;
   final ValueChanged<bool> onChange;
 
-  const ReportLocationToggle({super.key, required this.isAtLocation, required this.onChange});
+  const ReportLocationToggle({
+    super.key,
+    required this.isAtLocation,
+    required this.isLocationAvailable,
+    required this.onChange,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final infoColor = isLocationAvailable ? const Color(0xFF2E7D32) : const Color(0xFFF57F17);
+    final bgColor = isLocationAvailable ? const Color(0xFFE8F5E9) : const Color(0xFFFFF8E1);
+    final borderColor = isLocationAvailable ? const Color(0xFF66BB6A) : const Color(0xFFFFEE58);
+    final icon = isLocationAvailable ? Icons.check_circle : Icons.warning_amber_rounded;
+    final message = isLocationAvailable
+        ? "Lokasi Anda telah berhasil terdeteksi secara otomatis melalui GPS."
+        : "Kami belum bisa mendeteksi lokasi Anda. Pastikan GPS aktif dan izin lokasi telah diberikan.";
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -22,7 +36,7 @@ class ReportLocationToggle extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: () => onChange(true),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: isAtLocation ? const Color.fromRGBO(76, 175, 80, 1) : Colors.white,
+                  backgroundColor: isAtLocation ? const Color(0xFF4CAF50) : Colors.white,
                   foregroundColor: isAtLocation ? Colors.white : Colors.black,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -36,8 +50,8 @@ class ReportLocationToggle extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: () => onChange(false),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: !isAtLocation ? const Color.fromRGBO(76, 175, 80, 1) : Colors.white,
-                  foregroundColor: !isAtLocation ? const Color(0xFFFFFFFF) : Colors.black,
+                  backgroundColor: !isAtLocation ? const Color(0xFF4CAF50) : Colors.white,
+                  foregroundColor: !isAtLocation ? Colors.white : Colors.black,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -47,6 +61,31 @@ class ReportLocationToggle extends StatelessWidget {
             ),
           ],
         ),
+        if (isAtLocation) ...[
+          const SizedBox(height: 12),
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: bgColor,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: borderColor),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(icon, color: infoColor, size: 22),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    message,
+                    style: TextStyle(fontSize: 14, color: infoColor),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ],
     );
   }

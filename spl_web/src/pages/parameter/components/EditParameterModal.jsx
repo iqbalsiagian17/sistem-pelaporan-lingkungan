@@ -14,8 +14,12 @@ const EditParameterModal = ({ show, onHide, parameter, onSave }) => {
     firefighter_contact: "",
   });
 
+  const [editorKey, setEditorKey] = useState(Date.now());
+
   useEffect(() => {
     if (parameter) {
+      console.log("📦 PARAMETER MASUK:", parameter);
+
       setForm({
         about: parameter.about || "",
         terms: parameter.terms || "",
@@ -25,6 +29,9 @@ const EditParameterModal = ({ show, onHide, parameter, onSave }) => {
         police_contact: parameter.police_contact || "",
         firefighter_contact: parameter.firefighter_contact || "",
       });
+
+      // 🔁 Force re-render ReactQuill editor
+      setEditorKey(Date.now());
     }
   }, [parameter]);
 
@@ -33,7 +40,7 @@ const EditParameterModal = ({ show, onHide, parameter, onSave }) => {
   };
 
   const handleEditorChange = (name, value) => {
-    setForm({ ...form, [name]: value });
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = () => {
@@ -56,6 +63,7 @@ const EditParameterModal = ({ show, onHide, parameter, onSave }) => {
           <Form.Group className="mb-3">
             <Form.Label>About</Form.Label>
             <ReactQuill
+              key={`about-${editorKey}`}
               value={form.about}
               onChange={(val) => handleEditorChange("about", val)}
               theme="snow"
@@ -67,6 +75,7 @@ const EditParameterModal = ({ show, onHide, parameter, onSave }) => {
           <Form.Group className="mb-3">
             <Form.Label>Terms</Form.Label>
             <ReactQuill
+              key={`terms-${editorKey}`}
               value={form.terms}
               onChange={(val) => handleEditorChange("terms", val)}
               theme="snow"
@@ -78,6 +87,7 @@ const EditParameterModal = ({ show, onHide, parameter, onSave }) => {
           <Form.Group className="mb-3">
             <Form.Label>Panduan Pelaporan</Form.Label>
             <ReactQuill
+              key={`guidelines-${editorKey}`}
               value={form.report_guidelines}
               onChange={(val) => handleEditorChange("report_guidelines", val)}
               theme="snow"
@@ -99,7 +109,6 @@ const EditParameterModal = ({ show, onHide, parameter, onSave }) => {
                 />
               </Form.Group>
             </Col>
-
             <Col md={6}>
               <Form.Group className="mb-3">
                 <Form.Label>Ambulans</Form.Label>
@@ -127,7 +136,6 @@ const EditParameterModal = ({ show, onHide, parameter, onSave }) => {
                 />
               </Form.Group>
             </Col>
-
             <Col md={6}>
               <Form.Group className="mb-3">
                 <Form.Label>Pemadam Kebakaran</Form.Label>

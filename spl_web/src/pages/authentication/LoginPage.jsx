@@ -58,10 +58,6 @@ export const LoginPage = () => {
         <AuthWrapper>
     <h4 className="mb-2 text-center">Balige Bersih</h4>
 
-    <p className="mb-1 text-center text-danger fw-bold">
-        Halaman ini khusus untuk <strong>Admin</strong>.
-    </p>
-
     <p className="mb-4 text-center">Silakan masuk ke akun Anda untuk mulai menggunakan sistem.</p>
 
     {error && <div className="alert alert-danger">{error}</div>}

@@ -123,4 +123,17 @@ import 'package:spl_mobile/core/services/auth/global_auth_service.dart';
     }
   }
 
-  }
+  Future<Map<String, int>> getReportStatsByUser(int userId) async {
+      try {
+        final response = await _dio.get('${ApiConstants.userReportUrl}/$userId/report-stats');
+        final data = response.data['data'];
+        return {
+          'sent': data['sent'] ?? 0,
+          'completed': data['completed'] ?? 0,
+          'saved': data['saved'] ?? 0,
+        };
+      } catch (e) {
+        throw Exception("Gagal mengambil statistik: $e");
+      }
+    }
+}

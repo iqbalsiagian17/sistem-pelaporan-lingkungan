@@ -24,6 +24,9 @@ const StatusLaporanModal = ({
 
     const [uploadedEvidences, setUploadedEvidences] = useState([]); // ✅ Gunakan state
 
+    const [isUpdating, setIsUpdating] = useState(false);
+
+
 
 
     // ✅ Isi otomatis pesan perubahan status (bisa diedit)
@@ -37,8 +40,10 @@ const StatusLaporanModal = ({
         setUploadedEvidences(Array.from(e.target.files)); // ⬅️ pastikan array of File
       };
 
-      const onSubmit = () => {
-        handleChangeStatus(uploadedEvidences); // ✅ kirim evidence ke parent
+      const onSubmit = async () => {
+        setIsUpdating(true);
+        await handleChangeStatus(uploadedEvidences);
+        setIsUpdating(false);
       };
     
 
@@ -108,7 +113,7 @@ const StatusLaporanModal = ({
               onClick={onSubmit}
               disabled={!newStatus || !message}
             >
-              Simpan Perubahan
+              {isUpdating ? "Menyimpan..." : "Simpan Perubahan"}
             </Button>
           </Modal.Footer>
         </Modal>

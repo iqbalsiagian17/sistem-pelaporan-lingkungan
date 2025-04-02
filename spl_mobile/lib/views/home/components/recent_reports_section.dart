@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:spl_mobile/core/constants/api.dart';
 import 'package:spl_mobile/core/utils/status_utils.dart';
 import 'package:spl_mobile/widgets/skeleton/skeleton_report_list.dart';
@@ -243,18 +244,20 @@ class RecentReportsSection extends StatelessWidget {
   }
 
   // 🔹 Placeholder saat gambar loading
-  Widget _loadingPlaceholder() {
-    return Container(
+Widget _loadingPlaceholder() {
+  return Shimmer.fromColors(
+    baseColor: Colors.grey[300]!,
+    highlightColor: Colors.grey[100]!,
+    child: Container(
       width: 80,
       height: 80,
       decoration: BoxDecoration(
-        color: Colors.grey[300],
+        color: Colors.white,
         borderRadius: BorderRadius.circular(12),
       ),
-      child: const Center(child: CircularProgressIndicator(strokeWidth: 1.5)),
-    );
-  }
-
+    ),
+  );
+}
   // 🔹 Gambar default jika gagal dimuat
   Widget _defaultImage() {
     return Image.asset(

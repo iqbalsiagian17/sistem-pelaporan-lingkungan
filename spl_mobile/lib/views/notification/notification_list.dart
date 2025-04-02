@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:spl_mobile/widgets/skeleton/skeleton_notfication_list.dart';
 import 'components/notification_section.dart';
 import 'components/notification_topbar.dart';
 import '../../providers/notification/user_notification_provider.dart';
@@ -50,8 +51,12 @@ class _NotificationListState extends State<NotificationList> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: const NotificationTopBar(),
-      body: notificationProvider.isLoading
-          ? const Center(child: CircularProgressIndicator())
+       body: notificationProvider.isLoading
+        ? ListView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+            itemCount: 5,
+            itemBuilder: (context, index) => const SkeletonNotificationItem(),
+          )
           : notifications.isEmpty
               ? const Center(child: Text("Tidak ada notifikasi"))
               : ListView(

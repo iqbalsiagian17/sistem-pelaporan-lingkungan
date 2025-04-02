@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:spl_mobile/models/ForumImage.dart';
 
 class ForumImageGrid extends StatefulWidget {
@@ -42,10 +43,7 @@ class _ForumImageGridState extends State<ForumImageGrid> {
                   borderRadius: BorderRadius.circular(12),
                   child: CachedNetworkImage(
                     imageUrl: widget.images[index].imageUrl,
-                    placeholder: (context, url) => Container(
-                      color: Colors.grey.shade300,
-                      child: const Center(child: CircularProgressIndicator()),
-                    ),
+                    placeholder: (context, url) => buildImageSkeleton(),
                     errorWidget: (context, url, error) => const Icon(Icons.error, color: Colors.red),
                     fit: BoxFit.cover,
                   ),
@@ -98,6 +96,21 @@ class _ForumImageGridState extends State<ForumImageGrid> {
     );
   }
 }
+
+Widget buildImageSkeleton({double? borderRadius}) {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey.shade300,
+      highlightColor: Colors.grey.shade100,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: borderRadius != null
+              ? BorderRadius.circular(borderRadius)
+              : BorderRadius.zero,
+        ),
+      ),
+    );
+  }
 
 /// ✅ **Widget untuk Slide Gambar seperti Instagram**
 class FullScreenImageSlider extends StatefulWidget {
@@ -188,4 +201,6 @@ class _FullScreenImageSliderState extends State<FullScreenImageSlider> {
       ),
     );
   }
+
+  
 }

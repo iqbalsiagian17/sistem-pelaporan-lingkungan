@@ -24,7 +24,7 @@ const userPostLikesRoutes = require("./routes/user/userLikesPostRoutes");
 const adminForumRoutes = require("./routes/admin/forumRoutes");
 const adminAnalyticsRoutes = require("./routes/admin/analyticsRoute")
 const notificationRoutes = require("./routes/notification/notificationRoutes");
-
+const { scheduleAutoCloseReports } = require('./scheduler/autoCloseScheduler');
 
 
 
@@ -40,7 +40,7 @@ app.use(express.json());  // ✅ Middleware untuk membaca JSON
 app.use(express.urlencoded({ extended: true }));  // ✅ Untuk mendukung form-data
 app.use(bodyParser.json());  // ✅ Pastikan JSON bisa terbaca
 app.use(cookieParser());  // ✅ Untuk membaca cookies jika ada
-
+scheduleAutoCloseReports();
 // 📌 Routes
 
 // 🔹 Auth

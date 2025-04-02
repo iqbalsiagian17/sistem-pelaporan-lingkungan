@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:spl_mobile/models/Report.dart';
 import 'package:spl_mobile/routes/app_routes.dart';
 import 'package:spl_mobile/core/constants/api.dart';
@@ -155,17 +156,21 @@ class _ReportSaveDataStateState extends State<ReportSaveDataState> {
     );
   }
 
-  Widget _loadingPlaceholder() {
-    return Container(
-      width: 80,
-      height: 80,
-      decoration: BoxDecoration(
-        color: Colors.grey[300],
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: const Center(child: CircularProgressIndicator(strokeWidth: 1.5)),
-    );
+    Widget _loadingPlaceholder() {
+      return Shimmer.fromColors(
+        baseColor: Colors.grey[300]!,
+        highlightColor: Colors.grey[100]!,
+        child: Container(
+          width: 80,
+          height: 80,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      );
   }
+
 
   Widget _defaultImage() {
     return Image.asset(

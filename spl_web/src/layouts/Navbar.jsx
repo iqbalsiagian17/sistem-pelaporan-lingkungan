@@ -122,7 +122,7 @@ const Navbar = () => {
             <li className="nav-item navbar-dropdown dropdown-user dropdown">
               <a className="nav-link dropdown-toggle hide-arrow" href="#" data-bs-toggle="dropdown">
                 <div className="avatar avatar-online">
-                  <img src="../assets/img/avatars/1.png" className="w-px-40 h-auto rounded-circle" alt="avatar" />
+                  <img src="../assets/img/avatars/admin.png" className="w-px-40 h-auto rounded-circle" alt="avatar" />
                 </div>
               </a>
               <ul className="dropdown-menu dropdown-menu-end">
@@ -131,7 +131,7 @@ const Navbar = () => {
                     <div className="d-flex">
                       <div className="flex-shrink-0 me-3">
                         <div className="avatar avatar-online">
-                          <img src="../assets/img/avatars/1.png" className="w-px-40 h-auto rounded-circle" alt="avatar" />
+                          <img src="../assets/img/avatars/admin.png" className="w-px-40 h-auto rounded-circle" alt="avatar" />
                         </div>
                       </div>
                       <div className="flex-grow-1">

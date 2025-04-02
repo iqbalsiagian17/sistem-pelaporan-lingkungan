@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:shimmer/shimmer.dart';
 
 class PostImageGrid extends StatelessWidget {
   final List<String> images;
@@ -25,7 +26,7 @@ class PostImageGrid extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: CachedNetworkImage(
         imageUrl: imageUrl,
-        placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+        placeholder: (context, url) => buildImageSkeleton(),
         errorWidget: (context, url, error) => const Icon(Icons.error, color: Colors.red),
         fit: BoxFit.cover,
         width: double.infinity,
@@ -44,7 +45,7 @@ class PostImageGrid extends StatelessWidget {
               padding: const EdgeInsets.all(4.0),
               child: CachedNetworkImage(
                 imageUrl: imageUrl,
-                placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+                placeholder: (context, url) => buildImageSkeleton(),
                 errorWidget: (context, url, error) => const Icon(Icons.error, color: Colors.red),
                 fit: BoxFit.cover,
               ),
@@ -75,7 +76,7 @@ class PostImageGrid extends StatelessWidget {
         }
         return CachedNetworkImage(
           imageUrl: images[index],
-          placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+          placeholder: (context, url) => buildImageSkeleton(),
           errorWidget: (context, url, error) => const Icon(Icons.error, color: Colors.red),
           fit: BoxFit.cover,
         );
@@ -90,7 +91,7 @@ class PostImageGrid extends StatelessWidget {
       children: [
         CachedNetworkImage(
           imageUrl: imageUrl,
-          placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+          placeholder: (context, url) => buildImageSkeleton(),
           errorWidget: (context, url, error) => const Icon(Icons.error, color: Colors.red),
           fit: BoxFit.cover,
         ),
@@ -108,6 +109,16 @@ class PostImageGrid extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+
+  Widget buildImageSkeleton() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey.shade300,
+      highlightColor: Colors.grey.shade100,
+      child: Container(
+        color: Colors.white,
+      ),
     );
   }
 }

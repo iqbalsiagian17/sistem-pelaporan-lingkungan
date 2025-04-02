@@ -34,4 +34,15 @@ class UserNotificationService {
       throw Exception("Gagal menandai notifikasi sebagai dibaca");
     }
   }
+
+  
+  Future<void> markAllAsRead() async {
+       try {
+      await _dio.put(
+        "${ApiConstants.baseUrl}/api/notifications/read-all",
+      );
+    } catch (e) {
+      rethrow;
+    }
+  }
 }

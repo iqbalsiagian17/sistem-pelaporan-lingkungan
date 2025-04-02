@@ -38,31 +38,31 @@ const login = async (req, res) => {
         const { identifier, password, client } = req.body;
 
         if (!identifier || !password || !client) {
-            return res.status(400).json({ message: "Identifier, password, and client type are required" });
+            return res.status(400).json({ message: "Email/Nomor telepon, password, dan tipe klien wajib diisi" });
         }
-
+        
         const user = await userService.findByPhoneOrEmail(identifier);
         if (!user) {
-            return res.status(401).json({ message: 'Invalid phone number/email or password' });
+            return res.status(401).json({ message: 'Nomor telepon/email atau password tidak valid' });
         }
-
+        
         if (user.blocked_until && new Date(user.blocked_until) > new Date()) {
             return res.status(403).json({
-                message: `Your account is blocked until ${user.blocked_until}`
+                message: `Akun Anda diblokir hingga ${user.blocked_until}`
             });
         }
-
+        
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            return res.status(401).json({ message: 'Invalid phone number/email or password' });
+            return res.status(401).json({ message: 'Nomor telepon/email atau password tidak valid' });
         }
 
         if (client === "react" && user.type !== 1) {
-            return res.status(403).json({ message: "Access denied. Only admin accounts can login in React." });
+            return res.status(403).json({ message: "Akses ditolak. Anda tidak memiliki izin untuk mengakses sistem ini." });
         }
 
         if (client === "flutter" && user.type !== 0) {
-            return res.status(403).json({ message: "Access denied. Only user accounts can login in Flutter." });
+            return res.status(403).json({ message: "Akses ditolak. Anda tidak memiliki izin untuk mengakses sistem ini." });
         }
 
         const accessToken = jwt.sign(

@@ -17,10 +17,32 @@ const registerFcmToken = async (req, res) => {
   return res.json({ message: "Token FCM berhasil disimpan." });
 };
 
+// ✅ Tandai semua notifikasi sebagai dibaca
+const markAllAsRead = async (req, res) => {
+  try {
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res.status(401).json({ message: 'Unauthorized: User tidak ditemukan dari token.' });
+    }
+
+    await Notification.update(
+      { is_read: true },
+      { where: { user_id: userId } }
+    );
+
+    return res.json({ message: 'Semua notifikasi berhasil ditandai sebagai dibaca.' });
+  } catch (err) {
+    console.error("❌ markAllAsRead error:", err);
+    return res.status(500).json({ message: 'Gagal menandai semua notifikasi.', error: err.message });
+  }
+};
+
 
 const NotificationController = {  
 
   registerFcmToken,
+  markAllAsRead,
   // Buat notifikasi (oleh sistem)
   async create(req, res) {
     try {
@@ -170,6 +192,10 @@ const NotificationController = {
     }
   }
 };
+
+
+
+
 
 
 

@@ -81,7 +81,7 @@ export const DashboardPage = () => {
                                         Selamat Datang di Sistem Pelaporan Masyarakat Balige Bersih!
                                     </h5>
                                     <p className="mb-4">
-                                        Total <span className="fw-medium">{totalReports}</span> laporan telah di terima bulan ini. Pantau perkembangan laporan masyarakat secara real-time
+                                        Total <span className="fw-medium">{totalReports}</span> laporan telah di terima. Pantau perkembangan laporan masyarakat secara real-time
                                     </p>
 
                                     <Link aria-label="view badges"

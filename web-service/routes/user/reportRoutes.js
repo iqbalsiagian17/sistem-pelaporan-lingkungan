@@ -10,5 +10,7 @@ router.get('/:id', userReportController.getReportById); // Get laporan by ID
 router.post('/create', authMiddleware, userReportController.createReport);
 router.put('/:id', authMiddleware, userReportController.updateReport);
 router.delete('/:id', authMiddleware, userReportController.deleteReport);
+router.get('/:id/report-stats', authMiddleware, userReportController.getReportStats);
+
 
 module.exports = router;

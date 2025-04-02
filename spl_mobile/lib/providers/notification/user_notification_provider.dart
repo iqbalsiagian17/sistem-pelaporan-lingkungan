@@ -67,4 +67,14 @@ class UserNotificationProvider with ChangeNotifier {
 
   int get unreadCount =>
       _notifications.where((n) => n.isRead == false).length;
+
+  Future<void> markAllAsRead() async {
+    try {
+      await _service.markAllAsRead();
+      _notifications = _notifications.map((notif) => notif.copyWith(isRead: true)).toList();
+      notifyListeners();
+    } catch (e) {
+      print("❌ Gagal markAllAsRead: $e");
+    }
+  }
 }

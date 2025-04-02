@@ -172,18 +172,20 @@ class _CarouselBannerState extends State<CarouselBanner> {
 
 }
 
-  Widget _loadingPlaceholder() {
-    return Container(
+Widget _loadingPlaceholder() {
+  return Shimmer.fromColors(
+    baseColor: Colors.grey[300]!,
+    highlightColor: Colors.grey[100]!,
+    child: Container(
       width: double.infinity,
       height: 180,
       decoration: BoxDecoration(
-        color: Colors.grey[300],
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
       ),
-      child: const Center(child: CircularProgressIndicator(strokeWidth: 1.5)),
-    );
-  }
-
+    ),
+  );
+}
   Widget _carouselSkeleton() {
     return _buildCarousel(
       items: List.generate(2, (_) => const SkeletonImageCard()),

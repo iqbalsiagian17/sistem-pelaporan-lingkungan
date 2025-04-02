@@ -52,12 +52,6 @@ class AnnouncementListTopBar extends StatelessWidget implements PreferredSizeWid
               }
             },
           ),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.search, color: Colors.white),
-              onPressed: onSearch,
-            ),
-          ],
         ),
       ),
     );

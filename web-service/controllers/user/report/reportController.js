@@ -1,4 +1,4 @@
-const { User, Report, ReportAttachment, ReportStatusHistory, Notification, ReportEvidence  } = require('../../../models');
+const { User, Report, ReportAttachment, ReportStatusHistory, Notification, ReportEvidence, UserReportSave  } = require('../../../models');
 const { sequelize } = require('../../../models');
 const { Op } = require("sequelize");
 const multer = require('multer');
@@ -339,6 +339,34 @@ exports.deleteReport = async (req, res) => {
   } catch (error) {
     console.error('Error deleting report:', error);
     res.status(500).json({ message: 'Terjadi kesalahan server', error: error.message });
+  }
+};
+
+exports.getReportStats = async (req, res) => {
+  const userId = req.params.id;
+
+  try {
+    console.log("📌 USER ID DARI PARAM:", userId);
+
+    const sent = await Report.count({ where: { user_id: userId } });
+
+    const completed = await Report.count({
+      where: {
+        user_id: userId,
+        status: {
+          [Op.or]: ['completed', 'closed']
+        }
+      }
+    });
+
+    const saved = await UserReportSave.count({ where: { user_id: userId } });
+
+    console.log("📊 Jumlah:", { sent, completed, saved });
+
+    res.json({ data: { sent, completed, saved } });
+  } catch (err) {
+    console.error("❌ Error getReportStats:", err.message);
+    res.status(500).json({ error: 'Gagal mengambil statistik laporan.' });
   }
 };
 

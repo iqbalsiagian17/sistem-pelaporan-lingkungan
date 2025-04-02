@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:go_router/go_router.dart';
 import '../../routes/app_routes.dart';
@@ -44,28 +45,26 @@ class _OnboardingViewState extends State<OnboardingView> {
     _checkOnboardingStatus();
   }
 
-  /// **🔹 Cek apakah onboarding sudah selesai sebelumnya**
   Future<void> _checkOnboardingStatus() async {
     final prefs = await SharedPreferences.getInstance();
     final onboardingCompleted = prefs.getBool('onboardingCompleted') ?? false;
 
     if (onboardingCompleted) {
       if (!mounted) return;
-      context.go(AppRoutes.login); // ✅ Langsung ke halaman login jika sudah selesai
+      context.go(AppRoutes.login);
     } else {
       setState(() {
-        _isLoading = false; // ✅ Tampilkan halaman onboarding jika belum selesai
+        _isLoading = false;
       });
     }
   }
 
-  /// **🔹 Tandai onboarding selesai dan navigasi ke login**
   Future<void> _completeOnboarding() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('onboardingCompleted', true);
 
     if (!mounted) return;
-    context.go(AppRoutes.login); // ✅ Navigasi ke halaman login setelah selesai
+    context.go(AppRoutes.login);
   }
 
   void _goToPrevious() {
@@ -77,99 +76,115 @@ class _OnboardingViewState extends State<OnboardingView> {
     }
   }
 
-  void _goToNext() {
-    if (_currentIndex < onboardingData.length - 1) {
-      _pageController.nextPage(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
-    } else {
-      _completeOnboarding();
-    }
+void _goToNext() {
+  HapticFeedback.mediumImpact(); // 💥 Efek getar sedang
+
+  if (_currentIndex < onboardingData.length - 1) {
+    _pageController.nextPage(
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+  } else {
+    _completeOnboarding();
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return _isLoading
-        ? const Scaffold(
-            body: Center(child: CircularProgressIndicator()), // ✅ Tampilkan loading jika masih mengecek status
-          )
+        ? const Scaffold(body: Center(child: CircularProgressIndicator()))
         : Scaffold(
             backgroundColor: Colors.white,
-            body: Column(
-              children: [
-                Expanded(
-                  child: PageView.builder(
-                    controller: _pageController,
-                    itemCount: onboardingData.length,
-                    onPageChanged: (index) => setState(() => _currentIndex = index),
-                    itemBuilder: (_, index) => Padding(
-                      padding: const EdgeInsets.all(24.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Image.asset(
-                            onboardingData[index]["image"]!,
-                            height: 250,
-                            fit: BoxFit.contain,
+            body: SafeArea(
+              child: Column(
+                children: [
+                  Expanded(
+                    child: PageView.builder(
+                      controller: _pageController,
+                      itemCount: onboardingData.length,
+                      onPageChanged: (index) => setState(() => _currentIndex = index),
+                      itemBuilder: (_, index) {
+                        final item = onboardingData[index];
+                        return Padding(
+                          padding: const EdgeInsets.all(24),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(20),
+                                child: Image.asset(
+                                  item["image"]!,
+                                  height: 240,
+                                  width: double.infinity,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                              const SizedBox(height: 32),
+                              Text(
+                                item["title"]!,
+                                style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                item["description"]!,
+                                style: theme.textTheme.bodyMedium?.copyWith(color: Colors.grey[700]),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
                           ),
-                          const SizedBox(height: 30),
-                          Text(
-                            onboardingData[index]["title"]!,
-                            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            onboardingData[index]["description"]!,
-                            style: const TextStyle(fontSize: 16),
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
-                      ),
+                        );
+                      },
                     ),
                   ),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(
-                    onboardingData.length,
-                    (index) => Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 4),
-                      width: _currentIndex == index ? 12 : 8,
-                      height: _currentIndex == index ? 12 : 8,
-                      decoration: BoxDecoration(
-                        color: _currentIndex == index ? Colors.blue : Colors.grey,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      _currentIndex > 0
-                          ? TextButton(
-                              onPressed: _goToPrevious,
-                              child: const Text("Kembali",
-                                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.blue)),
-                            )
-                          : const SizedBox(width: 70),
-                      TextButton(
-                        onPressed: _goToNext,
-                        child: Text(
-                          _currentIndex == onboardingData.length - 1 ? "Selesai" : "Selanjutnya",
-                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.blue),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(
+                      onboardingData.length,
+                      (index) => AnimatedContainer(
+                        duration: const Duration(milliseconds: 300),
+                        margin: const EdgeInsets.symmetric(horizontal: 4),
+                        width: _currentIndex == index ? 20 : 8,
+                        height: 8,
+                        decoration: BoxDecoration(
+                          color: _currentIndex == index ? Colors.green[600] : Colors.grey[300],
+                          borderRadius: BorderRadius.circular(10),
                         ),
                       ),
-                    ],
+                    ),
                   ),
-                ),
-                const SizedBox(height: 20),
-              ],
+                  const SizedBox(height: 24),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Row(
+  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  children: [
+    _currentIndex > 0
+        ? TextButton(
+            onPressed: _goToPrevious,
+            child: const Text("Kembali"),
+          )
+        : const SizedBox(width: 80), // ✅ Kosongkan ruang saat slide pertama
+    FilledButton(
+      onPressed: _goToNext,
+      style: FilledButton.styleFrom(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        backgroundColor: Colors.green[600],
+      ),
+      child: Text(
+        _currentIndex == onboardingData.length - 1 ? "Selesai" : "Selanjutnya",
+        style: const TextStyle(fontSize: 16),
+      ),
+    ),
+  ],
+),
+
+                  ),
+                  const SizedBox(height: 24),
+                ],
+              ),
             ),
           );
   }
