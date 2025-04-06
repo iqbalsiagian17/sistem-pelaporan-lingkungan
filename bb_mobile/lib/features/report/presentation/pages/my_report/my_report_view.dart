@@ -3,9 +3,11 @@ import 'package:bb_mobile/features/report/presentation/providers/report_provider
 import 'package:bb_mobile/features/report/presentation/widgets/my_report/delete_confirmation_modal.dart';
 import 'package:bb_mobile/features/report/presentation/widgets/my_report/report_empty_state.dart';
 import 'package:bb_mobile/features/report/presentation/widgets/my_report/report_list_item.dart';
+import 'package:bb_mobile/routes/app_routes.dart';
 import 'package:bb_mobile/widgets/navbar/bottom_navbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class MyReportView extends ConsumerStatefulWidget {
   const MyReportView({super.key});
@@ -73,9 +75,63 @@ class _MyReportViewState extends ConsumerState<MyReportView> {
                     itemCount: displayReports.length,
                     itemBuilder: (context, index) {
                       final report = displayReports[index];
-                      return ReportListItem(report: report,
-                          showDelete: report.status.toLowerCase().trim() == "pending",
-                          onDelete: () => _confirmDelete(context, report.id),
+                      final canDelete = report.status.toLowerCase().trim() == "pending";
+
+                      return InkWell(
+                        onTap: () => context.push(AppRoutes.detailReport, extra: report),
+                        borderRadius: BorderRadius.circular(12),
+                        child: Stack(
+                          alignment: Alignment.topRight,
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.only(right: canDelete ? 32.0 : 0.0), // kasih ruang hanya kalau ada titik 3
+                              child: ReportListItem(report: report),
+                            ),
+                            // HANYA tampilkan titik tiga jika pending
+                            if (canDelete)
+                            Positioned(
+                              top: 4,
+                              right: 0,
+                              child: PopupMenuButton<String>(
+                                onSelected: (value) async {
+                                  if (value == 'edit') {
+                                    context.push(AppRoutes.editReport, extra: report);
+                                  } else if (value == 'delete') {
+                                    await _confirmDelete(context, report.id);
+                                  }
+                                },
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                elevation: 8,
+                                color: Colors.white,
+                                itemBuilder: (context) => [
+                                  const PopupMenuItem(
+                                    value: 'edit',
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.edit_outlined, size: 20, color: Colors.black87),
+                                        SizedBox(width: 8),
+                                        Text("Edit", style: TextStyle(fontSize: 14)),
+                                      ],
+                                    ),
+                                  ),
+                                  const PopupMenuItem(
+                                    value: 'delete',
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.delete_outline, size: 20, color: Colors.redAccent),
+                                        SizedBox(width: 8),
+                                        Text("Hapus", style: TextStyle(fontSize: 14, color: Colors.redAccent)),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                                icon: Icon(Icons.more_vert, size: 22, color: Colors.grey[700]),
+                              ),
+                            )
+                          ],
+                        ),
                       );
                     },
                   ),

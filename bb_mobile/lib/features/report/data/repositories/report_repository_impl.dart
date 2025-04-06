@@ -44,6 +44,34 @@ class ReportRepositoryImpl implements ReportRepository {
   }
 
   @override
+  Future<bool> updateReport({
+    required String reportId,
+    String? title,
+    String? description,
+    String? locationDetails,
+    String? village,
+    String? latitude,
+    String? longitude,
+    bool? isAtLocation,
+    List<File>? attachments,
+    List<int>? deleteAttachmentIds,
+  }) async {
+    return await remoteDataSource.updateReport(
+      reportId: reportId,
+      title: title,
+      description: description,
+      locationDetails: locationDetails,
+      village: village,
+      latitude: latitude,
+      longitude: longitude,
+      isAtLocation: isAtLocation,
+      attachments: attachments,
+      deleteAttachmentIds: deleteAttachmentIds,
+    );
+  }
+
+
+  @override
   Future<bool> deleteReport(String reportId) async {
     return await remoteDataSource.deleteReport(reportId);
   }

@@ -5,6 +5,7 @@ import 'package:bb_mobile/features/report/domain/usecases/delete_report_usecase.
 import 'package:bb_mobile/features/report/domain/usecases/get_like_count_usecase.dart';
 import 'package:bb_mobile/features/report/domain/usecases/like_report_usecase.dart';
 import 'package:bb_mobile/features/report/domain/usecases/unlike_report_usecase.dart';
+import 'package:bb_mobile/features/report/domain/usecases/update_report_usecase.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:bb_mobile/features/report/data/datasources/report_remote_datasource.dart';
@@ -30,6 +31,11 @@ final fetchReportsUseCaseProvider = Provider<FetchReportsUseCase>((ref) {
 final createReportUseCaseProvider = Provider<CreateReportUseCase>((ref) {
   final repository = ref.read(reportRepositoryProvider);
   return CreateReportUseCase(repository);
+});
+
+final updateReportUseCaseProvider = Provider<UpdateReportUseCase>((ref) {
+  final repository = ref.read(reportRepositoryProvider);
+  return UpdateReportUseCase(repository);
 });
 
 final deleteReportUseCaseProvider = Provider<DeleteReportUseCase>((ref) {

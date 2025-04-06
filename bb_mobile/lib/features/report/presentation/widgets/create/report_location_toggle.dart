@@ -4,12 +4,14 @@ class ReportLocationToggle extends StatelessWidget {
   final bool isAtLocation;
   final bool isLocationAvailable;
   final ValueChanged<bool> onChange;
+  final bool isDisabled;
 
   const ReportLocationToggle({
     super.key,
     required this.isAtLocation,
     required this.isLocationAvailable,
     required this.onChange,
+    this.isDisabled = false,
   });
 
   @override
@@ -34,7 +36,7 @@ class ReportLocationToggle extends StatelessWidget {
           children: [
             Expanded(
               child: ElevatedButton(
-                onPressed: () => onChange(true),
+                onPressed: isDisabled ? null : () => onChange(true),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: isAtLocation ? const Color(0xFF4CAF50) : Colors.white,
                   foregroundColor: isAtLocation ? Colors.white : Colors.black,
@@ -48,7 +50,7 @@ class ReportLocationToggle extends StatelessWidget {
             const SizedBox(width: 10),
             Expanded(
               child: ElevatedButton(
-                onPressed: () => onChange(false),
+                onPressed: isDisabled ? null : () => onChange(false),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: !isAtLocation ? const Color(0xFF4CAF50) : Colors.white,
                   foregroundColor: !isAtLocation ? Colors.white : Colors.black,
@@ -90,4 +92,3 @@ class ReportLocationToggle extends StatelessWidget {
     );
   }
 }
-

@@ -15,6 +15,19 @@ abstract class ReportRepository {
     bool? isAtLocation,
     List<File>? attachments,
   });
+
+  Future<bool> updateReport({
+    required String reportId,
+    String? title,
+    String? description,
+    String? locationDetails,
+    String? village,
+    String? latitude,
+    String? longitude,
+    bool? isAtLocation,
+    List<File>? attachments,
+    List<int>? deleteAttachmentIds,
+  });
   Future<bool> deleteReport(String reportId);
   Future<bool> likeReport(int reportId);
   Future<bool> unlikeReport(int reportId);

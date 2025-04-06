@@ -5,6 +5,7 @@ import 'package:bb_mobile/features/report/data/models/report_model.dart';
 import 'package:bb_mobile/features/report/domain/entities/report_entity.dart';
 import 'package:bb_mobile/features/report/presentation/pages/create/report_create_view.dart';
 import 'package:bb_mobile/features/report/presentation/pages/detail/report_detail_view.dart';
+import 'package:bb_mobile/features/report/presentation/pages/edit/report_edit_view.dart';
 import 'package:bb_mobile/features/report/presentation/pages/list/report_list_all_view.dart';
 import 'package:bb_mobile/features/report/presentation/pages/my_report/my_report_view.dart';
 import 'package:bb_mobile/features/report_save/presentation/pages/report_save_view.dart';
@@ -26,6 +27,7 @@ class AppRoutes {
   static const String profile = '/profile';
   static const String editProfile = '/edit-profile';
   static const String createReport = '/create-report';
+  static const String editReport = '/edit-report';
   static const String allReport = '/all-report';
   static const String detailReport = '/detail-report';
   static const String myReport = '/my-report';
@@ -70,6 +72,13 @@ static Future<String?> _redirectLogic(BuildContext context, GoRouterState state)
       GoRoute(path: createReport, builder: (context, state) => const ReportCreateView()),
       GoRoute(path: allReport, builder: (context, state) => const ReportListAllView()),
       GoRoute(path: myReport, builder: (context, state) => const MyReportView()),
+      GoRoute(
+        path: editReport,
+        builder: (context, state) {
+          final report = state.extra as ReportEntity;
+          return ReportEditView(report: report);
+        },
+      ),
       GoRoute(
         path: detailReport,
         builder: (context, state) {

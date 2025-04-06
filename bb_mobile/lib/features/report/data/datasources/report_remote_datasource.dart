@@ -19,6 +19,18 @@ abstract class ReportRemoteDataSource {
     bool? isAtLocation,
     List<File>? attachments,
   });
+  Future<bool> updateReport({
+    required String reportId,
+    String? title,
+    String? description,
+    String? locationDetails,
+    String? village,
+    String? latitude,
+    String? longitude,
+    bool? isAtLocation,
+    List<File>? attachments,
+    List<int>? deleteAttachmentIds,
+  });
   Future<bool> deleteReport(String reportId);
   Future<bool> likeReport(int reportId);
   Future<bool> unlikeReport(int reportId);
@@ -118,6 +130,59 @@ class ReportRemoteDataSourceImpl implements ReportRemoteDataSource {
       throw Exception("❌ Gagal membuat laporan: ${e.response?.data}");
     }
   }
+
+  @override
+  Future<bool> updateReport({
+    required String reportId,
+    String? title,
+    String? description,
+    String? locationDetails,
+    String? village,
+    String? latitude,
+    String? longitude,
+    bool? isAtLocation,
+    List<File>? attachments,
+    List<int>? deleteAttachmentIds,
+  }) async {
+    try {
+      final formData = FormData.fromMap({
+        if (title != null) "title": title,
+        if (description != null) "description": description,
+        if (locationDetails != null) "location_details": locationDetails,
+        if (isAtLocation == false && village != null) "village": village,
+        if (isAtLocation == true && latitude != null) "latitude": latitude,
+        if (isAtLocation == true && longitude != null) "longitude": longitude,
+        if (isAtLocation != null) "is_at_location": isAtLocation.toString(),
+        if (deleteAttachmentIds != null && deleteAttachmentIds.isNotEmpty)
+          "delete_attachments": deleteAttachmentIds,
+      });
+
+      if (attachments != null && attachments.isNotEmpty) {
+        for (var file in attachments) {
+          final fileName = file.path.split('/').last;
+          formData.files.add(MapEntry(
+            "attachments",
+            await MultipartFile.fromFile(
+              file.path,
+              filename: fileName,
+              contentType: MediaType("image", "jpeg"),
+            ),
+          ));
+        }
+      }
+
+      final response = await dio.put(
+        '${ApiConstants.userReportUrl}/$reportId',
+        data: formData,
+        options: Options(contentType: "multipart/form-data"),
+      );
+
+      return response.statusCode == 200;
+    } on DioException catch (e) {
+      throw Exception("❌ Gagal memperbarui laporan: ${e.response?.data}");
+    }
+  }
+
 
   @override
   Future<bool> deleteReport(String reportId) async {

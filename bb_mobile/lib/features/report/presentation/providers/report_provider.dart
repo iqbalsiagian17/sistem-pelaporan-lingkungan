@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:bb_mobile/features/report/domain/usecases/update_report_usecase.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:bb_mobile/core/services/auth/global_auth_service.dart';
 import 'package:bb_mobile/features/report/domain/entities/report_entity.dart';
@@ -14,6 +15,7 @@ import 'usecase_providers.dart';
 final reportProvider = StateNotifierProvider<ReportNotifier, AsyncValue<List<ReportEntity>>>((ref) {
   final fetchUseCase = ref.read(fetchReportsUseCaseProvider);
   final createUseCase = ref.read(createReportUseCaseProvider);
+  final updateUseCase = ref.read(updateReportUseCaseProvider);
   final deleteUseCase = ref.read(deleteReportUseCaseProvider);
   final likeUseCase = ref.read(likeReportUseCaseProvider);
   final unlikeUseCase = ref.read(unlikeReportUseCaseProvider);
@@ -23,6 +25,7 @@ final reportProvider = StateNotifierProvider<ReportNotifier, AsyncValue<List<Rep
   return ReportNotifier(
     fetchUseCase,
     createUseCase,
+    updateUseCase,
     deleteUseCase,
     likeUseCase,
     unlikeUseCase,
@@ -34,6 +37,7 @@ final reportProvider = StateNotifierProvider<ReportNotifier, AsyncValue<List<Rep
 class ReportNotifier extends StateNotifier<AsyncValue<List<ReportEntity>>> {
   final FetchReportsUseCase _fetchReportsUseCase;
   final CreateReportUseCase _createReportUseCase;
+  final UpdateReportUseCase _updateReportUseCase;
   final DeleteReportUseCase _deleteReportUseCase;
   final LikeReportUseCase _likeReportUseCase;
   final UnlikeReportUseCase _unlikeReportUseCase;
@@ -49,6 +53,7 @@ class ReportNotifier extends StateNotifier<AsyncValue<List<ReportEntity>>> {
   ReportNotifier(
     this._fetchReportsUseCase,
     this._createReportUseCase,
+    this._updateReportUseCase,
     this._deleteReportUseCase,
     this._likeReportUseCase,
     this._unlikeReportUseCase,
@@ -117,6 +122,43 @@ class ReportNotifier extends StateNotifier<AsyncValue<List<ReportEntity>>> {
     } catch (e, st) {
       state = AsyncValue.error(e, st);
       rethrow;
+    }
+  }
+
+  Future<bool> updateReport({
+    required String reportId,
+    String? title,
+    String? description,
+    String? locationDetails,
+    String? village,
+    String? latitude,
+    String? longitude,
+    bool? isAtLocation,
+    List<File>? attachments,
+    List<int>? deleteAttachmentIds,
+  }) async {
+    try {
+      final success = await _updateReportUseCase.execute(
+        reportId: reportId,
+        title: title,
+        description: description,
+        locationDetails: locationDetails,
+        village: village,
+        latitude: latitude,
+        longitude: longitude,
+        isAtLocation: isAtLocation,
+        attachments: attachments,
+        deleteAttachmentIds: deleteAttachmentIds,
+      );
+
+      if (success) {
+        await fetchReports();
+      }
+
+      return success;
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+      return false;
     }
   }
 
