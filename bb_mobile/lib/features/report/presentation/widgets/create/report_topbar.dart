@@ -52,8 +52,8 @@ class ReportTopBar extends StatelessWidget implements PreferredSizeWidget {
               icon: const Icon(Icons.help_outline_rounded),
               tooltip: 'Tata Cara Pelaporan',
               onPressed: () {
-/*                 context.push(AppRoutes.reportGuide); // ⬅️ Pastikan route sudah benar
- */              },
+                context.go(AppRoutes.reportGuides);
+              },
             ),
           ],
         ),

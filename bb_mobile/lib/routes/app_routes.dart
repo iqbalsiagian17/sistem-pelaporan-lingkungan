@@ -1,4 +1,12 @@
+import 'package:bb_mobile/features/announcement/domain/entities/announcement_entity.dart';
+import 'package:bb_mobile/features/announcement/presentation/pages/detail/announcement_detail_view.dart';
+import 'package:bb_mobile/features/announcement/presentation/pages/list/announcement_list_view.dart';
+import 'package:bb_mobile/features/notification/presentation/pages/notification_list.dart';
 import 'package:bb_mobile/features/onboarding/presentation/pages/splash_screen.dart';
+import 'package:bb_mobile/features/parameter/presentation/pages/about/about_view.dart';
+import 'package:bb_mobile/features/parameter/presentation/pages/emergency/emergency_view.dart';
+import 'package:bb_mobile/features/parameter/presentation/pages/reportGuides/report_guides_view.dart';
+import 'package:bb_mobile/features/parameter/presentation/pages/terms/terms_view.dart';
 import 'package:bb_mobile/features/profile/presentation/pages/detail/profile_view.dart';
 import 'package:bb_mobile/features/profile/presentation/pages/edit/profile_edit_view.dart';
 import 'package:bb_mobile/features/report/data/models/report_model.dart';
@@ -32,6 +40,13 @@ class AppRoutes {
   static const String detailReport = '/detail-report';
   static const String myReport = '/my-report';
   static const String saveReport = '/save-report';
+  static const String terms = '/terms';
+  static const String about = '/about';
+  static const String emergency = '/emergency';
+  static const String reportGuides = '/guides-report';
+  static const String notification = '/notification';
+  static const String allAnnouncement = '/all-announcement';
+  static const String announcementDetail = '/announcement-detail';
 
 
   /// 🔁 Logika redirect awal
@@ -88,6 +103,19 @@ static Future<String?> _redirectLogic(BuildContext context, GoRouterState state)
       ),
 
       GoRoute(path: saveReport, builder: (context, state) => const ReportSaveView()),
+      GoRoute(path: terms, builder: (context, state) => const TermsView()),
+      GoRoute(path: about, builder: (context, state) => const AboutView()),
+      GoRoute(path: emergency, builder: (context, state) => const EmergencyView()),
+      GoRoute(path: reportGuides, builder: (context, state) => const ReportGuidesView()),
+      GoRoute(path: notification, builder: (context, state) => const NotificationListView()),
+      GoRoute(path: allAnnouncement, builder: (context, state) => const AnnouncementListView()),
+      GoRoute(
+        path: announcementDetail,
+        builder: (context, state) {
+          final announcement = state.extra as AnnouncementEntity;
+          return AnnouncementDetailView(announcement: announcement);
+        },
+      ),
 
 
 

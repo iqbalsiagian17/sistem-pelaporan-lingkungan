@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:bb_mobile/features/report/presentation/providers/report_provider.dart';
+import 'package:bb_mobile/routes/app_routes.dart';
 import 'package:bb_mobile/widgets/chip/custom_chip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -65,7 +66,7 @@ class TopicSection extends ConsumerWidget {
                     return Padding(
                       padding: const EdgeInsets.only(right: 8),
                       child: GestureDetector(
-                        onTap: () => context.push('/report-detail', extra: report),
+                        onTap: () => context.push(AppRoutes.detailReport, extra: report),
                         child: CustomChip(label: "#${report.title}"),
                       ),
                     );

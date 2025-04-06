@@ -1,4 +1,6 @@
+import 'package:bb_mobile/routes/app_routes.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> showReportGuideTutorial(BuildContext context) async {
@@ -36,8 +38,8 @@ Future<void> showReportGuideTutorial(BuildContext context) async {
                   child: ElevatedButton(
                     onPressed: () {
                       Navigator.pop(context);
-/*                       context.push(AppRoutes.reportGuide);
- */                    },
+                        context.go(AppRoutes.reportGuides);
+                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,
                       foregroundColor: Colors.white,

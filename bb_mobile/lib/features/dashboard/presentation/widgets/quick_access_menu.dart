@@ -38,15 +38,15 @@ class QuickAccessMenu extends StatelessWidget {
             icon: Icons.campaign_rounded,
             color: Colors.green.shade400,
             onTap: () {
-              // TODO: navigate to allAnnouncement
-            },
+              context.go(AppRoutes.allAnnouncement);
+            },  
           ),
           MenuItemWidget(
             title: 'Darurat',
             icon: Icons.warning_amber_rounded,
             color: Colors.green.shade700,
             onTap: () {
-              // TODO: navigate to emergency
+              context.go(AppRoutes.emergency);
             },
           ),
         ],

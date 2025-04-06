@@ -16,34 +16,57 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   AuthRemoteDataSourceImpl(this.dio);
 
-  @override
-  Future<Map<String, dynamic>> login(String identifier, String password) async {
-    try {
-      final response = await dio.post(
-        "${ApiConstants.authBaseUrl}/login",
-        data: {
-          "identifier": identifier,
-          "password": password,
-          "client": "flutter",
-        },
-      );
+@override
+Future<Map<String, dynamic>> login(String identifier, String password) async {
+  print("🔐 Memulai proses login...");
+  print("📨 Mengirim data: identifier = $identifier, password = ${'*' * password.length}");
 
-      final data = response.data;
-      final user = data["user"];
-      final token = data["token"];
-      final refreshToken = data["refresh_token"];
+  try {
+    final response = await dio.post(
+      "${ApiConstants.authBaseUrl}/login",
+      data: {
+        "identifier": identifier,
+        "password": password,
+        "client": "flutter",
+      },
+    );
 
-      if (user != null && token != null && refreshToken != null) {
-        await globalAuthService.saveToken(token, refreshToken);
-        await globalAuthService.saveUserInfo(user);
-        await saveFcmTokenToBackend(user["id"]);
-        return data;
-      }
-      return response.data;
-    } on DioException catch (e) {
-      return {"error": _handleDioError(e)};
+    print("✅ Login response diterima: ${response.statusCode}");
+
+    final data = response.data;
+    print("📦 Response data: $data");
+
+    final user = data["user"];
+    final token = data["token"];
+    final refreshToken = data["refresh_token"];
+
+    if (user != null && token != null && refreshToken != null) {
+      print("🔐 Menyimpan token...");
+      await globalAuthService.saveToken(token, refreshToken);
+      print("✅ Token berhasil disimpan");
+
+      print("👤 Menyimpan data pengguna...");
+      await globalAuthService.saveUserInfo(user);
+      print("✅ Data pengguna berhasil disimpan");
+
+      print("📲 Mengirim token FCM ke backend...");
+      await saveFcmTokenToBackend(user["id"]);
+      print("✅ Token FCM dikirim");
+
+      return data;
     }
+
+    print("⚠️ Login berhasil, tapi data user/token tidak lengkap.");
+    return response.data;
+  } on DioException catch (e) {
+    final errorMsg = _handleDioError(e);
+    print("❌ Login gagal: $errorMsg");
+    return {"error": errorMsg};
+  } catch (e) {
+    print("❌ Terjadi error tak terduga: $e");
+    return {"error": "Terjadi kesalahan tidak terduga."};
   }
+}
 
   @override
   Future<Map<String, dynamic>> register(String phone, String username, String email, String password) async {
