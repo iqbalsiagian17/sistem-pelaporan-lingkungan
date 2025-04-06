@@ -20,6 +20,10 @@ abstract class ReportRemoteDataSource {
     List<File>? attachments,
   });
   Future<bool> deleteReport(String reportId);
+  Future<bool> likeReport(int reportId);
+  Future<bool> unlikeReport(int reportId);
+  Future<bool> isLiked(int reportId);
+  Future<int> getLikeCount(int reportId);
 }
 
 class ReportRemoteDataSourceImpl implements ReportRemoteDataSource {
@@ -122,6 +126,61 @@ class ReportRemoteDataSourceImpl implements ReportRemoteDataSource {
       return response.statusCode == 200;
     } on DioException catch (e) {
       throw Exception("❌ Gagal menghapus laporan: ${e.response?.data}");
+    }
+  }
+
+    @override
+  Future<bool> likeReport(int reportId) async {
+    try {
+      final response = await dio.post(
+        "${ApiConstants.userReportLike}/$reportId/like",
+      );
+      return response.statusCode == 201;
+    } catch (e) {
+      print("❌ [likeReport] Error: $e");
+      return false;
+    }
+  }
+
+  @override
+  Future<bool> unlikeReport(int reportId) async {
+    try {
+      final response = await dio.delete(
+        "${ApiConstants.userReportLike}/$reportId/unlike",
+      );
+      return response.statusCode == 200;
+    } catch (e) {
+      print("❌ [unlikeReport] Error: $e");
+      return false;
+    }
+  }
+
+  @override
+  Future<bool> isLiked(int reportId) async {
+    try {
+      final response = await dio.get(
+        "${ApiConstants.userReportLike}/$reportId/status",
+      );
+      return response.statusCode == 200 && response.data['isLiked'] == true;
+    } catch (e) {
+      print("❌ [isLiked] Error: $e");
+      return false;
+    }
+  }
+
+  @override
+  Future<int> getLikeCount(int reportId) async {
+    try {
+      final response = await dio.get(
+        "${ApiConstants.userReportLike}/$reportId",
+      );
+      if (response.statusCode == 200) {
+        return response.data['report']['likes'] ?? 0;
+      }
+      return 0;
+    } catch (e) {
+      print("❌ [getLikeCount] Error: $e");
+      return 0;
     }
   }
 

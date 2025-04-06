@@ -1,5 +1,6 @@
 import 'package:bb_mobile/core/services/auth/global_auth_service.dart';
 import 'package:bb_mobile/features/report/presentation/providers/report_provider.dart';
+import 'package:bb_mobile/features/report/presentation/widgets/my_report/delete_confirmation_modal.dart';
 import 'package:bb_mobile/features/report/presentation/widgets/my_report/report_empty_state.dart';
 import 'package:bb_mobile/features/report/presentation/widgets/my_report/report_list_item.dart';
 import 'package:bb_mobile/widgets/navbar/bottom_navbar.dart';
@@ -72,7 +73,10 @@ class _MyReportViewState extends ConsumerState<MyReportView> {
                     itemCount: displayReports.length,
                     itemBuilder: (context, index) {
                       final report = displayReports[index];
-                      return ReportListItem(report: report);
+                      return ReportListItem(report: report,
+                          showDelete: report.status.toLowerCase().trim() == "pending",
+                          onDelete: () => _confirmDelete(context, report.id),
+                      );
                     },
                   ),
                   if (!_showAll && userReports.length > 10)
@@ -98,4 +102,26 @@ class _MyReportViewState extends ConsumerState<MyReportView> {
       ),
     );
   }
+
+
+  Future<void> _confirmDelete(BuildContext context, int reportId) async {
+  final confirm = await DeleteConfirmationModal.show(context);
+
+  if (confirm == true && context.mounted) {
+    final success = await ref.read(reportProvider.notifier).deleteReport(reportId.toString());
+
+    if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("✅ Laporan berhasil dihapus")),
+      );
+      await ref.read(reportProvider.notifier).fetchReports(); // refresh data
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("❌ Gagal menghapus laporan")),
+      );
+    }
+  }
+}
+
+
 }

@@ -16,4 +16,8 @@ abstract class ReportRepository {
     List<File>? attachments,
   });
   Future<bool> deleteReport(String reportId);
+  Future<bool> likeReport(int reportId);
+  Future<bool> unlikeReport(int reportId);
+  Future<bool> isLiked(int reportId);
+  Future<int> getLikeCount(int reportId);
 }

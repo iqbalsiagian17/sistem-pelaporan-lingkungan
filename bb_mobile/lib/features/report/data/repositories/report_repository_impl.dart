@@ -47,4 +47,25 @@ class ReportRepositoryImpl implements ReportRepository {
   Future<bool> deleteReport(String reportId) async {
     return await remoteDataSource.deleteReport(reportId);
   }
+
+  // 🔽 Tambahan untuk fitur likes
+  @override
+  Future<bool> likeReport(int reportId) async {
+    return await remoteDataSource.likeReport(reportId);
+  }
+
+  @override
+  Future<bool> unlikeReport(int reportId) async {
+    return await remoteDataSource.unlikeReport(reportId);
+  }
+
+  @override
+  Future<bool> isLiked(int reportId) async {
+    return await remoteDataSource.isLiked(reportId);
+  }
+
+  @override
+  Future<int> getLikeCount(int reportId) async {
+    return await remoteDataSource.getLikeCount(reportId);
+  }
 }

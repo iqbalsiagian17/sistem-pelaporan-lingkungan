@@ -1,12 +1,11 @@
 import 'package:bb_mobile/core/utils/status_utils.dart';
-import 'package:bb_mobile/features/report/data/models/report_model.dart';
 import 'package:bb_mobile/routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:go_router/go_router.dart';
-
+import 'package:bb_mobile/features/report_save/presentation/providers/report_save_provider.dart';
 import 'package:bb_mobile/features/report/presentation/providers/report_provider.dart';
 import 'package:bb_mobile/core/constants/api.dart';
 
@@ -160,10 +159,43 @@ context.push(AppRoutes.detailReport, extra: report);
                             ],
                           ),
                         ),
-                        IconButton(
-                          onPressed: () {},
-                          icon: const Icon(Icons.bookmark_border),
-                        ),
+                        Consumer(
+                          builder: (context, ref, _) {
+                            final savedReportsState = ref.watch(reportSaveNotifierProvider);
+                            final saveNotifier = ref.read(reportSaveNotifierProvider.notifier);
+
+                            final isSaved = savedReportsState.when(
+                              data: (savedReports) => savedReports.any((r) => r.reportId == report.id),
+                              loading: () => false,
+                              error: (_, __) => false,
+                            );
+
+                            return IconButton(
+                              onPressed: () async {
+                                if (isSaved) {
+                                  await saveNotifier.deleteSavedReport(report.id);
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text("🔖 Laporan dihapus dari tersimpan")),
+                                    );
+                                  }
+                                } else {
+                                  await saveNotifier.saveReport(report.id);
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text("✅ Laporan berhasil disimpan")),
+                                    );
+                                  }
+                                }
+                              },
+                              icon: Icon(
+                                isSaved ? Icons.bookmark : Icons.bookmark_border,
+                                color: isSaved ? Colors.green : Colors.black54,
+                              ),
+                            );
+                          },
+                        )
+
                       ],
                     ),
                   ),

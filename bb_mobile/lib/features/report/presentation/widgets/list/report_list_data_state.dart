@@ -7,8 +7,11 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:bb_mobile/features/report_save/presentation/providers/report_save_provider.dart';
 
-class ReportListDataState extends StatefulWidget {
+
+class ReportListDataState extends ConsumerStatefulWidget {
   final List<ReportEntity> reports;
   final VoidCallback onRetry;
 
@@ -19,26 +22,32 @@ class ReportListDataState extends StatefulWidget {
   });
 
   @override
-  State<ReportListDataState> createState() => _ReportListDataStateState();
+  ConsumerState<ReportListDataState> createState() => _ReportListDataStateState();
 }
 
-class _ReportListDataStateState extends State<ReportListDataState> {
+class _ReportListDataStateState extends ConsumerState<ReportListDataState> {
   bool _showAll = false;
 
   @override
   Widget build(BuildContext context) {
+    final savedState = ref.watch(reportSaveNotifierProvider);
+    final saveNotifier = ref.read(reportSaveNotifierProvider.notifier);
+
+    final savedIds = savedState.when(
+      data: (saved) => saved.map((e) => e.reportId).toSet(),
+      loading: () => <int>{},
+      error: (_, __) => <int>{},
+    );
+
     final filteredReports = widget.reports
-        .where((report) =>
-            ['verified', 'in_progress', 'completed', 'closed']
-                .contains(report.status))
+        .where((report) => ['verified', 'in_progress', 'completed', 'closed'].contains(report.status))
         .toList();
 
     if (filteredReports.isEmpty) {
       return ReportListAllEmptyState(onRetry: widget.onRetry);
     }
 
-    final displayReports =
-        _showAll ? filteredReports : filteredReports.take(10).toList();
+    final displayReports = _showAll ? filteredReports : filteredReports.take(10).toList();
 
     return SingleChildScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
@@ -55,11 +64,10 @@ class _ReportListDataStateState extends State<ReportListDataState> {
               final imageUrl = (report.attachments.isNotEmpty)
                   ? "${ApiConstants.baseUrl}/${report.attachments.first.file}"
                   : "";
+              final isSaved = savedIds.contains(report.id);
 
               return InkWell(
-                onTap: () {
-context.push(AppRoutes.detailReport, extra: report);
-                 },
+                onTap: () => context.push(AppRoutes.detailReport, extra: report),
                 borderRadius: BorderRadius.circular(12),
                 splashColor: Colors.green.withOpacity(0.2),
                 child: Padding(
@@ -76,8 +84,8 @@ context.push(AppRoutes.detailReport, extra: report);
                             width: 80,
                             height: 80,
                             fit: BoxFit.cover,
-                            placeholder: (context, url) => _loadingPlaceholder(),
-                            errorWidget: (context, url, error) => _defaultImage(),
+                            placeholder: (_, __) => _loadingPlaceholder(),
+                            errorWidget: (_, __, ___) => _defaultImage(),
                           ),
                         ),
                       if (imageUrl.isNotEmpty) const SizedBox(width: 12),
@@ -86,9 +94,7 @@ context.push(AppRoutes.detailReport, extra: report);
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              report.title.isNotEmpty
-                                  ? report.title
-                                  : "Judul tidak tersedia",
+                              report.title.isNotEmpty ? report.title : "Judul tidak tersedia",
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
@@ -99,17 +105,14 @@ context.push(AppRoutes.detailReport, extra: report);
                             const SizedBox(height: 4),
                             Text(
                               "${report.village?.isNotEmpty == true ? report.village : report.locationDetails ?? "Lokasi tidak tersedia"}, ${report.date.isNotEmpty ? report.date : "Tanggal tidak diketahui"}",
-                              style: const TextStyle(
-                                  fontSize: 12, color: Colors.grey),
+                              style: const TextStyle(fontSize: 12, color: Colors.grey),
                             ),
                             const SizedBox(height: 4),
                             AnimatedContainer(
                               duration: const Duration(milliseconds: 300),
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 4),
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                               decoration: BoxDecoration(
-                                color:
-                                    StatusUtils.getStatusColor(report.status),
+                                color: StatusUtils.getStatusColor(report.status),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Text(
@@ -125,11 +128,27 @@ context.push(AppRoutes.detailReport, extra: report);
                         ),
                       ),
                       IconButton(
-                        onPressed: () {
-                          // TODO: Bookmark
+                        onPressed: () async {
+                          if (isSaved) {
+                            await saveNotifier.deleteSavedReport(report.id);
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text("🔖 Laporan dihapus dari tersimpan")),
+                              );
+                            }
+                          } else {
+                            await saveNotifier.saveReport(report.id);
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text("✅ Laporan berhasil disimpan")),
+                              );
+                            }
+                          }
                         },
-                        icon: const Icon(Icons.bookmark_border,
-                            color: Colors.black54),
+                        icon: Icon(
+                          isSaved ? Icons.bookmark : Icons.bookmark_border,
+                          color: isSaved ? Colors.green : Colors.black54,
+                        ),
                       ),
                     ],
                   ),
@@ -137,8 +156,6 @@ context.push(AppRoutes.detailReport, extra: report);
               );
             },
           ),
-
-          // 🔽 Tombol "Lihat Semua" jika data lebih dari 10
           if (!_showAll && filteredReports.length > 10)
             Padding(
               padding: const EdgeInsets.only(top: 10),
@@ -146,9 +163,7 @@ context.push(AppRoutes.detailReport, extra: report);
                 onPressed: () => setState(() => _showAll = true),
                 icon: const Icon(Icons.expand_more),
                 label: const Text("Lihat Semua"),
-                style: TextButton.styleFrom(
-                  foregroundColor: Colors.green,
-                ),
+                style: TextButton.styleFrom(foregroundColor: Colors.green),
               ),
             ),
         ],
@@ -156,21 +171,20 @@ context.push(AppRoutes.detailReport, extra: report);
     );
   }
 
-    Widget _loadingPlaceholder() {
-      return Shimmer.fromColors(
-        baseColor: Colors.grey[300]!,
-        highlightColor: Colors.grey[100]!,
-        child: Container(
-          width: 80,
-          height: 80,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-          ),
+  Widget _loadingPlaceholder() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: Container(
+        width: 80,
+        height: 80,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
         ),
-      );
+      ),
+    );
   }
-
 
   Widget _defaultImage() {
     return Image.asset(

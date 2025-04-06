@@ -8,10 +8,14 @@ import 'package:go_router/go_router.dart';
 
 class ReportListItem extends StatelessWidget {
   final ReportEntity report;
+  final bool showDelete;
+  final VoidCallback? onDelete;
 
   const ReportListItem({
     super.key,
     required this.report,
+    this.showDelete = false,
+    this.onDelete,
   });
 
   @override
@@ -73,10 +77,7 @@ class ReportListItem extends StatelessWidget {
                     report.village?.isNotEmpty == true
                         ? "${report.village}, ${report.date}"
                         : report.date,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey,
-                    ),
+                    style: const TextStyle(fontSize: 12, color: Colors.grey),
                   ),
                   const SizedBox(height: 4),
                   AnimatedContainer(
@@ -98,6 +99,11 @@ class ReportListItem extends StatelessWidget {
                 ],
               ),
             ),
+            if (showDelete)
+              IconButton(
+                onPressed: onDelete,
+                icon: const Icon(Icons.delete, color: Colors.redAccent),
+              ),
           ],
         ),
       ),
