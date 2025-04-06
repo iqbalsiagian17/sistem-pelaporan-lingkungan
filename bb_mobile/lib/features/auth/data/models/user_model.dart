@@ -44,4 +44,16 @@ class UserModel extends UserEntity {
       "password": password,
     };
   }
+
+  UserEntity toEntity() {
+    return UserEntity(
+      id: id,
+      username: username,
+      email: email,
+      phoneNumber: phoneNumber,
+      type: type,
+      blockedUntil: blockedUntil,
+      authProvider: authProvider,
+    );
+  }
 }

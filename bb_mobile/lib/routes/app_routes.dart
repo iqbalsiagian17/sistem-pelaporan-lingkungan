@@ -1,6 +1,9 @@
 import 'package:bb_mobile/features/announcement/domain/entities/announcement_entity.dart';
 import 'package:bb_mobile/features/announcement/presentation/pages/detail/announcement_detail_view.dart';
 import 'package:bb_mobile/features/announcement/presentation/pages/list/announcement_list_view.dart';
+import 'package:bb_mobile/features/forum/domain/entities/forum_post_entity.dart';
+import 'package:bb_mobile/features/forum/presentation/pages/detail/forum_detail_view.dart';
+import 'package:bb_mobile/features/forum/presentation/pages/list/forum_list_view.dart';
 import 'package:bb_mobile/features/notification/presentation/pages/notification_list.dart';
 import 'package:bb_mobile/features/onboarding/presentation/pages/splash_screen.dart';
 import 'package:bb_mobile/features/parameter/presentation/pages/about/about_view.dart';
@@ -47,6 +50,9 @@ class AppRoutes {
   static const String notification = '/notification';
   static const String allAnnouncement = '/all-announcement';
   static const String announcementDetail = '/announcement-detail';
+  static const String forum = '/forum';
+  static const String detailForum = '/detail-forum';
+
 
 
   /// 🔁 Logika redirect awal
@@ -116,13 +122,17 @@ static Future<String?> _redirectLogic(BuildContext context, GoRouterState state)
           return AnnouncementDetailView(announcement: announcement);
         },
       ),
-
-
-
-
-    ],
-    errorBuilder: (context, state) => const Scaffold(
-      body: Center(child: Text('Halaman tidak ditemukan')),
-    ),
-  );
+      GoRoute(path: forum, builder: (context, state) => const ForumListView()),
+      GoRoute(
+          path: detailForum,
+          builder: (context, state) {
+            final post = state.extra as ForumPostEntity; // Get the ForumPostEntity from state.extra
+            return ForumDetailView(post: post); // Pass the post to the ForumDetailView
+          },
+        ),
+      ],
+      errorBuilder: (context, state) => const Scaffold(
+        body: Center(child: Text('Halaman tidak ditemukan')),
+      ),
+    );
 }

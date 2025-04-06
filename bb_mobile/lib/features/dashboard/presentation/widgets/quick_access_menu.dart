@@ -30,7 +30,7 @@ class QuickAccessMenu extends StatelessWidget {
             icon: Icons.forum_rounded,
             color: Colors.green.shade500,
             onTap: () {
-              // TODO: navigate to forum
+              context.go(AppRoutes.forum);
             },
           ),
           MenuItemWidget(
