@@ -26,15 +26,15 @@ class LoginFooter extends StatelessWidget {
           children: [
             const Text("Belum punya akun?"),
             TextButton(
-  onPressed: () {
-    print('Tombol Daftar ditekan');
-    context.push(AppRoutes.register); // Gunakan push sebagai alternatif
-  },
-  child: const Text(
-    "Daftar",
-    style: TextStyle(fontWeight: FontWeight.bold),
-  ),
-),
+            onPressed: () {
+              print('Tombol Daftar ditekan');
+              context.push(AppRoutes.register); // Gunakan push sebagai alternatif
+            },
+            child: const Text(
+              "Daftar",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
 
           ],
         ),

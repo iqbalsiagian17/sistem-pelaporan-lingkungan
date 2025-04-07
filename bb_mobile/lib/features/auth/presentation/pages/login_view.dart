@@ -60,7 +60,6 @@ class LoginView extends ConsumerWidget {
                 }
               },
             ),
-            const SizedBox(height: 24),
             const LoginFooter(),
           ],
         ),

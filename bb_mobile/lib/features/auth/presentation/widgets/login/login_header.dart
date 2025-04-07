@@ -27,7 +27,7 @@ class LoginHeader extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         const Text(
-          "Silakan masuk untuk melanjutkan",
+          "Login untuk mengakses aduan ",
           textAlign: TextAlign.center,
           style: TextStyle(fontSize: 16, color: Colors.grey),
         ),

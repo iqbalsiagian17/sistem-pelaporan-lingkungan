@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:bb_mobile/widgets/snackbar/snackbar_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:bb_mobile/features/auth/presentation/providers/auth_provider.dart';
@@ -50,13 +51,19 @@ class _VerifyOtpFormState extends ConsumerState<VerifyOtpForm> {
       setState(() => isLoading = false);
 
       if (result) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('✅ OTP berhasil diverifikasi!')),
+        SnackbarHelper.showSnackbar(
+          context,
+          'Verifikasi berhasil! Silakan login untuk melanjutkan.',
+          isError: false,
         );
-        if (context.mounted) context.go('/login');
+        Future.delayed(const Duration(milliseconds: 600), () {
+          if (context.mounted) context.go('/login');
+        });
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('❌ OTP tidak valid atau gagal')),
+        SnackbarHelper.showSnackbar(
+          context,
+          'OTP tidak valid atau sudah kedaluwarsa.',
+          isError: true,
         );
       }
     }
@@ -64,22 +71,24 @@ class _VerifyOtpFormState extends ConsumerState<VerifyOtpForm> {
 
   Future<void> _resendOtp() async {
     setState(() => isResending = true);
-    final result = await ref
-        .read(authNotifierProvider.notifier)
-        .resendOtp(widget.email);
+    final result =
+        await ref.read(authNotifierProvider.notifier).resendOtp(widget.email);
     setState(() => isResending = false);
 
     if (result) {
       _startCountdown(); // ⏱️ Mulai hitung mundur
+      SnackbarHelper.showSnackbar(
+        context,
+        'OTP baru telah dikirim ke email.',
+        isError: false,
+      );
+    } else {
+      SnackbarHelper.showSnackbar(
+        context,
+        'Gagal mengirim ulang OTP.',
+        isError: true,
+      );
     }
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(result
-            ? '✅ OTP baru telah dikirim ke email.'
-            : '❌ Gagal mengirim ulang OTP.'),
-      ),
-    );
   }
 
   @override

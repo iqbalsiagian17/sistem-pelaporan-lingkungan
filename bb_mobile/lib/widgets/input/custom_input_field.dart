@@ -11,6 +11,8 @@ class CustomInputField extends StatelessWidget {
   final VoidCallback? onToggleObscure;
   final List<TextInputFormatter>? inputFormatters;
   final String? errorText;
+  final FocusNode? focusNode;
+
 
   const CustomInputField({
     super.key,
@@ -23,6 +25,7 @@ class CustomInputField extends StatelessWidget {
     this.onToggleObscure,
     this.inputFormatters,
     this.errorText,
+    this.focusNode, 
   });
 
   @override
@@ -31,6 +34,7 @@ class CustomInputField extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: TextFormField(
         controller: controller,
+        focusNode: focusNode, 
         obscureText: isObscure,
         keyboardType: keyboardType,
         validator: validator,

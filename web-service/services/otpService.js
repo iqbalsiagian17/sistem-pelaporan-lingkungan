@@ -39,7 +39,7 @@ exports.sendOtp = async (email) => {
   `;
 
   await transporter.sendMail({
-    from: '"Balige Bersih" <no-reply@baligebersih.id>', // Ganti Gmail
+from: '"Balige Bersih" <baligebersih@gmail.com>',
     to: email,
     subject: 'Kode OTP Anda - Balige Bersih',
     html: htmlContent
@@ -106,7 +106,7 @@ exports.refreshOtp = async (email) => {
 `;
 
 await transporter.sendMail({
-  from: '"Balige Bersih" <no-reply@baligebersih.id>', // Ganti Gmail
+from: '"Balige Bersih" <baligebersih@gmail.com>', // atau sesuai sender verified kamu
   to: email,
   subject: 'Kode OTP Baru - Balige Bersih',
   html: htmlContent

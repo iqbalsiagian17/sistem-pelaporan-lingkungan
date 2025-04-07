@@ -86,7 +86,19 @@ class _LoginFormState extends ConsumerState<LoginForm> {
                 setState(() => _isObscurePassword = !_isObscurePassword),
             validator: Validators.validatePassword,
           ),
-          const SizedBox(height: 10),
+          TextButton(
+            onPressed: () {
+              // Tidak ada aksi untuk "Lupa Password"
+              // Bisa ditambahkan aksi di sini nanti jika diperlukan
+            },
+            child: Text(
+              'Lupa Password?',
+              style: TextStyle(
+                color: Theme.of(context).primaryColor, // Menyesuaikan warna tema
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
           CustomButton(
             text: "Masuk",
             onPressed: authState.isLoading ? null : _login,
