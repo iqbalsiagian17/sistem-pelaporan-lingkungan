@@ -4,6 +4,8 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');  // ✅ Tambahkan jika menggunakan cookies
 const path = require("path");
+const cron = require('node-cron');
+
 
 // Import Routes
 const authRoutes = require('./routes/auth/authRoutes');
@@ -24,6 +26,7 @@ const userPostLikesRoutes = require("./routes/user/userLikesPostRoutes");
 const adminForumRoutes = require("./routes/admin/forumRoutes");
 const adminAnalyticsRoutes = require("./routes/admin/analyticsRoute")
 const notificationRoutes = require("./routes/notification/notificationRoutes");
+const deleteInactiveUsers = require('./scheduler/delete_inactive_users');
 const { scheduleAutoCloseReports } = require('./scheduler/autoCloseScheduler');
 
 
@@ -41,6 +44,7 @@ app.use(express.urlencoded({ extended: true }));  // ✅ Untuk mendukung form-da
 app.use(bodyParser.json());  // ✅ Pastikan JSON bisa terbaca
 app.use(cookieParser());  // ✅ Untuk membaca cookies jika ada
 scheduleAutoCloseReports();
+deleteInactiveUsers(); // Menjalankan scheduler untuk menghapus user yang tidak aktif
 // 📌 Routes
 
 // 🔹 Auth

@@ -27,6 +27,11 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
   bool _isObscurePassword = true;
   bool _isObscureConfirmPassword = true;
 
+  // ✅ Error field
+  String? _emailError;
+  String? _usernameError;
+  String? _phoneError;
+
   @override
   void dispose() {
     _phoneController.dispose();
@@ -40,9 +45,14 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
   Future<void> _register() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final notifier = ref.read(authNotifierProvider.notifier);
-    final email = _emailController.text.trim(); // ✅ simpan dulu sebelum clear
+    setState(() {
+      _emailError = null;
+      _usernameError = null;
+      _phoneError = null;
+    });
 
+    final notifier = ref.read(authNotifierProvider.notifier);
+    final email = _emailController.text.trim();
 
     final success = await notifier.register(
       _phoneController.text.trim(),
@@ -58,14 +68,33 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
       _passwordController.clear();
       _confirmPasswordController.clear();
 
-      SnackbarHelper.showSnackbar(context, "Registrasi berhasil! Silakan verifikasi email Anda.", isError: false);
+      SnackbarHelper.showSnackbar(
+        context,
+        "Registrasi berhasil! Silakan verifikasi email Anda.",
+        isError: false,
+      );
 
       Future.delayed(const Duration(seconds: 1), () {
-        if (context.mounted) 
-      if (context.mounted) context.push("/verify-otp", extra: email); // ✅ pakai email yg disimpan
+        if (context.mounted) context.push("/verify-otp", extra: email);
       });
     } else {
-      SnackbarHelper.showSnackbar(context, "Registrasi gagal. Coba lagi!", isError: true);
+      final authState = ref.read(authNotifierProvider);
+      final rawError = authState.asError?.error.toString() ?? "";
+      final error = rawError.replaceFirst("Exception: ", "");
+
+      setState(() {
+        _emailError = error.contains("Email") ? error : null;
+        _usernameError = error.contains("Username") ? error : null;
+        _phoneError = error.contains("telepon") || error.contains("nomor") ? error : null;
+      });
+
+      if (_emailError == null && _usernameError == null && _phoneError == null) {
+        SnackbarHelper.showSnackbar(
+          context,
+          "Registrasi gagal. Coba lagi!",
+          isError: true,
+        );
+      }
     }
   }
 
@@ -83,6 +112,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
             icon: Icons.phone,
             keyboardType: TextInputType.phone,
             validator: Validators.validatePhone,
+            errorText: _phoneError,
             inputFormatters: [
               FilteringTextInputFormatter.digitsOnly,
               LengthLimitingTextInputFormatter(15),
@@ -93,20 +123,21 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
             label: 'Username',
             icon: Icons.person,
             validator: Validators.validateNotEmpty,
+            errorText: _usernameError,
           ),
           CustomInputField(
             controller: _emailController,
             label: 'Email',
             icon: Icons.email,
             validator: Validators.validateEmail,
+            errorText: _emailError,
           ),
           CustomInputField(
             controller: _passwordController,
             label: 'Password',
             icon: Icons.lock,
             isObscure: _isObscurePassword,
-            onToggleObscure: () =>
-                setState(() => _isObscurePassword = !_isObscurePassword),
+            onToggleObscure: () => setState(() => _isObscurePassword = !_isObscurePassword),
             validator: Validators.validatePassword,
           ),
           CustomInputField(
@@ -114,8 +145,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
             label: 'Konfirmasi Password',
             icon: Icons.lock_outline,
             isObscure: _isObscureConfirmPassword,
-            onToggleObscure: () =>
-                setState(() => _isObscureConfirmPassword = !_isObscureConfirmPassword),
+            onToggleObscure: () => setState(() => _isObscureConfirmPassword = !_isObscureConfirmPassword),
             validator: (value) {
               if (value == null || value.isEmpty) return 'Konfirmasi password tidak boleh kosong';
               if (value != _passwordController.text) return 'Password tidak cocok';

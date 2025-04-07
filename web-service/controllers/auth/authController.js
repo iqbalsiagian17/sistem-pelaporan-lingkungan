@@ -13,6 +13,24 @@ const register = async (req, res) => {
       return res.status(400).json({ message: "Semua field wajib diisi" });
     }
 
+    // ✅ Cek email apakah sudah digunakan
+    const existingEmail = await userService.findByEmail(email);
+    if (existingEmail) {
+      return res.status(409).json({ message: "Email sudah digunakan" });
+    }
+
+    // ✅ Cek username apakah sudah digunakan
+    const existingUsername = await userService.findByUsername(username);
+    if (existingUsername) {
+      return res.status(409).json({ message: "Username sudah digunakan" });
+    }
+
+    // ✅ Cek nomor telepon apakah sudah digunakan
+    const existingPhone = await userService.findByPhone(phone_number);
+    if (existingPhone) {
+      return res.status(409).json({ message: "Nomor telepon sudah digunakan" });
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = await userService.createUser({
@@ -34,7 +52,7 @@ const register = async (req, res) => {
       role_target: "admin"
     });
 
-    return res.status(201).json({ message: '✅ OTP telah dikirim ke email', user: newUser });
+    return res.status(201).json({ message: 'OTP telah dikirim ke email', user: newUser });
   } catch (error) {
     console.error("Register Error:", error);
     return res.status(500).json({ message: 'Server error', error: error.message });

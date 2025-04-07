@@ -55,6 +55,10 @@ const googleLogin = async (req, res) => {
       });
     } else {
       console.log("✅ User ditemukan:", user.email);
+      if (user.auth_provider === 'manual') {
+        console.log("🔄 Mengubah auth_provider dari manual ke google...");
+        await user.update({ auth_provider: 'google' });
+      }
     }
 
     // 🚫 Validasi tipe login

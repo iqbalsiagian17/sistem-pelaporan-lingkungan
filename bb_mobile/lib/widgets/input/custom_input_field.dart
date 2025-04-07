@@ -10,6 +10,7 @@ class CustomInputField extends StatelessWidget {
   final String? Function(String?)? validator;
   final VoidCallback? onToggleObscure;
   final List<TextInputFormatter>? inputFormatters;
+  final String? errorText;
 
   const CustomInputField({
     super.key,
@@ -21,6 +22,7 @@ class CustomInputField extends StatelessWidget {
     this.validator,
     this.onToggleObscure,
     this.inputFormatters,
+    this.errorText,
   });
 
   @override
@@ -36,6 +38,7 @@ class CustomInputField extends StatelessWidget {
         decoration: InputDecoration(
           labelText: label,
           prefixIcon: Icon(icon, color: Colors.black87),
+          errorText: errorText, // ✅ Gunakan di sini
           suffixIcon: onToggleObscure != null
               ? IconButton(
                   icon: Icon(

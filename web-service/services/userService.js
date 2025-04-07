@@ -18,12 +18,27 @@ const getUserById = async (user_id) => {
     });
 };
 
+const findByUsername = async (username) => {
+    return await User.findOne({
+      where: { username },
+      attributes: ['id', 'username'], 
+    });
+  };
+
 const findByEmail = async (email) => {
     return await User.findOne({
       where: { email },
       attributes: ['id', 'username', 'email', 'phone_number', 'type', 'auth_provider', 'blocked_until', 'is_active'], // ✅ Pastikan ini ada
     });
   };
+
+  const findByPhone = async (phone) => {
+    return await User.findOne({
+      where: { phone_number: phone },
+      attributes: ['id', 'username', 'email', 'phone_number', 'type', 'auth_provider', 'blocked_until', 'is_active'],
+    });
+  };
+  
   
 
 
@@ -64,4 +79,4 @@ const changePassword = async (user_id, oldPassword, newPassword) => {
 };
 
 
-module.exports = { findByPhoneOrEmail, createUser,changePassword,getUserById,updateUser, findByEmail };
+module.exports = { findByPhoneOrEmail, createUser,changePassword,getUserById,updateUser, findByEmail,findByUsername,findByPhone };
