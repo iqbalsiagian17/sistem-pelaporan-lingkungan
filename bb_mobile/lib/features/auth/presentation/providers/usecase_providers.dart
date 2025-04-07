@@ -1,3 +1,5 @@
+import 'package:bb_mobile/features/auth/domain/usecases/resend_email_otp_usecase.dart';
+import 'package:bb_mobile/features/auth/domain/usecases/verify_email_otp_usecase.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:bb_mobile/core/constants/dio_client.dart';
 import 'package:bb_mobile/features/auth/data/datasources/auth_remote_datasource.dart';
@@ -31,3 +33,12 @@ final registerUseCaseProvider = Provider<RegisterUseCase>((ref) {
 final refreshTokenUseCaseProvider = Provider<RefreshTokenUseCase>((ref) {
   return RefreshTokenUseCase(ref.read(authRepositoryProvider));
 });
+
+final verifyEmailOtpUseCaseProvider = Provider<VerifyEmailOtpUseCase>((ref) {
+  return VerifyEmailOtpUseCase(ref.read(authRepositoryProvider));
+});
+
+final resendEmailOtpUseCaseProvider = Provider<ResendEmailOtpUseCase>((ref) {
+  return ResendEmailOtpUseCase(ref.read(authRepositoryProvider));
+});
+

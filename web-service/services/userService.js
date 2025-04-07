@@ -21,7 +21,7 @@ const getUserById = async (user_id) => {
 const findByEmail = async (email) => {
     return await User.findOne({
       where: { email },
-      attributes: ['id', 'username', 'email', 'phone_number', 'type', 'auth_provider', 'blocked_until'], // ✅ Pastikan ini ada
+      attributes: ['id', 'username', 'email', 'phone_number', 'type', 'auth_provider', 'blocked_until', 'is_active'], // ✅ Pastikan ini ada
     });
   };
   

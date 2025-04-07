@@ -1,37 +1,106 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const userService = require('../../services/userService');
-const { Notification } = require('../../models');
+const { Notification, User } = require('../../models');
+const { sendOtp, verifyOtp, refreshOtp } = require('../../services/otpService'); // ✅ import dua-duanya
 
 
 const register = async (req, res) => {
-    try {
-        const { phone_number,username, email, password } = req.body; // ✅ Gunakan phone_number, bukan username
-        if (!phone_number || !email || !password) {
-            return res.status(400).json({ message: "Phone number,usernmae, email, and password are required" });
-        }
+  try {
+    const { phone_number, username, email, password } = req.body;
 
-        // Hash password sebelum disimpan
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        // Simpan user baru dengan phone_number
-        const newUser = await userService.createUser({ phone_number, username, email, password: hashedPassword, type: 0 });
-
-        await Notification.create({
-            user_id: newUser.id,
-            title: "Pengguna Baru",
-            message: `Akun ${newUser.username} telah mendaftar.`,
-            type: "account",
-            sent_by: "system",
-            role_target: "admin"
-          });
-
-        res.status(201).json({ message: 'User registered successfully', user: newUser });
-    } catch (error) {
-        console.error("Register Error:", error);
-        res.status(500).json({ message: 'Server error', error: error.message });
+    if (!phone_number || !username || !email || !password) {
+      return res.status(400).json({ message: "Semua field wajib diisi" });
     }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newUser = await userService.createUser({
+      phone_number,
+      username,
+      email,
+      password: hashedPassword,
+      type: 0,
+      is_active: false, // user belum aktif sampai verifikasi OTP
+    });
+
+    await sendOtp(email); // ✅ kirim OTP ke email
+
+    await Notification.create({
+      title: "Pengguna Baru",
+      message: `Akun ${newUser.username} telah mendaftar.`,
+      type: "account",
+      sent_by: "system",
+      role_target: "admin"
+    });
+
+    return res.status(201).json({ message: '✅ OTP telah dikirim ke email', user: newUser });
+  } catch (error) {
+    console.error("Register Error:", error);
+    return res.status(500).json({ message: 'Server error', error: error.message });
+  }
 };
+
+const verifyEmailOtp = async (req, res) => {
+  try {
+    const { email, code } = req.body;
+
+    const isValid = await verifyOtp(email, code);
+    if (!isValid) {
+      return res.status(400).json({ message: "OTP tidak valid atau kadaluarsa" });
+    }
+
+    const user = await userService.findByEmail(email);
+    if (!user) return res.status(404).json({ message: "User tidak ditemukan" });
+
+    user.is_active = true;
+    await user.save();
+
+    await Notification.create({
+      title: "Akun Aktif",
+      message: `Akun ${user.username} telah berhasil diverifikasi.`,
+      type: "account",
+      sent_by: "system",
+      role_target: "admin"
+    });
+
+    
+    return res.status(200).json({
+      message: "✅ Email berhasil diverifikasi dan akun diaktifkan",
+      user: {
+        id: user.id,
+        email: user.email,
+        username: user.username,
+        is_active: user.is_active,
+      }
+    });
+    
+  } catch (error) {
+    console.error("Verifikasi OTP Gagal:", error);
+    return res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+const resendOtp = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const user = await User.findOne({ where: { email } });
+    if (!user) return res.status(404).json({ message: "User tidak ditemukan" });
+
+    if (user.is_active) {
+      return res.status(400).json({ message: "Akun sudah aktif, tidak perlu verifikasi OTP." });
+    }
+
+    await refreshOtp(email);
+    res.status(200).json({ message: "✅ OTP baru telah dikirim ke email" });
+
+  } catch (err) {
+    console.error("Resend OTP Error:", err);
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
+
 
 const login = async (req, res) => {
     try {
@@ -51,6 +120,11 @@ const login = async (req, res) => {
                 message: `Akun Anda diblokir hingga ${user.blocked_until}`
             });
         }
+
+        if (!user.is_active) {
+          return res.status(403).json({ message: "Akun belum diverifikasi. Silakan cek email Anda." });
+        }
+        
         
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
@@ -167,4 +241,4 @@ const refreshToken = (req, res) => {
 
 
 
-module.exports = { register, login, logout, refreshToken }; 
+module.exports = { register, login, logout, refreshToken, verifyEmailOtp, resendOtp }; 

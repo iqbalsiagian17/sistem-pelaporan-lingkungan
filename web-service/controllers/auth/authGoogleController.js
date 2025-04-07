@@ -51,6 +51,7 @@ const googleLogin = async (req, res) => {
         password: null,
         type: 0, // Default Flutter user
         auth_provider: 'google',
+        is_active: true,
       });
     } else {
       console.log("✅ User ditemukan:", user.email);

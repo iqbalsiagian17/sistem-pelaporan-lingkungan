@@ -1,6 +1,7 @@
 import 'package:bb_mobile/features/announcement/domain/entities/announcement_entity.dart';
 import 'package:bb_mobile/features/announcement/presentation/pages/detail/announcement_detail_view.dart';
 import 'package:bb_mobile/features/announcement/presentation/pages/list/announcement_list_view.dart';
+import 'package:bb_mobile/features/auth/presentation/pages/verify_otp_view.dart';
 import 'package:bb_mobile/features/forum/domain/entities/forum_post_entity.dart';
 import 'package:bb_mobile/features/forum/presentation/pages/detail/forum_detail_view.dart';
 import 'package:bb_mobile/features/forum/presentation/pages/list/forum_list_view.dart';
@@ -52,6 +53,7 @@ class AppRoutes {
   static const String announcementDetail = '/announcement-detail';
   static const String forum = '/forum';
   static const String detailForum = '/detail-forum';
+  static const String verifyOtp = '/verify-otp';
 
 
 
@@ -62,8 +64,8 @@ static Future<String?> _redirectLogic(BuildContext context, GoRouterState state)
   final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
 
   // Jika halaman register diminta, biarkan navigasi ke register
-  if (state.matchedLocation == AppRoutes.register) {
-    return null; // Biarkan navigasi ke halaman register
+  if (state.matchedLocation == AppRoutes.register || state.matchedLocation == AppRoutes.verifyOtp) {
+    return null;
   }
 
   // Logika redirect untuk halaman lain
@@ -128,6 +130,11 @@ static Future<String?> _redirectLogic(BuildContext context, GoRouterState state)
           builder: (context, state) {
             final post = state.extra as ForumPostEntity; // Get the ForumPostEntity from state.extra
             return ForumDetailView(post: post); // Pass the post to the ForumDetailView
+          },
+        ),
+      GoRoute(path: verifyOtp, builder: (context, state){
+          final email = state.extra as String;
+          return VerifyOtpView(email: email);
           },
         ),
       ],

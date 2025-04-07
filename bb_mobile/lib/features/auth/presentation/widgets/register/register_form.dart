@@ -41,10 +41,13 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
     if (!_formKey.currentState!.validate()) return;
 
     final notifier = ref.read(authNotifierProvider.notifier);
+    final email = _emailController.text.trim(); // ✅ simpan dulu sebelum clear
+
+
     final success = await notifier.register(
       _phoneController.text.trim(),
       _usernameController.text.trim(),
-      _emailController.text.trim(),
+      email,
       _passwordController.text.trim(),
     );
 
@@ -55,10 +58,11 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
       _passwordController.clear();
       _confirmPasswordController.clear();
 
-      SnackbarHelper.showSnackbar(context, "Registrasi berhasil! Silakan login.", isError: false);
+      SnackbarHelper.showSnackbar(context, "Registrasi berhasil! Silakan verifikasi email Anda.", isError: false);
 
       Future.delayed(const Duration(seconds: 1), () {
-        if (context.mounted) context.go("/login");
+        if (context.mounted) 
+      if (context.mounted) context.push("/verify-otp", extra: email); // ✅ pakai email yg disimpan
       });
     } else {
       SnackbarHelper.showSnackbar(context, "Registrasi gagal. Coba lagi!", isError: true);

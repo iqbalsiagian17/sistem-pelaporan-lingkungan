@@ -3,17 +3,25 @@ import 'package:bb_mobile/features/auth/domain/usecases/login_usecase.dart';
 import 'package:bb_mobile/features/auth/domain/usecases/register_usecase.dart';
 import 'package:bb_mobile/features/auth/domain/usecases/refresh_token_usecase.dart';
 import 'package:bb_mobile/core/services/auth/global_auth_service.dart';
+import 'package:bb_mobile/features/auth/domain/usecases/resend_email_otp_usecase.dart';
+import 'package:bb_mobile/features/auth/domain/usecases/verify_email_otp_usecase.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class AuthNotifier extends StateNotifier<AsyncValue<UserEntity?>> {
   final LoginUseCase loginUseCase;
   final RegisterUseCase registerUseCase;
   final RefreshTokenUseCase refreshTokenUseCase;
+  final VerifyEmailOtpUseCase verifyEmailOtpUseCase;
+  final ResendEmailOtpUseCase resendEmailOtpUseCase;
 
   AuthNotifier({
     required this.loginUseCase,
     required this.registerUseCase,
     required this.refreshTokenUseCase,
+    required this.verifyEmailOtpUseCase,
+    required this.resendEmailOtpUseCase,
+
+
   }) : super(const AsyncValue.data(null)) {
     _loadUserFromPrefs();
   }
@@ -72,4 +80,26 @@ class AuthNotifier extends StateNotifier<AsyncValue<UserEntity?>> {
   Future<bool> refreshToken() async {
     return await refreshTokenUseCase.execute();
   }
+
+  Future<bool> verifyOtp(String email, String code) async {
+    state = const AsyncValue.loading();
+    try {
+      final user = await verifyEmailOtpUseCase.execute(email, code);
+      state = AsyncValue.data(user);
+      return true;
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+      return false;
+    }
+  }
+
+  Future<bool> resendOtp(String email) async {
+    try {
+      await resendEmailOtpUseCase.execute(email);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
 }

@@ -7,6 +7,8 @@ import 'package:dio/dio.dart';
 abstract class AuthRemoteDataSource {
   Future<Map<String, dynamic>> login(String identifier, String password);
   Future<Map<String, dynamic>> register(String phone, String username, String email, String password);
+  Future<Map<String, dynamic>> verifyEmailOtp(String email, String code);
+  Future<Map<String, dynamic>> resendOtp(String email);
   Future<bool> refreshToken();
   Future<void> logout();
 }
@@ -114,6 +116,37 @@ Future<Map<String, dynamic>> login(String identifier, String password) async {
   @override
   Future<void> logout() async {
     await globalAuthService.clearAuthData();
+  }
+
+  @override
+  Future<Map<String, dynamic>> verifyEmailOtp(String email, String code) async {
+    try {
+      final response = await dio.post(
+        "${ApiConstants.authBaseUrl}/verify-email-otp",
+        data: {
+          "email": email,
+          "code": code,
+        },
+      );
+      return response.data;
+    } on DioException catch (e) {
+      return {"error": _handleDioError(e)};
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> resendOtp(String email) async {
+    try {
+      final response = await dio.post(
+        "${ApiConstants.authBaseUrl}/resend-otp",
+        data: {
+          "email": email,
+        },
+      );
+      return response.data;
+    } on DioException catch (e) {
+      return {"error": _handleDioError(e)};
+    }
   }
 
   String _handleDioError(DioException e) {

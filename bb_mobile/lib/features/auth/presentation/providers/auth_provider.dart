@@ -9,10 +9,16 @@ final authNotifierProvider =
   final loginUseCase = ref.read(loginUseCaseProvider);
   final registerUseCase = ref.read(registerUseCaseProvider);
   final refreshUseCase = ref.read(refreshTokenUseCaseProvider);
+  final verifyOtpUseCase = ref.read(verifyEmailOtpUseCaseProvider);
+  final resendOtpUseCase = ref.read(resendEmailOtpUseCaseProvider);
+
 
   return AuthNotifier(
     loginUseCase: loginUseCase,
     registerUseCase: registerUseCase,
     refreshTokenUseCase: refreshUseCase,
+    verifyEmailOtpUseCase: verifyOtpUseCase,
+    resendEmailOtpUseCase: resendOtpUseCase,
+
   );
 });

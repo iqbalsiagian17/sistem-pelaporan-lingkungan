@@ -42,6 +42,11 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       defaultValue: 'manual'
     },
+    is_active: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },    
     fcm_token:{
       type: DataTypes.STRING,
       allowNull: true

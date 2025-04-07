@@ -15,4 +15,9 @@ router.post('/refresh-token', authController.refreshToken);
 
 router.post('/google', googleLogin);
 
+router.post('/verify-email-otp', authController.verifyEmailOtp); 
+
+router.post('/resend-otp', authController.resendOtp);
+
+
 module.exports = router;
