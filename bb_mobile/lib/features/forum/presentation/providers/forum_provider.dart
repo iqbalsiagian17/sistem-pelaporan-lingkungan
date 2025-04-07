@@ -154,7 +154,8 @@ class ForumNotifier extends StateNotifier<ForumState> {
   Future<void> likePost(int postId) async {
     try {
       await likePostUseCase.call(postId);
-      await fetchAllPosts(); // Refresh data agar like count update
+      final oldPost = state.posts.firstWhere((p) => p.id == postId, orElse: () => state.selectedPost!);
+      updatePostLikeStatus(postId, true, oldPost.likeCount + 1);
     } catch (e) {
       state = state.copyWith(errorMessage: e.toString());
     }
@@ -163,20 +164,42 @@ class ForumNotifier extends StateNotifier<ForumState> {
   Future<void> unlikePost(int postId) async {
     try {
       await unlikePostUseCase.call(postId);
-      await fetchAllPosts(); // Refresh data agar like count update
+      final oldPost = state.posts.firstWhere((p) => p.id == postId, orElse: () => state.selectedPost!);
+      updatePostLikeStatus(postId, false, (oldPost.likeCount > 0 ? oldPost.likeCount - 1 : 0));
     } catch (e) {
       state = state.copyWith(errorMessage: e.toString());
     }
   }
 
+
   Future<int> getLikeCount(int postId) async {
     try {
-      return await getLikeCountUseCase.call(postId);
+      final count = await getLikeCountUseCase.call(postId);
+      return count;
     } catch (e) {
+      print("❌ [getLikeCount] Error: $e");
       state = state.copyWith(errorMessage: e.toString());
       return 0;
     }
   }
+
+
+  void updatePostLikeStatus(int postId, bool isLiked, int likeCount) {
+    final updatedPosts = state.posts.map((post) {
+      if (post.id == postId) {
+        return post.copyWith(isLiked: isLiked, likeCount: likeCount);
+      }
+      return post;
+    }).toList();
+
+    ForumPostEntity? updatedSelected = state.selectedPost;
+    if (updatedSelected != null && updatedSelected.id == postId) {
+      updatedSelected = updatedSelected.copyWith(isLiked: isLiked, likeCount: likeCount);
+    }
+
+    state = state.copyWith(posts: updatedPosts, selectedPost: updatedSelected);
+  }
+
 
   void clearState() {
     state = const ForumState();

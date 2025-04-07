@@ -31,6 +31,9 @@ class ForumPostModel {
   });
 
   factory ForumPostModel.fromJson(Map<String, dynamic> json) {
+
+      print("🧪 Debug is_liked: ${json['is_liked']} for post: ${json['id']}");
+
     return ForumPostModel(
       id: json['id'],
       userId: json['user_id'],

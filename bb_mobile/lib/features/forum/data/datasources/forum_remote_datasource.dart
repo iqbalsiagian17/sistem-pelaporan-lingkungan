@@ -98,48 +98,47 @@ class ForumRemoteDataSourceImpl implements ForumRemoteDataSource {
   }
 
   @override
-  Future<bool> likePost(int postId) async {
-    try {
-      final response = await _dio.post("${ApiConstants.forumUrl}/like/$postId");
-      return response.statusCode == 200;
-    } catch (e) {
-      _handleError(e, "likePost");
-    }
+Future<bool> likePost(int postId) async {
+  try {
+    final response = await _dio.post("${ApiConstants.userPostLike}/$postId/like");
+    return response.statusCode == 200 || response.statusCode == 201;
+  } catch (e) {
+    _handleError(e, "likePost");
   }
+}
 
-  @override
-  Future<bool> unlikePost(int postId) async {
-    try {
-      final response = await _dio.delete("${ApiConstants.forumUrl}/unlike/$postId");
-      return response.statusCode == 200;
-    } catch (e) {
-      _handleError(e, "unlikePost");
-    }
+@override
+Future<bool> unlikePost(int postId) async {
+  try {
+    final response = await _dio.delete("${ApiConstants.userPostLike}/$postId/unlike");
+    return response.statusCode == 200;
+  } catch (e) {
+    _handleError(e, "unlikePost");
   }
+}
 
-  @override
-  Future<int> getLikeCount(int postId) async {
-    try {
-      final response = await _dio.get("${ApiConstants.forumUrl}/likes/$postId");
-      if (response.statusCode == 200) {
-        return response.data['count'] ?? 0;
-      } else {
-        return 0;
-      }
-    } catch (e) {
-      _handleError(e, "getLikeCount");
-    }
+@override
+Future<bool> isLiked(int postId) async {
+  try {
+    final response = await _dio.get("${ApiConstants.userPostLike}/$postId/status");
+    return response.statusCode == 200 && response.data['isLiked'] == true;
+  } catch (e) {
+    _handleError(e, "isLiked");
   }
+}
 
-  @override
-  Future<bool> isLiked(int postId) async {
-    try {
-      final response = await _dio.get("${ApiConstants.forumUrl}/liked/$postId");
-      return response.statusCode == 200 && response.data['liked'] == true;
-    } catch (e) {
-      _handleError(e, "isLiked");
+@override
+Future<int> getLikeCount(int postId) async {
+  try {
+    final response = await _dio.get("${ApiConstants.userPostLike}/$postId");
+    if (response.statusCode == 200 && response.data.containsKey('likes')) {
+      return response.data['likes'] ?? 0;
     }
+    return 0;
+  } catch (e) {
+    _handleError(e, "getLikeCount");
   }
+}
 
   Never _handleError(dynamic e, String context) {
     throw Exception("❌ [$context] ${e is DioException ? e.response?.data['error'] ?? e.message : e.toString()}");

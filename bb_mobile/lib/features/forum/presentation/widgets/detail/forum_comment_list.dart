@@ -130,11 +130,12 @@ class ForumCommentList extends ConsumerWidget {
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
                       onPressed: () async {
-                        Navigator.pop(context);
-                        final success = await ref
-                            .read(forumProvider.notifier)
-                            .deleteComment(commentId, postId);
-                        if (success && context.mounted) {
+                      final success = await ref.read(forumProvider.notifier).deleteComment(commentId, postId);
+
+                      if (context.mounted) {
+                        Navigator.pop(context); // ✅ Pindah ke bawah setelah proses selesai
+
+                        if (success) {
                           onCommentDeleted?.call();
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text("Komentar berhasil dihapus")),
@@ -144,7 +145,9 @@ class ForumCommentList extends ConsumerWidget {
                             const SnackBar(content: Text("Gagal menghapus komentar")),
                           );
                         }
-                      },
+                      }
+                    },
+
                       child: const Text("Hapus", style: TextStyle(color: Colors.white)),
                     ),
                   ),

@@ -7,48 +7,74 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final globalAuthServiceProvider = Provider((ref) => GlobalAuthService());
 
-class PostPopupMenu extends ConsumerWidget {
+class PostPopupMenu extends ConsumerStatefulWidget {
   final ForumPostEntity post;
 
   const PostPopupMenu({super.key, required this.post});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return FutureBuilder<int?>(
-      future: ref.read(globalAuthServiceProvider).getUserId(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData || snapshot.data != post.user.id) {
-          return const SizedBox(); // 🔒 Bukan pemilik postingan
-        }
+  ConsumerState<PostPopupMenu> createState() => _PostPopupMenuState();
+}
 
-        return PopupMenuButton<String>(
-          onSelected: (value) {
-            if (value == 'delete') {
-              _showDeleteConfirmationSheet(context, ref);
-            }
-          },
-          icon: const Icon(Icons.more_vert, color: Colors.black),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          color: Colors.white,
-          elevation: 2,
-          itemBuilder: (context) => [
-            PopupMenuItem<String>(
-              value: 'delete',
-              child: Row(
-                children: const [
-                  Icon(Icons.delete_outline, color: Colors.red),
-                  SizedBox(width: 10),
-                  Text("Hapus Postingan"),
-                ],
-              ),
-            ),
-          ],
-        );
+class _PostPopupMenuState extends ConsumerState<PostPopupMenu> {
+  int? _userId;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserId();
+  }
+
+  Future<void> _loadUserId() async {
+    final authService = ref.read(globalAuthServiceProvider);
+    final id = await authService.getUserId();
+    if (!mounted) return;
+    setState(() {
+      _userId = id;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final forumState = ref.watch(forumProvider);
+    final currentPost = forumState.posts.firstWhere(
+      (p) => p.id == widget.post.id,
+      orElse: () => widget.post,
+    );
+
+    final postOwnerId = currentPost.user.id;
+
+    // 🔒 Tampilkan tombol hanya jika user login & pemilik postingan
+    if (_userId == null || _userId != postOwnerId) {
+      return const SizedBox.shrink();
+    }
+
+    return PopupMenuButton<String>(
+      onSelected: (value) {
+        if (value == 'delete') {
+          _showDeleteConfirmationSheet(context);
+        }
       },
+      icon: const Icon(Icons.more_vert, color: Colors.black),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      color: Colors.white,
+      elevation: 2,
+      itemBuilder: (context) => [
+        PopupMenuItem<String>(
+          value: 'delete',
+          child: Row(
+            children: const [
+              Icon(Icons.delete_outline, color: Colors.red),
+              SizedBox(width: 10),
+              Text("Hapus Postingan"),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
-  Future<void> _showDeleteConfirmationSheet(BuildContext context, WidgetRef ref) async {
+  Future<void> _showDeleteConfirmationSheet(BuildContext context) async {
     HapticFeedback.mediumImpact();
 
     await showModalBottomSheet(
@@ -78,7 +104,6 @@ class PostPopupMenu extends ConsumerWidget {
             ),
             const SizedBox(height: 20),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Expanded(
                   child: OutlinedButton(
@@ -94,8 +119,9 @@ class PostPopupMenu extends ConsumerWidget {
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
                     onPressed: () async {
+                      if (!mounted) return;
                       Navigator.pop(context);
-                      await _deletePost(context, ref);
+                      await _deletePost();
                     },
                     child: const Text("Hapus", style: TextStyle(color: Colors.white)),
                   ),
@@ -108,19 +134,15 @@ class PostPopupMenu extends ConsumerWidget {
     );
   }
 
-  Future<void> _deletePost(BuildContext context, WidgetRef ref) async {
-    final success = await ref.read(forumProvider.notifier).deletePost(post.id);
+  Future<void> _deletePost() async {
+    final success = await ref.read(forumProvider.notifier).deletePost(widget.post.id);
+      if (!mounted) return;
 
-    if (success) {
-      if (Navigator.canPop(context)) {
-        Navigator.pop(context);
-      } else {
-        Navigator.popUntil(context, (route) => route.isFirst);
-      }
-    } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("❌ Gagal menghapus postingan")),
+        SnackBar(
+          content: Text(success ? "✅ Postingan berhasil dihapus" : "❌ Gagal menghapus postingan"),
+        ),
       );
-    }
+
   }
 }

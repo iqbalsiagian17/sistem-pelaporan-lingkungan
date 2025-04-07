@@ -2,6 +2,7 @@ import 'package:bb_mobile/core/providers/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:bb_mobile/features/forum/presentation/providers/forum_provider.dart';
+import 'package:bb_mobile/features/forum/domain/entities/forum_post_entity.dart';
 
 class ForumAction extends ConsumerStatefulWidget {
   final int postId;
@@ -25,19 +26,30 @@ class _ForumActionState extends ConsumerState<ForumAction> {
   @override
   void initState() {
     super.initState();
-    _loadLikeStatus();
+    _initPostLikeState();
   }
 
-  Future<void> _loadLikeStatus() async {
+  void _initPostLikeState() {
     final forumState = ref.read(forumProvider);
-    final post = forumState.posts.firstWhere((p) => p.id == widget.postId, orElse: () => forumState.selectedPost!);
+    final selected = forumState.selectedPost;
 
-    final userId = await ref.read(globalAuthServiceProvider).getUserId();
+    try {
+      final post = forumState.posts.firstWhere(
+        (p) => p.id == widget.postId,
+        orElse: () {
+          if (selected != null) return selected;
+          throw Exception("Post not found");
+        },
+      );
 
-    if (mounted && post != null) {
       setState(() {
-        _likeCount = post.likeCount;
         _isLiked = post.isLiked;
+        _likeCount = post.likeCount;
+        _loading = false;
+      });
+    } catch (e) {
+      // Handle error (bisa tampilkan error message atau kosongkan widget)
+      setState(() {
         _loading = false;
       });
     }
@@ -45,26 +57,27 @@ class _ForumActionState extends ConsumerState<ForumAction> {
 
   Future<void> _toggleLike() async {
     final notifier = ref.read(forumProvider.notifier);
-    final userId = await ref.read(globalAuthServiceProvider).getUserId();
 
     if (_isLiked) {
       await notifier.unlikePost(widget.postId);
+      notifier.updatePostLikeStatus(widget.postId, false, _likeCount - 1);
+      setState(() {
+        _isLiked = false;
+        _likeCount -= 1;
+      });
     } else {
       await notifier.likePost(widget.postId);
+      notifier.updatePostLikeStatus(widget.postId, true, _likeCount + 1);
+      setState(() {
+        _isLiked = true;
+        _likeCount += 1;
+      });
     }
-
-    // Refresh post data
-    await notifier.fetchPostById(widget.postId);
-
-    // Update UI
-    _loadLikeStatus();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_loading) {
-      return const SizedBox.shrink();
-    }
+    if (_loading) return const SizedBox.shrink();
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12),
@@ -79,6 +92,8 @@ class _ForumActionState extends ConsumerState<ForumAction> {
                   children: [
                     AnimatedSwitcher(
                       duration: const Duration(milliseconds: 300),
+                      transitionBuilder: (child, animation) =>
+                          ScaleTransition(scale: animation, child: child),
                       child: Icon(
                         _isLiked ? Icons.favorite : Icons.favorite_border,
                         key: ValueKey(_isLiked),
@@ -88,7 +103,7 @@ class _ForumActionState extends ConsumerState<ForumAction> {
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      "$_likeCount",
+                      '$_likeCount',
                       style: TextStyle(color: Colors.grey.shade700, fontSize: 14),
                     ),
                   ],

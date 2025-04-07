@@ -1,5 +1,4 @@
 import 'package:bb_mobile/features/report/domain/entities/user_entity.dart';
-
 import 'forum_comment_entity.dart';
 import 'forum_image_entity.dart';
 
@@ -34,4 +33,35 @@ class ForumPostEntity {
 
   // Getter for comment count
   int get commentCount => comments.length;
+
+  // ✅ Tambahkan copyWith agar bisa update like/likeCount secara lokal
+  ForumPostEntity copyWith({
+    int? id,
+    int? userId,
+    String? content,
+    String? createdAt,
+    String? updatedAt,
+    int? likes,
+    bool? isPinned,
+    int? likeCount,
+    bool? isLiked,
+    UserEntity? user,
+    List<ForumImageEntity>? images,
+    List<ForumCommentEntity>? comments,
+  }) {
+    return ForumPostEntity(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      content: content ?? this.content,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      likes: likes ?? this.likes,
+      isPinned: isPinned ?? this.isPinned,
+      likeCount: likeCount ?? this.likeCount,
+      isLiked: isLiked ?? this.isLiked,
+      user: user ?? this.user,
+      images: images ?? this.images,
+      comments: comments ?? this.comments,
+    );
+  }
 }

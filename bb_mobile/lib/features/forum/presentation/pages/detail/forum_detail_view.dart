@@ -1,4 +1,3 @@
-import 'package:bb_mobile/features/forum/domain/entities/forum_image_entity.dart';
 import 'package:bb_mobile/features/forum/domain/entities/forum_post_entity.dart';
 import 'package:bb_mobile/features/forum/presentation/providers/forum_provider.dart';
 import 'package:bb_mobile/features/forum/presentation/widgets/detail/forum_action.dart';
@@ -23,31 +22,27 @@ class ForumDetailView extends ConsumerStatefulWidget {
 }
 
 class _ForumDetailViewState extends ConsumerState<ForumDetailView> {
-  late ForumPostEntity _post;
-  late Future<void> _loadPostData;
-
   @override
   void initState() {
     super.initState();
-    _post = widget.post;
-    _loadPostData = _refreshData();
+    Future.microtask(() {
+      ref.read(forumProvider.notifier).fetchPostById(widget.post.id);
+    });
   }
 
   Future<void> _refreshData() async {
-    final forumNotifier = ref.read(forumProvider.notifier);
-    await forumNotifier.fetchPostById(_post.id);
-    final updated = ref.read(forumProvider).selectedPost;
-    if (mounted && updated != null) {
-      setState(() => _post = updated);
-    }
+    await ref.read(forumProvider.notifier).fetchPostById(widget.post.id);
   }
 
   @override
   Widget build(BuildContext context) {
     final userState = ref.watch(userProfileProvider);
+    final forumState = ref.watch(forumProvider);
+
+    final ForumPostEntity post = forumState.selectedPost ?? widget.post;
 
     return userState.when(
-      data: (user) {
+      data: (_) {
         return Scaffold(
           backgroundColor: Colors.white,
           appBar: const ForumHeader(title: "Detail Postingan"),
@@ -62,30 +57,22 @@ class _ForumDetailViewState extends ConsumerState<ForumDetailView> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          ForumUserInfo(post: _post),
+                          ForumUserInfo(post: post),
                           const SizedBox(height: 12),
-                          ForumPostContent(post: _post),
+                          ForumPostContent(post: post),
                           const SizedBox(height: 12),
-                          if (_post.images.isNotEmpty)
-                            ForumImageGrid(
-                              images: _post.images
-                                  .map((e) => ForumImageEntity(
-                                        id: e.id,
-                                        postId: _post.id,
-                                        imageUrl: e.imageUrl,
-                                      ))
-                                  .toList(),
-                            ),
+                          if (post.images.isNotEmpty)
+                            ForumImageGrid(images: post.images),
                           const SizedBox(height: 12),
-                          ForumAction(postId: _post.id, commentCount: _post.commentCount),
+                          ForumAction(postId: post.id, commentCount: post.commentCount),
                           const Divider(thickness: 1),
-                          ForumCommentList(post: _post, onCommentDeleted: _refreshData),
+                          ForumCommentList(post: post, onCommentDeleted: _refreshData),
                         ],
                       ),
                     ),
                   ),
                 ),
-                ForumCommentInput(postId: _post.id, onCommentSent: _refreshData),
+                ForumCommentInput(postId: post.id, onCommentSent: _refreshData),
               ],
             ),
           ),

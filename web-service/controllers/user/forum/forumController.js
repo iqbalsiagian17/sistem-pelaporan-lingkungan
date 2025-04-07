@@ -1,4 +1,4 @@
-const { Post, PostImage, Comment, User } = require("../../../models");
+const { Post, User, PostImage, Comment, PostLikes } = require('../../../models');
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
@@ -61,28 +61,49 @@ exports.createPost = async (req, res) => {
     });
 };
 
-// ✅ GET ALL POSTS (Public)
 exports.getAllPosts = async (req, res) => {
     try {
-        const posts = await Post.findAll({
-            include: [
-                { model: User, as: "user", attributes: ["id", "username"] },
-                { model: PostImage, as: "images" },
-                { 
-                    model: Comment, 
-                    as: "comments",
-                    include: { model: User, as: "user", attributes: ["id", "username"] }
-                }
-            ],
-            order: [["createdAt", "DESC"]]
-        });
-
-        res.status(200).json({ message: "Posts retrieved successfully", posts });
+      const userId = req.user?.id || null;
+  
+      const posts = await Post.findAll({
+        include: [
+          { model: User, as: "user", attributes: ["id", "username"] },
+          { model: PostImage, as: "images" },
+          {
+            model: Comment,
+            as: "comments",
+            include: { model: User, as: "user", attributes: ["id", "username"] }
+          },
+          {
+            model: PostLikes,
+            as: "likesRelation",
+            where: userId ? { user_id: userId } : undefined,
+            required: false // agar tetap bisa fetch meskipun belum di-like user
+          }
+        ],
+        order: [["createdAt", "DESC"]]
+      });
+  
+      const result = posts.map(post => {
+        const plainPost = post.get({ plain: true });
+  
+        return {
+          ...plainPost,
+          is_liked: plainPost.likesRelation && plainPost.likesRelation.length > 0,
+        };
+      });
+  
+      return res.status(200).json({
+        message: "Posts retrieved successfully",
+        posts: result
+      });
+  
     } catch (error) {
-        console.error("Error fetching posts:", error);
-        res.status(500).json({ message: "Server error", error: error.message });
+      console.error("❌ Error fetching posts:", error);
+      return res.status(500).json({ message: "Server error", error: error.message });
     }
-};
+  };
+
 
 // ✅ GET POST DETAIL BY ID
 exports.getPostById = async (req, res) => {
