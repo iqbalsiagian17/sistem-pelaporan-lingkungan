@@ -208,6 +208,66 @@ const login = async (req, res) => {
 };
 
 
+// Kirim OTP untuk reset password
+const forgotPassword = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const user = await User.findOne({ where: { email } });
+    if (!user) {
+      return res.status(404).json({ message: "Email tidak ditemukan" });
+    }
+
+    await sendOtp(email, 'forgot'); // ✅ kirim OTP dengan type forgot
+
+    return res.status(200).json({ message: "Kode OTP telah dikirim ke email Anda" });
+  } catch (error) {
+    return res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+
+// Verifikasi OTP untuk reset password
+const verifyForgotOtp = async (req, res) => {
+  const { email, code } = req.body;
+
+  console.log("📨 Cek OTP:", email, code);
+
+  try {
+    const isValid = await verifyOtp(email, code, 'forgot');
+    if (!isValid) {
+      return res.status(400).json({ message: "OTP tidak valid atau telah kadaluarsa" });
+    }
+
+    return res.status(200).json({ message: "OTP valid. Silakan atur ulang password Anda." });
+  } catch (error) {
+    console.error("OTP Verification Error:", error);
+    return res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+
+
+// Atur ulang password baru
+const resetPassword = async (req, res) => {
+  const { email, new_password } = req.body;
+
+  try {
+    const user = await User.findOne({ where: { email } });
+    if (!user) return res.status(404).json({ message: "User tidak ditemukan" });
+
+    const hashed = await bcrypt.hash(new_password, 10);
+    user.password = hashed;
+    await user.save();
+
+    return res.status(200).json({ message: "Password berhasil diperbarui. Silakan login kembali." });
+  } catch (error) {
+    console.error("Reset Password Error:", error);
+    return res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+
 
 
 
@@ -259,4 +319,4 @@ const refreshToken = (req, res) => {
 
 
 
-module.exports = { register, login, logout, refreshToken, verifyEmailOtp, resendOtp }; 
+module.exports = { register, login, logout, refreshToken, verifyEmailOtp, resendOtp, forgotPassword, verifyForgotOtp, resetPassword }; 

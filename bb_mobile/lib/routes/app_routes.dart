@@ -1,7 +1,10 @@
 import 'package:bb_mobile/features/announcement/domain/entities/announcement_entity.dart';
 import 'package:bb_mobile/features/announcement/presentation/pages/detail/announcement_detail_view.dart';
 import 'package:bb_mobile/features/announcement/presentation/pages/list/announcement_list_view.dart';
-import 'package:bb_mobile/features/auth/presentation/pages/verify_otp_view.dart';
+import 'package:bb_mobile/features/auth/presentation/pages/forget_password/forgot_password_view.dart';
+import 'package:bb_mobile/features/auth/presentation/pages/forget_password/reset_password_view.dart';
+import 'package:bb_mobile/features/auth/presentation/pages/forget_password/verify_forgot_otp_view.dart';
+import 'package:bb_mobile/features/auth/presentation/pages/register/verify_otp_view.dart';
 import 'package:bb_mobile/features/forum/domain/entities/forum_post_entity.dart';
 import 'package:bb_mobile/features/forum/presentation/pages/detail/forum_detail_view.dart';
 import 'package:bb_mobile/features/forum/presentation/pages/list/forum_list_view.dart';
@@ -25,8 +28,8 @@ import 'package:bb_mobile/features/splash/presentation/pages/onboarding_view.dar
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:bb_mobile/features/auth/presentation/pages/login_view.dart';
-import 'package:bb_mobile/features/auth/presentation/pages/register_view.dart';
+import 'package:bb_mobile/features/auth/presentation/pages/login/login_view.dart';
+import 'package:bb_mobile/features/auth/presentation/pages/register/register_view.dart';
 import 'package:bb_mobile/features/dashboard/presentation/pages/dashboard_view.dart';
 
 class AppRoutes {
@@ -54,6 +57,9 @@ class AppRoutes {
   static const String forum = '/forum';
   static const String detailForum = '/detail-forum';
   static const String verifyOtp = '/verify-otp';
+  static const String forgotPassword = '/forgot-password';
+  static const String verifyForgotOtp = '/verify-forgot-otp';
+  static const String resetPassword = '/reset-password';
 
 
 
@@ -64,7 +70,15 @@ static Future<String?> _redirectLogic(BuildContext context, GoRouterState state)
   final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
 
   // Jika halaman register diminta, biarkan navigasi ke register
-  if (state.matchedLocation == AppRoutes.register || state.matchedLocation == AppRoutes.verifyOtp) {
+  final allowedWithoutLogin = [
+    AppRoutes.register,
+    AppRoutes.verifyOtp,
+    AppRoutes.forgotPassword,
+    AppRoutes.verifyForgotOtp,
+    AppRoutes.resetPassword,
+  ];
+
+  if (allowedWithoutLogin.contains(state.matchedLocation)) {
     return null;
   }
 
@@ -132,9 +146,20 @@ static Future<String?> _redirectLogic(BuildContext context, GoRouterState state)
             return ForumDetailView(post: post); // Pass the post to the ForumDetailView
           },
         ),
+      GoRoute(path: forgotPassword, builder: (context, state) => const ForgotPasswordView()),
       GoRoute(path: verifyOtp, builder: (context, state){
           final email = state.extra as String;
           return VerifyOtpView(email: email);
+          },
+        ),
+      GoRoute(path: verifyForgotOtp, builder: (context, state){
+          final email = state.extra as String;
+          return VerifyForgotOtpView(email: email);
+          },
+        ),
+      GoRoute(path: resetPassword, builder: (context, state){
+          final email = state.extra as String;
+          return ResetPasswordView(email: email);
           },
         ),
       ],

@@ -1,5 +1,8 @@
+import 'package:bb_mobile/features/auth/domain/usecases/forgot_password_usecase.dart';
 import 'package:bb_mobile/features/auth/domain/usecases/resend_email_otp_usecase.dart';
+import 'package:bb_mobile/features/auth/domain/usecases/reset_password_usecase.dart';
 import 'package:bb_mobile/features/auth/domain/usecases/verify_email_otp_usecase.dart';
+import 'package:bb_mobile/features/auth/domain/usecases/verify_forgot_otp_usecase.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:bb_mobile/core/constants/dio_client.dart';
 import 'package:bb_mobile/features/auth/data/datasources/auth_remote_datasource.dart';
@@ -42,3 +45,14 @@ final resendEmailOtpUseCaseProvider = Provider<ResendEmailOtpUseCase>((ref) {
   return ResendEmailOtpUseCase(ref.read(authRepositoryProvider));
 });
 
+final forgotPasswordUseCaseProvider = Provider<ForgotPasswordUseCase>((ref) {
+  return ForgotPasswordUseCase(ref.read(authRepositoryProvider));
+});
+
+final verifyForgotOtpUseCaseProvider = Provider<VerifyForgotOtpUseCase>((ref) {
+  return VerifyForgotOtpUseCase(ref.read(authRepositoryProvider));
+});
+
+final resetPasswordUseCaseProvider = Provider<ResetPasswordUseCase>((ref) {
+  return ResetPasswordUseCase(ref.read(authRepositoryProvider));
+});

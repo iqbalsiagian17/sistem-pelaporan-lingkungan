@@ -1,5 +1,5 @@
-import 'package:bb_mobile/features/auth/presentation/widgets/otp/verify_otp_form.dart';
-import 'package:bb_mobile/features/auth/presentation/widgets/otp/verify_otp_header.dart';
+import 'package:bb_mobile/features/auth/presentation/widgets/otp/verify_register_otp_form.dart';
+import 'package:bb_mobile/features/auth/presentation/widgets/otp/verify_register_otp_header.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

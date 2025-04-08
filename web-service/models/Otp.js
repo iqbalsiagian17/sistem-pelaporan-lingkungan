@@ -26,6 +26,11 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       defaultValue: false,
     },
+    type: { // ⬅️ Tambahkan ini
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: 'register', // atau bisa 'forgot' sesuai kebutuhan
+    }
   }, {
     sequelize,
     modelName: 't_otp',
