@@ -24,43 +24,51 @@ class LoginView extends ConsumerWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 48.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const LoginHeader(),
-            const LoginForm(),
-            const SizedBox(height: 16),
-            SocialButtons(
-              isLoading: google.isLoading,
-              onGoogleSignIn: () async {
-                final success = await googleNotifier.loginWithGoogle();
+            const LoginHeader(), // tidak kena padding
+            // konten utama dengan padding
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const LoginForm(),
+                  const SizedBox(height: 24),
+                  SocialButtons(
+                    isLoading: google.isLoading,
+                    onGoogleSignIn: () async {
+                      final success = await googleNotifier.loginWithGoogle();
 
-                if (success) {
-                  debugPrint("✅ Login Google sukses!");
-                  await authNotifier.refreshToken(); // atau setUserFromPrefs jika kamu punya
+                      if (success) {
+                        debugPrint("✅ Login Google sukses!");
+                        await authNotifier.refreshToken();
 
-                  final prefs = await SharedPreferences.getInstance();
-                  await prefs.setBool('isLoggedIn', true);
+                        final prefs = await SharedPreferences.getInstance();
+                        await prefs.setBool('isLoggedIn', true);
 
-                  if (context.mounted) {
-                    SnackbarHelper.showSnackbar(
-                      context,
-                      "Login Google berhasil!",
-                      isError: false,
-                    );
-                    context.go(AppRoutes.dashboard);
-                  }
-                } else {
-                  SnackbarHelper.showSnackbar(
-                    context,
-                    google.error.toString(),
-                    isError: true,
-                  );
-                }
-              },
+                        if (context.mounted) {
+                          SnackbarHelper.showSnackbar(
+                            context,
+                            "Login Google berhasil!",
+                            isError: false,
+                          );
+                          context.go(AppRoutes.dashboard);
+                        }
+                      } else {
+                        SnackbarHelper.showSnackbar(
+                          context,
+                          google.error.toString(),
+                          isError: true,
+                        );
+                      }
+                    },
+                  ),
+                  const LoginFooter(),
+                ],
+              ),
             ),
-            const LoginFooter(),
           ],
         ),
       ),

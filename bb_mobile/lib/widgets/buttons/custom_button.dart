@@ -15,7 +15,7 @@ class CustomButton extends StatelessWidget {
     required this.text,
     this.isLoading = false,
     required this.onPressed,
-    this.color = Colors.blue, // Default color for the button
+    this.color = const Color(0xFF4CAF50), // Default color for the button
     this.textColor = Colors.white, // Default text color
     this.isOutlined = false, // Default to non-outlined button
     this.borderColor = Colors.grey, // Default border color (same as input field)

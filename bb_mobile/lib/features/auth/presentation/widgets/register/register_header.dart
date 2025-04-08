@@ -7,26 +7,26 @@ class RegisterHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Center(
-          child: Image.asset(
-            'assets/images/logo.png',
-            height: MediaQuery.of(context).size.height * 0.2,
-          ),
+        Image.asset(
+          'assets/images/logo.png', // Ganti sesuai logomu
+          height: 80,
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 10),
         const Text(
-          "Daftar Akun Baru",
-          textAlign: TextAlign.center,
+          "Buat Akun",
           style: TextStyle(
-            fontSize: 26,
+            fontSize: 22,
             fontWeight: FontWeight.bold,
+            color: Colors.black87,
           ),
         ),
         const SizedBox(height: 8),
         const Text(
-          "Silakan isi data berikut untuk mendaftar",
-          textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 16, color: Colors.grey),
+          "Isi data di bawah untuk melanjutkan",
+          style: TextStyle(
+            fontSize: 14,
+            color: Colors.grey,
+          ),
         ),
       ],
     );

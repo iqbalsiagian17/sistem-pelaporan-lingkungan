@@ -1,19 +1,19 @@
 import 'package:bb_mobile/features/auth/presentation/providers/auth_provider.dart';
+import 'package:bb_mobile/features/auth/presentation/widgets/register/terms_modal_bottomsheet.dart';
+import 'package:bb_mobile/features/parameter/domain/entities/parameter_entity.dart';
+import 'package:bb_mobile/features/parameter/presentation/providers/parameter_provider.dart';
+import 'package:bb_mobile/widgets/snackbar/snackbar_helper.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:bb_mobile/core/utils/validators.dart';
-import 'package:bb_mobile/widgets/input/custom_input_field.dart';
-import 'package:bb_mobile/widgets/buttons/custom_button.dart';
-import 'package:bb_mobile/widgets/snackbar/snackbar_helper.dart';
-
-import 'package:bb_mobile/features/parameter/presentation/providers/parameter_provider.dart';
-import 'package:bb_mobile/features/parameter/presentation/pages/terms/components/terms_data_empty_state.dart';
-import 'package:bb_mobile/features/parameter/presentation/pages/terms/components/terms_data_state.dart';
-
-
+import 'register_phone_field.dart';
+import 'register_email_field.dart';
+import 'register_username_field.dart';
+import 'register_password_fields.dart';
+import 'register_confirm_password_field.dart';
+import 'register_terms_checkbox.dart';
+import 'register_submit_button.dart';
 
 class RegisterForm extends ConsumerStatefulWidget {
   const RegisterForm({super.key});
@@ -24,31 +24,32 @@ class RegisterForm extends ConsumerStatefulWidget {
 
 class _RegisterFormState extends ConsumerState<RegisterForm> {
   final _formKey = GlobalKey<FormState>();
+
   final _phoneController = TextEditingController();
   final _usernameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-
   final FocusNode _emailFocusNode = FocusNode();
-  bool _isEmailFocused = false;
 
+  bool _isEmailFocused = false;
   bool _isObscurePassword = true;
   bool _isObscureConfirmPassword = true;
+  bool _isAgreedToTerms = false;
+  bool _showTermsError = false;
 
-  String? _emailError;
-  String? _usernameError;
-  String? _phoneError;
 
-  bool _isAgreedToTerms = false; // Menyimpan status checkbox
+  String? _emailError, _usernameError, _phoneError;
 
   @override
   void initState() {
     super.initState();
     _emailFocusNode.addListener(() {
-      setState(() {
-        _isEmailFocused = _emailFocusNode.hasFocus;
-      });
+      setState(() => _isEmailFocused = _emailFocusNode.hasFocus);
+    });
+
+    Future.microtask(() {
+      ref.read(parameterNotifierProvider.notifier).fetchParameter();
     });
   }
 
@@ -65,11 +66,11 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
 
   Future<void> _register() async {
     if (!_formKey.currentState!.validate()) return;
-
     if (!_isAgreedToTerms) {
-      SnackbarHelper.showSnackbar(context, "Anda harus setuju dengan syarat dan ketentuan terlebih dahulu.", isError: true);
-      return; // Jangan lanjutkan jika belum setuju dengan syarat dan ketentuan
+      setState(() => _showTermsError = true);
+      return;
     }
+
 
     setState(() {
       _emailError = null;
@@ -77,15 +78,13 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
       _phoneError = null;
     });
 
-    final notifier = ref.read(authNotifierProvider.notifier);
     final email = _emailController.text.trim();
-
-    final success = await notifier.register(
-      _phoneController.text.trim(),
-      _usernameController.text.trim(),
-      email,
-      _passwordController.text.trim(),
-    );
+    final success = await ref.read(authNotifierProvider.notifier).register(
+          _phoneController.text.trim(),
+          _usernameController.text.trim(),
+          email,
+          _passwordController.text.trim(),
+        );
 
     if (success) {
       _phoneController.clear();
@@ -115,61 +114,8 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
       });
 
       if (_emailError == null && _usernameError == null && _phoneError == null) {
-        SnackbarHelper.showSnackbar(
-          context,
-          "Registrasi gagal. Coba lagi!",
-          isError: true,
-        );
+        SnackbarHelper.showSnackbar(context, "Registrasi gagal. Coba lagi!", isError: true);
       }
-    }
-  }
-
-  void _showTermsModal() async {
-    final parameterAsync = ref.watch(parameterNotifierProvider);
-
-    // Menunggu data parameter untuk ditampilkan dalam modal
-    final termsContent = await parameterAsync.when(
-      loading: () => null, // Menunggu loading
-      error: (err, _) => 'Terjadi kesalahan saat memuat syarat dan ketentuan.', // Menangani error
-      data: (parameter) {
-        return parameter.terms; // Mengambil data syarat dan ketentuan
-      },
-    );
-
-    if (termsContent == null || termsContent.isEmpty) {
-      // Menampilkan modal jika tidak ada syarat dan ketentuan
-      showDialog(
-        context: context,
-        builder: (BuildContext context) => AlertDialog(
-          title: const Text('Syarat dan Ketentuan'),
-          content: const TermsDataEmptyState(),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Menutup modal
-              },
-              child: const Text('Tutup'),
-            ),
-          ],
-        ),
-      );
-    } else {
-      // Menampilkan modal dengan syarat dan ketentuan
-      showDialog(
-        context: context,
-        builder: (BuildContext context) => AlertDialog(
-          title: const Text('Syarat dan Ketentuan'),
-          content: TermsDataState(content: termsContent!),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Menutup modal
-              },
-              child: const Text('Tutup'),
-            ),
-          ],
-        ),
-      );
     }
   }
 
@@ -181,108 +127,85 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
       key: _formKey,
       child: Column(
         children: [
-          CustomInputField(
-            controller: _phoneController,
-            label: 'Nomor Telepon',
-            icon: Icons.phone,
-            keyboardType: TextInputType.phone,
-            validator: Validators.validatePhone,
-            errorText: _phoneError,
-            inputFormatters: [
-              FilteringTextInputFormatter.digitsOnly,
-              LengthLimitingTextInputFormatter(15),
-            ],
+          RegisterPhoneField(controller: _phoneController, errorText: _phoneError),
+          const SizedBox(height: 8),
+          RegisterEmailField(
+            controller: _emailController,
+            focusNode: _emailFocusNode,
+            isFocused: _isEmailFocused,
+            errorText: _emailError,
           ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              CustomInputField(
-                controller: _emailController,
-                label: 'Email',
-                icon: Icons.email,
-                focusNode: _emailFocusNode,
-                validator: Validators.validateEmail,
-                errorText: _emailError,
-              ),
-              if (_isEmailFocused)
-                const Padding(
-                  padding: EdgeInsets.only(left: 8, top: 0),
-                  child: Text(
-                    "Gunakan email aktif karena kode verifikasi akan dikirim ke email tersebut.",
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontStyle: FontStyle.italic,
-                    ),
-                  ),
-                ),
-            ],
-          ),
-          CustomInputField(
-            controller: _usernameController,
-            label: 'Username',
-            icon: Icons.person,
-            validator: Validators.validateNotEmpty,
-            errorText: _usernameError,
-          ),
-          CustomInputField(
-            controller: _passwordController,
-            label: 'Password',
-            icon: Icons.lock,
+          const SizedBox(height: 8),
+          RegisterUsernameField(controller: _usernameController, errorText: _usernameError),
+          const SizedBox(height: 8),
+          RegisterPasswordFields(
+            passwordController: _passwordController,
             isObscure: _isObscurePassword,
             onToggleObscure: () => setState(() => _isObscurePassword = !_isObscurePassword),
-            validator: Validators.validatePassword,
           ),
-          CustomInputField(
-            controller: _confirmPasswordController,
-            label: 'Konfirmasi Password',
-            icon: Icons.lock_outline,
+          const SizedBox(height: 8),
+          RegisterConfirmPasswordField(
+            confirmPasswordController: _confirmPasswordController,
+            passwordController: _passwordController,
             isObscure: _isObscureConfirmPassword,
             onToggleObscure: () => setState(() => _isObscureConfirmPassword = !_isObscureConfirmPassword),
-            validator: (value) {
-              if (value == null || value.isEmpty) return 'Konfirmasi password tidak boleh kosong';
-              if (value != _passwordController.text) return 'Password tidak cocok';
-              return null;
-            },
           ),
-          // Tambahkan checkbox dan label
-          Row(
-            children: [
-              Checkbox(
-                value: _isAgreedToTerms,
-                onChanged: (bool? value) {
-                  setState(() {
-                    _isAgreedToTerms = value ?? false;
-                  });
-                },
-              ),
-              const Text(
-                'Saya setuju dengan ',
-                style: TextStyle(fontSize: 12),
-              ),
-              // Teks yang bisa di-tap untuk membuka modal syarat dan ketentuan
-              GestureDetector(
-                onTap: _showTermsModal, // Memunculkan modal syarat dan ketentuan
-                child: const Text(
-                  'syarat dan ketentuan',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.blue,
-                    decoration: TextDecoration.underline,
-                  ),
+          const SizedBox(height: 8),
+          RegisterTermsCheckbox(
+            value: _isAgreedToTerms,
+            onChanged: (val) {
+              setState(() {
+                _isAgreedToTerms = val ?? false;
+                if (_isAgreedToTerms) {
+                  _showTermsError = false;
+                }
+              });
+            },
+            onShowTerms: _showTermsModal,
+          ),
+
+          if (_showTermsError)
+            const Padding(
+              padding: EdgeInsets.only(left: 12.0, top: 4.0),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  "Anda harus menyetujui syarat & ketentuan.",
+                  style: TextStyle(color: Colors.red, fontSize: 12),
                 ),
               ),
-            ],
-          ),
-          CustomButton(
-            text: "Daftar",
-            onPressed: authState.isLoading || !_isAgreedToTerms ? null : _register, // Disable button jika belum setuju
+            ),
+          const SizedBox(height: 8),
+            
+          RegisterSubmitButton(
             isLoading: authState.isLoading,
-            isOutlined: true,
-            textColor: const Color(0xFF6c757d),
-            borderColor: const Color(0xFF6c757d),
+            isEnabled: _isAgreedToTerms,
+            onPressed: _register,
           ),
         ],
       ),
+    );
+  }
+
+  Future<void> _showTermsModal() async {
+    final asyncValue = ref.read(parameterNotifierProvider);
+
+    if (asyncValue is! AsyncData<ParameterEntity>) {
+      SnackbarHelper.showSnackbar(context, "Syarat dan ketentuan belum tersedia.", isError: true);
+      await ref.read(parameterNotifierProvider.notifier).fetchParameter();
+      return;
+    }
+
+    final termsContent = asyncValue.value?.terms ?? '';
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => TermsModalBottomSheet(content: termsContent),
     );
   }
 }

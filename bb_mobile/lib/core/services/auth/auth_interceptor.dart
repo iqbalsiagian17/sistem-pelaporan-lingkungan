@@ -21,7 +21,7 @@ class AuthInterceptor extends Interceptor {
     if (err.response?.statusCode == 401) {
       final refreshToken = await globalAuthService.getRefreshToken();
       if (refreshToken == null) {
-        GlobalLogoutHelper.forceLogoutAndShowModal(globalAuthService.navigatorKey.currentContext!);
+        _handleLogout();
         return handler.next(err);
       }
 
@@ -36,6 +36,7 @@ class AuthInterceptor extends Interceptor {
 
         await globalAuthService.saveToken(newAccessToken, newRefreshToken);
 
+        // Clone original request
         final cloneReq = err.requestOptions;
         cloneReq.headers["Authorization"] = "Bearer $newAccessToken";
 
@@ -43,11 +44,21 @@ class AuthInterceptor extends Interceptor {
         return handler.resolve(retryResponse);
       } catch (e) {
         await globalAuthService.clearAuthData();
-        GlobalLogoutHelper.forceLogoutAndShowModal(globalAuthService.navigatorKey.currentContext!);
+        _handleLogout();
         return handler.next(err);
       }
     }
 
     return handler.next(err);
+  }
+
+  void _handleLogout() {
+    final context = globalAuthService.navigatorKey.currentContext;
+    if (context != null) {
+      GlobalLogoutHelper.forceLogoutAndShowModal(context);
+    } else {
+      print("⚠️ Logout modal gagal ditampilkan karena context null");
+      // Tambahkan tindakan lain jika perlu (misalnya log ke analytics)
+    }
   }
 }

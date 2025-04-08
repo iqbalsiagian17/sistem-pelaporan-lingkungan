@@ -14,51 +14,74 @@ class SocialButtons extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        _buildDivider(),
+        const SizedBox(height: 24),
+        _buildDividerWithText("Atau"),
         const SizedBox(height: 16),
-        _buildGoogleButton(),
+
+        // Google only (centered)
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _buildIconButton(
+              imageAsset: 'assets/images/google.png',
+              onPressed: isLoading ? null : onGoogleSignIn,
+              isLoading: isLoading,
+            ),
+          ],
+        )
       ],
     );
   }
 
-  Widget _buildDivider() {
+  Widget _buildDividerWithText(String text) {
     return Row(
-      children: const [
-        Expanded(child: Divider(thickness: 1, color: Colors.grey)),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 8.0),
-          child: Text("Atau", style: TextStyle(color: Colors.grey)),
-        ),
-        Expanded(child: Divider(thickness: 1, color: Colors.grey)),
-      ],
-    );
-  }
-
-  Widget _buildGoogleButton() {
-    return SizedBox(
-      width: double.infinity,
-      child: OutlinedButton.icon(
-        onPressed: isLoading ? null : onGoogleSignIn,
-        icon: isLoading
-            ? const SizedBox(
-                height: 24,
-                width: 24,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              )
-            : Image.asset('assets/images/google.png', height: 24),
-        label: Text(
-          isLoading ? "Sedang masuk..." : "Masuk dengan Google",
-          style: const TextStyle(fontSize: 16, color: Color(0xFF6c757d)),
-        ),
-        style: OutlinedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          side: const BorderSide(color: Color(0xFF6c757d)),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        ).copyWith(
-          overlayColor: WidgetStateProperty.all(
-            const Color.fromRGBO(227, 233, 250, 1),
+      children: [
+        const Expanded(
+          child: Divider(
+            thickness: 0.5,
+            color: Colors.grey,
           ),
         ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+          child: Text(
+            text,
+            style: const TextStyle(color: Colors.grey),
+          ),
+        ),
+        const Expanded(
+          child: Divider(
+            thickness: 0.5,
+            color: Colors.grey,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildIconButton({
+    IconData? icon,
+    Color? color,
+    String? imageAsset,
+    VoidCallback? onPressed,
+    bool isLoading = false,
+  }) {
+    return InkWell(
+      onTap: isLoading ? null : onPressed,
+      borderRadius: BorderRadius.circular(50),
+      child: Container(
+        height: 38,
+        width: 38,
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.grey.shade300),
+        ),
+        child: isLoading
+            ? const CircularProgressIndicator(strokeWidth: 2)
+            : imageAsset != null
+                ? Image.asset(imageAsset)
+                : Icon(icon, color: color, size: 20),
       ),
     );
   }

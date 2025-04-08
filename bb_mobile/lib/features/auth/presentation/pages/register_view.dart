@@ -43,7 +43,6 @@ class RegisterView extends ConsumerWidget {
                   const RegisterHeader(),
                   const SizedBox(height: 16),
                   const RegisterForm(),
-                  const SizedBox(height: 16),
                   SocialButtons(
                     isLoading: google.isLoading,
                     onGoogleSignIn: () async {
@@ -69,7 +68,6 @@ class RegisterView extends ConsumerWidget {
                       }
                     },
                   ),
-                  const SizedBox(height: 16),
                 ],
               ),
             ),

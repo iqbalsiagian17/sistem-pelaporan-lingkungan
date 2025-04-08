@@ -1,14 +1,15 @@
-import 'package:bb_mobile/features/auth/presentation/providers/auth_provider.dart';
+import 'package:bb_mobile/features/auth/presentation/widgets/login/login_forgot_password_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:go_router/go_router.dart';
 
-import 'package:bb_mobile/core/utils/validators.dart';
+import 'package:bb_mobile/features/auth/presentation/providers/auth_provider.dart';
 import 'package:bb_mobile/routes/app_routes.dart';
 import 'package:bb_mobile/widgets/snackbar/snackbar_helper.dart';
-import 'package:bb_mobile/widgets/input/custom_input_field.dart';
-import 'package:bb_mobile/widgets/buttons/custom_button.dart';
+import 'login_email_field.dart';
+import 'login_password_field.dart';
+import 'login_submit_button.dart';
 
 class LoginForm extends ConsumerStatefulWidget {
   const LoginForm({super.key});
@@ -32,10 +33,9 @@ class _LoginFormState extends ConsumerState<LoginForm> {
 
   Future<void> _login() async {
     if (!_formKey.currentState!.validate()) return;
-
     FocusScope.of(context).unfocus();
-    final notifier = ref.read(authNotifierProvider.notifier);
 
+    final notifier = ref.read(authNotifierProvider.notifier);
     final success = await notifier.login(
       _identifierController.text.trim(),
       _passwordController.text.trim(),
@@ -69,43 +69,19 @@ class _LoginFormState extends ConsumerState<LoginForm> {
       key: _formKey,
       child: Column(
         children: [
-          CustomInputField(
-            controller: _identifierController,
-            label: 'Email atau Nomor Telepon',
-            icon: Icons.person_outline,
-            keyboardType: TextInputType.text,
-            validator: Validators.validateEmailOrPhone,
-          ),
-          const SizedBox(height: 10),
-          CustomInputField(
+          LoginEmailField(controller: _identifierController),
+          const SizedBox(height: 12),
+          LoginPasswordField(
             controller: _passwordController,
-            label: 'Password',
-            icon: Icons.lock_outline,
             isObscure: _isObscurePassword,
-            onToggleObscure: () =>
-                setState(() => _isObscurePassword = !_isObscurePassword),
-            validator: Validators.validatePassword,
+            onToggleObscure: () => setState(() => _isObscurePassword = !_isObscurePassword),
           ),
-          TextButton(
-            onPressed: () {
-              // Tidak ada aksi untuk "Lupa Password"
-              // Bisa ditambahkan aksi di sini nanti jika diperlukan
-            },
-            child: Text(
-              'Lupa Password?',
-              style: TextStyle(
-                color: Theme.of(context).primaryColor, // Menyesuaikan warna tema
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          CustomButton(
-            text: "Masuk",
-            onPressed: authState.isLoading ? null : _login,
+          const SizedBox(height: 8),
+          LoginForgotPasswordButton(),
+          const SizedBox(height: 8),
+          LoginSubmitButton(
             isLoading: authState.isLoading,
-            isOutlined: true,
-            textColor: const Color(0xFF6c757d),
-            borderColor: const Color(0xFF6c757d),
+            onPressed: _login,
           ),
         ],
       ),
