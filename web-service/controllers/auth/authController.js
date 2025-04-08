@@ -267,6 +267,24 @@ const resetPassword = async (req, res) => {
   }
 };
 
+// 🔁 Kirim ulang OTP untuk lupa password
+const resendForgotOtp = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const user = await User.findOne({ where: { email } });
+    if (!user) {
+      return res.status(404).json({ message: "Email tidak ditemukan" });
+    }
+
+    await refreshOtp(email, 'forgot'); // Gunakan type 'forgot' di sini
+
+    return res.status(200).json({ message: "OTP baru telah dikirim ulang ke email Anda." });
+  } catch (error) {
+    console.error("Resend Forgot OTP Error:", error);
+    return res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
 
 
 
@@ -319,4 +337,4 @@ const refreshToken = (req, res) => {
 
 
 
-module.exports = { register, login, logout, refreshToken, verifyEmailOtp, resendOtp, forgotPassword, verifyForgotOtp, resetPassword }; 
+module.exports = { register, login, logout, refreshToken, verifyEmailOtp, resendOtp, forgotPassword, verifyForgotOtp, resetPassword, resendForgotOtp }; 

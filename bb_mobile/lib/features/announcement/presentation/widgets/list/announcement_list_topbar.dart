@@ -20,16 +20,7 @@ class AnnouncementListTopBar extends StatelessWidget implements PreferredSizeWid
     return PreferredSize(
       preferredSize: preferredSize,
       child: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Color(0xFF4CAF50), // 💚 Light Green
-              Color(0xFF81C784), // 💚 Soft Green
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
+        color: const Color(0xFF4CAF50), 
         child: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,

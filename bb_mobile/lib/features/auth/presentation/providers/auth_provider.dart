@@ -14,6 +14,9 @@ final authNotifierProvider =
   final forgotPasswordUseCase = ref.read(forgotPasswordUseCaseProvider);
   final verifyForgotOtpUseCase = ref.read(verifyForgotOtpUseCaseProvider);
   final resetPasswordUseCase = ref.read(resetPasswordUseCaseProvider);
+  final resendForgotOtpUseCase = ref.read(resendForgotOtpUseCaseProvider);
+
+  
 
 
 
@@ -27,6 +30,8 @@ final authNotifierProvider =
     forgotPasswordUseCase: forgotPasswordUseCase,
     verifyForgotOtpUseCase: verifyForgotOtpUseCase,
     resetPasswordUseCase: resetPasswordUseCase,
+    resendForgotOtpUseCase: resendForgotOtpUseCase,
+    
 
 
   );

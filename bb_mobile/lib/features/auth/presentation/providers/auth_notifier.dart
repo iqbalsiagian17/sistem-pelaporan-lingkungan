@@ -5,6 +5,7 @@ import 'package:bb_mobile/features/auth/domain/usecases/register_usecase.dart';
 import 'package:bb_mobile/features/auth/domain/usecases/refresh_token_usecase.dart';
 import 'package:bb_mobile/core/services/auth/global_auth_service.dart';
 import 'package:bb_mobile/features/auth/domain/usecases/resend_email_otp_usecase.dart';
+import 'package:bb_mobile/features/auth/domain/usecases/resend_forgot_otp_usecase.dart';
 import 'package:bb_mobile/features/auth/domain/usecases/reset_password_usecase.dart';
 import 'package:bb_mobile/features/auth/domain/usecases/verify_email_otp_usecase.dart';
 import 'package:bb_mobile/features/auth/domain/usecases/verify_forgot_otp_usecase.dart';
@@ -19,6 +20,8 @@ class AuthNotifier extends StateNotifier<AsyncValue<UserEntity?>> {
   final ForgotPasswordUseCase forgotPasswordUseCase;
   final VerifyForgotOtpUseCase verifyForgotOtpUseCase;
   final ResetPasswordUseCase resetPasswordUseCase;
+  final ResendForgotOtpUseCase resendForgotOtpUseCase;
+
 
   AuthNotifier({
     required this.loginUseCase,
@@ -29,6 +32,7 @@ class AuthNotifier extends StateNotifier<AsyncValue<UserEntity?>> {
     required this.forgotPasswordUseCase,
     required this.verifyForgotOtpUseCase,
     required this.resetPasswordUseCase,
+    required this.resendForgotOtpUseCase,
       
 
 
@@ -140,6 +144,15 @@ class AuthNotifier extends StateNotifier<AsyncValue<UserEntity?>> {
       return false;
     }
   }
+
+  Future<bool> resendForgotOtp(String email) async {
+  try {
+    await resendForgotOtpUseCase.execute(email);
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
 
 
 }

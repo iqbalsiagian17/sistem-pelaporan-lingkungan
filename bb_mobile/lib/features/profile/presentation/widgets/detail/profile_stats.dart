@@ -10,13 +10,7 @@ class ProfileStats extends ConsumerStatefulWidget {
 }
 
 class _ProfileStatsState extends ConsumerState<ProfileStats> {
-  @override
-  void initState() {
-    super.initState();
-    Future.microtask(() {
-      ref.read(userProfileProvider.notifier).fetchStats();
-    });
-  }
+  bool _hasFetchedStats = false;
 
   @override
   Widget build(BuildContext context) {
@@ -26,10 +20,21 @@ class _ProfileStatsState extends ConsumerState<ProfileStats> {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: state.when(
         data: (user) {
+          // ✅ Panggil fetchStats hanya sekali setelah user tersedia
+          if (!_hasFetchedStats) {
+            Future.microtask(() {
+              ref.read(userProfileProvider.notifier).fetchStats();
+            });
+            _hasFetchedStats = true;
+          }
+
           final stats = ref.watch(userProfileProvider.notifier).reportStats;
 
           if (stats == null) {
-            return const Center(child: Text("❌ Gagal memuat statistik"));
+            return const Padding(
+              padding: EdgeInsets.symmetric(vertical: 20),
+              child: Center(child: CircularProgressIndicator()),
+            );
           }
 
           return Container(

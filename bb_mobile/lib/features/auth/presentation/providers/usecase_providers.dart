@@ -1,5 +1,6 @@
 import 'package:bb_mobile/features/auth/domain/usecases/forgot_password_usecase.dart';
 import 'package:bb_mobile/features/auth/domain/usecases/resend_email_otp_usecase.dart';
+import 'package:bb_mobile/features/auth/domain/usecases/resend_forgot_otp_usecase.dart';
 import 'package:bb_mobile/features/auth/domain/usecases/reset_password_usecase.dart';
 import 'package:bb_mobile/features/auth/domain/usecases/verify_email_otp_usecase.dart';
 import 'package:bb_mobile/features/auth/domain/usecases/verify_forgot_otp_usecase.dart';
@@ -55,4 +56,8 @@ final verifyForgotOtpUseCaseProvider = Provider<VerifyForgotOtpUseCase>((ref) {
 
 final resetPasswordUseCaseProvider = Provider<ResetPasswordUseCase>((ref) {
   return ResetPasswordUseCase(ref.read(authRepositoryProvider));
+});
+
+final resendForgotOtpUseCaseProvider = Provider<ResendForgotOtpUseCase>((ref) {
+  return ResendForgotOtpUseCase(ref.read(authRepositoryProvider));
 });

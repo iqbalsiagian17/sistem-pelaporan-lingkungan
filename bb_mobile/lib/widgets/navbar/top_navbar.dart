@@ -47,13 +47,7 @@ class _TopBarState extends ConsumerState<TopBar> with WidgetsBindingObserver {
     final unreadCount = ref.watch(notificationProvider.notifier).unreadCount;
 
     return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Color(0xFF4CAF50), Color(0xFF81C784)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-      ),
+      color: const Color(0xFF4CAF50), 
       child: SafeArea(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,

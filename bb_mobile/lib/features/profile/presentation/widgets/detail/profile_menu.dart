@@ -26,6 +26,7 @@ class ProfileMenu extends ConsumerWidget {
             }),
             if (!isGoogleUser)
               _buildMenuItem(Icons.lock, "Ubah Password", () {
+                context.go(AppRoutes.editPassword);
               }),
             const SizedBox(height: 20),
             const _SectionTitle("Umum"),

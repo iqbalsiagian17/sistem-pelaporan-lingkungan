@@ -58,17 +58,27 @@ class _CarouselBannerState extends ConsumerState<CarouselBanner> {
 
     return _buildCarousel(
       items: items.map((carousel) {
-        return _carouselCard(
-          image: CachedNetworkImage(
-            imageUrl: carousel.imageUrl,
-            fit: BoxFit.cover,
-            width: double.infinity,
-            placeholder: (context, url) => _loadingPlaceholder(),
-            errorWidget: (context, url, error) =>
-                Image.asset(kDefaultImage, fit: BoxFit.cover),
+        return GestureDetector(
+          onTap: () {
+            _showImageDetail(
+              context,
+              imageUrl: carousel.imageUrl,
+              title: carousel.title,
+              description: carousel.description,
+            );
+          },
+          child: _carouselCard(
+            image: CachedNetworkImage(
+              imageUrl: carousel.imageUrl,
+              fit: BoxFit.cover,
+              width: double.infinity,
+              placeholder: (context, url) => _loadingPlaceholder(),
+              errorWidget: (context, url, error) =>
+                  Image.asset(kDefaultImage, fit: BoxFit.cover),
+            ),
+            title: carousel.title,
+            description: carousel.description,
           ),
-          title: carousel.title,
-          description: carousel.description,
         );
       }).toList(),
     );
@@ -175,6 +185,77 @@ class _CarouselBannerState extends ConsumerState<CarouselBanner> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
+        ),
+      ),
+    );
+  }
+
+  void _showImageDetail(
+    BuildContext context, {
+    required String imageUrl,
+    required String title,
+    required String description,
+  }) {
+    showDialog(
+      context: context,
+      builder: (_) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.all(10),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: Stack(
+            children: [
+              CachedNetworkImage(
+                imageUrl: imageUrl,
+                fit: BoxFit.cover,
+                width: double.infinity,
+                height: MediaQuery.of(context).size.height * 0.5,
+                placeholder: (context, url) => _loadingPlaceholder(),
+                errorWidget: (context, url, error) =>
+                    Image.asset(kDefaultImage, fit: BoxFit.cover),
+              ),
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.7),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        description,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.white70,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Positioned(
+                top: 8,
+                right: 8,
+                child: IconButton(
+                  icon: const Icon(Icons.close, color: Colors.white),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -78,4 +78,13 @@ Future<bool> verifyForgotOtp(String email, String code) async {
     }
   }
 
+  @override
+  Future<void> resendForgotOtp(String email) async {
+    final result = await remoteDataSource.resendForgotOtp(email);
+    if (result.containsKey('error')) {
+      throw Exception(result['error']);
+    }
+  }
+
+
 }

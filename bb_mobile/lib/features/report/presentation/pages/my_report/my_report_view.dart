@@ -1,5 +1,6 @@
 import 'package:bb_mobile/core/services/auth/global_auth_service.dart';
 import 'package:bb_mobile/features/report/presentation/providers/report_provider.dart';
+import 'package:bb_mobile/features/report/presentation/widgets/my_report/report_topbar.dart';
 import 'package:bb_mobile/features/report/presentation/widgets/my_report/delete_confirmation_modal.dart';
 import 'package:bb_mobile/features/report/presentation/widgets/my_report/report_empty_state.dart';
 import 'package:bb_mobile/features/report/presentation/widgets/my_report/report_list_item.dart';
@@ -41,12 +42,7 @@ class _MyReportViewState extends ConsumerState<MyReportView> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text("Aduanku"),
-        centerTitle: true,
-        backgroundColor: const Color(0xFF4CAF50),
-        foregroundColor: Colors.white,
-      ),
+      appBar: const ReportTopBar(title: "Aduanku"), // ✅ Gunakan AppBar custom
       body: reportAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, _) => Center(child: Text("Terjadi kesalahan: $err")),

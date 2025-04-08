@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:bb_mobile/widgets/snackbar/snackbar_helper.dart';
 import 'package:bb_mobile/features/auth/presentation/providers/auth_provider.dart';
-import 'package:go_router/go_router.dart';
+import 'package:bb_mobile/widgets/input/custom_input_field.dart';
+import 'package:bb_mobile/widgets/buttons/custom_button.dart'; // ✅ pastikan path sesuai
 
 class ForgotPasswordBottomSheet extends ConsumerStatefulWidget {
   const ForgotPasswordBottomSheet({super.key});
@@ -23,42 +25,56 @@ class _ForgotPasswordBottomSheetState
     setState(() => _isLoading = true);
 
     final email = _emailController.text.trim();
-    final success = await ref.read(authNotifierProvider.notifier).forgotPassword(email);
+    final success =
+        await ref.read(authNotifierProvider.notifier).forgotPassword(email);
 
     setState(() => _isLoading = false);
 
     if (success && mounted) {
-      Navigator.pop(context); // tutup modal
-      context.push('/verify-forgot-otp', extra: email); // navigasi ke otp
+      Navigator.pop(context);
+      context.push('/verify-forgot-otp', extra: email);
     } else {
-      SnackbarHelper.showSnackbar(context, "Gagal mengirim OTP. Coba lagi!", isError: true);
+      SnackbarHelper.showSnackbar(
+        context,
+        "Gagal mengirim OTP. Coba lagi!",
+        isError: true,
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: MediaQuery.of(context).viewInsets, // agar tidak ketutup keyboard
+      padding: MediaQuery.of(context).viewInsets,
       child: Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
         child: Form(
           key: _formKey,
           child: Column(
-            mainAxisSize: MainAxisSize.min, // penting agar modal tidak full screen
+            mainAxisSize: MainAxisSize.min,
             children: [
               const Text(
                 "Reset Password",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 12),
               const Text(
-                "Masukkan email yang terdaftar untuk menerima kode OTP.",
+                "Masukkan email terdaftar untuk menerima kode OTP reset password.",
                 textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.black54),
               ),
-              const SizedBox(height: 16),
-              TextFormField(
+              const SizedBox(height: 24),
+              CustomInputField(
                 controller: _emailController,
-                decoration: const InputDecoration(labelText: "Email"),
+                label: "Email",
+                icon: Icons.email,
                 keyboardType: TextInputType.emailAddress,
                 validator: (value) {
                   if (value == null || value.isEmpty) return "Email wajib diisi";
@@ -66,15 +82,14 @@ class _ForgotPasswordBottomSheetState
                   return null;
                 },
               ),
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _isLoading ? null : _submit,
-                  child: _isLoading
-                      ? const CircularProgressIndicator()
-                      : const Text("Kirim OTP"),
-                ),
+              const SizedBox(height: 28),
+              CustomButton(
+                text: "Kirim OTP",
+                isLoading: _isLoading,
+                onPressed: _submit,
+                color: const Color(0xFF4CAF50),
+                textColor: Colors.white,
+                borderColor: Colors.transparent,
               ),
             ],
           ),

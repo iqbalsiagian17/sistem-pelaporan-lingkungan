@@ -5,6 +5,7 @@ class MenuItemWidget extends StatelessWidget {
   final IconData icon;
   final Color color;
   final VoidCallback onTap;
+  final Color iconColor; // ✅ new
 
   const MenuItemWidget({
     super.key,
@@ -12,6 +13,7 @@ class MenuItemWidget extends StatelessWidget {
     required this.icon,
     required this.color,
     required this.onTap,
+    this.iconColor = Colors.white, // default: putih
   });
 
   @override

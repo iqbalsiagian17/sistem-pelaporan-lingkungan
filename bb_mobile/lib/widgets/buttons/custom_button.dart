@@ -6,63 +6,81 @@ class CustomButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final Color color;
   final Color textColor;
-  final bool isOutlined; // Support for Outlined Button
+  final bool isOutlined;
   final Color borderColor;
-  final Widget? icon; // Support for icon
+  final Widget? icon;
 
   const CustomButton({
     super.key,
     required this.text,
     this.isLoading = false,
     required this.onPressed,
-    this.color = const Color(0xFF4CAF50), // Default color for the button
-    this.textColor = Colors.white, // Default text color
-    this.isOutlined = false, // Default to non-outlined button
-    this.borderColor = Colors.grey, // Default border color (same as input field)
-    this.icon, // Icon support
+    this.color = const Color(0xFF4CAF50),
+    this.textColor = Colors.white,
+    this.isOutlined = false,
+    this.borderColor = Colors.grey,
+    this.icon,
   });
 
   @override
   Widget build(BuildContext context) {
+    final childContent = isLoading
+        ? SizedBox(
+            width: 20,
+            height: 20,
+            child: CircularProgressIndicator(
+              strokeWidth: 2.5,
+              valueColor: AlwaysStoppedAnimation<Color>(textColor),
+            ),
+          )
+        : Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (icon != null) ...[
+                icon!,
+                const SizedBox(width: 8),
+              ],
+              Text(
+                text,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: textColor,
+                ),
+              ),
+            ],
+          );
+
     return SizedBox(
       width: double.infinity,
       child: isOutlined
-          ? OutlinedButton.icon(
+          ? OutlinedButton(
               onPressed: isLoading ? null : onPressed,
-              icon: icon ?? const SizedBox(), // Add icon if provided
-              label: isLoading
-                  ? const CircularProgressIndicator()
-                  : Text(
-                      text,
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: textColor),
-                    ),
               style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                side: BorderSide(color: borderColor), // Border color for Outlined Button
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                side: BorderSide(color: borderColor),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
               ).copyWith(
-                overlayColor: WidgetStateProperty.all(textColor.withOpacity(0.1)),
+                overlayColor: MaterialStateProperty.all(textColor.withOpacity(0.08)),
               ),
+              child: childContent,
             )
           : ElevatedButton(
               onPressed: isLoading ? null : onPressed,
               style: ElevatedButton.styleFrom(
-                backgroundColor: color, // Button color
-                foregroundColor: textColor, // Text color
-                padding: const EdgeInsets.symmetric(vertical: 16),
+                backgroundColor: color,
+                padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
-                side: BorderSide(color: borderColor), // Border color for ElevatedButton
+                elevation: 2,
+              ).copyWith(
+                overlayColor: MaterialStateProperty.all(Colors.white.withOpacity(0.08)),
               ),
-              child: isLoading
-                  ? const CircularProgressIndicator(color: Colors.white)
-                  : Text(
-                      text,
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
+              child: childContent,
             ),
     );
   }

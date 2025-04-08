@@ -65,7 +65,7 @@ class RecentReportsSection extends ConsumerWidget {
                     ),
                     const SizedBox(height: 16),
                     ElevatedButton.icon(
-                      onPressed: () => context.go('/report/create'),
+                      onPressed: () => context.go('/create-report'),
                       icon: const Icon(Icons.add),
                       label: const Text("Buat Aduan"),
                       style: ElevatedButton.styleFrom(
@@ -95,7 +95,7 @@ class RecentReportsSection extends ConsumerWidget {
 
                 return InkWell(
                   onTap: () {
-context.push(AppRoutes.detailReport, extra: report);
+                  context.push(AppRoutes.detailReport, extra: report);
 
                   },
                   borderRadius: BorderRadius.circular(12),
@@ -210,7 +210,7 @@ context.push(AppRoutes.detailReport, extra: report);
 
   Widget _buildHeader(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

@@ -15,13 +15,7 @@ class ProfileEditTopBar extends StatelessWidget implements PreferredSizeWidget {
     return PreferredSize(
       preferredSize: preferredSize,
       child: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF4CAF50), Color(0xFF81C784)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
+        color: const Color(0xFF4CAF50), // ✅ Mint Green
         child: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,

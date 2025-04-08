@@ -16,6 +16,7 @@ import 'package:bb_mobile/features/parameter/presentation/pages/reportGuides/rep
 import 'package:bb_mobile/features/parameter/presentation/pages/terms/terms_view.dart';
 import 'package:bb_mobile/features/profile/presentation/pages/detail/profile_view.dart';
 import 'package:bb_mobile/features/profile/presentation/pages/edit/profile_edit_view.dart';
+import 'package:bb_mobile/features/profile/presentation/pages/password/password_edit_view.dart';
 import 'package:bb_mobile/features/report/data/models/report_model.dart';
 import 'package:bb_mobile/features/report/domain/entities/report_entity.dart';
 import 'package:bb_mobile/features/report/presentation/pages/create/report_create_view.dart';
@@ -41,6 +42,7 @@ class AppRoutes {
   static const String dashboard = '/dashboard';
   static const String profile = '/profile';
   static const String editProfile = '/edit-profile';
+  static const String editPassword = '/edit-password';
   static const String createReport = '/create-report';
   static const String editReport = '/edit-report';
   static const String allReport = '/all-report';
@@ -106,6 +108,7 @@ static Future<String?> _redirectLogic(BuildContext context, GoRouterState state)
       GoRoute(path: dashboard, builder: (context, state) => const DashboardView()),
       GoRoute(path: profile, builder: (context, state) => const ProfileView()),
       GoRoute(path: editProfile, builder: (context, state) => const ProfileEditView()),
+      GoRoute(path: editPassword, builder: (context, state) => const PasswordEditView()),
       GoRoute(path: createReport, builder: (context, state) => const ReportCreateView()),
       GoRoute(path: allReport, builder: (context, state) => const ReportListAllView()),
       GoRoute(path: myReport, builder: (context, state) => const MyReportView()),

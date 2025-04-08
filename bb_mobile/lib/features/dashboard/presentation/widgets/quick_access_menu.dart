@@ -20,7 +20,8 @@ class QuickAccessMenu extends StatelessWidget {
           MenuItemWidget(
             title: 'Aduan',
             icon: Icons.report_problem_rounded,
-            color: Colors.green.shade600,
+              color: const Color(0xFF4CAF50), // ini jadi background hijau
+
             onTap: () {
                 context.go(AppRoutes.allReport);
             },
@@ -28,7 +29,8 @@ class QuickAccessMenu extends StatelessWidget {
           MenuItemWidget(
             title: 'Forum',
             icon: Icons.forum_rounded,
-            color: Colors.green.shade500,
+              color: const Color(0xFF4CAF50), // ini jadi background hijau
+
             onTap: () {
               context.go(AppRoutes.forum);
             },
@@ -36,7 +38,8 @@ class QuickAccessMenu extends StatelessWidget {
           MenuItemWidget(
             title: 'Pengumuman',
             icon: Icons.campaign_rounded,
-            color: Colors.green.shade400,
+              color: const Color(0xFF4CAF50), // ini jadi background hijau
+
             onTap: () {
               context.go(AppRoutes.allAnnouncement);
             },  
@@ -44,7 +47,8 @@ class QuickAccessMenu extends StatelessWidget {
           MenuItemWidget(
             title: 'Darurat',
             icon: Icons.warning_amber_rounded,
-            color: Colors.green.shade700,
+              color: const Color(0xFF4CAF50), // ini jadi background hijau
+
             onTap: () {
               context.go(AppRoutes.emergency);
             },

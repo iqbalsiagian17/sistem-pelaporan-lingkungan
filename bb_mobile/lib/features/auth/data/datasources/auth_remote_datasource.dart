@@ -12,6 +12,7 @@ abstract class AuthRemoteDataSource {
   Future<Map<String, dynamic>> forgotPassword(String email);
   Future<Map<String, dynamic>> verifyForgotOtp(String email, String code);
   Future<Map<String, dynamic>> resetPassword(String email, String newPassword);
+  Future<Map<String, dynamic>> resendForgotOtp(String email);
 
   Future<bool> refreshToken();
   Future<void> logout();
@@ -197,6 +198,22 @@ Future<Map<String, dynamic>> verifyForgotOtp(String email, String code) async {
       return {"error": _handleDioError(e)};
     }
   }
+
+  @override
+  Future<Map<String, dynamic>> resendForgotOtp(String email) async {
+    try {
+      final response = await dio.post(
+        "${ApiConstants.authBaseUrl}/resend-forgot-otp",
+        data: {
+          "email": email,
+        },
+      );
+      return response.data;
+    } on DioException catch (e) {
+      return {"error": _handleDioError(e)};
+    }
+  }
+
 
 
   String _handleDioError(DioException e) {

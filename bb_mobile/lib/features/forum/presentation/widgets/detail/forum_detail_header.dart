@@ -15,16 +15,7 @@ class ForumHeader extends StatelessWidget implements PreferredSizeWidget {
     return PreferredSize(
       preferredSize: preferredSize,
       child: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Color(0xFF4CAF50), // Hijau terang
-              Color(0xFF81C784), // Hijau muda
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
+        color: const Color(0xFF4CAF50), 
         child: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
