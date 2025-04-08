@@ -63,7 +63,7 @@ class TermsModalBottomSheet extends StatelessWidget {
                   width: double.infinity,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: isAtBottom ? Colors.green[600] : Colors.grey[400],
+                      backgroundColor: isAtBottom ? Color(0xFF66BB6A): Colors.grey[400],
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(

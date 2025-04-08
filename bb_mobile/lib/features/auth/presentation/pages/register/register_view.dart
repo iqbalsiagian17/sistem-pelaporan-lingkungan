@@ -61,7 +61,7 @@ class RegisterView extends ConsumerWidget {
                         if (context.mounted) {
                           SnackbarHelper.showSnackbar(
                             context,
-                            (google.error ?? "Pendaftaran gagal").toString(), // ✅ convert ke String
+                            (google.error ?? "Pendaftaran gagal").toString(), 
                             isError: true,
                           );
                         }

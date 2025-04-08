@@ -7,6 +7,6 @@ class VerifyEmailOtpUseCase {
   VerifyEmailOtpUseCase(this.repository);
 
   Future<UserEntity> execute(String email, String code) {
-    return repository.verifyOtp(email, code); // ✅ return data user
+    return repository.verifyOtp(email, code); 
   }
 }

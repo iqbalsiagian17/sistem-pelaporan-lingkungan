@@ -57,7 +57,7 @@ class EmergencyCardList extends StatelessWidget {
           ),
         ),
         trailing: IconButton(
-          icon: const Icon(Icons.call_rounded, color: Colors.green),
+          icon: const Icon(Icons.call_rounded, color: Color(0xFF66BB6A)),
           onPressed: number != null ? () => _makePhoneCall(context, number!) : null,
         ),
         onTap: number != null ? () => _makePhoneCall(context, number!) : null,

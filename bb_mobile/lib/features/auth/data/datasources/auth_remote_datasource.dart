@@ -25,8 +25,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
 @override
 Future<Map<String, dynamic>> login(String identifier, String password) async {
-  print("🔐 Memulai proses login...");
-  print("📨 Mengirim data: identifier = $identifier, password = ${'*' * password.length}");
+  print("Memulai proses login...");
+  print("Mengirim data: identifier = $identifier, password = ${'*' * password.length}");
 
   try {
     final response = await dio.post(
@@ -38,39 +38,26 @@ Future<Map<String, dynamic>> login(String identifier, String password) async {
       },
     );
 
-    print("✅ Login response diterima: ${response.statusCode}");
+    print("Login response diterima: ${response.statusCode}");
 
     final data = response.data;
-    print("📦 Response data: $data");
 
     final user = data["user"];
     final token = data["token"];
     final refreshToken = data["refresh_token"];
 
     if (user != null && token != null && refreshToken != null) {
-      print("🔐 Menyimpan token...");
       await globalAuthService.saveToken(token, refreshToken);
-      print("✅ Token berhasil disimpan");
-
-      print("👤 Menyimpan data pengguna...");
       await globalAuthService.saveUserInfo(user);
-      print("✅ Data pengguna berhasil disimpan");
-
-      print("📲 Mengirim token FCM ke backend...");
       await saveFcmTokenToBackend(user["id"]);
-      print("✅ Token FCM dikirim");
-
       return data;
     }
 
-    print("⚠️ Login berhasil, tapi data user/token tidak lengkap.");
     return response.data;
   } on DioException catch (e) {
     final errorMsg = _handleDioError(e);
-    print("❌ Login gagal: $errorMsg");
     return {"error": errorMsg};
   } catch (e) {
-    print("❌ Terjadi error tak terduga: $e");
     return {"error": "Terjadi kesalahan tidak terduga."};
   }
 }
@@ -99,7 +86,6 @@ Future<Map<String, dynamic>> login(String identifier, String password) async {
     if (refreshToken == null) return false;
 
     try {
-      // ⚠️ Jangan pake interceptor token di sini!
       final bareDio = Dio(); // tanpa interceptor
       final response = await bareDio.post(
         "${ApiConstants.authBaseUrl}/refresh-token",

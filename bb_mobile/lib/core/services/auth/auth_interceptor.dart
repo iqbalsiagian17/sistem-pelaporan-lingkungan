@@ -57,7 +57,7 @@ class AuthInterceptor extends Interceptor {
     if (context != null) {
       GlobalLogoutHelper.forceLogoutAndShowModal(context);
     } else {
-      print("⚠️ Logout modal gagal ditampilkan karena context null");
+      print("Logout modal gagal ditampilkan karena context null");
       // Tambahkan tindakan lain jika perlu (misalnya log ke analytics)
     }
   }

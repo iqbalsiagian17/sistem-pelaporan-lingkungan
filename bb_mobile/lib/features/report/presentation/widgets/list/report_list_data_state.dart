@@ -3,6 +3,7 @@ import 'package:bb_mobile/core/utils/status_utils.dart';
 import 'package:bb_mobile/features/report/domain/entities/report_entity.dart';
 import 'package:bb_mobile/features/report/presentation/widgets/list/report_list_empty_state.dart';
 import 'package:bb_mobile/routes/app_routes.dart';
+import 'package:bb_mobile/widgets/snackbar/snackbar_helper.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -69,7 +70,7 @@ class _ReportListDataStateState extends ConsumerState<ReportListDataState> {
               return InkWell(
                 onTap: () => context.push(AppRoutes.detailReport, extra: report),
                 borderRadius: BorderRadius.circular(12),
-                splashColor: Colors.green.withOpacity(0.2),
+                splashColor: Color(0xFF66BB6A).withOpacity(0.2),
                 child: Padding(
                   key: ValueKey(report.id),
                   padding: const EdgeInsets.only(bottom: 12.0),
@@ -132,22 +133,26 @@ class _ReportListDataStateState extends ConsumerState<ReportListDataState> {
                           if (isSaved) {
                             await saveNotifier.deleteSavedReport(report.id);
                             if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text("🔖 Laporan dihapus dari tersimpan")),
+                              SnackbarHelper.showSnackbar(
+                                context,
+                                "Laporan dihapus dari tersimpan",
+                                hasBottomNavbar: true, // set true jika halaman ini punya BottomNavbar
                               );
                             }
                           } else {
                             await saveNotifier.saveReport(report.id);
                             if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text("✅ Laporan berhasil disimpan")),
+                              SnackbarHelper.showSnackbar(
+                                context,
+                                "Laporan berhasil disimpan",
+                                hasBottomNavbar: true,
                               );
                             }
                           }
                         },
                         icon: Icon(
                           isSaved ? Icons.bookmark : Icons.bookmark_border,
-                          color: isSaved ? Colors.green : Colors.black54,
+                          color: isSaved ? const Color(0xFF66BB6A) : Colors.black54,
                         ),
                       ),
                     ],
@@ -163,7 +168,7 @@ class _ReportListDataStateState extends ConsumerState<ReportListDataState> {
                 onPressed: () => setState(() => _showAll = true),
                 icon: const Icon(Icons.expand_more),
                 label: const Text("Lihat Semua"),
-                style: TextButton.styleFrom(foregroundColor: Colors.green),
+                style: TextButton.styleFrom(foregroundColor: Color(0xFF66BB6A)),
               ),
             ),
         ],

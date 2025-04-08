@@ -141,6 +141,6 @@ Future<int> getLikeCount(int postId) async {
 }
 
   Never _handleError(dynamic e, String context) {
-    throw Exception("❌ [$context] ${e is DioException ? e.response?.data['error'] ?? e.message : e.toString()}");
+    throw Exception(" [$context] ${e is DioException ? e.response?.data['error'] ?? e.message : e.toString()}");
   }
 }

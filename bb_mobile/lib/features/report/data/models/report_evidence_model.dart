@@ -13,7 +13,6 @@ class ReportEvidenceModel extends ReportEvidenceEntity {
     );
   }
 
-  /// ✅ Tambahkan ini
   factory ReportEvidenceModel.fromEntity(ReportEvidenceEntity entity) {
     return ReportEvidenceModel(
       id: entity.id,

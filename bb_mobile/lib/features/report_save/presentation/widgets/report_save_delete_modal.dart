@@ -40,7 +40,7 @@ void showDeleteSavedReportModal(BuildContext context, WidgetRef ref, int reportI
                 const SizedBox(width: 10),
                 Expanded(
                   child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                    style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF66BB6A)),
                     onPressed: () async {
                       Navigator.pop(context); // Tutup modal
                       await ref

@@ -27,7 +27,7 @@ class ReportListItem extends StatelessWidget {
     return InkWell(
       onTap: () => context.push(AppRoutes.detailReport, extra: report),
       borderRadius: BorderRadius.circular(12),
-      splashColor: Colors.green.withOpacity(0.2),
+      splashColor: Color(0xFF66BB6A).withOpacity(0.2),
       child: Padding(
         key: ValueKey(report.id),
         padding: const EdgeInsets.only(bottom: 12.0),

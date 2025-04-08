@@ -6,8 +6,8 @@ import 'package:flutter/material.dart';
   import 'package:flutter/services.dart';
 
   class ReportUploadButtons extends StatefulWidget {
-    final bool isAtLocation; // ✅ Parameter untuk mengetahui apakah user di lokasi
-    final Function(List<File>) onFilesSelected; // ✅ Callback untuk mengirim file ke parent
+    final bool isAtLocation; 
+    final Function(List<File>) onFilesSelected; 
     final Function(double, double) onLocationCaptured; 
 
     const ReportUploadButtons({
@@ -23,13 +23,12 @@ import 'package:flutter/material.dart';
 
   class _ReportUploadButtonsState extends State<ReportUploadButtons> {
     final List<File> _selectedImages = [];
-    final Set<String> _imagePaths = {}; // Gunakan Set<String> untuk mencegah duplikasi
+    final Set<String> _imagePaths = {}; 
 
     double? latitude;
     double? longitude;
 
 
-  // ✅ Dapatkan lokasi GPS
   Future<void> _getCurrentLocation() async {
       try {
         Position position = await Geolocator.getCurrentPosition(
@@ -56,7 +55,6 @@ import 'package:flutter/material.dart';
     }
 
     
-  // ✅ Fungsi untuk memilih banyak gambar dari galeri (tanpa duplikasi & batas 5 gambar)
       void _pickMultipleImages() async {
     if (widget.isAtLocation) return;
 
@@ -64,12 +62,12 @@ import 'package:flutter/material.dart';
     final List<XFile>? pickedFiles = await picker.pickMultiImage();
 
     if (pickedFiles != null && pickedFiles.isNotEmpty) {
-      final Set<String> newPaths = {}; // Set untuk menyimpan path unik
+      final Set<String> newPaths = {}; 
       final List<File> uniqueFiles = [];
 
       for (var file in pickedFiles) {
         if (_selectedImages.length >= 5) {
-          SnackbarHelper.showSnackbar(context, "Maksimal 5 gambar dapat diunggah!", isError: true);
+          SnackbarHelper.showSnackbar(context, "Maksimal 5 gambar dapat diunggah!", isError: true,  hasBottomNavbar: true);
           break;
         }
 
@@ -88,7 +86,6 @@ import 'package:flutter/material.dart';
 
 
 
-    // ✅ Fungsi untuk mengambil gambar dari kamera
     Future<void> _pickImageFromCamera(BuildContext context) async {
       if (!widget.isAtLocation) return;
 
@@ -100,7 +97,7 @@ import 'package:flutter/material.dart';
 
       if (pickedFile != null) {
         if (_selectedImages.length >= 5) {
-          SnackbarHelper.showSnackbar(context, "Maksimal 5 gambar dapat diunggah!", isError: true);
+          SnackbarHelper.showSnackbar(context, "Maksimal 5 gambar dapat diunggah!", isError: true, hasBottomNavbar: true);
           return;
         }
 
@@ -113,7 +110,6 @@ import 'package:flutter/material.dart';
 
 
 
-    // ✅ Konfirmasi sebelum mengambil foto (agar landscape)
     Future<bool> _showCameraOrientationSheet(BuildContext context) async {
       HapticFeedback.mediumImpact();
       return await showModalBottomSheet<bool>(
@@ -129,7 +125,7 @@ import 'package:flutter/material.dart';
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.camera_alt_rounded, size: 50, color: Colors.green),
+                    const Icon(Icons.camera_alt_rounded, size: 50, color: Color(0xFF66BB6A)),
                     const SizedBox(height: 12),
                     const Text("Gunakan Mode Landscape",
                       style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
@@ -155,7 +151,7 @@ import 'package:flutter/material.dart';
                         const SizedBox(width: 10),
                         Expanded(
                           child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                            style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF66BB6A)),
                             onPressed: () => Navigator.pop(context, true),
                             child: const Text("Lanjut", style: TextStyle(color: Colors.white)),
                           ),
@@ -170,8 +166,6 @@ import 'package:flutter/material.dart';
     }
 
 
-    // ✅ Hapus gambar yang sudah dipilih
-  // ✅ Hapus gambar yang sudah dipilih
     void _removeImage(int index) {
       setState(() {
         _imagePaths.remove(_selectedImages[index].path);
@@ -187,10 +181,9 @@ import 'package:flutter/material.dart';
     Widget build(BuildContext context) {
       return Column(
         children: [
-          // 🔘 Tombol untuk pilih gambar
           Row(
             children: [
-              if (!widget.isAtLocation) // ❌ Jika tidak di lokasi, hanya tampil tombol pilih gambar
+              if (!widget.isAtLocation) 
                 Expanded(
                   child: OutlinedButton.icon(
                     onPressed: _pickMultipleImages,
@@ -207,7 +200,7 @@ import 'package:flutter/material.dart';
                   ),
                 ),
 
-              if (widget.isAtLocation) // ✅ Jika di lokasi, hanya tampil tombol ambil foto
+              if (widget.isAtLocation) 
                 Expanded(
                   child: OutlinedButton.icon(
                     onPressed: () => _pickImageFromCamera(context),

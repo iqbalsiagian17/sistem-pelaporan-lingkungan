@@ -5,22 +5,22 @@ import 'package:go_router/go_router.dart';
 class ReportTopBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
 
-  const ReportTopBar({super.key, required this.title}); // ✅ Pastikan title selalu diberikan
+  const ReportTopBar({super.key, required this.title}); 
 
   @override
-  Size get preferredSize => const Size.fromHeight(56);
+  Size get preferredSize => const Size.fromHeight(50);
 
   @override
   Widget build(BuildContext context) {
     return PreferredSize(
       preferredSize: preferredSize,
       child: Container(
-      color: const Color(0xFF4CAF50), // ✅ Mint Green
+      color: const Color(0xFF66BB6A), 
         child: AppBar(
-          backgroundColor: Colors.transparent, // 🪟 Agar gradient terlihat
+          backgroundColor: Colors.transparent, 
           elevation: 0,
           title: Text(
-            title, // ✅ Gunakan title dari parameter
+            title, 
             style: const TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 18,

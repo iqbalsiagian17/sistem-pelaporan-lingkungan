@@ -42,7 +42,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<UserEntity> verifyOtp(String email, String code) async {
-    final result = await remoteDataSource.verifyEmailOtp(email, code); // ✅ sesuai method yang ada
+    final result = await remoteDataSource.verifyEmailOtp(email, code); 
     if (result.containsKey('error')) throw Exception(result['error']);
     return UserModel.fromJson(result['user']);
   }

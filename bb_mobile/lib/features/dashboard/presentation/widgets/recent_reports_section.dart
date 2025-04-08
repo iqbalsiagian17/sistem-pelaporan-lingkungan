@@ -1,5 +1,6 @@
 import 'package:bb_mobile/core/utils/status_utils.dart';
 import 'package:bb_mobile/routes/app_routes.dart';
+import 'package:bb_mobile/widgets/snackbar/snackbar_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -33,7 +34,7 @@ class RecentReportsSection extends ConsumerWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
             child: Center(
               child: Text(
-                "❌ Terjadi kesalahan: $err",
+                " Terjadi kesalahan: $err",
                 style: const TextStyle(color: Colors.red),
               ),
             ),
@@ -69,7 +70,7 @@ class RecentReportsSection extends ConsumerWidget {
                       icon: const Icon(Icons.add),
                       label: const Text("Buat Aduan"),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
+                        backgroundColor: Color(0xFF66BB6A),
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -99,7 +100,7 @@ class RecentReportsSection extends ConsumerWidget {
 
                   },
                   borderRadius: BorderRadius.circular(12),
-                  splashColor: Colors.green.withOpacity(0.2),
+                  splashColor: Color(0xFF66BB6A).withOpacity(0.2),
                   child: Padding(
                     key: ValueKey(report.id),
                     padding: const EdgeInsets.only(bottom: 12.0),
@@ -175,27 +176,28 @@ class RecentReportsSection extends ConsumerWidget {
                                 if (isSaved) {
                                   await saveNotifier.deleteSavedReport(report.id);
                                   if (context.mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text("🔖 Laporan dihapus dari tersimpan")),
+                                    SnackbarHelper.showSnackbar(
+                                      context,
+                                      "Laporan dihapus dari tersimpan",hasBottomNavbar: true
                                     );
                                   }
                                 } else {
                                   await saveNotifier.saveReport(report.id);
                                   if (context.mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text("✅ Laporan berhasil disimpan")),
+                                    SnackbarHelper.showSnackbar(
+                                      context,
+                                      "Laporan berhasil disimpan", hasBottomNavbar: true
                                     );
                                   }
                                 }
                               },
                               icon: Icon(
                                 isSaved ? Icons.bookmark : Icons.bookmark_border,
-                                color: isSaved ? Colors.green : Colors.black54,
+                                color: isSaved ? const Color(0xFF66BB6A) : Colors.black54,
                               ),
                             );
                           },
-                        )
-
+                        ),
                       ],
                     ),
                   ),

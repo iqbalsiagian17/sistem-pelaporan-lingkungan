@@ -41,23 +41,23 @@ class _ReportCreateViewState extends ConsumerState<ReportCreateView> {
 
   Future<void> _handleSubmit() async {
     if (_titleController.text.isEmpty || _descController.text.isEmpty) {
-      SnackbarHelper.showSnackbar(context, "Judul dan rincian aduan wajib diisi", isError: true);
+      SnackbarHelper.showSnackbar(context, "Judul dan rincian aduan wajib diisi", isError: true, hasBottomNavbar: true);
       return;
     }
     if (isAtLocation && (latitude == null || longitude == null)) {
-      SnackbarHelper.showSnackbar(context, "Koordinat tidak tersedia. Aktifkan GPS Anda", isError: true);
+      SnackbarHelper.showSnackbar(context, "Koordinat tidak tersedia. Aktifkan GPS Anda", isError: true, hasBottomNavbar: true);
       return;
     }
     if (!isAtLocation && _villageController.text.isEmpty) {
-      SnackbarHelper.showSnackbar(context, "Pilih lokasi desa/kelurahan", isError: true);
+      SnackbarHelper.showSnackbar(context, "Pilih lokasi desa/kelurahan", isError: true, hasBottomNavbar: true);
       return;
     }
     if (attachments.isEmpty) {
-      SnackbarHelper.showSnackbar(context, "Unggah minimal 1 gambar", isError: true);
+      SnackbarHelper.showSnackbar(context, "Unggah minimal 1 gambar", isError: true, hasBottomNavbar: true);
       return;
     }
     if (attachments.length > 5) {
-      SnackbarHelper.showSnackbar(context, "Maksimal 5 gambar yang dapat diunggah", isError: true);
+      SnackbarHelper.showSnackbar(context, "Maksimal 5 gambar yang dapat diunggah", isError: true, hasBottomNavbar: true);
       return;
     }
 
@@ -80,10 +80,10 @@ class _ReportCreateViewState extends ConsumerState<ReportCreateView> {
       );
 
       if (success) {
-        SnackbarHelper.showSnackbar(context, "Aduan berhasil dikirim!");
+        SnackbarHelper.showSnackbar(context, "Aduan berhasil dikirim!", isError: false, hasBottomNavbar: true);
         context.go(AppRoutes.dashboard);
       } else {
-        SnackbarHelper.showSnackbar(context, "Gagal mengirim aduan.", isError: true);
+        SnackbarHelper.showSnackbar(context, "Gagal mengirim aduan.", isError: true, hasBottomNavbar: true);
       }
     } catch (e) {
       final message = e.toString().toLowerCase();
@@ -92,15 +92,17 @@ class _ReportCreateViewState extends ConsumerState<ReportCreateView> {
           context,
           "Anda masih memiliki laporan yang belum selesai. Selesaikan terlebih dahulu.",
           isError: true,
+          hasBottomNavbar: true
         );
       } else if (message.contains("lokasi tidak tersedia")) {
         SnackbarHelper.showSnackbar(
           context,
           "Koordinat tidak tersedia. Aktifkan GPS Anda.",
           isError: true,
+          hasBottomNavbar: true
         );
       } else {
-        SnackbarHelper.showSnackbar(context, "Terjadi kesalahan: $e", isError: true);
+        SnackbarHelper.showSnackbar(context, "Terjadi kesalahan: $e", isError: true, hasBottomNavbar: true);
       }
     } finally {
       setState(() => isSubmitting = false);
@@ -152,7 +154,7 @@ class _ReportCreateViewState extends ConsumerState<ReportCreateView> {
               child: ElevatedButton(
                 onPressed: isSubmitting ? null : _handleSubmit,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
+                  backgroundColor: Color(0xFF66BB6A),
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),

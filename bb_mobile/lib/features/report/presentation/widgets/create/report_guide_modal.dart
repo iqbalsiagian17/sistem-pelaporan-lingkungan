@@ -24,7 +24,7 @@ Future<void> showReportGuideTutorial(BuildContext context) async {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.help_outline_rounded, size: 48, color: Colors.green),
+                const Icon(Icons.help_outline_rounded, size: 48, color: Color(0xFF66BB6A)),
                 const SizedBox(height: 16),
                 const Text("Wajib Membaca!", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 12),
@@ -41,7 +41,7 @@ Future<void> showReportGuideTutorial(BuildContext context) async {
                         context.go(AppRoutes.reportGuides);
                      },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
+                      backgroundColor: Color(0xFF66BB6A),
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

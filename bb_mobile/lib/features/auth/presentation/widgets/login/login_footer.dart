@@ -28,7 +28,7 @@ class LoginFooter extends StatelessWidget {
             "Daftar dengan email",
             style: TextStyle(
               fontSize: 14,
-              color: Color(0xFF4CAF50),
+              color: Color(0xFF66BB6A),
             ),
           ),
         ),

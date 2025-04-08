@@ -11,7 +11,7 @@ class Validators {
       return 'Masukkan email atau nomor telepon yang valid';
     }
 
-    return null; // ✅ Valid
+    return null;
   }
 
   /// Validasi Email
@@ -23,7 +23,7 @@ class Validators {
     if (!emailRegex.hasMatch(value)) {
       return 'Format email tidak valid';
     }
-    return null; // ✅ Valid
+    return null;
   }
 
   /// Validasi Password

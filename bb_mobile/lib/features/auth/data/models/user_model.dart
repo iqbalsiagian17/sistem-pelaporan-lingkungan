@@ -10,7 +10,7 @@ class UserModel extends UserEntity {
     required super.phoneNumber,
     required super.type,
     super.blockedUntil,
-    required super.authProvider, // ✅ ini wajib ditambahkan
+    required super.authProvider, 
     this.password,
   });
 

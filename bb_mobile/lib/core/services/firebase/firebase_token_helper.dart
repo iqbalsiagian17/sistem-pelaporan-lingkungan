@@ -19,8 +19,8 @@ Future<void> saveFcmTokenToBackend(int userId) async {
       },
     );
 
-    print("✅ Token FCM berhasil dikirim ke backend: ${response.data}");
+    print("Token FCM berhasil dikirim ke backend: ${response.data}");
   } catch (e) {
-    print("❌ Gagal mengirim token FCM ke backend: $e");
+    print("Gagal mengirim token FCM ke backend: $e");
   }
 }

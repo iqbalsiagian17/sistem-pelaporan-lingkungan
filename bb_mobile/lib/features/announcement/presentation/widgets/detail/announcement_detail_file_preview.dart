@@ -72,7 +72,7 @@ class AnnouncementFilePreview extends StatelessWidget {
                   if (!launched) throw Exception("Gagal membuka PDF");
                 } catch (e) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text("❌ ${e.toString()}")),
+                    SnackBar(content: Text(" ${e.toString()}")),
                   );
                 }
               },

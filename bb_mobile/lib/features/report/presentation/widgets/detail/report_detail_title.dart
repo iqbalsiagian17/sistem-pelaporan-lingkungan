@@ -9,7 +9,7 @@ class ReportDetailTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CustomChip(
-      label: title ?? "Judul tidak tersedia", // ✅ Gunakan CustomChip untuk tampilan lebih menarik
+      label: title ?? "Judul tidak tersedia", 
     );
   }
 }

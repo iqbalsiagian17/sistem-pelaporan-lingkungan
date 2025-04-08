@@ -39,7 +39,7 @@ class ReportDetailStatusHistory extends StatelessWidget {
           // 🔹 Header
           Row(
             children: const [
-              Icon(Icons.timeline, color: Colors.green, size: 20),
+              Icon(Icons.timeline, color: Color(0xFF66BB6A), size: 20),
               SizedBox(width: 8),
               Text(
                 "Riwayat Perubahan Status",

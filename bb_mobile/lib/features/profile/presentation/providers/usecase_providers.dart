@@ -8,18 +8,15 @@ import 'package:bb_mobile/features/profile/domain/usecases/change_password_useca
 import 'package:bb_mobile/features/profile/domain/usecases/get_user_profile_usecase.dart';
 import 'package:bb_mobile/features/profile/domain/usecases/update_user_profile_usecase.dart';
 
-// ✅ Datasource
 final userProfileRemoteDatasourceProvider = Provider<ProfileRemoteDatasource>((ref) {
-  return ProfileRemoteDatasourceImpl(); // ⬅️ Tidak butuh Dio sebagai parameter
+  return ProfileRemoteDatasourceImpl();
 });
 
-// ✅ Repository
 final userProfileRepositoryProvider = Provider<UserProfileRepository>((ref) {
   final datasource = ref.read(userProfileRemoteDatasourceProvider);
   return UserProfileRepositoryImpl(datasource);
 });
 
-// ✅ Usecases
 final getUserProfileUsecaseProvider = Provider<GetUserProfileUseCase>((ref) {
   final repo = ref.read(userProfileRepositoryProvider);
   return GetUserProfileUseCase(repo);

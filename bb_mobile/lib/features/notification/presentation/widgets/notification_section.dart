@@ -45,7 +45,7 @@ class NotificationSection extends ConsumerWidget {
                   label: const Text("Tandai semua dibaca", style: TextStyle(fontSize: 13)),
                   style: TextButton.styleFrom(
                     padding: const EdgeInsets.symmetric(horizontal: 8),
-                    foregroundColor: Colors.green.shade700,
+                    foregroundColor: Color(0xFF66BB6A),
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
                 ),
@@ -73,7 +73,6 @@ class NotificationSection extends ConsumerWidget {
     );
   }
 
-  /// ✅ Grup notifikasi berdasarkan tanggal 'dd MMMM yyyy'
   Map<String, List<UserNotificationEntity>> _groupByDate(List<UserNotificationEntity> notifs) {
     Map<String, List<UserNotificationEntity>> grouped = {};
 
@@ -85,7 +84,6 @@ class NotificationSection extends ConsumerWidget {
     return grouped;
   }
 
-  /// 🔔 Card Notifikasi
   Widget _buildNotifCard(BuildContext context, WidgetRef ref, UserNotificationEntity notif) {
     final dateFormatted = DateFormat('HH:mm', 'id_ID').format(notif.createdAt);
 

@@ -75,7 +75,7 @@ class TopicSection extends ConsumerWidget {
               );
             },
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (err, _) => Text("❌ Terjadi kesalahan: $err"),
+            error: (err, _) => Text(" Terjadi kesalahan: $err"),
           ),
         ],
       ),

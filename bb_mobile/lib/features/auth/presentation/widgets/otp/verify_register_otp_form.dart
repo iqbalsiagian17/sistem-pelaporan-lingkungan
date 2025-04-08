@@ -114,7 +114,7 @@ class _VerifyOtpFormState extends ConsumerState<VerifyOtpForm> {
             width: double.infinity,
             child: ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green[600],
+                backgroundColor: Color(0xFF66BB6A),
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 12),
               ),

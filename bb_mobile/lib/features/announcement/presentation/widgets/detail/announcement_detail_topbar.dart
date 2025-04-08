@@ -11,14 +11,14 @@ class AnnouncementDetailTopBar extends StatelessWidget implements PreferredSizeW
   });
 
   @override
-  Size get preferredSize => const Size.fromHeight(56);
+  Size get preferredSize => const Size.fromHeight(50);
 
   @override
   Widget build(BuildContext context) {
     return PreferredSize(
       preferredSize: preferredSize,
       child: Container(
-        color: const Color(0xFF4CAF50), 
+        color: const Color(0xFF66BB6A), 
         child: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,

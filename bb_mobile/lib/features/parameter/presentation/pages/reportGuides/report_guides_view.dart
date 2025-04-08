@@ -30,7 +30,7 @@ class _ReportGuidesViewState extends ConsumerState<ReportGuidesView> {
       appBar: const ReportGuidesTopBar(title: "Panduan Pelaporan"),
       body: parameterAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, _) => Center(child: Text("❌ $err")),
+        error: (err, _) => Center(child: Text(" $err")),
         data: (parameter) {
           if (parameter.reportGuidelines == null || parameter.reportGuidelines!.isEmpty) {
             return const ReportGuidesDataEmptyState();

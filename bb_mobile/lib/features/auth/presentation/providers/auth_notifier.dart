@@ -128,10 +128,8 @@ class AuthNotifier extends StateNotifier<AsyncValue<UserEntity?>> {
   Future<bool> verifyForgotOtp(String email, String code) async {
     try {
       final result = await verifyForgotOtpUseCase.execute(email, code);
-      print("✅ Hasil verifyForgotOtp: $result"); // Debug
       return result;
     } catch (e, st) {
-      print("❌ Error verifyForgotOtp: $e");
       return false;
     }
   }

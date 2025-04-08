@@ -12,7 +12,7 @@ class ReportSaveEmptyState extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Image.asset(
-              'assets/images/report/empty_report.png', // ✅ Pastikan path gambar sesuai
+              'assets/images/report/empty_report.png', 
               height: 180,
             ),
             const SizedBox(height: 20),

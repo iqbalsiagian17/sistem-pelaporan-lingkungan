@@ -1,6 +1,7 @@
 import 'package:bb_mobile/core/utils/status_utils.dart';
 import 'package:bb_mobile/features/report/presentation/providers/report_provider.dart';
 import 'package:bb_mobile/features/report_save/presentation/providers/report_save_provider.dart';
+import 'package:bb_mobile/widgets/snackbar/snackbar_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -93,28 +94,29 @@ final likeCount = likeNotifier.likeCounts[widget.reportId] ?? widget.likes;
             ),
             const SizedBox(width: 10),
 
-            // 🔖 Bookmark
             IconButton(
               onPressed: () async {
                 if (isSaved) {
                   await saveNotifier.deleteSavedReport(widget.reportId);
                   if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("🔖 Laporan dihapus dari tersimpan")),
+                    SnackbarHelper.showSnackbar(
+                      context,
+                      "Laporan dihapus dari tersimpan", hasBottomNavbar: false
                     );
                   }
                 } else {
                   await saveNotifier.saveReport(widget.reportId);
                   if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("✅ Laporan berhasil disimpan")),
+                    SnackbarHelper.showSnackbar(
+                      context,
+                      "Laporan berhasil disimpan",hasBottomNavbar: false
                     );
                   }
                 }
               },
               icon: Icon(
                 isSaved ? Icons.bookmark : Icons.bookmark_border,
-                color: isSaved ? Colors.green : Colors.black54,
+                color: isSaved ? const Color(0xFF66BB6A) : Colors.black54,
               ),
             ),
           ],

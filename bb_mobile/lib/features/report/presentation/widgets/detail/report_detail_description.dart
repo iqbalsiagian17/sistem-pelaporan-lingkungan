@@ -11,23 +11,22 @@ class ReportDetailDescription extends StatelessWidget {
       builder: (context, constraints) {
         return Container(
           constraints: BoxConstraints(
-            maxWidth: constraints.maxWidth, // ✅ Pastikan tidak melebihi layar
+            maxWidth: constraints.maxWidth, 
           ),
           child: Text(
             description ?? "Deskripsi tidak tersedia",
             style: TextStyle(
-              fontSize: _getResponsiveFontSize(context), // ✅ Font size responsif
+              fontSize: _getResponsiveFontSize(context), 
               color: Colors.black87,
-              height: 1.5, // ✅ Spasi antar baris agar lebih nyaman dibaca
+              height: 1.5, 
             ),
-            textAlign: TextAlign.justify, // ✅ Rata kiri-kanan agar lebih rapi
+            textAlign: TextAlign.justify,
           ),
         );
       },
     );
   }
 
-  // ✅ Fungsi untuk menentukan ukuran font secara responsif
   double _getResponsiveFontSize(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     

@@ -36,7 +36,7 @@ class GlobalAuthService {
     final prefs = await SharedPreferences.getInstance();
     final id = user["id"] ?? 0; // ⬅️ Tambahkan ini
     await prefs.setInt("user_id", id);
-    _cachedUserId = id; // ✅ Simpan ke cache
+    _cachedUserId = id; 
 
     await prefs.setString("username", user["username"] ?? "");
     await prefs.setString("email", user["email"] ?? "");

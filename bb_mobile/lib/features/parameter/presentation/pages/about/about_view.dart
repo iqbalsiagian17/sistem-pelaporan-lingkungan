@@ -30,7 +30,7 @@ class _AboutViewState extends ConsumerState<AboutView> {
       appBar: const AboutTopBar(title: "Tentang Aplikasi"),
       body: parameterAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, _) => Center(child: Text("❌ $err")),
+        error: (err, _) => Center(child: Text(" $err")),
         data: (parameter) {
           if (parameter.about == null || parameter.about!.isEmpty) {
             return const AboutDataEmptyState();

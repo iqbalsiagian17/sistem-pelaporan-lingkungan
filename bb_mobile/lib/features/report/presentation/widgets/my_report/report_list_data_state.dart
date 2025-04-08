@@ -3,6 +3,7 @@ import 'package:bb_mobile/core/utils/status_utils.dart';
 import 'package:bb_mobile/features/report/domain/entities/report_entity.dart';
 import 'package:bb_mobile/features/report/presentation/providers/report_provider.dart';
 import 'package:bb_mobile/routes/app_routes.dart';
+import 'package:bb_mobile/widgets/snackbar/snackbar_helper.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -59,7 +60,7 @@ class _ReportListDataStateState extends ConsumerState<ReportListDataState> {
               return InkWell(
                 onTap: () => context.push(AppRoutes.detailReport, extra: report),
                 borderRadius: BorderRadius.circular(12),
-                splashColor: Colors.green.withOpacity(0.2),
+                splashColor: Color(0xFF66BB6A).withOpacity(0.2),
                 child: Padding(
                   key: ValueKey(report.id),
                   padding: const EdgeInsets.only(bottom: 12.0),
@@ -139,7 +140,7 @@ if (report.status.toLowerCase() == "pending")
                 onPressed: () => setState(() => _showAll = true),
                 icon: const Icon(Icons.expand_more),
                 label: const Text("Lihat Semua"),
-                style: TextButton.styleFrom(foregroundColor: Colors.green),
+                style: TextButton.styleFrom(foregroundColor: Color(0xFF66BB6A)),
               ),
             ),
         ],
@@ -201,14 +202,20 @@ if (report.status.toLowerCase() == "pending")
 
     if (confirm == true && context.mounted) {
       final success = await ref.read(reportProvider.notifier).deleteReport(reportId.toString());
+
       if (success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("✅ Laporan berhasil dihapus")),
+        SnackbarHelper.showSnackbar(
+          context,
+          "Laporan berhasil dihapus",
+          hasBottomNavbar: true, // ubah ke false jika halaman ini tidak punya BottomNavbar
         );
         widget.onRetry(); // Refresh list
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("❌ Gagal menghapus laporan")),
+        SnackbarHelper.showSnackbar(
+          context,
+          "Gagal menghapus laporan",
+          isError: true,
+          hasBottomNavbar: true,
         );
       }
     }

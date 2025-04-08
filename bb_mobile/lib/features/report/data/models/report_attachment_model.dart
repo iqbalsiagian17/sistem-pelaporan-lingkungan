@@ -19,7 +19,6 @@ class ReportAttachmentModel extends ReportAttachmentEntity {
     );
   }
 
-  /// ✅ Tambahkan ini agar bisa konversi dari Entity ke Model
   factory ReportAttachmentModel.fromEntity(ReportAttachmentEntity entity) {
     return ReportAttachmentModel(
       id: entity.id,

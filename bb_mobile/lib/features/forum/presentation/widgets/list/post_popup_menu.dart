@@ -1,6 +1,7 @@
 import 'package:bb_mobile/core/services/auth/global_auth_service.dart';
 import 'package:bb_mobile/features/forum/domain/entities/forum_post_entity.dart';
 import 'package:bb_mobile/features/forum/presentation/providers/forum_provider.dart';
+import 'package:bb_mobile/widgets/snackbar/snackbar_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -136,13 +137,14 @@ class _PostPopupMenuState extends ConsumerState<PostPopupMenu> {
 
   Future<void> _deletePost() async {
     final success = await ref.read(forumProvider.notifier).deletePost(widget.post.id);
-      if (!mounted) return;
+    if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(success ? "✅ Postingan berhasil dihapus" : "❌ Gagal menghapus postingan"),
-        ),
-      );
-
+    SnackbarHelper.showSnackbar(
+      context,
+      success ? "Postingan berhasil dihapus" : "Gagal menghapus postingan",
+      isError: !success,
+      hasBottomNavbar: true, // ubah ke false jika halaman ini tidak punya bottom navbar
+    );
   }
+
 }

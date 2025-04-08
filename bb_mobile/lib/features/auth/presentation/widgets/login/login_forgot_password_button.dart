@@ -27,7 +27,7 @@ class LoginForgotPasswordButton extends StatelessWidget {
           'Lupa Password?',
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            color: Colors.green,
+            color: Color(0xFF66BB6A),
           ),
         ),
       ),

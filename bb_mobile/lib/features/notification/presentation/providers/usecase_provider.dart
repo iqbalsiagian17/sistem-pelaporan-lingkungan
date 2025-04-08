@@ -6,18 +6,15 @@ import 'package:bb_mobile/features/notification/domain/usecases/get_user_notific
 import 'package:bb_mobile/features/notification/domain/usecases/mark_all_notifications_read_usecase.dart';
 import 'package:bb_mobile/features/notification/domain/usecases/mark_notification_read_usecase.dart';
 
-// ✅ Provider untuk RemoteDataSource
 final notificationRemoteDataSourceProvider = Provider<NotificationRemoteDataSource>((ref) {
   return NotificationRemoteDataSourceImpl(DioClient.instance); // 🟢 Pakai DioClient
 });
 
-// ✅ Provider untuk Repository
 final notificationRepositoryProvider = Provider<NotificationRepositoryImpl>((ref) {
   final remoteDataSource = ref.watch(notificationRemoteDataSourceProvider);
   return NotificationRepositoryImpl(remoteDataSource: remoteDataSource);
 });
 
-// ✅ UseCase Provider
 final getUserNotificationsUseCaseProvider = Provider<GetUserNotificationsUseCase>((ref) {
   final repo = ref.watch(notificationRepositoryProvider);
   return GetUserNotificationsUseCase(repo);

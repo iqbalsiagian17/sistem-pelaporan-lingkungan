@@ -58,11 +58,11 @@ class _ResetPasswordViewState extends ConsumerState<ResetPasswordView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white, // ✅ Background putih
+      backgroundColor: Colors.white, 
       appBar: AppBar(
         title: const Text("Reset Password"),
-        backgroundColor: Colors.white, // ✅ AppBar putih
-        foregroundColor: Colors.black, // ✅ Icon & text AppBar jadi hitam
+        backgroundColor: Colors.white, 
+        foregroundColor: Colors.black, 
         elevation: 0.5,
       ),
       body: Padding(

@@ -39,7 +39,7 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
-      appBar: const TopBar(title: "Balige Bersih"),
+      appBar: const TopBar(), 
       body: RefreshIndicator(
         onRefresh: _refreshContent,
         color: const Color(0xFF1976D2),

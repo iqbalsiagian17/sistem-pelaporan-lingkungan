@@ -2,6 +2,7 @@ import 'package:bb_mobile/core/utils/date_utils.dart';
 import 'package:bb_mobile/features/forum/domain/entities/forum_post_entity.dart';
 import 'package:bb_mobile/features/forum/presentation/providers/forum_provider.dart';
 import 'package:bb_mobile/features/forum/presentation/widgets/list/post_popup_menu.dart';
+import 'package:bb_mobile/widgets/snackbar/snackbar_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -133,16 +134,21 @@ class ForumCommentList extends ConsumerWidget {
                       final success = await ref.read(forumProvider.notifier).deleteComment(commentId, postId);
 
                       if (context.mounted) {
-                        Navigator.pop(context); // ✅ Pindah ke bawah setelah proses selesai
+                        Navigator.pop(context);
 
                         if (success) {
                           onCommentDeleted?.call();
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text("Komentar berhasil dihapus")),
+                          SnackbarHelper.showSnackbar(
+                            context,
+                            "Komentar berhasil dihapus",
+                            hasBottomNavbar: true,
                           );
                         } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text("Gagal menghapus komentar")),
+                          SnackbarHelper.showSnackbar(
+                            context,
+                            "Gagal menghapus komentar",
+                            isError: true,
+                            hasBottomNavbar: true,
                           );
                         }
                       }
@@ -163,7 +169,7 @@ class ForumCommentList extends ConsumerWidget {
   Color _colorFromUsername(String username) {
     final colors = [
       Colors.blue,
-      Colors.green,
+      Color(0xFF66BB6A),
       Colors.purple,
       Colors.deepOrange,
       Colors.teal,

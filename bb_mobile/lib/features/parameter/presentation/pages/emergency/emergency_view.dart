@@ -29,7 +29,7 @@ class _EmergencyViewState extends ConsumerState<EmergencyView> {
       appBar: const EmeregencyTopBar(title: "Kontak Darurat"),
       body: parameterAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, _) => Center(child: Text("❌ $err")),
+        error: (err, _) => Center(child: Text(" $err")),
         data: (param) {
           if (param.emergencyContact == null &&
               param.ambulanceContact == null &&

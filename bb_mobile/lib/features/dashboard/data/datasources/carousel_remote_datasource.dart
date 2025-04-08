@@ -20,7 +20,7 @@ class CarouselRemoteDatasource {
         // Jika langsung list
         return data.map((e) => CarouselModel.fromJson(e)).toList();
       } else {
-        throw Exception("❌ Format data tidak sesuai");
+        throw Exception(" Format data tidak sesuai");
       }
     } on DioException catch (e) {
       throw Exception(_handleDioError(e));

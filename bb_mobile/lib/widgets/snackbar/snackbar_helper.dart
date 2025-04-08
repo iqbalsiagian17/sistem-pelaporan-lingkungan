@@ -1,44 +1,48 @@
 import 'package:flutter/material.dart';
 
 class SnackbarHelper {
-  static void showSnackbar(BuildContext context, String message, {bool isError = false}) {
+  static void showSnackbar(
+    BuildContext context,
+    String message, {
+    bool isError = false,
+    bool hasBottomNavbar = true,
+  }) {
     if (!context.mounted) return;
 
-    final icon = isError ? Icons.error_outline_rounded : Icons.check_circle_rounded;
     final List<Color> gradientColors = isError
         ? [Colors.red.shade700, Colors.red.shade400]
-        : [const Color(0xFF4CAF50), const Color(0xFF81C784)];
+        : [const Color(0xFF66BB6A), const Color(0xFF81C784)];
 
     final overlay = Overlay.of(context);
-    if (overlay == null) return;
 
     final overlayEntry = OverlayEntry(
       builder: (context) {
         return _AnimatedSnackbar(
           message: message,
-          icon: icon,
           gradientColors: gradientColors,
+          hasBottomNavbar: hasBottomNavbar,
         );
       },
     );
 
     overlay.insert(overlayEntry);
 
-    Future.delayed(const Duration(seconds: 4), () {
+    Future.delayed(const Duration(seconds: 3), () {
       overlayEntry.remove();
     });
   }
 }
 
+
 class _AnimatedSnackbar extends StatefulWidget {
   final String message;
-  final IconData icon;
   final List<Color> gradientColors;
+  final bool hasBottomNavbar;
 
   const _AnimatedSnackbar({
     required this.message,
-    required this.icon,
     required this.gradientColors,
+    required this.hasBottomNavbar,
   });
 
   @override
@@ -60,17 +64,22 @@ class _AnimatedSnackbarState extends State<_AnimatedSnackbar> with TickerProvide
     );
 
     _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, -0.5),
+      begin: const Offset(0, 1),
       end: Offset.zero,
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
 
     _fadeAnimation = CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
-
     _controller.forward();
 
     Future.delayed(const Duration(seconds: 3), () {
       if (mounted) _controller.reverse();
     });
+  }
+
+  void _dismiss() {
+    if (mounted) {
+      _controller.reverse();
+    }
   }
 
   @override
@@ -81,10 +90,11 @@ class _AnimatedSnackbarState extends State<_AnimatedSnackbar> with TickerProvide
 
   @override
   Widget build(BuildContext context) {
-    final mediaPadding = MediaQuery.of(context).padding.top;
+    final mediaPadding = MediaQuery.of(context).padding.bottom;
+    final double bottomOffset = widget.hasBottomNavbar ? mediaPadding + 65 : mediaPadding + 10;
 
     return Positioned(
-      top: mediaPadding + 10,
+      bottom: bottomOffset,
       left: 20,
       right: 20,
       child: Material(
@@ -113,8 +123,6 @@ class _AnimatedSnackbarState extends State<_AnimatedSnackbar> with TickerProvide
               ),
               child: Row(
                 children: [
-                  Icon(widget.icon, color: Colors.white, size: 22),
-                  const SizedBox(width: 12),
                   Expanded(
                     child: Text(
                       widget.message,
@@ -125,6 +133,15 @@ class _AnimatedSnackbarState extends State<_AnimatedSnackbar> with TickerProvide
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  GestureDetector(
+                    onTap: _dismiss,
+                    child: const Icon(
+                      Icons.close,
+                      color: Colors.white,
+                      size: 20,
                     ),
                   ),
                 ],

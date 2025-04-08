@@ -41,10 +41,10 @@ class _PasswordEditFormState extends ConsumerState<PasswordEditForm> {
     if (!mounted) return;
 
     if (success) {
-      SnackbarHelper.showSnackbar(context, "Password berhasil diperbarui!", isError: false);
+      SnackbarHelper.showSnackbar(context, "Password berhasil diperbarui!", isError: false, hasBottomNavbar: true);
       context.go(AppRoutes.profile);
     } else {
-      SnackbarHelper.showSnackbar(context, "Gagal memperbarui password", isError: true);
+      SnackbarHelper.showSnackbar(context, "Gagal memperbarui password", isError: true, hasBottomNavbar: true);
     }
   }
 
@@ -85,7 +85,7 @@ class _PasswordEditFormState extends ConsumerState<PasswordEditForm> {
             child: ElevatedButton(
               onPressed: _isSubmitting ? null : _submit,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF4CAF50),
+                backgroundColor: const Color(0xFF66BB6A),
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),

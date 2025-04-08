@@ -17,7 +17,7 @@ class ReportSubmitButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: isSubmitting ? null : onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.green,
+          backgroundColor: Color(0xFF66BB6A),
           padding: const EdgeInsets.symmetric(vertical: 14),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),

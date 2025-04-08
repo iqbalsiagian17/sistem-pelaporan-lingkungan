@@ -12,18 +12,15 @@ import 'package:bb_mobile/features/forum/domain/usecases/unlike_forum_post_useca
 import 'package:bb_mobile/features/forum/domain/usecases/get_forum_post_like_count_usecase.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// ✅ Remote Data Source
 final forumRemoteDataSourceProvider = Provider<ForumRemoteDataSource>((ref) {
   return ForumRemoteDataSourceImpl();
 });
 
-/// ✅ Repository
 final forumRepositoryProvider = Provider<ForumRepository>((ref) {
   final remote = ref.read(forumRemoteDataSourceProvider);
   return ForumRepositoryImpl(remoteDataSource: remote);
 });
 
-/// ✅ Forum Post Usecases
 final getForumPostsUseCaseProvider = Provider<GetAllForumPostsUseCase>((ref) {
   return GetAllForumPostsUseCase(repository: ref.read(forumRepositoryProvider));
 });
@@ -48,7 +45,6 @@ final deleteCommentUseCaseProvider = Provider<DeleteForumCommentUseCase>((ref) {
   return DeleteForumCommentUseCase(repository: ref.read(forumRepositoryProvider));
 });
 
-/// ✅ Like / Unlike / Like Count Usecases
 final likePostUseCaseProvider = Provider<LikeForumPostUseCase>((ref) {
   return LikeForumPostUseCase(repository: ref.read(forumRepositoryProvider));
 });

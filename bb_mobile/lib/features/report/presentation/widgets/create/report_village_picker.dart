@@ -62,7 +62,7 @@ class ReportVillagePicker extends StatelessWidget {
                             final isSelected = item == controller.text;
                             return ListTile(
                               title: Text(item, style: const TextStyle(fontSize: 14)),
-                              tileColor: isSelected ? Colors.green.withOpacity(0.1) : null,
+                              tileColor: isSelected ? Color(0xFF66BB6A).withOpacity(0.1) : null,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
                               ),

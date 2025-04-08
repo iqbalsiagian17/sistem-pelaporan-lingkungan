@@ -12,7 +12,7 @@ class NotificationTopBar extends StatelessWidget implements PreferredSizeWidget 
       preferredSize: preferredSize,
       child: Container(
         decoration: const BoxDecoration(
-        color: const Color(0xFF4CAF50), 
+        color: const Color(0xFF66BB6A), 
 
           borderRadius: BorderRadius.only(
             bottomLeft: Radius.circular(24),

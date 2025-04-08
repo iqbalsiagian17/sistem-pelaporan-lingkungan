@@ -13,10 +13,10 @@ class ReportDetailInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: double.infinity, // ✅ Full width agar sejajar dengan elemen lain
+      width: double.infinity, 
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16), // ✅ Border radius agar tampilan smooth
+        borderRadius: BorderRadius.circular(16), 
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.08),
@@ -26,7 +26,7 @@ class ReportDetailInfo extends StatelessWidget {
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12), // ✅ Padding agar lebih proporsional
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12), 
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

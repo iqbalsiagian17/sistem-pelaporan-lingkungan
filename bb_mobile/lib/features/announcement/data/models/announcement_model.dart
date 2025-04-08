@@ -28,7 +28,6 @@ class AnnouncementModel {
     );
   }
 
-  /// ✅ Tambahkan method ini
   AnnouncementEntity toEntity() {
     return AnnouncementEntity(
       id: id,

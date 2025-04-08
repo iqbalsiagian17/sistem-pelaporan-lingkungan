@@ -36,7 +36,7 @@ class _CarouselBannerState extends ConsumerState<CarouselBanner> {
 
     if (state.isLoading) return _carouselSkeleton();
     if (state.error != null) {
-      return Center(child: Text("❌ ${state.error}"));
+      return Center(child: Text(" ${state.error}"));
     }
 
     final items = state.data;

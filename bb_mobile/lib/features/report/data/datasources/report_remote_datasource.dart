@@ -57,12 +57,12 @@ class ReportRemoteDataSourceImpl implements ReportRemoteDataSource {
           throw Exception("Format data tidak sesuai (tidak ada key 'reports')");
         }
       } else {
-        throw Exception("❌ Gagal mengambil data laporan. Status: ${response.statusCode}");
+        throw Exception(" Gagal mengambil data laporan. Status: ${response.statusCode}");
       }
     } on DioException catch (e) {
       throw Exception(_handleDioError(e));
     } catch (e) {
-      throw Exception("❌ Terjadi kesalahan saat mengambil laporan: $e");
+      throw Exception(" Terjadi kesalahan saat mengambil laporan: $e");
     }
   }
 
@@ -127,7 +127,7 @@ class ReportRemoteDataSourceImpl implements ReportRemoteDataSource {
 
       return response.statusCode == 201;
     } on DioException catch (e) {
-      throw Exception("❌ Gagal membuat laporan: ${e.response?.data}");
+      throw Exception(" Gagal membuat laporan: ${e.response?.data}");
     }
   }
 
@@ -179,7 +179,7 @@ class ReportRemoteDataSourceImpl implements ReportRemoteDataSource {
 
       return response.statusCode == 200;
     } on DioException catch (e) {
-      throw Exception("❌ Gagal memperbarui laporan: ${e.response?.data}");
+      throw Exception(" Gagal memperbarui laporan: ${e.response?.data}");
     }
   }
 
@@ -190,7 +190,7 @@ class ReportRemoteDataSourceImpl implements ReportRemoteDataSource {
       final response = await dio.delete('${ApiConstants.userReportUrl}/$reportId');
       return response.statusCode == 200;
     } on DioException catch (e) {
-      throw Exception("❌ Gagal menghapus laporan: ${e.response?.data}");
+      throw Exception(" Gagal menghapus laporan: ${e.response?.data}");
     }
   }
 
@@ -202,7 +202,7 @@ class ReportRemoteDataSourceImpl implements ReportRemoteDataSource {
       );
       return response.statusCode == 201;
     } catch (e) {
-      print("❌ [likeReport] Error: $e");
+      print(" [likeReport] Error: $e");
       return false;
     }
   }
@@ -215,7 +215,7 @@ class ReportRemoteDataSourceImpl implements ReportRemoteDataSource {
       );
       return response.statusCode == 200;
     } catch (e) {
-      print("❌ [unlikeReport] Error: $e");
+      print(" [unlikeReport] Error: $e");
       return false;
     }
   }
@@ -228,7 +228,7 @@ class ReportRemoteDataSourceImpl implements ReportRemoteDataSource {
       );
       return response.statusCode == 200 && response.data['isLiked'] == true;
     } catch (e) {
-      print("❌ [isLiked] Error: $e");
+      print(" [isLiked] Error: $e");
       return false;
     }
   }
@@ -244,7 +244,7 @@ class ReportRemoteDataSourceImpl implements ReportRemoteDataSource {
       }
       return 0;
     } catch (e) {
-      print("❌ [getLikeCount] Error: $e");
+      print(" [getLikeCount] Error: $e");
       return 0;
     }
   }

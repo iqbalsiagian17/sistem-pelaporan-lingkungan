@@ -15,7 +15,7 @@ class ProfileTopBar extends ConsumerWidget implements PreferredSizeWidget {
   const ProfileTopBar({super.key, required this.title, required this.onLogout});
 
   @override
-  Size get preferredSize => const Size.fromHeight(56);
+  Size get preferredSize => const Size.fromHeight(50);
 
   void _showLogoutConfirmation(BuildContext context, WidgetRef ref) {
     HapticFeedback.mediumImpact();
@@ -54,9 +54,9 @@ class ProfileTopBar extends ConsumerWidget implements PreferredSizeWidget {
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        side: const BorderSide(color: Colors.green),
+                        side: const BorderSide(color: Color(0xFF66BB6A)),
                       ),
-                      child: const Text("Batal", style: TextStyle(color: Colors.green, fontSize: 16)),
+                      child: const Text("Batal", style: TextStyle(color: Color(0xFF66BB6A), fontSize: 16)),
                     ),
                   ),
                   const SizedBox(width: 10),
@@ -93,7 +93,7 @@ class ProfileTopBar extends ConsumerWidget implements PreferredSizeWidget {
     return PreferredSize(
       preferredSize: preferredSize,
       child: Container(
-        color: const Color(0xFF4CAF50), // ✅ Mint Green
+        color: const Color(0xFF66BB6A), 
         child: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,

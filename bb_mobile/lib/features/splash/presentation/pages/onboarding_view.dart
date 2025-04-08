@@ -144,7 +144,7 @@ class _OnboardingViewState extends State<OnboardingView> {
                         width: _currentIndex == index ? 20 : 8,
                         height: 8,
                         decoration: BoxDecoration(
-                          color: _currentIndex == index ? Colors.green[600] : Colors.grey[300],
+                          color: _currentIndex == index ? Color(0xFF66BB6A) : Colors.grey[300],
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
@@ -163,7 +163,7 @@ class _OnboardingViewState extends State<OnboardingView> {
                           onPressed: _goToNext,
                           style: FilledButton.styleFrom(
                             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                            backgroundColor: Colors.green[600],
+                            backgroundColor: Color(0xFF66BB6A),
                           ),
                           child: Text(
                             _currentIndex == onboardingData.length - 1 ? "Selesai" : "Selanjutnya",

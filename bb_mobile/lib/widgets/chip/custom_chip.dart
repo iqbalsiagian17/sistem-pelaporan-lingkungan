@@ -14,16 +14,16 @@ class CustomChip extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
-            color: Colors.white, // ✅ Background putih
+            color: Colors.white, 
             borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: Colors.black.withOpacity(0.2), width: 1), // ✅ Border hitam tipis
+            border: Border.all(color: Colors.black.withOpacity(0.2), width: 1), 
           ),
           child: Text(
             label,
             style: const TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w500,
-              color: Colors.black, // ✅ Teks hitam
+              color: Colors.black, 
             ),
           ),
         ),

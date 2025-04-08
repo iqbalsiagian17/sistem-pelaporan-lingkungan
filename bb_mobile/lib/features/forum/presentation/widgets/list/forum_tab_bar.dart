@@ -8,13 +8,13 @@ class ForumTabBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.white, // ✅ Pastikan warna putih agar tidak menyatu dengan header
-      padding: EdgeInsets.zero, // ✅ Hilangkan padding ekstra
+      color: Colors.white, 
+      padding: EdgeInsets.zero, 
       child: TabBar(
         controller: tabController,
-        labelColor: Colors.green.shade800,
+        labelColor: Color(0xFF66BB6A),
         unselectedLabelColor: Colors.grey,
-        indicatorColor: Colors.green,
+        indicatorColor: Color(0xFF66BB6A),
         tabs: const [
           Tab(text: "Rekomendasi"),
           Tab(text: "Populer"),

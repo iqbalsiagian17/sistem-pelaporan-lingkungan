@@ -42,7 +42,7 @@ class LoginView extends ConsumerWidget {
                       final success = await googleNotifier.loginWithGoogle();
 
                       if (success) {
-                        debugPrint("✅ Login Google sukses!");
+                        debugPrint("Login Google sukses!");
                         await authNotifier.refreshToken();
 
                         final prefs = await SharedPreferences.getInstance();

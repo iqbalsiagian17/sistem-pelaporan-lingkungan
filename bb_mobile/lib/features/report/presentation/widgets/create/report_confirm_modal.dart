@@ -44,7 +44,7 @@ Future<bool?> showReportConfirmModal(BuildContext context) {
                 child: ElevatedButton(
                   onPressed: () => Navigator.pop(context, true),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
+                    backgroundColor: Color(0xFF66BB6A),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                   child: const Text("Ya, Kirim", style: TextStyle(color: Colors.white)),

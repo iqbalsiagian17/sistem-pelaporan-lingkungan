@@ -47,7 +47,7 @@ class ReportStatusHistoryModel extends ReportStatusHistoryEntity {
         'new_status': newStatus,
         'message': message,
         'createdAt': createdAt,
-        'admin': (admin as UserModel).toJson(), // ✅ typecast biar bisa .toJson()
+        'admin': (admin as UserModel).toJson(), 
       };
 
       

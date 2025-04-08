@@ -92,11 +92,11 @@ class _VerifyForgotOtpViewState extends ConsumerState<VerifyForgotOtpView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white, // ✅ Background putih
+      backgroundColor: Colors.white, 
       appBar: AppBar(
         title: const Text("Verifikasi OTP"),
-        backgroundColor: Colors.white, // ✅ AppBar putih
-        foregroundColor: Colors.black, // ✅ Text & icon jadi hitam
+        backgroundColor: Colors.white, 
+        foregroundColor: Colors.black, 
         elevation: 0.5,
       ),
       body: Padding(

@@ -60,7 +60,7 @@ class BottomNavbar extends StatelessWidget {
           },
           type: BottomNavigationBarType.fixed,
           backgroundColor: Colors.white,
-          selectedItemColor: const Color(0xFF4CAF50),
+          selectedItemColor: const Color(0xFF66BB6A),
           unselectedItemColor: Colors.grey,
           selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
           unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500),
@@ -70,27 +70,27 @@ class BottomNavbar extends StatelessWidget {
           items: const [
             BottomNavigationBarItem(
               icon: Icon(Icons.home_outlined),
-              activeIcon: Icon(Icons.home, color: Color(0xFF4CAF50)),
+              activeIcon: Icon(Icons.home, color: Color(0xFF66BB6A)),
               label: 'Beranda',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.assignment_outlined),
-              activeIcon: Icon(Icons.assignment, color: Color(0xFF4CAF50)),
+              activeIcon: Icon(Icons.assignment, color: Color(0xFF66BB6A)),
               label: 'Aduanku',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.add_circle_outline),
-              activeIcon: Icon(Icons.add_circle, color: Color(0xFF4CAF50)),
+              activeIcon: Icon(Icons.add_circle, color: Color(0xFF66BB6A)),
               label: 'Laporkan!',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.bookmark_border),
-              activeIcon: Icon(Icons.bookmark, color: Color(0xFF4CAF50)),
+              activeIcon: Icon(Icons.bookmark, color: Color(0xFF66BB6A)),
               label: 'Disimpan',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.person_outline),
-              activeIcon: Icon(Icons.person, color: Color(0xFF4CAF50)),
+              activeIcon: Icon(Icons.person, color: Color(0xFF66BB6A)),
               label: 'Profil',
             ),
           ],

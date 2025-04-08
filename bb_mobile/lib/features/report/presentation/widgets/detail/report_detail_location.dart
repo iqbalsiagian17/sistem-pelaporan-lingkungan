@@ -39,7 +39,7 @@ class ReportDetailLocation extends StatelessWidget {
         children: [
           const Row(
             children: [
-              Icon(Icons.location_on, color: Colors.green),
+              Icon(Icons.location_on, color: Color(0xFF66BB6A)),
               SizedBox(width: 8),
               Text(
                 "Lokasi Kejadian",

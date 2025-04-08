@@ -95,9 +95,9 @@ class AuthGoogleDataSourceImpl implements AuthGoogleDataSource {
     try {
       await _googleSignIn.signOut();
       await globalAuthService.clearAuthData();
-      print("✅ Logout Google berhasil.");
+      print("Logout Google berhasil.");
     } catch (e) {
-      print("❌ Gagal logout Google: $e");
+      print("Gagal logout Google: $e");
     }
   }
 }

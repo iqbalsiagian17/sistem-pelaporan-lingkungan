@@ -117,7 +117,7 @@ class _AnnouncementListDataStateState extends State<AnnouncementListDataState> {
               child: ElevatedButton(
                 onPressed: () => setState(() => currentPage++),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
+                  backgroundColor: Color(0xFF66BB6A),
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                 ),

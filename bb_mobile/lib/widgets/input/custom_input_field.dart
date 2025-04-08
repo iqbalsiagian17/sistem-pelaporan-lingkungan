@@ -42,7 +42,7 @@ class CustomInputField extends StatelessWidget {
         decoration: InputDecoration(
           labelText: label,
           prefixIcon: Icon(icon, color: Colors.black87),
-          errorText: errorText, // ✅ Gunakan di sini
+          errorText: errorText, 
           suffixIcon: onToggleObscure != null
               ? IconButton(
                   icon: Icon(
@@ -53,7 +53,7 @@ class CustomInputField extends StatelessWidget {
                 )
               : null,
           filled: true,
-          fillColor: Colors.white, // ✅ **Selalu putih**
+          fillColor: Colors.white, 
           contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 14),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
@@ -61,7 +61,7 @@ class CustomInputField extends StatelessWidget {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Colors.green, width: 1.8),
+            borderSide: const BorderSide(color: Color(0xFF66BB6A), width: 1.8),
           ),
           errorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),

@@ -177,7 +177,7 @@ class ForumNotifier extends StateNotifier<ForumState> {
       final count = await getLikeCountUseCase.call(postId);
       return count;
     } catch (e) {
-      print("❌ [getLikeCount] Error: $e");
+      print(" [getLikeCount] Error: $e");
       state = state.copyWith(errorMessage: e.toString());
       return 0;
     }

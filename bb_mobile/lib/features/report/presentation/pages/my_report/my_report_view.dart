@@ -6,6 +6,7 @@ import 'package:bb_mobile/features/report/presentation/widgets/my_report/report_
 import 'package:bb_mobile/features/report/presentation/widgets/my_report/report_list_item.dart';
 import 'package:bb_mobile/routes/app_routes.dart';
 import 'package:bb_mobile/widgets/navbar/bottom_navbar.dart';
+import 'package:bb_mobile/widgets/snackbar/snackbar_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -42,7 +43,7 @@ class _MyReportViewState extends ConsumerState<MyReportView> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: const ReportTopBar(title: "Aduanku"), // ✅ Gunakan AppBar custom
+      appBar: const ReportTopBar(title: "Aduanku"), 
       body: reportAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, _) => Center(child: Text("Terjadi kesalahan: $err")),
@@ -138,7 +139,7 @@ class _MyReportViewState extends ConsumerState<MyReportView> {
                         onPressed: () => setState(() => _showAll = true),
                         icon: const Icon(Icons.expand_more),
                         label: const Text("Lihat Semua"),
-                        style: TextButton.styleFrom(foregroundColor: Colors.green),
+                        style: TextButton.styleFrom(foregroundColor: Color(0xFF66BB6A)),
                       ),
                     ),
                   const SizedBox(height: 30),
@@ -163,16 +164,22 @@ class _MyReportViewState extends ConsumerState<MyReportView> {
     final success = await ref.read(reportProvider.notifier).deleteReport(reportId.toString());
 
     if (success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("✅ Laporan berhasil dihapus")),
+      SnackbarHelper.showSnackbar(
+        context,
+        "Laporan berhasil dihapus",
+        hasBottomNavbar: true, // ubah ke false jika tidak ada bottom navbar di halaman ini
       );
       await ref.read(reportProvider.notifier).fetchReports(); // refresh data
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("❌ Gagal menghapus laporan")),
+      SnackbarHelper.showSnackbar(
+        context,
+        "Gagal menghapus laporan",
+        isError: true,
+        hasBottomNavbar: true,
       );
     }
   }
+
 }
 
 

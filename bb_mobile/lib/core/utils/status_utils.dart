@@ -33,7 +33,7 @@ class StatusUtils {
       case 'in_progress':
         return Colors.purple.shade400; // 🟣 Sedang Diproses
       case 'completed':
-        return Colors.green.shade400; // 🟢 Selesai
+        return Color(0xFF66BB6A); // 🟢 Selesai
       case 'closed':
         return Colors.grey.shade500; // ⚫ Ditutup
       default:

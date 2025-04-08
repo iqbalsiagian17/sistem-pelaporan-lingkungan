@@ -35,7 +35,7 @@ class _ReportSaveDataStateState extends State<ReportSaveDataState> {
     }
 
     if (widget.errorMessage != null) {
-      return Center(child: Text("❌ ${widget.errorMessage}"));
+      return Center(child: Text(" ${widget.errorMessage}"));
     }
 
 
@@ -66,7 +66,7 @@ class _ReportSaveDataStateState extends State<ReportSaveDataState> {
                 onPressed: () => setState(() => _showAll = true),
                 icon: const Icon(Icons.expand_more),
                 label: const Text("Lihat Semua"),
-                style: TextButton.styleFrom(foregroundColor: Colors.green),
+                style: TextButton.styleFrom(foregroundColor: Color(0xFF66BB6A)),
               ),
             ),
           const SizedBox(height: 30),

@@ -49,7 +49,7 @@ class _ReportEditViewState extends ConsumerState<ReportEditView> {
 
   Future<void> _handleSubmit() async {
     if (_titleController.text.isEmpty || _descController.text.isEmpty) {
-      SnackbarHelper.showSnackbar(context, "Judul dan rincian aduan wajib diisi", isError: true);
+      SnackbarHelper.showSnackbar(context, "Judul dan rincian aduan wajib diisi", isError: true, hasBottomNavbar: true);
       return;
     }
 
@@ -71,13 +71,13 @@ class _ReportEditViewState extends ConsumerState<ReportEditView> {
       );
 
       if (success) {
-        SnackbarHelper.showSnackbar(context, "Laporan berhasil diperbarui!");
+        SnackbarHelper.showSnackbar(context, "Laporan berhasil diperbarui!", isError: false, hasBottomNavbar: true);
         context.pop();
       } else {
-        SnackbarHelper.showSnackbar(context, "Gagal memperbarui aduan.", isError: true);
+        SnackbarHelper.showSnackbar(context, "Gagal memperbarui aduan.", isError: true, hasBottomNavbar: true);
       }
     } catch (e) {
-      SnackbarHelper.showSnackbar(context, "Terjadi kesalahan: $e", isError: true);
+      SnackbarHelper.showSnackbar(context, "Terjadi kesalahan: $e", isError: true, hasBottomNavbar: true);
     } finally {
       setState(() => isSubmitting = false);
     }
@@ -197,7 +197,7 @@ class _ReportEditViewState extends ConsumerState<ReportEditView> {
               child: ElevatedButton(
                 onPressed: isSubmitting ? null : _handleSubmit,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
+                  backgroundColor: Color(0xFF66BB6A),
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),

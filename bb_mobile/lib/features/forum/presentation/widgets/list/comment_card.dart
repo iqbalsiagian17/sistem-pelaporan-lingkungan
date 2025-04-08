@@ -12,7 +12,7 @@ class CommentCard extends StatelessWidget {
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       leading: CircleAvatar(
         radius: 20,
-        backgroundColor: Colors.green.shade200,
+        backgroundColor: Color(0xFF66BB6A),
         child: Text(
           comment.user.username[0].toUpperCase(),
           style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),

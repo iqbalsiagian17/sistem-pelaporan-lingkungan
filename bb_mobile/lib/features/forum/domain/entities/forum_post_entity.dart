@@ -34,7 +34,6 @@ class ForumPostEntity {
   // Getter for comment count
   int get commentCount => comments.length;
 
-  // ✅ Tambahkan copyWith agar bisa update like/likeCount secara lokal
   ForumPostEntity copyWith({
     int? id,
     int? userId,

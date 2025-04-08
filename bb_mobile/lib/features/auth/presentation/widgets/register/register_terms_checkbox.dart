@@ -20,7 +20,7 @@ class RegisterTermsCheckbox extends StatelessWidget {
         Checkbox(
           value: value,
           onChanged: onChanged,
-          activeColor: Colors.green,
+          activeColor: Color(0xFF66BB6A),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(6),
           ),
@@ -42,7 +42,7 @@ class RegisterTermsCheckbox extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
-                    color: Color(0xFF4CAF50),
+                    color: Color(0xFF66BB6A),
                   ),
                 ),
               ),

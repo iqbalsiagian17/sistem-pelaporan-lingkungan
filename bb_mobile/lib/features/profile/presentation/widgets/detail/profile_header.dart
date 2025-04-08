@@ -28,7 +28,7 @@ class ProfileHeader extends ConsumerWidget {
 
     return state.when(
       loading: () => const ProfileHeaderSkeleton(),
-      error: (err, _) => const Text("❌ Gagal memuat profil"),
+      error: (err, _) => const Text(" Gagal memuat profil"),
       data: (user) {
         final initials = _getInitials(user.username);
         final bgColor = _generateColorFromUsername(user.username);

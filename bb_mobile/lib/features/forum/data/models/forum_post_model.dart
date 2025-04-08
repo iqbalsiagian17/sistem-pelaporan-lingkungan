@@ -11,7 +11,7 @@ class ForumPostModel {
   final String updatedAt;
   final int likes;
   final bool isPinned;
-  final bool isLiked; // ✅ Tambahkan ini
+  final bool isLiked;
   final UserModel user;
   final List<ForumImageModel> images;
   final List<ForumCommentModel> comments;
@@ -24,7 +24,7 @@ class ForumPostModel {
     required this.updatedAt,
     required this.likes,
     required this.isPinned,
-    required this.isLiked, // ✅ Tambahkan ini
+    required this.isLiked, 
     required this.user,
     required this.images,
     required this.comments,
@@ -42,7 +42,7 @@ class ForumPostModel {
       updatedAt: json['updatedAt'],
       likes: json['likes'] ?? 0,
       isPinned: json['is_pinned'] ?? false,
-      isLiked: json['is_liked'] ?? false, // ✅ Ambil dari backend jika ada
+      isLiked: json['is_liked'] ?? false, 
       user: UserModel.fromJson(json['user']),
       images: (json['images'] as List)
           .map((img) => ForumImageModel.fromJson(img))
@@ -53,7 +53,6 @@ class ForumPostModel {
     );
   }
 
-  /// ✅ Konversi ke Entity
   ForumPostEntity toEntity() {
     return ForumPostEntity(
       id: id,
@@ -64,7 +63,7 @@ class ForumPostModel {
       likes: likes,
       isPinned: isPinned,
       likeCount: likes,
-      isLiked: isLiked, // ✅ Fix error
+      isLiked: isLiked, 
       user: user,
       images: images.map((img) => img.toEntity()).toList(),
       comments: comments.map((cmt) => cmt.toEntity()).toList(),

@@ -13,7 +13,7 @@ class InvalidDataView extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Text(
-              "❌ Error: Data tidak valid",
+              " Error: Data tidak valid",
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.red),
             ),
             const SizedBox(height: 10),

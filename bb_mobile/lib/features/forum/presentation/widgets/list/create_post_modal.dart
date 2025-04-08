@@ -116,14 +116,14 @@ class _CreatePostModalState extends ConsumerState<CreatePostModal> {
               IconButton(
                 icon: Icon(
                   Icons.image,
-                  color: _selectedImages.length >= _maxImages ? Colors.grey : Colors.green,
+                  color: _selectedImages.length >= _maxImages ? Colors.grey : Color(0xFF66BB6A),
                   size: 28,
                 ),
                 onPressed: _selectedImages.length >= _maxImages ? null : _pickImage,
               ),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
+                  backgroundColor: Color(0xFF66BB6A),
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),

@@ -38,7 +38,7 @@ class ReportLocationToggle extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: isDisabled ? null : () => onChange(true),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: isAtLocation ? const Color(0xFF4CAF50) : Colors.white,
+                  backgroundColor: isAtLocation ? const Color(0xFF66BB6A) : Colors.white,
                   foregroundColor: isAtLocation ? Colors.white : Colors.black,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -52,7 +52,7 @@ class ReportLocationToggle extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: isDisabled ? null : () => onChange(false),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: !isAtLocation ? const Color(0xFF4CAF50) : Colors.white,
+                  backgroundColor: !isAtLocation ? const Color(0xFF66BB6A) : Colors.white,
                   foregroundColor: !isAtLocation ? Colors.white : Colors.black,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),

@@ -21,7 +21,6 @@ class ProfileView extends ConsumerStatefulWidget {
 class _ProfileViewState extends ConsumerState<ProfileView> {
   int _selectedIndex = 4;
 
-  /// ✅ Logout Handler
   void _handleLogout() async {
     final authProvider = ref.read(authNotifierProvider.notifier); // Corrected usage
     await authProvider.logout();
@@ -63,7 +62,7 @@ class _ProfileViewState extends ConsumerState<ProfileView> {
             );
           },
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (error, stackTrace) => Center(child: Text("❌ Gagal memuat profil: $error")),
+          error: (error, stackTrace) => Center(child: Text(" Gagal memuat profil: $error")),
         ),
       ),
       bottomNavigationBar: BottomNavbar(

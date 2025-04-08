@@ -23,9 +23,8 @@ class RegisterSubmitButton extends StatelessWidget {
           text: "Daftar",
           onPressed: isEnabled && !isLoading ? onPressed : null,
           isLoading: isLoading,
-          isOutlined: true,
-          textColor: const Color(0xFF6c757d),
-          borderColor: const Color(0xFF6c757d),
+          color: const Color(0xFF66BB6A),     
+          textColor: Colors.white,            
         ),
         const SizedBox(height: 30),
         Row(
@@ -52,7 +51,7 @@ class RegisterSubmitButton extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF4CAF50),
+                  color: Color(0xFF66BB6A),
                 ),
               ),
             )

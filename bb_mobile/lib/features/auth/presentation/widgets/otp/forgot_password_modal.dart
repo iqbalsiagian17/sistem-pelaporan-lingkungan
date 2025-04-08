@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:bb_mobile/widgets/snackbar/snackbar_helper.dart';
 import 'package:bb_mobile/features/auth/presentation/providers/auth_provider.dart';
 import 'package:bb_mobile/widgets/input/custom_input_field.dart';
-import 'package:bb_mobile/widgets/buttons/custom_button.dart'; // ✅ pastikan path sesuai
+import 'package:bb_mobile/widgets/buttons/custom_button.dart'; 
 
 class ForgotPasswordBottomSheet extends ConsumerStatefulWidget {
   const ForgotPasswordBottomSheet({super.key});
@@ -87,7 +87,7 @@ class _ForgotPasswordBottomSheetState
                 text: "Kirim OTP",
                 isLoading: _isLoading,
                 onPressed: _submit,
-                color: const Color(0xFF4CAF50),
+                color: const Color(0xFF66BB6A),
                 textColor: Colors.white,
                 borderColor: Colors.transparent,
               ),

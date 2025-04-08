@@ -12,7 +12,7 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
 
     final Dio dio;
 
-  NotificationRemoteDataSourceImpl(this.dio); // ✅ Terima Dio dari luar (constructor injection)
+  NotificationRemoteDataSourceImpl(this.dio);
 
   @override
   Future<List<UserNotificationModel>> fetchUserNotifications(String userId) async {

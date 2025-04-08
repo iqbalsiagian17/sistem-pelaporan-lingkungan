@@ -35,6 +35,7 @@ body: SingleChildScrollView(
                 borderRadius: BorderRadius.circular(16),
                 child: Column(
                   children: [
+                    const SizedBox(height: 10),
                     ReportDetailImage(
                       imageUrls: report.attachments.isNotEmpty
                           ? report.attachments.map((e) => "${ApiConstants.baseUrl}/${e.file}").toList()
@@ -144,7 +145,7 @@ body: SingleChildScrollView(
       ),
       child: Column(
         children: const [
-          Icon(Icons.warning_amber_rounded, color: Colors.green, size: 36),
+          Icon(Icons.warning_amber_rounded, color: Color(0xFF66BB6A), size: 36),
           SizedBox(height: 12),
           Text(
             "Belum ada tanggapan dari admin",

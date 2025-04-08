@@ -4,33 +4,24 @@ import 'package:go_router/go_router.dart';
 
 class ReportDetailTopBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
-  final VoidCallback? onSearch; // ✅ Tambahkan callback search (opsional)
+  final VoidCallback? onSearch; 
 
   const ReportDetailTopBar({super.key, required this.title, this.onSearch});
 
   @override
-  Size get preferredSize => const Size.fromHeight(56);
+  Size get preferredSize => const Size.fromHeight(50);
 
   @override
   Widget build(BuildContext context) {
     return PreferredSize(
       preferredSize: preferredSize,
       child: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Color(0xFF4CAF50), // 💚 Light Green
-              Color(0xFF81C784), // 💚 Soft Green
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
+        color: Color(0xFF66BB6A),
         child: AppBar(
-          backgroundColor: Colors.transparent, // ✅ Gradient tetap terlihat
+          backgroundColor: Colors.transparent, 
           elevation: 0,
           title: Text(
-            title, // ✅ Teks dinamis
+            title, 
             style: const TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 18,
@@ -51,11 +42,11 @@ class ReportDetailTopBar extends StatelessWidget implements PreferredSizeWidget 
           actions: onSearch != null
               ? [
                   IconButton(
-                    icon: const Icon(Icons.search, color: Colors.white), // 🔍 Search icon
-                    onPressed: onSearch, // ✅ Callback pencarian
+                    icon: const Icon(Icons.search, color: Colors.white),
+                    onPressed: onSearch, 
                   ),
                 ]
-              : null, // ✅ Jika `onSearch` tidak disediakan, ikon tidak muncul
+              : null, 
         ),
       ),
     );

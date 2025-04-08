@@ -5,6 +5,7 @@ import 'package:bb_mobile/features/forum/presentation/widgets/list/forum_tab_bar
 import 'package:bb_mobile/features/forum/presentation/widgets/list/forum_tab_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class ForumListView extends ConsumerStatefulWidget {
   const ForumListView({super.key});
@@ -15,12 +16,23 @@ class ForumListView extends ConsumerStatefulWidget {
 
 class _ForumListViewState extends ConsumerState<ForumListView> with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  bool _hasOpenedModal = false;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     Future.microtask(() => _refreshForumPosts());
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final query = GoRouterState.of(context).uri.queryParameters;
+    if (!_hasOpenedModal && query['openModal'] == 'create') {
+      _hasOpenedModal = true; // Supaya tidak buka berkali-kali saat rebuild
+      Future.microtask(() => _showCreatePostModal());
+    }
   }
 
   /// 🔄 Refresh semua postingan
@@ -66,7 +78,7 @@ class _ForumListViewState extends ConsumerState<ForumListView> with SingleTicker
 
       floatingActionButton: FloatingActionButton(
         onPressed: _showCreatePostModal,
-        backgroundColor: const Color(0xFF4CAF50),
+        backgroundColor: const Color(0xFF66BB6A),
         child: const Icon(Icons.add, color: Colors.white),
       ),
     );

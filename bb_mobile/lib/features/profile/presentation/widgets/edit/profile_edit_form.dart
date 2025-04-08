@@ -59,13 +59,14 @@ class _ProfileEditFormState extends ConsumerState<ProfileEditForm> {
     if (!mounted) return;
 
     if (success) {
-      SnackbarHelper.showSnackbar(context, "Profil berhasil diperbarui!", isError: false);
+      SnackbarHelper.showSnackbar(context, "Profil berhasil diperbarui!", isError: false , hasBottomNavbar: true);
       context.go(AppRoutes.profile);
     } else {
       SnackbarHelper.showSnackbar(
         context,
         "Gagal memperbarui profil",
         isError: true,
+        hasBottomNavbar: true,
       );
     }
   }
@@ -111,7 +112,7 @@ Widget build(BuildContext context) {
               child: ElevatedButton(
                 onPressed: _isSaving ? null : _saveProfile,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
+                  backgroundColor: Color(0xFF66BB6A),
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),

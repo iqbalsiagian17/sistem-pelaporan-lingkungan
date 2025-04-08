@@ -30,7 +30,7 @@ class _TermsViewState extends ConsumerState<TermsView> {
       appBar: const TermsTopBar(title: "Syarat & Ketentuan"),
       body: parameterAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, _) => Center(child: Text("❌ $err")),
+        error: (err, _) => Center(child: Text(" $err")),
         data: (parameter) {
           if (parameter.terms == null || parameter.terms!.isEmpty) {
             return const TermsDataEmptyState();

@@ -23,7 +23,7 @@ class ReportSaveListItem extends ConsumerWidget {
         context.push('/report-detail', extra: {"type": "saved", "data": report});
       },
       borderRadius: BorderRadius.circular(12),
-      splashColor: Colors.green.withOpacity(0.2),
+      splashColor: Color(0xFF66BB6A).withOpacity(0.2),
       child: Padding(
         padding: EdgeInsets.only(bottom: 12.0, top: index == 0 ? 12.0 : 0),
         child: Row(
@@ -83,7 +83,7 @@ class ReportSaveListItem extends ConsumerWidget {
               onPressed: () {
                 showDeleteSavedReportModal(context, ref, report.reportId);
               },
-              icon: const Icon(Icons.bookmark, color: Colors.green, size: 26),
+              icon: const Icon(Icons.bookmark, color: Color(0xFF66BB6A), size: 26),
             ),
           ],
         ),

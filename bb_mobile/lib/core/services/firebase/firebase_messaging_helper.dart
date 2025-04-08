@@ -53,12 +53,7 @@ Future<void> setupFirebaseMessaging() async {
           AndroidFlutterLocalNotificationsPlugin>()
       ?.createNotificationChannel(channel);
 
-  // ✅ Tangani notifikasi saat app sedang aktif (foreground)
   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-    print("🔔 Pesan FCM diterima saat foreground");
-    print("📦 Payload: ${message.data}");
-    print("🧾 Notifikasi: ${message.notification}");
-
     if (message.notification != null) {
       final notification = message.notification!;
       final android = notification.android;
@@ -95,7 +90,7 @@ Future<void> setupFirebaseMessaging() async {
         ),
       );
     } else {
-      print("⚠️ Tidak ada notifikasi dan data.");
+      print("Tidak ada notifikasi dan data.");
     }
   });
 }

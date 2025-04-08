@@ -20,7 +20,6 @@ class _ProfileStatsState extends ConsumerState<ProfileStats> {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: state.when(
         data: (user) {
-          // ✅ Panggil fetchStats hanya sekali setelah user tersedia
           if (!_hasFetchedStats) {
             Future.microtask(() {
               ref.read(userProfileProvider.notifier).fetchStats();
@@ -61,7 +60,7 @@ class _ProfileStatsState extends ConsumerState<ProfileStats> {
         ),
         error: (error, _) => Padding(
           padding: const EdgeInsets.symmetric(vertical: 20),
-          child: Center(child: Text("❌ Gagal memuat statistik: $error")),
+          child: Center(child: Text(" Gagal memuat statistik: $error")),
         ),
       ),
     );
