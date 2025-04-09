@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 class ReportVillagePicker extends StatelessWidget {
   final TextEditingController controller;
   final void Function(String) onSelected;
+  final FocusNode focusNode;
 
   const ReportVillagePicker({
     super.key,
     required this.controller,
     required this.onSelected,
+    required this.focusNode,
   });
 
   static final List<String> _villages = [
@@ -85,6 +87,7 @@ class ReportVillagePicker extends StatelessWidget {
           child: AbsorbPointer(
             child: TextFormField(
               controller: controller,
+              focusNode: focusNode, // ✅ ini dia
               decoration: InputDecoration(
                 prefixIcon: const Icon(Icons.location_on_outlined),
                 hintText: "Pilih Desa/Kelurahan",

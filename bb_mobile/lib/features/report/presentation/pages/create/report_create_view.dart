@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'package:bb_mobile/features/report/presentation/widgets/create/report_form_fields.dart';
+import 'package:bb_mobile/features/report/presentation/widgets/create/report_submit_button.dart';
 import 'package:bb_mobile/features/report/presentation/widgets/create/report_village_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -26,6 +28,11 @@ class _ReportCreateViewState extends ConsumerState<ReportCreateView> {
   final _locationDetailController = TextEditingController();
   final _villageController = TextEditingController();
 
+  final FocusNode _titleFocus = FocusNode();
+  final FocusNode _descFocus = FocusNode();
+  final FocusNode _villageFocus = FocusNode();
+  final FocusNode _locationDetailFocus = FocusNode();
+
   bool isAtLocation = true;
   bool isSubmitting = false;
   double? latitude;
@@ -40,6 +47,13 @@ class _ReportCreateViewState extends ConsumerState<ReportCreateView> {
   }
 
   Future<void> _handleSubmit() async {
+
+    _titleFocus.unfocus();
+    _descFocus.unfocus();
+    _villageFocus.unfocus();
+    _locationDetailFocus.unfocus();
+    FocusScope.of(context).unfocus();
+    
     if (_titleController.text.isEmpty || _descController.text.isEmpty) {
       SnackbarHelper.showSnackbar(context, "Judul dan rincian aduan wajib diisi", isError: true, hasBottomNavbar: true);
       return;
@@ -125,18 +139,19 @@ class _ReportCreateViewState extends ConsumerState<ReportCreateView> {
               isLocationAvailable: latitude != null && longitude != null,
             ),
             const SizedBox(height: 16),
-            ReportTextField(title: "Judul", hint: "Masukkan judul laporan", controller: _titleController),
-            const SizedBox(height: 12),
-            ReportTextField(title: "Deskripsi", hint: "Masukkan rincian laporan", controller: _descController, maxLines: 5),
-            const SizedBox(height: 12),
-            if (!isAtLocation)
-            ReportVillagePicker(
-                controller: _villageController,
-                onSelected: (val) => setState(() {}),
-            ),            
-            const SizedBox(height: 12),
-
-            ReportTextField(title: "Detail Lokasi (Opsional)", hint: "Contoh: Di samping kantor desa", controller: _locationDetailController),
+            ReportFormFields(
+              isAtLocation: isAtLocation,
+              onLocationChange: (val) => setState(() => isAtLocation = val),
+              isLocationAvailable: latitude != null && longitude != null,
+              titleController: _titleController,
+              descController: _descController,
+              villageController: _villageController,
+              locationDetailController: _locationDetailController,
+              titleFocus: _titleFocus,
+              descFocus: _descFocus,
+              villageFocus: _villageFocus,
+              locationDetailFocus: _locationDetailFocus,
+            ),
             const SizedBox(height: 16),
             ReportUploadButtons(
               isAtLocation: isAtLocation,
@@ -148,21 +163,12 @@ class _ReportCreateViewState extends ConsumerState<ReportCreateView> {
                 });
               },
             ),
-            const SizedBox(height: 30),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: isSubmitting ? null : _handleSubmit,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFF66BB6A),
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-                child: isSubmitting
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text("Kirim Aduan", style: TextStyle(color: Colors.white, fontSize: 16)),
-              ),
+            const SizedBox(height: 16),
+            ReportSubmitButton(
+              isSubmitting: isSubmitting,
+              onPressed: _handleSubmit,
             ),
+
             const SizedBox(height: 10),
           ],
         ),

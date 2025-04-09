@@ -21,42 +21,40 @@ class StatusUtils {
     }
   }
 
-  // 🔹 Tentukan warna status untuk UI
+  // 🔹 Warna status yang lebih modern dan simpel
   static Color getStatusColor(String? status) {
     switch (status) {
       case 'pending':
-        return Colors.orange.shade300; // 🔸 Menunggu Konfirmasi
+        return const Color(0xFFFBC02D); // Kuning elegan
       case 'rejected':
-        return Colors.red.shade400; // 🔴 Ditolak
+        return const Color(0xFFE53935); // Merah elegan
       case 'verified':
-        return Colors.blue.shade400; // 🔵 Diverifikasi
+        return const Color(0xFF1E88E5); // Biru bersih
       case 'in_progress':
-        return Colors.purple.shade400; // 🟣 Sedang Diproses
+        return const Color(0xFF8E24AA); // Ungu segar
       case 'completed':
-        return Color(0xFF66BB6A); // 🟢 Selesai
+        return const Color(0xFF43A047); // Hijau stabil
       case 'closed':
-        return Colors.grey.shade500; // ⚫ Ditutup
+        return const Color(0xFF757575); // Abu netral
       default:
-        return Colors.grey.shade300; // ❓ Status tidak dikenal
+        return const Color(0xFFBDBDBD); // Abu terang untuk status tidak dikenal
     }
   }
 
-static String replaceStatusKeywords(String message) {
-  const statusKeys = [
-    'pending',
-    'rejected',
-    'verified',
-    'in_progress',
-    'completed',
-    'closed',
-  ];
+  // 🔹 Ganti status dalam string jadi versi Indonesia
+  static String replaceStatusKeywords(String message) {
+    const statusKeys = [
+      'pending',
+      'rejected',
+      'verified',
+      'in_progress',
+      'completed',
+      'closed',
+    ];
 
-  for (final key in statusKeys) {
-    message = message.replaceAll('"$key"', '"${getTranslatedStatus(key)}"');
+    for (final key in statusKeys) {
+      message = message.replaceAll('"$key"', '"${getTranslatedStatus(key)}"');
+    }
+    return message;
   }
-  return message;
-}
-
-
-
 }

@@ -263,7 +263,9 @@ exports.updateReport = async (req, res) => {
       report.description = description || report.description;
       report.location_details = location_details || report.location_details;
 
-      if (is_at_location) {
+      const isAtLocation = is_at_location === true || is_at_location === 'true';
+
+      if (isAtLocation) {
         report.longitude = longitude;
         report.latitude = latitude;
         report.village = null;

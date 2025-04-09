@@ -65,6 +65,10 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
   }
 
   Future<void> _register() async {
+
+  FocusScope.of(context).unfocus();
+  await Future.delayed(const Duration(milliseconds: 100));
+
     if (!_formKey.currentState!.validate()) return;
     if (!_isAgreedToTerms) {
       setState(() => _showTermsError = true);

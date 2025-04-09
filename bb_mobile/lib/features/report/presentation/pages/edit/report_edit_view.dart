@@ -44,7 +44,7 @@ class _ReportEditViewState extends ConsumerState<ReportEditView> {
     _descController = TextEditingController(text: report.description);
     _locationDetailController = TextEditingController(text: report.locationDetails ?? '');
     _villageController = TextEditingController(text: report.village ?? '');
-    isAtLocation = report.latitude != null && report.longitude != null;
+    isAtLocation = (report.latitude ?? 0) != 0 && (report.longitude ?? 0) != 0;
   }
 
   Future<void> _handleSubmit() async {
@@ -52,6 +52,13 @@ class _ReportEditViewState extends ConsumerState<ReportEditView> {
       SnackbarHelper.showSnackbar(context, "Judul dan rincian aduan wajib diisi", isError: true, hasBottomNavbar: true);
       return;
     }
+
+    if (!isAtLocation && _villageController.text.isEmpty) {
+      SnackbarHelper.showSnackbar(context, "Desa/Kelurahan wajib diisi", isError: true, hasBottomNavbar: true);
+      return;
+    }
+
+    print("DEBUG VILLAGE: ${_villageController.text}");
 
     final confirm = await showReportConfirmModal(context);
     if (confirm != true) return;
@@ -66,9 +73,11 @@ class _ReportEditViewState extends ConsumerState<ReportEditView> {
         locationDetails: _locationDetailController.text,
         village: _villageController.text.isNotEmpty ? _villageController.text : null,
         isAtLocation: isAtLocation,
+
         attachments: attachments,
         deleteAttachmentIds: deletedAttachmentIds,
       );
+
 
       if (success) {
         SnackbarHelper.showSnackbar(context, "Laporan berhasil diperbarui!", isError: false, hasBottomNavbar: true);
@@ -85,6 +94,9 @@ class _ReportEditViewState extends ConsumerState<ReportEditView> {
 
   @override
   Widget build(BuildContext context) {
+
+    print('isAtLocation: $isAtLocation');
+print('village: ${_villageController.text}');
     final report = widget.report;
     return Scaffold(
       backgroundColor: Colors.white,
@@ -96,7 +108,7 @@ class _ReportEditViewState extends ConsumerState<ReportEditView> {
           children: [
             ReportLocationToggle(
               isAtLocation: isAtLocation,
-              onChange: (_) {},
+              onChange: (val) => setState(() => isAtLocation = val),
               isLocationAvailable: true,
               isDisabled: true,
             ),
@@ -114,18 +126,20 @@ class _ReportEditViewState extends ConsumerState<ReportEditView> {
               maxLines: 5,
             ),
             const SizedBox(height: 12),
-            if (report.village != null && report.village!.isNotEmpty)
+            if (!isAtLocation)
               ReportVillagePicker(
                 controller: _villageController,
-                onSelected: (_) => setState(() {}),
+                onSelected: (val) => setState(() {
+                  _villageController.text = val;
+                }),
+                focusNode: FocusNode(),
               ),
             const SizedBox(height: 12),
-            if (report.locationDetails != null && report.locationDetails!.isNotEmpty)
-              ReportTextField(
-                title: "Detail Lokasi (Opsional)",
-                hint: "Contoh: Di samping kantor desa",
-                controller: _locationDetailController,
-              ),
+            ReportTextField(
+              title: "Detail Lokasi (Opsional)",
+              hint: "Contoh: Di samping kantor desa",
+              controller: _locationDetailController,
+            ),
             if (report.latitude != null && report.longitude != null)
               Padding(
                 padding: const EdgeInsets.only(top: 12),
@@ -148,7 +162,7 @@ class _ReportEditViewState extends ConsumerState<ReportEditView> {
                 spacing: 10,
                 runSpacing: 10,
                 children: report.attachments.map((attachment) {
-                  final imageUrl = "${ApiConstants.baseUrl}/${attachment.file}"; // Ganti sesuai base URL
+                  final imageUrl = "${ApiConstants.baseUrl}/${attachment.file}";
                   return Stack(
                     children: [
                       ClipRRect(
@@ -197,7 +211,7 @@ class _ReportEditViewState extends ConsumerState<ReportEditView> {
               child: ElevatedButton(
                 onPressed: isSubmitting ? null : _handleSubmit,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFF66BB6A),
+                  backgroundColor: const Color(0xFF66BB6A),
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),

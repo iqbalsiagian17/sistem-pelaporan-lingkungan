@@ -4,6 +4,7 @@ class ReportTextField extends StatelessWidget {
   final String title;
   final String hint;
   final int maxLines;
+  final FocusNode? focusNode;
   final TextEditingController? controller; 
 
   const ReportTextField({
@@ -12,6 +13,7 @@ class ReportTextField extends StatelessWidget {
     required this.hint,
     this.maxLines = 1,
     this.controller, 
+    this.focusNode,
 
   });
 
@@ -26,6 +28,7 @@ class ReportTextField extends StatelessWidget {
         ),
         TextField(
           controller: controller, 
+          focusNode: focusNode,
           maxLines: maxLines,
           decoration: InputDecoration(
             hintText: hint,
