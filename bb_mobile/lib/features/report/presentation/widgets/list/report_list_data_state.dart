@@ -136,7 +136,6 @@ class _ReportListDataStateState extends ConsumerState<ReportListDataState> {
                               SnackbarHelper.showSnackbar(
                                 context,
                                 "Laporan dihapus dari tersimpan",
-                                hasBottomNavbar: true, // set true jika halaman ini punya BottomNavbar
                               );
                             }
                           } else {
@@ -145,7 +144,6 @@ class _ReportListDataStateState extends ConsumerState<ReportListDataState> {
                               SnackbarHelper.showSnackbar(
                                 context,
                                 "Laporan berhasil disimpan",
-                                hasBottomNavbar: true,
                               );
                             }
                           }

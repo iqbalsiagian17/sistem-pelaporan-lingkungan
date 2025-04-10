@@ -72,60 +72,61 @@ class ReportNotifier extends StateNotifier<AsyncValue<List<ReportEntity>>> {
     }
   }
 
-  Future<bool> createReport({
-    required String title,
-    required String description,
-    required String date,
-    String? locationDetails,
-    String? village,
-    String? latitude,
-    String? longitude,
-    bool? isAtLocation,
-    List<File>? attachments,
-  }) async {
-    try {
-      final userId = await globalAuthService.getUserId();
-      final currentReports = state.value ?? [];
+  Future<ReportEntity?> createReport({
+  required String title,
+  required String description,
+  required String date,
+  String? locationDetails,
+  String? village,
+  String? latitude,
+  String? longitude,
+  bool? isAtLocation,
+  List<File>? attachments,
+}) async {
+  try {
+    final userId = await globalAuthService.getUserId();
+    final currentReports = state.value ?? [];
 
-      if (userId != null) {
-        final hasPending = currentReports.any(
-          (r) => r.userId == userId && r.status != 'closed' && r.status != 'rejected',
-        );
-
-        if (hasPending) {
-          throw Exception("Anda masih memiliki laporan yang belum selesai.");
-        }
-      }
-
-      if (isAtLocation == true &&
-          (latitude == null || longitude == null || latitude.isEmpty || longitude.isEmpty)) {
-        throw Exception("Gagal mengirim laporan: Lokasi tidak tersedia. Aktifkan GPS Anda.");
-      }
-
-      final success = await _createReportUseCase.execute(
-        title: title,
-        description: description,
-        date: date,
-        locationDetails: locationDetails,
-        village: village,
-        latitude: latitude,
-        longitude: longitude,
-        isAtLocation: isAtLocation,
-        attachments: attachments,
+    if (userId != null) {
+      final hasPending = currentReports.any(
+        (r) => r.userId == userId && r.status != 'closed' && r.status != 'rejected',
       );
-
-      if (success) {
-        await fetchReports();
+      if (hasPending) {
+        throw Exception("Anda masih memiliki laporan yang belum selesai.");
       }
-
-      return success;
-    } catch (e, st) {
-      state = AsyncValue.error(e, st);
-      rethrow;
     }
-  }
 
-  Future<bool> updateReport({
+    if (isAtLocation == true &&
+        (latitude == null || longitude == null || latitude.isEmpty || longitude.isEmpty)) {
+      throw Exception("Gagal mengirim laporan: Lokasi tidak tersedia. Aktifkan GPS Anda.");
+    }
+
+    final newReport = await _createReportUseCase.execute(
+      title: title,
+      description: description,
+      date: date,
+      locationDetails: locationDetails,
+      village: village,
+      latitude: latitude,
+      longitude: longitude,
+      isAtLocation: isAtLocation,
+      attachments: attachments,
+    );
+
+    if (newReport != null) {
+      await fetchReports();
+      return newReport;
+    }
+
+    return null;
+  } catch (e, st) {
+    state = AsyncValue.error(e, st);
+    rethrow;
+  }
+}
+
+
+  Future<ReportEntity?> updateReport({
     required String reportId,
     String? title,
     String? description,
@@ -138,7 +139,7 @@ class ReportNotifier extends StateNotifier<AsyncValue<List<ReportEntity>>> {
     List<int>? deleteAttachmentIds,
   }) async {
     try {
-      final success = await _updateReportUseCase.execute(
+      final updatedReport = await _updateReportUseCase.execute(
         reportId: reportId,
         title: title,
         description: description,
@@ -151,16 +152,17 @@ class ReportNotifier extends StateNotifier<AsyncValue<List<ReportEntity>>> {
         deleteAttachmentIds: deleteAttachmentIds,
       );
 
-      if (success) {
+      if (updatedReport != null) {
         await fetchReports();
       }
 
-      return success;
+      return updatedReport;
     } catch (e, st) {
       state = AsyncValue.error(e, st);
-      return false;
+      return null;
     }
   }
+
 
   Future<bool> deleteReport(String reportId) async {
     try {

@@ -4,7 +4,7 @@ import 'dart:io';
 abstract class ReportRepository {
   Future<List<ReportEntity>> fetchReports();
   Future<ReportEntity?> getReportById(String reportId);
-  Future<bool> createReport({
+  Future<ReportEntity?> createReport({ // ⬅️ Diubah dari bool → ReportEntity?
     required String title,
     required String description,
     required String date,
@@ -16,7 +16,7 @@ abstract class ReportRepository {
     List<File>? attachments,
   });
 
-  Future<bool> updateReport({
+  Future<ReportEntity?> updateReport({
     required String reportId,
     String? title,
     String? description,

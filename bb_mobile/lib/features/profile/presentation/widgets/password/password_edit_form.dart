@@ -41,10 +41,10 @@ class _PasswordEditFormState extends ConsumerState<PasswordEditForm> {
     if (!mounted) return;
 
     if (success) {
-      SnackbarHelper.showSnackbar(context, "Password berhasil diperbarui!", isError: false, hasBottomNavbar: true);
+      SnackbarHelper.showSnackbar(context, "Password berhasil diperbarui!", isError: false, );
       context.go(AppRoutes.profile);
     } else {
-      SnackbarHelper.showSnackbar(context, "Gagal memperbarui password", isError: true, hasBottomNavbar: true);
+      SnackbarHelper.showSnackbar(context, "Gagal memperbarui password", isError: true, );
     }
   }
 

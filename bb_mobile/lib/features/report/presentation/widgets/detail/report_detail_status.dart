@@ -101,7 +101,7 @@ final likeCount = likeNotifier.likeCounts[widget.reportId] ?? widget.likes;
                   if (context.mounted) {
                     SnackbarHelper.showSnackbar(
                       context,
-                      "Laporan dihapus dari tersimpan", hasBottomNavbar: false
+                      "Laporan dihapus dari tersimpan", 
                     );
                   }
                 } else {
@@ -109,7 +109,7 @@ final likeCount = likeNotifier.likeCounts[widget.reportId] ?? widget.likes;
                   if (context.mounted) {
                     SnackbarHelper.showSnackbar(
                       context,
-                      "Laporan berhasil disimpan",hasBottomNavbar: false
+                      "Laporan berhasil disimpan",
                     );
                   }
                 }

@@ -178,7 +178,7 @@ class RecentReportsSection extends ConsumerWidget {
                                   if (context.mounted) {
                                     SnackbarHelper.showSnackbar(
                                       context,
-                                      "Laporan dihapus dari tersimpan",hasBottomNavbar: true
+                                      "Laporan dihapus dari tersimpan",
                                     );
                                   }
                                 } else {
@@ -186,7 +186,7 @@ class RecentReportsSection extends ConsumerWidget {
                                   if (context.mounted) {
                                     SnackbarHelper.showSnackbar(
                                       context,
-                                      "Laporan berhasil disimpan", hasBottomNavbar: true
+                                      "Laporan berhasil disimpan", 
                                     );
                                   }
                                 }

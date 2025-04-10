@@ -12,4 +12,14 @@ class UserEntity {
     required this.phoneNumber,
     required this.type,
   });
+
+  factory UserEntity.fromJson(Map<String, dynamic> json) {
+    return UserEntity(
+      id: json['id'],
+      username: json['username'],
+      email: json['email'],
+      phoneNumber: json['phone_number'],
+      type: json['type'],
+    );
+  }
 }

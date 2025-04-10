@@ -1,13 +1,13 @@
 import 'dart:io';
+import 'package:bb_mobile/core/utils/location_validator.dart';
+import 'package:bb_mobile/features/report/data/models/report_model.dart';
 import 'package:bb_mobile/features/report/presentation/widgets/create/report_form_fields.dart';
 import 'package:bb_mobile/features/report/presentation/widgets/create/report_submit_button.dart';
-import 'package:bb_mobile/features/report/presentation/widgets/create/report_village_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:bb_mobile/features/report/presentation/providers/report_provider.dart';
 import 'package:bb_mobile/features/report/presentation/widgets/create/report_location_toggle.dart';
-import 'package:bb_mobile/features/report/presentation/widgets/create/report_text_field.dart';
 import 'package:bb_mobile/features/report/presentation/widgets/create/report_upload_buttons.dart';
 import 'package:bb_mobile/features/report/presentation/widgets/create/report_topbar.dart';
 import 'package:bb_mobile/features/report/presentation/widgets/create/report_guide_modal.dart';
@@ -18,6 +18,7 @@ import 'package:bb_mobile/routes/app_routes.dart';
 
 class ReportCreateView extends ConsumerStatefulWidget {
   const ReportCreateView({super.key});
+
   @override
   ConsumerState<ReportCreateView> createState() => _ReportCreateViewState();
 }
@@ -35,6 +36,7 @@ class _ReportCreateViewState extends ConsumerState<ReportCreateView> {
 
   bool isAtLocation = true;
   bool isSubmitting = false;
+  bool isLocationValid = true;
   double? latitude;
   double? longitude;
   List<File> attachments = [];
@@ -47,31 +49,41 @@ class _ReportCreateViewState extends ConsumerState<ReportCreateView> {
   }
 
   Future<void> _handleSubmit() async {
-
     _titleFocus.unfocus();
     _descFocus.unfocus();
     _villageFocus.unfocus();
     _locationDetailFocus.unfocus();
     FocusScope.of(context).unfocus();
-    
+
     if (_titleController.text.isEmpty || _descController.text.isEmpty) {
-      SnackbarHelper.showSnackbar(context, "Judul dan rincian aduan wajib diisi", isError: true, hasBottomNavbar: true);
+      SnackbarHelper.showSnackbar(context, "Judul dan rincian aduan wajib diisi", isError: true);
       return;
     }
-    if (isAtLocation && (latitude == null || longitude == null)) {
-      SnackbarHelper.showSnackbar(context, "Koordinat tidak tersedia. Aktifkan GPS Anda", isError: true, hasBottomNavbar: true);
-      return;
+
+    if (isAtLocation) {
+      if (latitude == null || longitude == null) {
+        SnackbarHelper.showSnackbar(context, "Lokasi belum ditemukan. Mohon aktifkan GPS Anda.", isError: true);
+        return;
+      }
+
+      if (!LocationValidator.isInsideBaligeArea(latitude!, longitude!)) {
+        SnackbarHelper.showSnackbar(context, "Anda berada di luar radius pelaporan (maks. 5 KM dari Balige).", isError: true);
+        return;
+      }
+    } else {
+      if (_villageController.text.isEmpty) {
+        SnackbarHelper.showSnackbar(context, "Pilih lokasi desa/kelurahan", isError: true);
+        return;
+      }
     }
-    if (!isAtLocation && _villageController.text.isEmpty) {
-      SnackbarHelper.showSnackbar(context, "Pilih lokasi desa/kelurahan", isError: true, hasBottomNavbar: true);
-      return;
-    }
+
     if (attachments.isEmpty) {
-      SnackbarHelper.showSnackbar(context, "Unggah minimal 1 gambar", isError: true, hasBottomNavbar: true);
+      SnackbarHelper.showSnackbar(context, "Unggah minimal 1 gambar", isError: true);
       return;
     }
+
     if (attachments.length > 5) {
-      SnackbarHelper.showSnackbar(context, "Maksimal 5 gambar yang dapat diunggah", isError: true, hasBottomNavbar: true);
+      SnackbarHelper.showSnackbar(context, "Maksimal 5 gambar yang dapat diunggah", isError: true);
       return;
     }
 
@@ -81,7 +93,7 @@ class _ReportCreateViewState extends ConsumerState<ReportCreateView> {
     setState(() => isSubmitting = true);
 
     try {
-      final success = await ref.read(reportProvider.notifier).createReport(
+      final report = await ref.read(reportProvider.notifier).createReport(
         title: _titleController.text.trim(),
         description: _descController.text.trim(),
         date: DateTime.now().toIso8601String(),
@@ -93,30 +105,20 @@ class _ReportCreateViewState extends ConsumerState<ReportCreateView> {
         attachments: attachments,
       );
 
-      if (success) {
-        SnackbarHelper.showSnackbar(context, "Aduan berhasil dikirim!", isError: false, hasBottomNavbar: true);
-        context.go(AppRoutes.dashboard);
+      if (report != null) {
+        SnackbarHelper.showSnackbar(context, "Aduan berhasil dikirim!", isError: false);
+        context.go(AppRoutes.detailReport, extra: ReportModel.fromEntity(report));
       } else {
-        SnackbarHelper.showSnackbar(context, "Gagal mengirim aduan.", isError: true, hasBottomNavbar: true);
+        SnackbarHelper.showSnackbar(context, "Gagal mengirim aduan.", isError: true);
       }
     } catch (e) {
       final message = e.toString().toLowerCase();
       if (message.contains("belum selesai")) {
-        SnackbarHelper.showSnackbar(
-          context,
-          "Anda masih memiliki laporan yang belum selesai. Selesaikan terlebih dahulu.",
-          isError: true,
-          hasBottomNavbar: true
-        );
-      } else if (message.contains("lokasi tidak tersedia")) {
-        SnackbarHelper.showSnackbar(
-          context,
-          "Koordinat tidak tersedia. Aktifkan GPS Anda.",
-          isError: true,
-          hasBottomNavbar: true
-        );
+        SnackbarHelper.showSnackbar(context, "Anda masih memiliki laporan yang belum selesai. Selesaikan terlebih dahulu.", isError: true);
+      } else if (message.contains("lokasi tidak tersedia") || message.contains("invalid location")) {
+        SnackbarHelper.showSnackbar(context, "Gagal mengirim karena lokasi tidak valid atau tidak terdeteksi.", isError: true);
       } else {
-        SnackbarHelper.showSnackbar(context, "Terjadi kesalahan: $e", isError: true, hasBottomNavbar: true);
+        SnackbarHelper.showSnackbar(context, "Terjadi kesalahan: $e", isError: true);
       }
     } finally {
       setState(() => isSubmitting = false);
@@ -136,7 +138,6 @@ class _ReportCreateViewState extends ConsumerState<ReportCreateView> {
             ReportLocationToggle(
               isAtLocation: isAtLocation,
               onChange: (val) => setState(() => isAtLocation = val),
-              isLocationAvailable: latitude != null && longitude != null,
             ),
             const SizedBox(height: 16),
             ReportFormFields(
@@ -162,13 +163,20 @@ class _ReportCreateViewState extends ConsumerState<ReportCreateView> {
                   longitude = long;
                 });
               },
+              onLocationValidityChanged: (isValid) {
+                setState(() {
+                  isLocationValid = isValid;
+                });
+              },
             ),
             const SizedBox(height: 16),
             ReportSubmitButton(
               isSubmitting: isSubmitting,
               onPressed: _handleSubmit,
+              isEnabled: !isAtLocation || isLocationValid,
+              isAtLocation: isAtLocation,
+              isLocationValid: isLocationValid,
             ),
-
             const SizedBox(height: 10),
           ],
         ),

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:bb_mobile/features/report/domain/entities/report_entity.dart';
 import 'package:bb_mobile/features/report/domain/repositories/report_repository.dart';
 
 class CreateReportUseCase {
@@ -6,7 +7,7 @@ class CreateReportUseCase {
 
   CreateReportUseCase(this.repository);
 
-  Future<bool> execute({
+  Future<ReportEntity?> execute({
     required String title,
     required String description,
     required String date,
@@ -16,8 +17,8 @@ class CreateReportUseCase {
     String? longitude,
     bool? isAtLocation,
     List<File>? attachments,
-  }) {
-    return repository.createReport(
+  }) async {
+    return await repository.createReport(
       title: title,
       description: description,
       date: date,

@@ -5,22 +5,16 @@ class SnackbarHelper {
     BuildContext context,
     String message, {
     bool isError = false,
-    bool hasBottomNavbar = true,
   }) {
     if (!context.mounted) return;
-
-    final List<Color> gradientColors = isError
-        ? [Colors.red.shade700, Colors.red.shade400]
-        : [const Color(0xFF66BB6A), const Color(0xFF81C784)];
 
     final overlay = Overlay.of(context);
 
     final overlayEntry = OverlayEntry(
       builder: (context) {
-        return _AnimatedSnackbar(
+        return _AnimatedTopSnackbar(
           message: message,
-          gradientColors: gradientColors,
-          hasBottomNavbar: hasBottomNavbar,
+          isError: isError,
         );
       },
     );
@@ -33,23 +27,21 @@ class SnackbarHelper {
   }
 }
 
-
-class _AnimatedSnackbar extends StatefulWidget {
+class _AnimatedTopSnackbar extends StatefulWidget {
   final String message;
-  final List<Color> gradientColors;
-  final bool hasBottomNavbar;
+  final bool isError;
 
-  const _AnimatedSnackbar({
+  const _AnimatedTopSnackbar({
     required this.message,
-    required this.gradientColors,
-    required this.hasBottomNavbar,
+    required this.isError,
   });
 
   @override
-  State<_AnimatedSnackbar> createState() => _AnimatedSnackbarState();
+  State<_AnimatedTopSnackbar> createState() => _AnimatedTopSnackbarState();
 }
 
-class _AnimatedSnackbarState extends State<_AnimatedSnackbar> with TickerProviderStateMixin {
+class _AnimatedTopSnackbarState extends State<_AnimatedTopSnackbar>
+    with TickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<Offset> _slideAnimation;
   late Animation<double> _fadeAnimation;
@@ -64,7 +56,7 @@ class _AnimatedSnackbarState extends State<_AnimatedSnackbar> with TickerProvide
     );
 
     _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 1),
+      begin: const Offset(0, -1),
       end: Offset.zero,
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
 
@@ -90,11 +82,10 @@ class _AnimatedSnackbarState extends State<_AnimatedSnackbar> with TickerProvide
 
   @override
   Widget build(BuildContext context) {
-    final mediaPadding = MediaQuery.of(context).padding.bottom;
-    final double bottomOffset = widget.hasBottomNavbar ? mediaPadding + 65 : mediaPadding + 10;
+    final mediaTopPadding = MediaQuery.of(context).padding.top;
 
     return Positioned(
-      bottom: bottomOffset,
+      top: mediaTopPadding + 12,
       left: 20,
       right: 20,
       child: Material(
@@ -104,22 +95,10 @@ class _AnimatedSnackbarState extends State<_AnimatedSnackbar> with TickerProvide
           child: FadeTransition(
             opacity: _fadeAnimation,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: widget.gradientColors,
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
-                    blurRadius: 8,
-                    spreadRadius: 1,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
+                color: Colors.black87,
+                borderRadius: BorderRadius.circular(10),
               ),
               child: Row(
                 children: [
@@ -128,8 +107,8 @@ class _AnimatedSnackbarState extends State<_AnimatedSnackbar> with TickerProvide
                       widget.message,
                       style: const TextStyle(
                         color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w400,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -138,10 +117,10 @@ class _AnimatedSnackbarState extends State<_AnimatedSnackbar> with TickerProvide
                   const SizedBox(width: 12),
                   GestureDetector(
                     onTap: _dismiss,
-                    child: const Icon(
+                    child: Icon(
                       Icons.close,
-                      color: Colors.white,
-                      size: 20,
+                      color: Colors.white.withOpacity(0.7),
+                      size: 18,
                     ),
                   ),
                 ],

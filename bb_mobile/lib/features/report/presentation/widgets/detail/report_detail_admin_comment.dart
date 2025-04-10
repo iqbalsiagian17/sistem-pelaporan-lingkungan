@@ -84,7 +84,7 @@ class ReportDetailStatusHistory extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 10),
-                      _evidenceGrid(),
+                        _evidenceGrid(context),
                       const SizedBox(height: 16),
                     ],
                   ],
@@ -171,15 +171,18 @@ class ReportDetailStatusHistory extends StatelessWidget {
     );
   }
 
-  Widget _evidenceGrid() {
-    return Wrap(
-      spacing: 10,
-      runSpacing: 10,
-      children: evidences.map((e) {
-        return ClipRRect(
+Widget _evidenceGrid(BuildContext context) {
+  return Wrap(
+    spacing: 10,
+    runSpacing: 10,
+    children: evidences.map((e) {
+      final imageUrl = "${ApiConstants.baseUrl}/${e.file}";
+      return GestureDetector(
+        onTap: () => _showImageDialog(context, imageUrl),
+        child: ClipRRect(
           borderRadius: BorderRadius.circular(8),
           child: Image.network(
-            "${ApiConstants.baseUrl}/${e.file}",
+            imageUrl,
             width: 100,
             height: 100,
             fit: BoxFit.cover,
@@ -190,10 +193,38 @@ class ReportDetailStatusHistory extends StatelessWidget {
               child: const Icon(Icons.broken_image, color: Colors.grey),
             ),
           ),
+        ),
+      );
+    }).toList(),
+  );
+}
+
+  void _showImageDialog(BuildContext context, String imageUrl) {
+    showDialog(
+      context: context,
+      builder: (_) {
+        return Dialog(
+          backgroundColor: Colors.black,
+          insetPadding: const EdgeInsets.all(10),
+          child: InteractiveViewer(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: Image.network(
+                imageUrl,
+                fit: BoxFit.contain,
+                errorBuilder: (_, __, ___) => Container(
+                  color: Colors.grey[900],
+                  padding: const EdgeInsets.all(16),
+                  child: const Icon(Icons.broken_image, color: Colors.white),
+                ),
+              ),
+            ),
+          ),
         );
-      }).toList(),
+      },
     );
   }
+
 
   String _formatCreatedAt(String dateTime) {
     try {

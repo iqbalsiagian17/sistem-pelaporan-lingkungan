@@ -167,7 +167,6 @@ class _MyReportViewState extends ConsumerState<MyReportView> {
       SnackbarHelper.showSnackbar(
         context,
         "Laporan berhasil dihapus",
-        hasBottomNavbar: true, // ubah ke false jika tidak ada bottom navbar di halaman ini
       );
       await ref.read(reportProvider.notifier).fetchReports(); // refresh data
     } else {
@@ -175,7 +174,6 @@ class _MyReportViewState extends ConsumerState<MyReportView> {
         context,
         "Gagal menghapus laporan",
         isError: true,
-        hasBottomNavbar: true,
       );
     }
   }

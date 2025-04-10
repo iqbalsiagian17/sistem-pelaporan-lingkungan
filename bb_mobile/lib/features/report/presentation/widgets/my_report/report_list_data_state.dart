@@ -207,7 +207,6 @@ if (report.status.toLowerCase() == "pending")
         SnackbarHelper.showSnackbar(
           context,
           "Laporan berhasil dihapus",
-          hasBottomNavbar: true, // ubah ke false jika halaman ini tidak punya BottomNavbar
         );
         widget.onRetry(); // Refresh list
       } else {
@@ -215,7 +214,6 @@ if (report.status.toLowerCase() == "pending")
           context,
           "Gagal menghapus laporan",
           isError: true,
-          hasBottomNavbar: true,
         );
       }
     }

@@ -141,14 +141,12 @@ class ForumCommentList extends ConsumerWidget {
                           SnackbarHelper.showSnackbar(
                             context,
                             "Komentar berhasil dihapus",
-                            hasBottomNavbar: true,
                           );
                         } else {
                           SnackbarHelper.showSnackbar(
                             context,
                             "Gagal menghapus komentar",
                             isError: true,
-                            hasBottomNavbar: true,
                           );
                         }
                       }

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:bb_mobile/features/report/domain/entities/report_entity.dart';
 import 'package:bb_mobile/features/report/domain/repositories/report_repository.dart';
 
 class UpdateReportUseCase {
@@ -6,7 +7,7 @@ class UpdateReportUseCase {
 
   UpdateReportUseCase(this.repository);
 
-  Future<bool> execute({
+  Future<ReportEntity?> execute({
     required String reportId,
     String? title,
     String? description,

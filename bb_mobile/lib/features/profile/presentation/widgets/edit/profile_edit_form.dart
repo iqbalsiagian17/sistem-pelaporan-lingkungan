@@ -59,14 +59,13 @@ class _ProfileEditFormState extends ConsumerState<ProfileEditForm> {
     if (!mounted) return;
 
     if (success) {
-      SnackbarHelper.showSnackbar(context, "Profil berhasil diperbarui!", isError: false , hasBottomNavbar: true);
+      SnackbarHelper.showSnackbar(context, "Profil berhasil diperbarui!", isError: false , );
       context.go(AppRoutes.profile);
     } else {
       SnackbarHelper.showSnackbar(
         context,
         "Gagal memperbarui profil",
         isError: true,
-        hasBottomNavbar: true,
       );
     }
   }

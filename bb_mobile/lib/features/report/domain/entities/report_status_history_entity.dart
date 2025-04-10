@@ -16,4 +16,15 @@ class ReportStatusHistoryEntity {
     required this.createdAt,
     required this.admin,
   });
+
+  factory ReportStatusHistoryEntity.fromJson(Map<String, dynamic> json) {
+    return ReportStatusHistoryEntity(
+      id: json['id'],
+      previousStatus: json['previous_status'],
+      newStatus: json['new_status'],
+      message: json['message'],
+      createdAt: json['created_at'],
+      admin: UserEntity.fromJson(json['admin']),
+    );
+  }
 }

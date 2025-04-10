@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:bb_mobile/core/constants/api.dart';
+import 'package:bb_mobile/features/report/data/models/report_model.dart';
 import 'package:bb_mobile/features/report/domain/entities/report_entity.dart';
 import 'package:bb_mobile/features/report/presentation/widgets/create/report_location_toggle.dart';
 import 'package:bb_mobile/features/report/presentation/widgets/create/report_text_field.dart';
@@ -8,6 +9,7 @@ import 'package:bb_mobile/features/report/presentation/widgets/create/report_top
 import 'package:bb_mobile/features/report/presentation/widgets/create/report_confirm_modal.dart';
 import 'package:bb_mobile/features/report/presentation/widgets/create/report_village_picker.dart';
 import 'package:bb_mobile/features/report/presentation/providers/report_provider.dart';
+import 'package:bb_mobile/routes/app_routes.dart';
 import 'package:bb_mobile/widgets/snackbar/snackbar_helper.dart';
 import 'package:bb_mobile/widgets/navbar/bottom_navbar.dart';
 import 'package:flutter/material.dart';
@@ -49,16 +51,14 @@ class _ReportEditViewState extends ConsumerState<ReportEditView> {
 
   Future<void> _handleSubmit() async {
     if (_titleController.text.isEmpty || _descController.text.isEmpty) {
-      SnackbarHelper.showSnackbar(context, "Judul dan rincian aduan wajib diisi", isError: true, hasBottomNavbar: true);
+      SnackbarHelper.showSnackbar(context, "Judul dan rincian aduan wajib diisi", isError: true);
       return;
     }
 
     if (!isAtLocation && _villageController.text.isEmpty) {
-      SnackbarHelper.showSnackbar(context, "Desa/Kelurahan wajib diisi", isError: true, hasBottomNavbar: true);
+      SnackbarHelper.showSnackbar(context, "Desa/Kelurahan wajib diisi", isError: true);
       return;
     }
-
-    print("DEBUG VILLAGE: ${_villageController.text}");
 
     final confirm = await showReportConfirmModal(context);
     if (confirm != true) return;
@@ -66,31 +66,33 @@ class _ReportEditViewState extends ConsumerState<ReportEditView> {
     setState(() => isSubmitting = true);
 
     try {
-      final success = await ref.read(reportProvider.notifier).updateReport(
+      final updatedReport = await ref.read(reportProvider.notifier).updateReport(
         reportId: widget.report.id.toString(),
         title: _titleController.text.trim(),
         description: _descController.text.trim(),
         locationDetails: _locationDetailController.text,
         village: _villageController.text.isNotEmpty ? _villageController.text : null,
         isAtLocation: isAtLocation,
-
         attachments: attachments,
         deleteAttachmentIds: deletedAttachmentIds,
       );
 
-
-      if (success) {
-        SnackbarHelper.showSnackbar(context, "Laporan berhasil diperbarui!", isError: false, hasBottomNavbar: true);
-        context.pop();
+      if (updatedReport != null) {
+        SnackbarHelper.showSnackbar(context, "Laporan berhasil diperbarui!", isError: false);
+        context.go(
+          AppRoutes.detailReport,
+          extra: ReportModel.fromEntity(updatedReport),
+        );
       } else {
-        SnackbarHelper.showSnackbar(context, "Gagal memperbarui aduan.", isError: true, hasBottomNavbar: true);
+        SnackbarHelper.showSnackbar(context, "Gagal memperbarui aduan.", isError: true);
       }
     } catch (e) {
-      SnackbarHelper.showSnackbar(context, "Terjadi kesalahan: $e", isError: true, hasBottomNavbar: true);
+      SnackbarHelper.showSnackbar(context, "Terjadi kesalahan: $e", isError: true);
     } finally {
       setState(() => isSubmitting = false);
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -109,7 +111,6 @@ print('village: ${_villageController.text}');
             ReportLocationToggle(
               isAtLocation: isAtLocation,
               onChange: (val) => setState(() => isAtLocation = val),
-              isLocationAvailable: true,
               isDisabled: true,
             ),
             const SizedBox(height: 16),

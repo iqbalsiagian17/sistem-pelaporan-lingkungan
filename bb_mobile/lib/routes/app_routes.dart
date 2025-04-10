@@ -165,6 +165,11 @@ static Future<String?> _redirectLogic(BuildContext context, GoRouterState state)
           return ResetPasswordView(email: email);
           },
         ),
+      GoRoute(
+          path: '/dummy',
+          builder: (context, state) => const Scaffold(body: SizedBox.shrink()),
+        ),
+
       ],
       errorBuilder: (context, state) => const Scaffold(
         body: Center(child: Text('Halaman tidak ditemukan')),

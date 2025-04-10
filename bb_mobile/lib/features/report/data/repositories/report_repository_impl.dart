@@ -19,7 +19,7 @@ class ReportRepositoryImpl implements ReportRepository {
   }
 
   @override
-  Future<bool> createReport({
+Future<ReportEntity?> createReport({
     required String title,
     required String description,
     required String date,
@@ -44,31 +44,32 @@ class ReportRepositoryImpl implements ReportRepository {
   }
 
   @override
-  Future<bool> updateReport({
-    required String reportId,
-    String? title,
-    String? description,
-    String? locationDetails,
-    String? village,
-    String? latitude,
-    String? longitude,
-    bool? isAtLocation,
-    List<File>? attachments,
-    List<int>? deleteAttachmentIds,
-  }) async {
-    return await remoteDataSource.updateReport(
-      reportId: reportId,
-      title: title,
-      description: description,
-      locationDetails: locationDetails,
-      village: village,
-      latitude: latitude,
-      longitude: longitude,
-      isAtLocation: isAtLocation,
-      attachments: attachments,
-      deleteAttachmentIds: deleteAttachmentIds,
-    );
-  }
+Future<ReportEntity?> updateReport({
+  required String reportId,
+  String? title,
+  String? description,
+  String? locationDetails,
+  String? village,
+  String? latitude,
+  String? longitude,
+  bool? isAtLocation,
+  List<File>? attachments,
+  List<int>? deleteAttachmentIds,
+}) async {
+  return await remoteDataSource.updateReport(
+    reportId: reportId,
+    title: title,
+    description: description,
+    locationDetails: locationDetails,
+    village: village,
+    latitude: latitude,
+    longitude: longitude,
+    isAtLocation: isAtLocation,
+    attachments: attachments,
+    deleteAttachmentIds: deleteAttachmentIds,
+  );
+}
+
 
 
   @override

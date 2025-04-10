@@ -143,7 +143,6 @@ class _PostPopupMenuState extends ConsumerState<PostPopupMenu> {
       context,
       success ? "Postingan berhasil dihapus" : "Gagal menghapus postingan",
       isError: !success,
-      hasBottomNavbar: true, // ubah ke false jika halaman ini tidak punya bottom navbar
     );
   }
 
