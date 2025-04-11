@@ -32,6 +32,16 @@ module.exports = {
         allowNull: false,
         defaultValue: 'general',
       },
+      report_id: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        references: {
+          model: 't_report',
+          key: 'id',
+        }, 
+        onUpdate: 'CASCADE',
+        onDelete: 'SET NULL',
+      },
       is_read: {
         type: Sequelize.BOOLEAN,
         allowNull: false,

@@ -22,12 +22,12 @@ exports.likeReport = async (req, res) => {
       return res.status(400).json({ message: "You have already liked this report" });
     }
 
-    // 🔹 Tambahkan like ke `t_report_likes`
+    // 🔹 Tambahkan like ke `t_report_total_likes`
     await UserReportLikeHistory.create({ user_id, report_id });
 
-    // 🔹 Pastikan kolom `likes` ada sebelum mengupdate
-    if (report.likes !== undefined) {
-      await report.increment('likes');
+    // 🔹 Pastikan kolom `total_likes` ada sebelum mengupdate
+    if (report.total_likes !== undefined) {
+      await report.increment('total_likes');
     }
 
     return res.status(201).json({ message: "Report liked successfully" });
@@ -58,8 +58,8 @@ exports.unlikeReport = async (req, res) => {
 
     // 🔹 Cek apakah laporan masih ada
     const report = await Report.findByPk(report_id);
-    if (report && report.likes !== undefined) {
-      await report.decrement('likes');
+    if (report && report.total_likes !== undefined) {
+      await report.decrement('total_likes');
     }
 
     return res.status(200).json({ message: "Like removed successfully" });

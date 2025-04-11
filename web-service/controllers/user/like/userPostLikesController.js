@@ -26,7 +26,7 @@ exports.likePost = async (req, res) => {
     await UserPostLikeHistory.create({ user_id, post_id });
 
     // 🔹 Tambahkan like ke `t_post`
-    await post.increment('likes');
+    await post.increment('total_likes');
 
     return res.status(201).json({ message: "Post liked successfully" });
   } catch (error) {
@@ -58,7 +58,7 @@ exports.unlikePost = async (req, res) => {
       // 🔹 Kurangi jumlah like di `t_post`
       const post = await Post.findByPk(post_id);
       if (post) {
-        await post.decrement('likes');
+        await post.decrement('total_likes');
       }
   
       return res.status(200).json({ message: "Like removed successfully" });

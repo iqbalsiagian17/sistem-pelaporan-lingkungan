@@ -250,7 +250,7 @@ Future<ReportEntity?> updateReport({
         "${ApiConstants.userReportLike}/$reportId",
       );
       if (response.statusCode == 200) {
-        return response.data['report']['likes'] ?? 0;
+        return response.data['report']['total_likes'] ?? 0;
       }
       return 0;
     } catch (e) {

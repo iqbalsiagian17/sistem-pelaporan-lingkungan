@@ -170,7 +170,7 @@ exports.createReport = async (req, res) => {
             title,
             description,
             status: "pending",
-            likes: 0,
+            total_likes: 0,
             date, // Pastikan `date` tidak null
             location_details: location_details && location_details.trim() !== "" ? location_details.trim() : null, // ✅ Pastikan nilainya dikirim dan disimpan dengan benar
             village: is_at_location === "false" ? village : null,
@@ -197,8 +197,9 @@ exports.createReport = async (req, res) => {
           message: `Laporan Anda dengan nomor ${report_number} telah berhasil dikirim dan sedang diperiksa oleh tim Dinas Lingkungan Hidup Toba.`,
           type: "verification",
           sent_by: "system",
+          report_id: newReport.id,
           role_target: "user"
-        });
+        },{transaction : t});
         
 
         if (req.files.length > 0) {

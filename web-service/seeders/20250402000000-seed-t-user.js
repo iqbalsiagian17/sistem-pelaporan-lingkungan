@@ -19,6 +19,19 @@ module.exports = {
         createdAt: new Date(),
         updatedAt: new Date(),
       },
+      {
+        username: "user",
+        email: "user@baligebersih.com",
+        phone_number: "08123456789",
+        password: hashedPassword,
+        type: 0, // User
+        blocked_until: null,
+        auth_provider: "manual",
+        is_active: true,
+        fcm_token: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),  
+      }
     ]);
   },
 

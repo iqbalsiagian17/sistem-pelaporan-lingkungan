@@ -224,4 +224,27 @@ class ReportNotifier extends StateNotifier<AsyncValue<List<ReportEntity>>> {
       state = AsyncValue.data([...state.value ?? []]);
     } catch (_) {}
   }
+
+  Future<ReportEntity?> fetchReportById(int id) async {
+    try {
+      final reports = state.value ?? [];
+      return reports.firstWhere(
+        (r) => r.id == id,
+        orElse: () => throw Exception("Laporan tidak ditemukan"),
+      );
+    } catch (_) {
+      try {
+        await fetchReports();
+        final updatedReports = state.value ?? [];
+        return updatedReports.firstWhere(
+          (r) => r.id == id,
+          orElse: () => throw Exception("Laporan tidak ditemukan"),
+        );
+      } catch (_) {
+        return null;
+      }
+    }
+  }
+
+
 }

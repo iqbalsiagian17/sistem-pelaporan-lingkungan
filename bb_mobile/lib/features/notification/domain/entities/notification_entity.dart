@@ -2,38 +2,48 @@ class UserNotificationEntity {
   final int id;
   final String title;
   final String message;
-  final bool isRead;
   final String type;
-  final String sentBy;
+  final bool isRead;
+  final int? reportId; // <-- ✅ Tambahkan ini
   final DateTime createdAt;
+  final DateTime updatedAt;
 
   UserNotificationEntity({
     required this.id,
     required this.title,
     required this.message,
-    required this.isRead,
     required this.type,
-    required this.sentBy,
+    required this.isRead,
+    this.reportId, // <-- ✅ Pastikan nullable
     required this.createdAt,
+    required this.updatedAt,
   });
 
+  factory UserNotificationEntity.fromJson(Map<String, dynamic> json) {
+    return UserNotificationEntity(
+      id: json['id'],
+      title: json['title'],
+      message: json['message'],
+      type: json['type'],
+      isRead: json['is_read'],
+      reportId: json['report_id'], // ✅ Ambil dari JSON
+      createdAt: DateTime.parse(json['created_at']),
+      updatedAt: DateTime.parse(json['updated_at']),
+    );
+  }
+
   UserNotificationEntity copyWith({
-    int? id,
-    String? title,
-    String? message,
     bool? isRead,
-    String? type,
-    String? sentBy,
-    DateTime? createdAt,
   }) {
     return UserNotificationEntity(
-      id: id ?? this.id,
-      title: title ?? this.title,
-      message: message ?? this.message,
+      id: id,
+      title: title,
+      message: message,
+      type: type,
       isRead: isRead ?? this.isRead,
-      type: type ?? this.type,
-      sentBy: sentBy ?? this.sentBy,
-      createdAt: createdAt ?? this.createdAt,
+      reportId: reportId,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
     );
   }
 }

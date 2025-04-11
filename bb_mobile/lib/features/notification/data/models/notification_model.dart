@@ -8,6 +8,7 @@ class UserNotificationModel {
   final String type;
   final String sentBy;
   final DateTime createdAt;
+  final int? reportId;
 
   UserNotificationModel({
     required this.id,
@@ -17,6 +18,7 @@ class UserNotificationModel {
     required this.type,
     required this.sentBy,
     required this.createdAt,
+    this.reportId
   });
 
   factory UserNotificationModel.fromJson(Map<String, dynamic> json) {
@@ -28,21 +30,23 @@ class UserNotificationModel {
       type: json['type'] ?? 'info',
       sentBy: json['sent_by'] ?? 'system',
       createdAt: DateTime.tryParse(json['created_at'] ?? '') ?? DateTime.now(),
+      reportId: json['report_id'],
     );
   }
 
   /// Konversi ke entitas
-  UserNotificationEntity toEntity() {
-    return UserNotificationEntity(
-      id: id,
-      title: title,
-      message: message,
-      isRead: isRead,
-      type: type,
-      sentBy: sentBy,
-      createdAt: createdAt,
-    );
-  }
+UserNotificationEntity toEntity() {
+  return UserNotificationEntity(
+    id: id,
+    title: title,
+    message: message,
+    isRead: isRead,
+    type: type,
+    reportId: reportId, // ✅ Tambahkan ini
+    createdAt: createdAt,
+    updatedAt: createdAt, // atau DateTime.now() jika tidak punya
+  );
+}
 
   /// Tambahkan copyWith juga jika diperlukan
   UserNotificationModel copyWith({

@@ -131,8 +131,8 @@ Future<bool> isLiked(int postId) async {
 Future<int> getLikeCount(int postId) async {
   try {
     final response = await _dio.get("${ApiConstants.userPostLike}/$postId");
-    if (response.statusCode == 200 && response.data.containsKey('likes')) {
-      return response.data['likes'] ?? 0;
+    if (response.statusCode == 200 && response.data.containsKey('total_likes')) {
+      return response.data['total_likes'] ?? 0;
     }
     return 0;
   } catch (e) {

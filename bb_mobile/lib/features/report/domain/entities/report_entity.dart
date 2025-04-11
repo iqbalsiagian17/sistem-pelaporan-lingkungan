@@ -11,7 +11,7 @@ class ReportEntity {
   final String description;
   final String date;
   final String status;
-  final int likes;
+  final int total_likes;
   final String? village;
   final String? locationDetails;
   final double latitude;
@@ -30,7 +30,7 @@ class ReportEntity {
     required this.description,
     required this.date,
     required this.status,
-    required this.likes,
+    required this.total_likes,
     this.village,
     this.locationDetails,
     required this.latitude,
@@ -53,7 +53,7 @@ class ReportEntity {
       description: data['description'],
       date: data['date'],
       status: data['status'],
-      likes: data['likes'] ?? 0,
+      total_likes: data['total_likes'] ?? 0,
       village: data['village'],
       locationDetails: data['location_details'],
       latitude: double.tryParse(data['latitude'].toString()) ?? 0.0,

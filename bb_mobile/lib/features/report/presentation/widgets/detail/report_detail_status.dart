@@ -8,12 +8,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class ReportDetailStatus extends ConsumerStatefulWidget {
   final int reportId;
   final String? status;
-  final int likes;
+  final int total_likes;
 
   const ReportDetailStatus({
     super.key,
     required this.reportId,
-    required this.likes,
+    required this.total_likes,
     this.status,
   });
 
@@ -41,7 +41,7 @@ final likeNotifier = ref.read(reportProvider.notifier);
 final isLiked = reportState is AsyncData &&
     likeNotifier.likedReportIds.contains(widget.reportId);
 
-final likeCount = likeNotifier.likeCounts[widget.reportId] ?? widget.likes;
+final likeCount = likeNotifier.likeCounts[widget.reportId] ?? widget.total_likes;
 
   final isSaved = saveState.maybeWhen(
     data: (savedReports) =>

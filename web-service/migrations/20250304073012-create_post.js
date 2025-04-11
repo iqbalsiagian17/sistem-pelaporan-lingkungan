@@ -21,7 +21,7 @@ module.exports = {
               type: Sequelize.TEXT,
               allowNull: false
           },
-          likes: {
+          total_likes: {
               type: Sequelize.INTEGER,
               allowNull: false,
               defaultValue: 0

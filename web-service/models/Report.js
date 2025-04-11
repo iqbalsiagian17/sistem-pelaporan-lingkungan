@@ -66,7 +66,7 @@ module.exports = (sequelize, DataTypes) => {
               return value !== null ? parseFloat(value) : 0.0;
             }
           },
-          likes: {
+          total_likes: {
             type: DataTypes.INTEGER,
             allowNull: false,
             defaultValue: 0, // 🔹 Default 0 jika belum ada likes

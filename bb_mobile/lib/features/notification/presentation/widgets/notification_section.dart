@@ -1,5 +1,6 @@
 import 'package:bb_mobile/features/notification/domain/entities/notification_entity.dart';
 import 'package:bb_mobile/features/notification/presentation/providers/notification_provider.dart';
+import 'package:bb_mobile/features/report/presentation/providers/report_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -88,13 +89,21 @@ class NotificationSection extends ConsumerWidget {
     final dateFormatted = DateFormat('HH:mm', 'id_ID').format(notif.createdAt);
 
     return GestureDetector(
-      onTap: () async {
-        await ref.read(notificationProvider.notifier).markAsRead(notif.id);
+    onTap: () async {
+      await ref.read(notificationProvider.notifier).markAsRead(notif.id);
+      final notifier = ref.read(reportProvider.notifier);
+      final report = await notifier.fetchReportById(notif.reportId!);
 
-        if (notif.type == "verification") {
-          context.go(AppRoutes.myReport);
-        }
-      },
+      if (report != null) {
+        context.go(AppRoutes.detailReport, extra: report);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Gagal memuat detail laporan")),
+        );
+      }
+    },
+
+
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(14),

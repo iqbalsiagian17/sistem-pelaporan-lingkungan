@@ -9,7 +9,7 @@ class ForumPostModel {
   final String content;
   final String createdAt;
   final String updatedAt;
-  final int likes;
+  final int total_likes;
   final bool isPinned;
   final bool isLiked;
   final UserModel user;
@@ -22,7 +22,7 @@ class ForumPostModel {
     required this.content,
     required this.createdAt,
     required this.updatedAt,
-    required this.likes,
+    required this.total_likes,
     required this.isPinned,
     required this.isLiked, 
     required this.user,
@@ -40,7 +40,7 @@ class ForumPostModel {
       content: json['content'],
       createdAt: json['createdAt'],
       updatedAt: json['updatedAt'],
-      likes: json['likes'] ?? 0,
+      total_likes: json['total_likes'] ?? 0,
       isPinned: json['is_pinned'] ?? false,
       isLiked: json['is_liked'] ?? false, 
       user: UserModel.fromJson(json['user']),
@@ -60,9 +60,9 @@ class ForumPostModel {
       content: content,
       createdAt: createdAt,
       updatedAt: updatedAt,
-      likes: likes,
+      total_likes: total_likes,
       isPinned: isPinned,
-      likeCount: likes,
+      likeCount: total_likes,
       isLiked: isLiked, 
       user: user,
       images: images.map((img) => img.toEntity()).toList(),

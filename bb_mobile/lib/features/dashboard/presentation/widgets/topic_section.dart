@@ -50,8 +50,8 @@ class TopicSection extends ConsumerWidget {
                 );
               }
 
-              validReports.sort((a, b) => (b.likes ?? 0).compareTo(a.likes ?? 0));
-              final allZeroLikes = validReports.every((r) => (r.likes ?? 0) == 0);
+              validReports.sort((a, b) => (b.total_likes ?? 0).compareTo(a.total_likes ?? 0));
+              final allZeroLikes = validReports.every((r) => (r.total_likes ?? 0) == 0);
 
               if (allZeroLikes) {
                 validReports.shuffle(Random());

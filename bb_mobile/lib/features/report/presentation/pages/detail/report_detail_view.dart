@@ -50,7 +50,7 @@ body: SingleChildScrollView(
                           ReportDetailStatus(
                             reportId: report.id,
                             status: report.status,
-                            likes: report.likes,
+                            total_likes: report.total_likes,
                           ),
                           const SizedBox(height: 10),
                           Text(

@@ -90,7 +90,7 @@ class ReportSaveModel extends ReportSaveEntity {
       locationDetails: location,
       latitude: latitude,      
       longitude: longitude,     
-      likes: 0,
+      total_likes: 0,
       attachments: attachments,
       user: user,
       statusHistory: statusHistory,

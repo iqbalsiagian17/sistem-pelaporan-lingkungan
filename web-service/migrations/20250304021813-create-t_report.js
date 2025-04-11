@@ -41,7 +41,7 @@ module.exports = {
         allowNull: false, // ✅ Pastikan tidak NULL
         defaultValue: 'pending'
       },
-      likes: {
+      total_likes: {
         type: Sequelize.INTEGER,
         allowNull: false, // ✅ Pastikan tidak NULL
         defaultValue: 0  // ✅ Default agar tidak NULL

@@ -8,6 +8,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: true,
       },
+      report_id: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+      },
       title: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -40,6 +44,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       tableName: 't_notification',
       underscored: true,
+      timestamps: true, // ✅ untuk createdAt dan updatedAt otomatis
     }
   );
 
@@ -47,6 +52,11 @@ module.exports = (sequelize, DataTypes) => {
     Notification.belongsTo(models.User, {
       foreignKey: 'user_id',
       as: 'user',
+    });
+
+    Notification.belongsTo(models.Report, {
+      foreignKey: 'report_id',
+      as: 'report',
     });
   };
 
