@@ -1,6 +1,6 @@
 const express = require('express');
 const userReportLikesController = require('../../controllers/user/like/userReportLikesController');
-const { ReportLikes } = require('../../models'); // ✅ Import model yang benar
+const { UserReportLikeHistory } = require('../../models'); // ✅ Import model yang benar
 const authMiddleware = require('../../middleware/authMiddleware'); 
 
 const router = express.Router();
@@ -17,7 +17,7 @@ router.get('/:report_id/status', authMiddleware, async (req, res) => {
     const user_id = req.user.id;
     const { report_id } = req.params;
 
-    const like = await ReportLikes.findOne({ where: { user_id, report_id } });
+    const like = await UserReportLikeHistory.findOne({ where: { user_id, report_id } });
     return res.status(200).json({ isLiked: like !== null });
   } catch (error) {
     console.error("❌ Error checking like status:", error);

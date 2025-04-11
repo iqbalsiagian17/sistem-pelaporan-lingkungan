@@ -1,4 +1,4 @@
-const { PostLikes, Post } = require('../../../models');
+const { UserPostLikeHistory, Post } = require('../../../models');
 
 exports.likePost = async (req, res) => {
   try {
@@ -17,13 +17,13 @@ exports.likePost = async (req, res) => {
     }
 
     // 🔹 Cek apakah user sudah like postingan ini
-    const existingLike = await PostLikes.findOne({ where: { user_id, post_id } });
+    const existingLike = await UserPostLikeHistory.findOne({ where: { user_id, post_id } });
     if (existingLike) {
       return res.status(400).json({ message: "You have already liked this post" });
     }
 
     // 🔹 Tambahkan like ke `t_post_like`
-    await PostLikes.create({ user_id, post_id });
+    await UserPostLikeHistory.create({ user_id, post_id });
 
     // 🔹 Tambahkan like ke `t_post`
     await post.increment('likes');
@@ -47,7 +47,7 @@ exports.unlikePost = async (req, res) => {
       }
   
       // 🔹 Cek apakah user pernah like postingan ini
-      const like = await PostLikes.findOne({ where: { user_id, post_id } });
+      const like = await UserPostLikeHistory.findOne({ where: { user_id, post_id } });
       if (!like) {
         return res.status(404).json({ message: "You haven't liked this post" });
       }

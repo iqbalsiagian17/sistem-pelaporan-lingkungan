@@ -1,10 +1,10 @@
+import 'package:bb_mobile/features/dashboard/presentation/widgets/media_carousel_banner.dart';
 import 'package:bb_mobile/features/report/presentation/providers/report_provider.dart' show reportProvider;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:bb_mobile/widgets/navbar/top_navbar.dart';
 import 'package:bb_mobile/widgets/navbar/bottom_navbar.dart';
-import '../widgets/carousel_banner.dart';
 import '../widgets/quick_access_menu.dart';
 import '../widgets/topic_section.dart';
 import '../widgets/recent_reports_section.dart';
@@ -56,7 +56,7 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     SizedBox(height: 20),
-                    CarouselBanner(),
+                    MediaCarouselBanner(),
                     SizedBox(height: 20),
                     QuickAccessMenu(),
                   ],

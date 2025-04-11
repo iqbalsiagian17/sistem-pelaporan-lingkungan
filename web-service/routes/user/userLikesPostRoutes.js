@@ -1,6 +1,6 @@
 const express = require('express');
 const userPostLikesController = require('../../controllers/user/like/userPostLikesController');
-const { PostLikes } = require('../../models'); // ✅ Pastikan model sudah diimpor dengan benar
+const { UserPostLikeHistory } = require('../../models'); // ✅ Pastikan model sudah diimpor dengan benar
 const authMiddleware = require('../../middleware/authMiddleware'); 
 
 const router = express.Router();
@@ -18,7 +18,7 @@ router.get('/:post_id/status', authMiddleware, async (req, res) => {
     const { post_id } = req.params;
 
     // 🔹 Cek apakah user sudah like post ini
-    const like = await PostLikes.findOne({ where: { user_id, post_id } });
+    const like = await UserPostLikeHistory.findOne({ where: { user_id, post_id } });
     
     return res.status(200).json({ isLiked: like !== null });
   } catch (error) {
@@ -33,7 +33,7 @@ router.get('/:post_id', async (req, res) => {
     const { post_id } = req.params;
 
     // 🔹 Hitung jumlah like berdasarkan post_id
-    const likeCount = await PostLikes.count({ where: { post_id } });
+    const likeCount = await UserPostLikeHistory.count({ where: { post_id } });
 
     return res.status(200).json({ likes: likeCount });
   } catch (error) {

@@ -1,4 +1,4 @@
-const { ReportLikes, Report } = require('../../../models');
+const { UserReportLikeHistory, Report } = require('../../../models');
 
 exports.likeReport = async (req, res) => {
   try {
@@ -17,13 +17,13 @@ exports.likeReport = async (req, res) => {
     }
 
     // 🔹 Cek apakah user sudah like
-    const existingLike = await ReportLikes.findOne({ where: { user_id, report_id } });
+    const existingLike = await UserReportLikeHistory.findOne({ where: { user_id, report_id } });
     if (existingLike) {
       return res.status(400).json({ message: "You have already liked this report" });
     }
 
     // 🔹 Tambahkan like ke `t_report_likes`
-    await ReportLikes.create({ user_id, report_id });
+    await UserReportLikeHistory.create({ user_id, report_id });
 
     // 🔹 Pastikan kolom `likes` ada sebelum mengupdate
     if (report.likes !== undefined) {
@@ -48,7 +48,7 @@ exports.unlikeReport = async (req, res) => {
     }
 
     // 🔹 Cek apakah user pernah like laporan ini
-    const like = await ReportLikes.findOne({ where: { user_id, report_id } });
+    const like = await UserReportLikeHistory.findOne({ where: { user_id, report_id } });
     if (!like) {
       return res.status(404).json({ message: "You haven't liked this report" });
     }

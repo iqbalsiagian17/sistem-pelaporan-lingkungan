@@ -54,6 +54,8 @@ class _ForumTabViewState extends ConsumerState<ForumTabView> {
     if (posts.isEmpty) {
       return const Center(child: Text("Belum ada postingan."));
     }
+    print("📦 Total post ditemukan: ${posts.length}");
+
 
     // Urutkan pinned post ke atas
     final pinned = posts.where((p) => p.isPinned).toList();
@@ -80,8 +82,8 @@ class _ForumTabViewState extends ConsumerState<ForumTabView> {
 
   List<ForumPostEntity> _getPopularPosts(List<ForumPostEntity> posts) {
     return posts
-        .where((post) => post.likes > 0)
+        .where((post) => post.likeCount > 0)
         .toList()
-      ..sort((a, b) => b.likes.compareTo(a.likes));
+      ..sort((a, b) => b.likeCount.compareTo(a.likeCount));
   }
 }

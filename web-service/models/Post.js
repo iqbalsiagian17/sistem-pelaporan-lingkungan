@@ -20,7 +20,7 @@ module.exports = (sequelize, DataTypes) => {
                 type: DataTypes.TEXT,
                 allowNull: false
             },
-            likes: {
+            total_likes: {
                 type: DataTypes.INTEGER,
                 allowNull: false,
                 defaultValue: 0, // ✅ Default 0 likes
@@ -41,7 +41,7 @@ module.exports = (sequelize, DataTypes) => {
         Post.belongsTo(models.User, { foreignKey: "user_id", as: "user" });
         Post.hasMany(models.PostImage, { foreignKey: "post_id", as: "images" });
         Post.hasMany(models.Comment, { foreignKey: "post_id", as: "comments" });
-        Post.hasMany(models.PostLikes, { foreignKey: "post_id", as: "likesRelation" }); // ✅ tambahkan ini
+        Post.hasMany(models.UserPostLikeHistory, { foreignKey: "post_id", as: "likesRelation" }); // ✅ tambahkan ini
     };
 
     return Post;

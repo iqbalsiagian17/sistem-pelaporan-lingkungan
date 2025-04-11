@@ -53,6 +53,11 @@ module.exports = {
         allowNull: false,
         defaultValue: 'manual'
       },
+      is_active:{
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: true
+      },
       fcm_token: {
         type: Sequelize.STRING,
         allowNull: true

@@ -1,4 +1,4 @@
-const { Post, User, PostImage, Comment, PostLikes } = require('../../../models');
+const { Post, User, PostImage, Comment, UserPostLikeHistory } = require('../../../models');
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
@@ -75,7 +75,7 @@ exports.getAllPosts = async (req, res) => {
             include: { model: User, as: "user", attributes: ["id", "username"] }
           },
           {
-            model: PostLikes,
+            model: UserPostLikeHistory,
             as: "likesRelation",
             where: userId ? { user_id: userId } : undefined,
             required: false // agar tetap bisa fetch meskipun belum di-like user

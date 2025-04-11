@@ -13,7 +13,7 @@ class ApiConstants {
   static const String userReportLike = "$baseUrl/api/user/reports";
 
   // Public
-  static const String publicCarousel = "$baseUrl/api/carousels";
+  static const String publicCarousel = "$baseUrl/api/mediacarousels";
   static const String publicAnnouncement = "$baseUrl/api/announcements";
   static const String publicParameter = "$baseUrl/api/parameters";
 

@@ -5,7 +5,7 @@ import ProtectedRoute from "./ProtectedRoute";
 import LaporanPage from "../pages/laporan/LapronaPage";
 import UserManagementPage from "../pages/user/UserManagementPage";
 import AnnouncementPage from "../pages/announcement/AnnouncementPage";
-import CarouselPage from "../pages/carousel/CarouselPage";
+import MediaCarouselPage from "../pages/mediaCarousel/MediaCarouselPage";
 import ParameterPage from "../pages/parameter/ParameterPage";
 import ForumPage from "../pages/forum/ForumPage";
 
@@ -21,7 +21,7 @@ const AppRoutes = () => {
                 <Route path="/reports/" element={<LaporanPage />} />
                 <Route path="/users/" element={<UserManagementPage  />} />
                 <Route path="/announcements/" element={<AnnouncementPage  />} />
-                <Route path= "/banners/" element={<CarouselPage  />} />
+                <Route path= "/banners/" element={<MediaCarouselPage  />} />
                 <Route path="/parameters/" element={<ParameterPage />} />
                 <Route path="/forum" element={<ForumPage/>} />
             </Route>

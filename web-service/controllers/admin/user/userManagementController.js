@@ -1,4 +1,4 @@
-const { User, Post, Report, ReportLikes, PostImage, PostLikes, Comment, ReportAttachment } = require("../../../models");
+const { User, Post, Report, UserReportLikeHistory, PostImage, PostLikes, Comment, ReportAttachment } = require("../../../models");
 const bcrypt = require("bcryptjs"); // pastikan sudah diimport
 
 
@@ -201,7 +201,7 @@ exports.changeUserPassword = async (req, res) => {
       });
   
       // ✅ 4. Ambil semua laporan yang disukai user
-      const likedReportsRaw = await ReportLikes.findAll({
+      const likedReportsRaw = await UserReportLikeHistory.findAll({
         where: { user_id: id },
         include: {
           model: Report,

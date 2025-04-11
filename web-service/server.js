@@ -12,12 +12,12 @@ const authRoutes = require('./routes/auth/authRoutes');
 const userInfoRoutes = require('./routes/user/userRoutes');
 const userReportRoutes = require('./routes/user/reportRoutes');
 const adminReportRoutes = require('./routes/admin/reportRoutes');
-const adminCarouselRoutes = require("./routes/admin/carouselRoutes");
+const adminMediaCarouselRoutes = require("./routes/admin/mediaCarouselRoutes");
 const adminAnnouncementRoutes = require("./routes/admin/announcementRoutes");
 const adminParameterRoutes = require("./routes/admin/parameterRoutes");
 const forumRoutes = require("./routes/user/forumRoutes");
 const userManagementRoutes = require("./routes/admin/userManagementRoutes");
-const publicCarouselRoutes = require("./routes/public/carouselRoutes");
+const publicMediaCarouselRoutes = require("./routes/public/mediaCarouselRoutes");
 const publicAnnouncementRoutes = require("./routes/public/announcementRoutes");
 const publicParameterRoutes = require("./routes/public/parameterRoutes")
 const userReportSaveRoutes = require("./routes/user/userReportSaveRoutes");
@@ -51,7 +51,7 @@ deleteInactiveUsers(); // Menjalankan scheduler untuk menghapus user yang tidak 
 app.use('/api/auth', authRoutes);
 
 // 🔹 Public Routes
-app.use("/api/carousels", publicCarouselRoutes);
+app.use("/api/mediacarousels", publicMediaCarouselRoutes);
 app.use("/api/announcements", publicAnnouncementRoutes);
 app.use("/api/parameters", publicParameterRoutes);
 
@@ -69,7 +69,7 @@ app.use("/api/user/post", userPostLikesRoutes);
 
 // 🔹 Admin Routes
 app.use('/api/admin/reports', adminReportRoutes);
-app.use("/api/admin/carousels", adminCarouselRoutes);
+app.use("/api/admin/mediacarousels", adminMediaCarouselRoutes);
 app.use("/api/admin/announcements", adminAnnouncementRoutes);
 app.use("/api/admin/parameters", adminParameterRoutes);
 app.use("/api/admin/post", adminForumRoutes);
