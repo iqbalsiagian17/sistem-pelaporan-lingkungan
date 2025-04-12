@@ -4,8 +4,13 @@ import 'package:go_router/go_router.dart';
 
 class ReportTopBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
+  final VoidCallback? onFilterPressed; // ✅ Tambahkan ini
 
-  const ReportTopBar({super.key, required this.title}); 
+  const ReportTopBar({
+    super.key,
+    required this.title,
+    this.onFilterPressed,
+  });
 
   @override
   Size get preferredSize => const Size.fromHeight(50);
@@ -15,12 +20,12 @@ class ReportTopBar extends StatelessWidget implements PreferredSizeWidget {
     return PreferredSize(
       preferredSize: preferredSize,
       child: Container(
-      color: const Color(0xFF66BB6A), 
+        color: const Color(0xFF66BB6A),
         child: AppBar(
-          backgroundColor: Colors.transparent, 
+          backgroundColor: Colors.transparent,
           elevation: 0,
           title: Text(
-            title, 
+            title,
             style: const TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 18,
@@ -38,6 +43,14 @@ class ReportTopBar extends StatelessWidget implements PreferredSizeWidget {
               }
             },
           ),
+          actions: [
+            if (onFilterPressed != null)
+              IconButton(
+                icon: const Icon(Icons.filter_alt_outlined),
+                onPressed: onFilterPressed,
+                tooltip: 'Filter',
+              ),
+          ],
         ),
       ),
     );

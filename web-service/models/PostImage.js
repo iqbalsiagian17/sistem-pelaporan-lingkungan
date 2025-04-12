@@ -23,7 +23,8 @@ module.exports = (sequelize, DataTypes) => {
         },
         {
             tableName: "t_post_image",
-            timestamps: true
+            timestamps: true,
+            underscored: true
         }
     );
 

@@ -2,7 +2,6 @@ import 'package:bb_mobile/core/utils/date_utils.dart';
 import 'package:bb_mobile/features/announcement/domain/entities/announcement_entity.dart';
 import 'package:bb_mobile/routes/app_routes.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_html/flutter_html.dart';
 import 'package:go_router/go_router.dart';
 
 class AnnouncementListDataState extends StatefulWidget {

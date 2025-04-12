@@ -28,12 +28,15 @@ class ProfileMenu extends ConsumerWidget {
               _buildMenuItem(Icons.lock, "Ubah Password", () {
                 context.go(AppRoutes.editPassword);
               }),
+            _buildMenuItem(Icons.history, "Aktivitas Anda", () {
+              // Tambahkan rute jika sudah tersedia
+            }),
             const SizedBox(height: 20),
             const _SectionTitle("Umum"),
             _buildMenuItem(Icons.book, "Syarat & Ketentuan", () {
               context.go(AppRoutes.terms);
             }),
-            _buildMenuItem(Icons.info, "Tentang Aplikasi", () {
+            _buildMenuItem(Icons.info_outline, "Tentang Aplikasi", () {
               context.go(AppRoutes.about);
             }),
           ],

@@ -67,7 +67,7 @@ class _ReportCreateViewState extends ConsumerState<ReportCreateView> {
       }
 
       if (!LocationValidator.isInsideBaligeArea(latitude!, longitude!)) {
-        SnackbarHelper.showSnackbar(context, "Anda berada di luar radius pelaporan (maks. 5 KM dari Balige).", isError: true);
+        SnackbarHelper.showSnackbar(context, "Anda berada di luar radius pelaporan (Kecamatan Balige).", isError: true);
         return;
       }
     } else {

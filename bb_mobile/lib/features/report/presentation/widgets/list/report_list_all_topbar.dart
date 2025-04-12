@@ -4,8 +4,13 @@ import 'package:bb_mobile/routes/app_routes.dart';
 
 class ReportListAllTopBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
+  final VoidCallback? onFilterPressed;
 
-  const ReportListAllTopBar({super.key, required this.title});
+  const ReportListAllTopBar({
+    super.key,
+    required this.title,
+    this.onFilterPressed,
+  });
 
   @override
   Size get preferredSize => const Size.fromHeight(50);
@@ -15,8 +20,7 @@ class ReportListAllTopBar extends StatelessWidget implements PreferredSizeWidget
     return PreferredSize(
       preferredSize: preferredSize,
       child: Container(
-      color: const Color(0xFF66BB6A), 
-
+        color: const Color(0xFF66BB6A),
         child: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
@@ -39,6 +43,13 @@ class ReportListAllTopBar extends StatelessWidget implements PreferredSizeWidget
               }
             },
           ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.filter_alt_outlined),
+              onPressed: onFilterPressed ?? () {},
+              tooltip: 'Filter Status',
+            ),
+          ],
         ),
       ),
     );

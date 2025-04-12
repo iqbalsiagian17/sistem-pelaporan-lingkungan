@@ -269,7 +269,7 @@ exports.autoCloseCompletedReports = async () => {
         user_id: report.user_id,
         title: notifTitle,
         message: notifMessage,
-        type: "verification", // Konsisten seperti updateReportStatus
+        type: "report", // Konsisten seperti updateReportStatus
         sent_by: "system",
         role_target: "user"
       });

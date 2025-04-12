@@ -23,7 +23,7 @@ module.exports = (sequelize, DataTypes) => {
             total_likes: {
                 type: DataTypes.INTEGER,
                 allowNull: false,
-                defaultValue: 0, // ✅ Default 0 likes
+                defaultValue: 0,
             },
             is_pinned: {
                 type: DataTypes.BOOLEAN,
@@ -33,7 +33,8 @@ module.exports = (sequelize, DataTypes) => {
         },
         {
             tableName: "t_post",
-            timestamps: true
+            timestamps: true,      
+            underscored: true
         }
     );
 
@@ -41,7 +42,7 @@ module.exports = (sequelize, DataTypes) => {
         Post.belongsTo(models.User, { foreignKey: "user_id", as: "user" });
         Post.hasMany(models.PostImage, { foreignKey: "post_id", as: "images" });
         Post.hasMany(models.Comment, { foreignKey: "post_id", as: "comments" });
-        Post.hasMany(models.UserPostLikeHistory, { foreignKey: "post_id", as: "likesRelation" }); // ✅ tambahkan ini
+        Post.hasMany(models.UserPostLikeHistory, { foreignKey: "post_id", as: "likesRelation" });
     };
 
     return Post;

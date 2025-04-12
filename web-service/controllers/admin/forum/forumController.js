@@ -74,6 +74,7 @@ exports.createPostAdmin = async (req, res) => {
                     { model: User, as: "user", attributes: ["id", "username"] },
                     { model: PostImage, as: "images" },
                     { model: Comment, as: "comments" }
+                    
                 ]
             });
 

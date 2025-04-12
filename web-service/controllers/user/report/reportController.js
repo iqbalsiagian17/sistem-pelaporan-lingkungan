@@ -195,7 +195,7 @@ exports.createReport = async (req, res) => {
           user_id, // Notifikasi ke user itu sendiri
           title: "Laporan Sedang Diperiksa",
           message: `Laporan Anda dengan nomor ${report_number} telah berhasil dikirim dan sedang diperiksa oleh tim Dinas Lingkungan Hidup Toba.`,
-          type: "verification",
+          type: "report",
           sent_by: "system",
           report_id: newReport.id,
           role_target: "user"

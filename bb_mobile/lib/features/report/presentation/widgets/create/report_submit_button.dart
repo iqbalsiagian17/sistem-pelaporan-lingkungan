@@ -42,7 +42,7 @@ class ReportSubmitButton extends StatelessWidget {
         // 🟠 Tampilkan info alasan kenapa tombol dinonaktifkan
         if (isAtLocation && !isLocationValid)
           const Text(
-            "Anda berada di luar radius pelaporan (maks. 5 KM dari Balige).",
+            "Anda berada di luar radius pelaporan (Kecamatan Balige).",
             style: TextStyle(
               color: Colors.redAccent,
               fontSize: 13,

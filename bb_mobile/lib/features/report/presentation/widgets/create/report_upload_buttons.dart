@@ -63,7 +63,7 @@ class _ReportUploadButtonsState extends State<ReportUploadButtons> {
         if (!_hasShownOutOfAreaSnackbar) {
           SnackbarHelper.showSnackbar(
             context,
-            "Anda berada di luar wilayah pelaporan (maks. 5 KM dari Balige).",
+            "Anda berada di luar wilayah pelaporan (Kecamatan Balige).",
             isError: true,
           );
           _hasShownOutOfAreaSnackbar = true;

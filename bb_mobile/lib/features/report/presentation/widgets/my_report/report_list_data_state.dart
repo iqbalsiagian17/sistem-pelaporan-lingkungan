@@ -14,12 +14,14 @@ class ReportListDataState extends ConsumerStatefulWidget {
   final List<ReportEntity> reports;
   final VoidCallback onRetry;
   final int currentUserId;
+  final String selectedStatus; // ✅ Tambahkan ini
 
   const ReportListDataState({
     super.key,
     required this.reports,
     required this.onRetry,
     required this.currentUserId,
+    required this.selectedStatus,
   });
 
   @override
@@ -31,9 +33,11 @@ class _ReportListDataStateState extends ConsumerState<ReportListDataState> {
 
   @override
   Widget build(BuildContext context) {
-    final filteredReports = widget.reports
-        .where((report) => report.userId == widget.currentUserId)
-        .toList();
+     final filteredReports = widget.reports
+      .where((report) => report.userId == widget.currentUserId)
+      .where((report) =>
+          widget.selectedStatus == 'all' || report.status == widget.selectedStatus)
+      .toList();
 
     final displayReports =
         _showAll ? filteredReports : filteredReports.take(10).toList();
@@ -122,7 +126,7 @@ class _ReportListDataStateState extends ConsumerState<ReportListDataState> {
                           ],
                         ),
                       ),
-if (report.status.toLowerCase() == "pending")
+                      if (report.status.toLowerCase() == "pending")
                         IconButton(
                           onPressed: () => _confirmDelete(context, report.id),
                           icon: const Icon(Icons.delete, color: Colors.redAccent),
