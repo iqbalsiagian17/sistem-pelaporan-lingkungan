@@ -1,8 +1,8 @@
 class ApiConstants {
 /*   static const String baseUrl = "http://192.168.68.108:3000";
- */
+*/
 
-static const String baseUrl = "http://192.168.1.6:3000";
+static const String baseUrl = "http://192.168.1.3:3000";
   
 
   // Auth

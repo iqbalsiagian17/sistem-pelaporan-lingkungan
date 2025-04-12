@@ -88,18 +88,35 @@ class NotificationSection extends ConsumerWidget {
   Widget _buildNotifCard(BuildContext context, WidgetRef ref, UserNotificationEntity notif) {
     final dateFormatted = DateFormat('HH:mm', 'id_ID').format(notif.createdAt);
 
-    return GestureDetector(
+return GestureDetector(
     onTap: () async {
       await ref.read(notificationProvider.notifier).markAsRead(notif.id);
-      final notifier = ref.read(reportProvider.notifier);
-      final report = await notifier.fetchReportById(notif.reportId!);
 
-      if (report != null) {
-        context.go(AppRoutes.detailReport, extra: report);
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Gagal memuat detail laporan")),
-        );
+      switch (notif.type) {
+        case "report":
+          if (notif.reportId != null) {
+            final notifier = ref.read(reportProvider.notifier);
+            final report = await notifier.fetchReportById(notif.reportId!);
+
+            if (report != null) {
+              context.go(AppRoutes.detailReport, extra: report);
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text("Gagal memuat detail laporan")),
+              );
+            }
+          }
+          break;
+
+        case "general":
+          // Misal arahkan ke halaman list announcement (bisa ke detail kalau sudah ada id-nya)
+          context.go(AppRoutes.allAnnouncement);
+          break;
+
+        default:
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Tipe notifikasi tidak dikenali")),
+          );
       }
     },
 

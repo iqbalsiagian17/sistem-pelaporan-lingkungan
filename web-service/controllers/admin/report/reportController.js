@@ -194,9 +194,10 @@ exports.updateReportStatus = async (req, res) => {
 
     await Notification.create({
       user_id: report.user_id,
+      report_id: report.id, 
       title: notifTitle,
       message: notifMessage,
-      type: "verification",
+      type: "report",
       sent_by: "system",
       role_target: "user"
     });

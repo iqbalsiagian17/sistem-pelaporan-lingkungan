@@ -1,4 +1,4 @@
-const { Announcement } = require("../../../models");
+const { Announcement, Notification, User } = require("../../../models");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
@@ -21,29 +21,50 @@ const upload = multer({ storage }).single("file");
 // ✅ CREATE ANNOUNCEMENT (Admin Only)
 exports.createAnnouncement = async (req, res) => {
     upload(req, res, async (err) => {
-        if (err) {
-            return res.status(400).json({ message: "File upload error", error: err.message });
+      if (err) {
+        return res.status(400).json({ message: "File upload error", error: err.message });
+      }
+  
+      try {
+        const { title, description } = req.body;
+        if (!title || !description) {
+          return res.status(400).json({ message: "Title and description are required" });
         }
+  
+        const newAnnouncement = await Announcement.create({
+          title,
+          description,
+          file: req.file ? `uploads/announcements/${req.file.filename}` : null
+        });
+  
+        // ✅ Kirim notifikasi ke semua user
+        const users = await User.findAll({ where: { type: 0 } }); // asumsi type 0 = user biasa
 
-        try {
-            const { title, description } = req.body;
-            if (!title || !description) {
-                return res.status(400).json({ message: "Title and description are required" });
-            }
-
-            const newAnnouncement = await Announcement.create({
-                title,
-                description,
-                file: req.file ? `uploads/announcements/${req.file.filename}` : null
-            });
-
-            res.status(201).json({ message: "Announcement created successfully", announcement: newAnnouncement });
-        } catch (error) {
-            console.error("Error creating announcement:", error);
-            res.status(500).json({ message: "Server error", error: error.message });
-        }
+        await Promise.all(
+          users.map(user =>
+            Notification.create({
+              user_id: user.id,
+              title: "Pengumuman Baru",
+              message: `Terdapat pengumuman baru: ${title}`,
+              type: "general",
+              sent_by: "system",
+              role_target: "user",
+              is_read: false,
+            })
+          )
+        );
+  
+        res.status(201).json({
+          message: "Announcement created successfully",
+          announcement: newAnnouncement
+        });
+      } catch (error) {
+        console.error("Error creating announcement:", error);
+        res.status(500).json({ message: "Server error", error: error.message });
+      }
     });
-};
+  };
+  
 
 // ✅ GET ALL ANNOUNCEMENTS
 exports.getAllAnnouncements = async (req, res) => {

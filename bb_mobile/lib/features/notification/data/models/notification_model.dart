@@ -7,8 +7,11 @@ class UserNotificationModel {
   final bool isRead;
   final String type;
   final String sentBy;
-  final DateTime createdAt;
+  final int? userId;
   final int? reportId;
+  final String roleTarget;
+  final DateTime createdAt;
+  final DateTime updatedAt;
 
   UserNotificationModel({
     required this.id,
@@ -18,7 +21,10 @@ class UserNotificationModel {
     required this.type,
     required this.sentBy,
     required this.createdAt,
-    this.reportId
+    required this.updatedAt,
+    this.userId,
+    this.reportId,
+    required this.roleTarget,
   });
 
   factory UserNotificationModel.fromJson(Map<String, dynamic> json) {
@@ -29,26 +35,30 @@ class UserNotificationModel {
       isRead: json['is_read'] ?? false,
       type: json['type'] ?? 'info',
       sentBy: json['sent_by'] ?? 'system',
-      createdAt: DateTime.tryParse(json['created_at'] ?? '') ?? DateTime.now(),
+      userId: json['user_id'],
       reportId: json['report_id'],
+      roleTarget: json['role_target'] ?? 'user',
+      createdAt: DateTime.tryParse(json['created_at'] ?? '') ?? DateTime.now(),
+      updatedAt: DateTime.tryParse(json['updated_at'] ?? '') ?? DateTime.now(),
     );
   }
 
   /// Konversi ke entitas
-UserNotificationEntity toEntity() {
-  return UserNotificationEntity(
-    id: id,
-    title: title,
-    message: message,
-    isRead: isRead,
-    type: type,
-    reportId: reportId, // ✅ Tambahkan ini
-    createdAt: createdAt,
-    updatedAt: createdAt, // atau DateTime.now() jika tidak punya
-  );
-}
+  UserNotificationEntity toEntity() {
+    return UserNotificationEntity(
+      id: id,
+      title: title,
+      message: message,
+      type: type,
+      isRead: isRead,
+      userId: userId,
+      reportId: reportId,
+      roleTarget: roleTarget,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+    );
+  }
 
-  /// Tambahkan copyWith juga jika diperlukan
   UserNotificationModel copyWith({
     int? id,
     String? title,
@@ -56,7 +66,11 @@ UserNotificationEntity toEntity() {
     bool? isRead,
     String? type,
     String? sentBy,
+    int? userId,
+    int? reportId,
+    String? roleTarget,
     DateTime? createdAt,
+    DateTime? updatedAt,
   }) {
     return UserNotificationModel(
       id: id ?? this.id,
@@ -65,7 +79,11 @@ UserNotificationEntity toEntity() {
       isRead: isRead ?? this.isRead,
       type: type ?? this.type,
       sentBy: sentBy ?? this.sentBy,
+      userId: userId ?? this.userId,
+      reportId: reportId ?? this.reportId,
+      roleTarget: roleTarget ?? this.roleTarget,
       createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 }

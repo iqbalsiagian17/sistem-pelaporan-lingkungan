@@ -8,58 +8,36 @@ class AnnouncementListEmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Image.asset(
-            'assets/images/report/empty_report.png', // Ganti dengan gambar pengumuman kosong
-            height: 200,
-          ),
-          const SizedBox(height: 16),
-          const Text(
-            'Belum ada pengumuman',
-            style: TextStyle(fontSize: 16, color: Colors.black54),
-          ),
-          const SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: onRetry,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
-            ).copyWith(
-              backgroundColor: MaterialStateProperty.all(Colors.transparent),
-              shadowColor: MaterialStateProperty.all(Colors.transparent),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset(
+              'assets/images/report/empty_report.png', 
+              height: 180,
             ),
-            child: Ink(
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [
-                    Color(0xFF66BB6A),
-                    Color(0xFF81C784),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(30),
+            const SizedBox(height: 20),
+            const Text(
+              'Belum ada pengumuman',
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.black87,
+                fontWeight: FontWeight.w600,
               ),
-              child: Container(
-                height: 50,
-                alignment: Alignment.center,
-                child: const Text(
-                  'Ulangi',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
+              textAlign: TextAlign.center,
             ),
-          ),
-        ],
+            const SizedBox(height: 8),
+            const Text(
+              'Saat ini belum ada pengumuman yang tersedia. Silakan cek kembali nanti.',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.black54,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
     );
   }
