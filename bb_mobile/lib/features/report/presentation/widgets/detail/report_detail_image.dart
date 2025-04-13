@@ -98,21 +98,42 @@ class _ReportDetailImageState extends State<ReportDetailImage> {
       context: context,
       builder: (_) => Dialog(
         backgroundColor: Colors.transparent,
-        child: Hero(
-          tag: imageUrl,
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: Image(
-              image: CachedNetworkImageProvider(imageUrl),
-              width: double.infinity,
-              height: 400,
-              fit: BoxFit.contain,
+        insetPadding: const EdgeInsets.all(10),
+        child: Stack(
+          children: [
+            Hero(
+              tag: imageUrl,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image(
+                  image: CachedNetworkImageProvider(imageUrl),
+                  width: double.infinity,
+                  height: 400,
+                  fit: BoxFit.contain,
+                ),
+              ),
             ),
-          ),
+            Positioned(
+              top: 12,
+              right: 12,
+              child: GestureDetector(
+                onTap: () => Navigator.of(context).pop(),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.5),
+                    shape: BoxShape.circle,
+                  ),
+                  padding: const EdgeInsets.all(8),
+                  child: const Icon(Icons.close, color: Colors.white, size: 22),
+                ),
+              ),
+            )
+          ],
         ),
       ),
     );
   }
+
 
   Widget _defaultImage() {
     return Image.asset(

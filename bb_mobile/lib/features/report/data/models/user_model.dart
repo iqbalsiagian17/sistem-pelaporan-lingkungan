@@ -8,6 +8,7 @@ class UserModel extends UserEntity {
     required String phoneNumber,
     required int type,
     required String? profilePicture,
+    required String createdAt,
   }) : super(
           id: id,
           username: username,
@@ -15,6 +16,7 @@ class UserModel extends UserEntity {
           phoneNumber: phoneNumber,
           type: type,
           profilePicture: profilePicture,
+          createdAt: createdAt,
         );
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -25,6 +27,7 @@ class UserModel extends UserEntity {
       phoneNumber: json['phone_number'] ?? '',
       type: json['type'] ?? 0,
       profilePicture: json["profile_picture"] ?? "",
+      createdAt: json['created_at'] ?? '', // Assuming createdAt is a string
     );
   }
 
@@ -36,6 +39,7 @@ class UserModel extends UserEntity {
       phoneNumber: entity.phoneNumber,
       type: entity.type,
       profilePicture: entity.profilePicture,
+      createdAt: entity.createdAt, // Assuming createdAt is a string
     );
   }
 
@@ -47,6 +51,7 @@ class UserModel extends UserEntity {
         'phone_number': phoneNumber,
         'type': type,
         'profile_picture': profilePicture,
+        'created_at': createdAt,
       };
 
       

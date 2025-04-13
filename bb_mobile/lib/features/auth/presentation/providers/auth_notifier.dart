@@ -56,6 +56,7 @@ class AuthNotifier extends StateNotifier<AsyncValue<UserEntity?>> {
         phoneNumber: phone ?? '',
         type: type ?? 0,
         authProvider: authProvider ?? 'manual',
+        
       ));
     }
   }

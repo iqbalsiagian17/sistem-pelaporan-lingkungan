@@ -69,7 +69,7 @@ class ReportSaveModel extends ReportSaveEntity {
       reportNumber: reportData['report_number'] ?? '',
       user: reportData['user'] != null
           ? UserModel.fromJson(reportData['user'])
-          : UserModel(id: 0, username: 'Unknown', email: '', phoneNumber: '', type: 0, profilePicture: ''),
+          : UserModel(id: 0, username: 'Unknown', email: '', phoneNumber: '', type: 0, profilePicture: '', createdAt: ''),
       statusHistory: history,
       isSaved: reportData['is_saved'] ?? false,
       evidences: evidenceList,

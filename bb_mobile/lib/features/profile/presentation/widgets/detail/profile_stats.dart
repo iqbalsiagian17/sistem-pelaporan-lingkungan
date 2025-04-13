@@ -1,6 +1,8 @@
 import 'package:bb_mobile/features/profile/presentation/providers/user_profile_provider.dart';
+import 'package:bb_mobile/routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class ProfileStats extends ConsumerStatefulWidget {
   const ProfileStats({super.key});
@@ -45,11 +47,23 @@ class _ProfileStatsState extends ConsumerState<ProfileStats> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildStatItem("${stats.sent}", "Aduan dikirim"),
+                _buildStatItem(
+                  context,
+                  label: "Aduan dikirim",
+                  value: "${stats.sent}",
+                ),
                 _divider(),
-                _buildStatItem("${stats.completed}", "Aduan selesai"),
+                _buildStatItem(
+                  context,
+                  label: "Aduan selesai",
+                  value: "${stats.completed}",
+                ),
                 _divider(),
-                _buildStatItem("${stats.saved}", "Aduan disimpan"),
+                _buildStatItem(
+                  context,
+                  label: "Aduan disimpan",
+                  value: "${stats.saved}",
+                ),
               ],
             ),
           );
@@ -60,27 +74,34 @@ class _ProfileStatsState extends ConsumerState<ProfileStats> {
         ),
         error: (error, _) => Padding(
           padding: const EdgeInsets.symmetric(vertical: 20),
-          child: Center(child: Text(" Gagal memuat statistik: $error")),
+          child: Center(child: Text("Gagal memuat statistik: $error")),
         ),
       ),
     );
   }
 
-  Widget _buildStatItem(String value, String label) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          value,
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+  Widget _buildStatItem(BuildContext context, {required String value, required String label}) {
+    return InkWell(
+      onTap: () => context.go(AppRoutes.myReport),
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              value,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: const TextStyle(fontSize: 12, color: Colors.black54),
+              textAlign: TextAlign.center,
+            ),
+          ],
         ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: const TextStyle(fontSize: 12, color: Colors.black54),
-          textAlign: TextAlign.center,
-        ),
-      ],
+      ),
     );
   }
 

@@ -5,6 +5,7 @@ class UserEntity {
   final String phoneNumber;
   final int type;
   final String? profilePicture;
+  final String createdAt;
 
   UserEntity({
     required this.id,
@@ -13,6 +14,7 @@ class UserEntity {
     required this.phoneNumber,
     required this.type,
     this.profilePicture,
+    required this.createdAt,
   });
 
   factory UserEntity.fromJson(Map<String, dynamic> json) {
@@ -23,6 +25,7 @@ class UserEntity {
       phoneNumber: json['phone_number'],
       type: json['type'],
       profilePicture: json['profile_picture'],
+      createdAt: json['created_at'] ?? '', 
     );
   }
 }

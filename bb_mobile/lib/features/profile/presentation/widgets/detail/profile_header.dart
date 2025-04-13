@@ -78,36 +78,70 @@ class ProfileHeader extends ConsumerWidget {
             Stack(
               alignment: Alignment.bottomRight,
               children: [
-                ClipOval(
-                  child: hasImage
-                      ? Image.network(
-                          imageUrl!,
-                          width: 80,
-                          height: 80,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => CircleAvatar(
+                GestureDetector(
+                  onTap: () {
+                    if (hasImage) {
+                      showDialog(
+                        context: context,
+                        builder: (_) => Dialog(
+                          insetPadding: const EdgeInsets.all(10),
+                          backgroundColor: Colors.black,
+                          child: Stack(
+                            children: [
+                              InteractiveViewer(
+                                child: Image.network(
+                                  imageUrl!,
+                                  fit: BoxFit.contain,
+                                  errorBuilder: (_, __, ___) =>
+                                      const Center(child: Text("Gagal menampilkan gambar")),
+                                ),
+                              ),
+                              Positioned(
+                                top: 10,
+                                right: 10,
+                                child: GestureDetector(
+                                  onTap: () => Navigator.of(context).pop(),
+                                  child: Container(
+                                    padding: const EdgeInsets.all(6),
+                                    decoration: BoxDecoration(
+                                      color: Colors.black.withOpacity(0.5),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(Icons.close, color: Colors.white),
+                                  ),
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                  child: ClipOval(
+                    child: hasImage
+                        ? Image.network(
+                            imageUrl!,
+                            width: 80,
+                            height: 80,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => CircleAvatar(
+                              radius: 40,
+                              backgroundColor: bgColor,
+                              child: Text(
+                                initials,
+                                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
+                              ),
+                            ),
+                          )
+                        : CircleAvatar(
                             radius: 40,
                             backgroundColor: bgColor,
                             child: Text(
                               initials,
-                              style: const TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white),
+                              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
                             ),
                           ),
-                        )
-                      : CircleAvatar(
-                          radius: 40,
-                          backgroundColor: bgColor,
-                          child: Text(
-                            initials,
-                            style: const TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white),
-                          ),
-                        ),
+                  ),
                 ),
                 Positioned(
                   bottom: 0,
