@@ -4,6 +4,7 @@ class UserEntity {
   final String email;
   final String phoneNumber;
   final int type;
+  final String? profilePicture;
 
   UserEntity({
     required this.id,
@@ -11,6 +12,7 @@ class UserEntity {
     required this.email,
     required this.phoneNumber,
     required this.type,
+    this.profilePicture,
   });
 
   factory UserEntity.fromJson(Map<String, dynamic> json) {
@@ -20,6 +22,7 @@ class UserEntity {
       email: json['email'],
       phoneNumber: json['phone_number'],
       type: json['type'],
+      profilePicture: json['profile_picture'],
     );
   }
 }

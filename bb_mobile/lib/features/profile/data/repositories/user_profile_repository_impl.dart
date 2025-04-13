@@ -1,4 +1,5 @@
 import 'package:bb_mobile/features/auth/data/models/user_model.dart';
+import 'package:bb_mobile/features/auth/domain/entities/user_entity.dart';
 import 'package:bb_mobile/features/profile/data/datasources/user_profile_remote_datasource.dart';
 import 'package:bb_mobile/features/profile/domain/entities/report_stats_entity.dart';
 import 'package:bb_mobile/features/profile/domain/repositories/user_profile_repository.dart';
@@ -26,6 +27,11 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
   @override
   Future<ReportStatsEntity> getReportStatsByUser(int userId) async {
     return await remoteDatasource.getReportStatsByUser(userId);
+  }
+
+  @override
+  Future<UserEntity> changeProfilePicture(String filePath) async {
+    return await remoteDatasource.changeProfilePicture(filePath);
   }
 
 }

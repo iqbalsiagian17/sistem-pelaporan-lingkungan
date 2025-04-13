@@ -27,8 +27,8 @@ class LoginView extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const LoginHeader(), // tidak kena padding
-            // konten utama dengan padding
+            const LoginHeader(), 
+            
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
               child: Column(

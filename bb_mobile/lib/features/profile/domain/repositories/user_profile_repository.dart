@@ -13,4 +13,7 @@ abstract class UserProfileRepository {
 
   Future<ReportStatsEntity> getReportStatsByUser(int userId);
 
+  Future<UserEntity> changeProfilePicture(String filePath);
+
+
 }

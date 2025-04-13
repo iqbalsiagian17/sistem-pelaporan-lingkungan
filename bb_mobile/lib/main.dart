@@ -9,6 +9,9 @@ import 'package:bb_mobile/core/services/auth/global_auth_service.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  await globalAuthService.init(); // <-- wajib agar userId tersedia
+
+
   // 🌐 Format tanggal lokal
   await initializeDateFormatting('id_ID', null);
 

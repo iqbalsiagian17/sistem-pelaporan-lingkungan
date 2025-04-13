@@ -67,7 +67,7 @@ exports.getAllPosts = async (req, res) => {
   
       const posts = await Post.findAll({
         include: [
-          { model: User, as: "user", attributes: ["id", "username"] },
+          { model: User, as: "user", attributes: ["id", "username","profile_picture"] },
           { model: PostImage, as: "images" },
           {
             model: Comment,
@@ -112,12 +112,12 @@ exports.getPostById = async (req, res) => {
 
         const post = await Post.findByPk(id, {
             include: [
-                { model: User, as: "user", attributes: ["id", "username"] },
+                { model: User, as: "user", attributes: ["id", "username", "profile_picture"] },
                 { model: PostImage, as: "images" },
                 { 
                     model: Comment, 
                     as: "comments",
-                    include: { model: User, as: "user", attributes: ["id", "username"] }
+                    include: { model: User, as: "user", attributes: ["id", "username", "profile_picture"] }
                 }
             ]
         });
@@ -146,7 +146,7 @@ exports.createComment = async (req, res) => {
         const newComment = await Comment.create({ post_id, user_id, content });
 
         const fullComment = await Comment.findByPk(newComment.id, {
-            include: { model: User, as: "user", attributes: ["id", "username"] }
+            include: { model: User, as: "user", attributes: ["id", "username",] }
         });
 
         res.status(201).json({ message: "Comment added successfully", comment: fullComment });

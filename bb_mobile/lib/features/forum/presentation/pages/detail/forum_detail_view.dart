@@ -38,8 +38,11 @@ class _ForumDetailViewState extends ConsumerState<ForumDetailView> {
   Widget build(BuildContext context) {
     final userState = ref.watch(userProfileProvider);
     final forumState = ref.watch(forumProvider);
+    final post = forumState.selectedPost;
 
-    final ForumPostEntity post = forumState.selectedPost ?? widget.post;
+    if (post == null || post.id != widget.post.id) {
+      return const ForumDetailSkeleton();
+    }
 
     return userState.when(
       data: (_) {

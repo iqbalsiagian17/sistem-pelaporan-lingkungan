@@ -12,6 +12,7 @@ class UserModel extends UserEntity {
     super.blockedUntil,
     required super.authProvider, 
     this.password,
+    super.profilePicture,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -29,6 +30,7 @@ class UserModel extends UserEntity {
       blockedUntil: parsedBlockedUntil,
       authProvider: json["auth_provider"] ?? "manual",
       password: json["password"],
+      profilePicture: json["profile_picture"] ?? "",
     );
   }
 
@@ -42,6 +44,7 @@ class UserModel extends UserEntity {
       "blocked_until": blockedUntil?.toIso8601String(),
       "auth_provider": authProvider,
       "password": password,
+      "profile_picture": profilePicture,
     };
   }
 
@@ -50,6 +53,7 @@ class UserModel extends UserEntity {
       id: id,
       username: username,
       email: email,
+      profilePicture: profilePicture,
       phoneNumber: phoneNumber,
       type: type,
       blockedUntil: blockedUntil,

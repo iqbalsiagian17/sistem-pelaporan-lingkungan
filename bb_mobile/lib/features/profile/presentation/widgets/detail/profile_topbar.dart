@@ -3,9 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:bb_mobile/features/auth/presentation/providers/auth_provider.dart';
-import 'package:bb_mobile/features/auth/presentation/providers/google_auth_provider.dart';
-import 'package:bb_mobile/features/profile/presentation/providers/user_profile_provider.dart';
 import 'package:bb_mobile/routes/app_routes.dart';
 
 class ProfileTopBar extends ConsumerWidget implements PreferredSizeWidget {

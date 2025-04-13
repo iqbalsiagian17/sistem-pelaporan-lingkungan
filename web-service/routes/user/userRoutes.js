@@ -16,5 +16,7 @@ router.put('/update', authMiddleware, userController.updateUserInfo);
 
 router.put('/change-password', authMiddleware, userController.changePassword); 
 
+router.put("/update-profile-picture", authMiddleware, userController.updateProfilePicture);
+
 
 module.exports = router;

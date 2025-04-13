@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:bb_mobile/widgets/buttons/custom_button.dart';
 
 class SocialButtons extends StatelessWidget {
   final bool isLoading;
@@ -14,21 +15,23 @@ class SocialButtons extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        const SizedBox(height: 24),
         _buildDividerWithText("Atau"),
         const SizedBox(height: 16),
 
-        // Google only (centered)
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            _buildIconButton(
-              imageAsset: 'assets/images/google.png',
-              onPressed: isLoading ? null : onGoogleSignIn,
-              isLoading: isLoading,
-            ),
-          ],
-        )
+        /// ✅ Tombol Google dengan CustomButton
+        CustomButton(
+          text: "Masuk dengan Google",
+          onPressed: isLoading ? null : onGoogleSignIn,
+          isLoading: isLoading,
+          isOutlined: true,
+          textColor: Colors.black87,
+          borderColor: Colors.grey.shade300,
+          icon: Image.asset(
+            'assets/images/google.png',
+            height: 20,
+            width: 20,
+          ),
+        ),
       ],
     );
   }
@@ -36,53 +39,13 @@ class SocialButtons extends StatelessWidget {
   Widget _buildDividerWithText(String text) {
     return Row(
       children: [
-        const Expanded(
-          child: Divider(
-            thickness: 0.5,
-            color: Colors.grey,
-          ),
-        ),
+        const Expanded(child: Divider(thickness: 0.5, color: Colors.grey)),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12.0),
-          child: Text(
-            text,
-            style: const TextStyle(color: Colors.grey),
-          ),
+          child: Text(text, style: const TextStyle(color: Colors.grey)),
         ),
-        const Expanded(
-          child: Divider(
-            thickness: 0.5,
-            color: Colors.grey,
-          ),
-        ),
+        const Expanded(child: Divider(thickness: 0.5, color: Colors.grey)),
       ],
-    );
-  }
-
-  Widget _buildIconButton({
-    IconData? icon,
-    Color? color,
-    String? imageAsset,
-    VoidCallback? onPressed,
-    bool isLoading = false,
-  }) {
-    return InkWell(
-      onTap: isLoading ? null : onPressed,
-      borderRadius: BorderRadius.circular(50),
-      child: Container(
-        height: 38,
-        width: 38,
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          border: Border.all(color: Colors.grey.shade300),
-        ),
-        child: isLoading
-            ? const CircularProgressIndicator(strokeWidth: 2)
-            : imageAsset != null
-                ? Image.asset(imageAsset)
-                : Icon(icon, color: color, size: 20),
-      ),
     );
   }
 }

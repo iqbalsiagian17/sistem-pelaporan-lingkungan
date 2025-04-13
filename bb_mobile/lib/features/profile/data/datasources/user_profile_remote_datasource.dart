@@ -1,3 +1,4 @@
+import 'package:bb_mobile/features/auth/domain/entities/user_entity.dart' show UserEntity;
 import 'package:dio/dio.dart';
 import 'package:bb_mobile/core/constants/dio_client.dart';
 import 'package:bb_mobile/core/constants/api.dart';
@@ -9,6 +10,7 @@ abstract class ProfileRemoteDatasource {
   Future<UserModel> updateUserProfile(Map<String, dynamic> data);
   Future<bool> changePassword(String oldPassword, String newPassword);
   Future<ReportStatsModel> getReportStatsByUser(int userId);
+  Future<UserEntity> changeProfilePicture(String filePath);
 }
 
 class ProfileRemoteDatasourceImpl implements ProfileRemoteDatasource {
@@ -64,4 +66,25 @@ class ProfileRemoteDatasourceImpl implements ProfileRemoteDatasource {
       throw Exception(e.response?.data["error"] ?? "Gagal mengambil statistik laporan");
     }
   }
+
+  @override
+  Future<UserEntity> changeProfilePicture(String filePath) async {
+    try {
+      final fileName = filePath.split('/').last;
+      final formData = FormData.fromMap({
+        'profile_picture': await MultipartFile.fromFile(filePath, filename: fileName),
+      });
+
+      final response = await _dio.put(
+        "${ApiConstants.userProfileBaseUrl}/update-profile-picture",
+        data: formData,
+      );
+
+      final updatedUser = response.data['data'];
+      return UserModel.fromJson(updatedUser).toEntity(); // ✅ fix
+    } on DioException catch (e) {
+      throw Exception(e.response?.data["error"] ?? "Gagal mengganti foto profil");
+    }
+  }
+
 }

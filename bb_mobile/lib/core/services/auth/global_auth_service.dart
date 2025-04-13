@@ -4,12 +4,18 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class GlobalAuthService {
-
   int? _cachedUserId;
+
+  /// Getter yang aman digunakan setelah `init()` dipanggil
   int? get userId => _cachedUserId;
 
-
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
+  /// Wajib dipanggil di awal aplikasi, misal di splash/onboarding
+  Future<void> init() async {
+    final prefs = await SharedPreferences.getInstance();
+    _cachedUserId = prefs.getInt("user_id");
+  }
 
   Future<bool> isLoggedIn() async {
     final prefs = await SharedPreferences.getInstance();
@@ -34,9 +40,10 @@ class GlobalAuthService {
 
   Future<void> saveUserInfo(Map<String, dynamic> user) async {
     final prefs = await SharedPreferences.getInstance();
-    final id = user["id"] ?? 0; // ⬅️ Tambahkan ini
+    final id = user["id"] ?? 0;
+
     await prefs.setInt("user_id", id);
-    _cachedUserId = id; 
+    _cachedUserId = id;
 
     await prefs.setString("username", user["username"] ?? "");
     await prefs.setString("email", user["email"] ?? "");
@@ -48,20 +55,20 @@ class GlobalAuthService {
     }
   }
 
-
   Future<void> clearAuthData() async {
     final prefs = await SharedPreferences.getInstance();
-    bool onboardingCompleted = prefs.getBool("onboardingCompleted") ?? false;
+    final onboardingCompleted = prefs.getBool("onboardingCompleted") ?? false;
     await prefs.clear();
     await prefs.setBool("onboardingCompleted", onboardingCompleted);
+    _cachedUserId = null;
   }
 
-Future<int?> getUserId() async {
-  if (_cachedUserId != null) return _cachedUserId;
-  final prefs = await SharedPreferences.getInstance();
-  _cachedUserId = prefs.getInt("user_id");
-  return _cachedUserId;
-}
+  Future<int?> getUserId() async {
+    if (_cachedUserId != null) return _cachedUserId;
+    final prefs = await SharedPreferences.getInstance();
+    _cachedUserId = prefs.getInt("user_id");
+    return _cachedUserId;
+  }
 
   Future<String?> getUsername() async {
     final prefs = await SharedPreferences.getInstance();
@@ -91,7 +98,7 @@ Future<int?> getUserId() async {
   Future<bool> refreshToken() async {
     return await AuthRemoteDataSourceImpl(Dio()).refreshToken();
   }
-
 }
 
+/// Global singleton (kalau tidak pakai Riverpod)
 final globalAuthService = GlobalAuthService();

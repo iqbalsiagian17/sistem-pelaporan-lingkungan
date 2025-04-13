@@ -14,7 +14,7 @@ const findByPhoneOrEmail = async (identifier) => {
 const getUserById = async (user_id) => {
     return await User.findOne({
         where: { id: user_id },
-        attributes: ['id', 'username', 'phone_number', 'email', 'type', 'auth_provider', 'blocked_until']
+        attributes: ['id', 'username', 'phone_number', 'email', 'type', 'auth_provider', 'blocked_until','profile_picture', 'is_active'], 
     });
 };
 
@@ -28,7 +28,7 @@ const findByUsername = async (username) => {
 const findByEmail = async (email) => {
     return await User.findOne({
       where: { email },
-      attributes: ['id', 'username', 'email', 'phone_number', 'type', 'auth_provider', 'blocked_until', 'is_active'], // ✅ Pastikan ini ada
+      attributes: ['id', 'username', 'email', 'phone_number', 'type', 'auth_provider', 'blocked_until', 'is_active'], 
     });
   };
 

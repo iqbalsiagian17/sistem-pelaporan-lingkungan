@@ -7,12 +7,14 @@ class UserModel extends UserEntity {
     required String email,
     required String phoneNumber,
     required int type,
+    required String? profilePicture,
   }) : super(
           id: id,
           username: username,
           email: email,
           phoneNumber: phoneNumber,
           type: type,
+          profilePicture: profilePicture,
         );
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -22,6 +24,7 @@ class UserModel extends UserEntity {
       email: json['email'] ?? '',
       phoneNumber: json['phone_number'] ?? '',
       type: json['type'] ?? 0,
+      profilePicture: json["profile_picture"] ?? "",
     );
   }
 
@@ -32,6 +35,7 @@ class UserModel extends UserEntity {
       email: entity.email,
       phoneNumber: entity.phoneNumber,
       type: entity.type,
+      profilePicture: entity.profilePicture,
     );
   }
 
@@ -42,6 +46,7 @@ class UserModel extends UserEntity {
         'email': email,
         'phone_number': phoneNumber,
         'type': type,
+        'profile_picture': profilePicture,
       };
 
       

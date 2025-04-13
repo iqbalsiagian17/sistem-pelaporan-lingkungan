@@ -42,6 +42,10 @@
         allowNull: false,
         defaultValue: 'manual'
       },
+      profile_picture:{
+        type: DataTypes.STRING,
+        allowNull: true
+      },
       is_active: {
         type: DataTypes.BOOLEAN,
         allowNull: false,

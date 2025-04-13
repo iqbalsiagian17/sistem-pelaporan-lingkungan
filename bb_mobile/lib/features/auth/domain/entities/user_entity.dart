@@ -6,6 +6,7 @@ class UserEntity {
   final int type;
   final DateTime? blockedUntil;
   final String authProvider; 
+  final String? profilePicture;
 
 
   const UserEntity({
@@ -16,6 +17,6 @@ class UserEntity {
     required this.type,
     this.blockedUntil,
     required this.authProvider, 
-
+    this.profilePicture,
   });
 }

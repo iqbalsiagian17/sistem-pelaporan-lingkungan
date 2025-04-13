@@ -1,3 +1,4 @@
+import 'package:bb_mobile/features/profile/domain/usecases/change_profile_picture_usecase.dart';
 import 'package:bb_mobile/features/profile/domain/usecases/get_report_stats_usecase.dart' show GetReportStatsUseCase;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -35,4 +36,9 @@ final changePasswordUsecaseProvider = Provider<ChangePasswordUseCase>((ref) {
 final getReportStatsUsecaseProvider = Provider<GetReportStatsUseCase>((ref) {
   final repo = ref.read(userProfileRepositoryProvider);
   return GetReportStatsUseCase(repo);
+});
+
+final changeProfilePictureUsecaseProvider = Provider<ChangeProfilePictureUseCase>((ref) {
+  final repo = ref.read(userProfileRepositoryProvider);
+  return ChangeProfilePictureUseCase(repo);
 });

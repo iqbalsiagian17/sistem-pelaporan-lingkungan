@@ -1,6 +1,7 @@
 import 'package:bb_mobile/features/auth/domain/entities/user_entity.dart';
 import 'package:bb_mobile/features/profile/domain/entities/report_stats_entity.dart';
 import 'package:bb_mobile/features/profile/domain/usecases/change_password_usecase.dart';
+import 'package:bb_mobile/features/profile/domain/usecases/change_profile_picture_usecase.dart';
 import 'package:bb_mobile/features/profile/domain/usecases/get_report_stats_usecase.dart';
 import 'package:bb_mobile/features/profile/domain/usecases/get_user_profile_usecase.dart';
 import 'package:bb_mobile/features/profile/domain/usecases/update_user_profile_usecase.dart';
@@ -13,7 +14,7 @@ final userProfileProvider = StateNotifierProvider<UserProfileNotifier, AsyncValu
     ref.read(updateUserProfileUsecaseProvider),
     ref.read(changePasswordUsecaseProvider),
     ref.read(getReportStatsUsecaseProvider),
-
+    ref.read(changeProfilePictureUsecaseProvider),
   );
 });
 
@@ -22,6 +23,8 @@ class UserProfileNotifier extends StateNotifier<AsyncValue<UserEntity>> {
   final UpdateUserProfileUseCase _updateUserProfileUseCase;
   final ChangePasswordUseCase _changePasswordUseCase;
   final GetReportStatsUseCase _getReportStatsUseCase;
+  final ChangeProfilePictureUseCase _changeProfilePictureUseCase;
+
 
   ReportStatsEntity? _reportStats;
   bool _isStatsLoading = false;
@@ -31,6 +34,7 @@ class UserProfileNotifier extends StateNotifier<AsyncValue<UserEntity>> {
     this._updateUserProfileUseCase,
     this._changePasswordUseCase,
     this._getReportStatsUseCase,
+    this._changeProfilePictureUseCase,
   ) : super(const AsyncLoading()) {
     loadUserProfile();
     fetchStats();
@@ -79,4 +83,14 @@ class UserProfileNotifier extends StateNotifier<AsyncValue<UserEntity>> {
       _isStatsLoading = false;
     }
   }
+
+ Future<bool> changeProfilePicture(String filePath) async {
+  try {
+    await _changeProfilePictureUseCase.execute(filePath);
+    await loadUserProfile(); // ✅ Refresh profil dari server
+    return true;
+  } catch (_) {
+    return false;
+  }
+}
 }
