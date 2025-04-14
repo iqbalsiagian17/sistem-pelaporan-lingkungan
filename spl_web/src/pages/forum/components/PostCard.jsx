@@ -1,7 +1,9 @@
 import React from "react";
 import { Dropdown } from "react-bootstrap";
 import PostCommentBox from "./PostCommentBox";
+import AvatarDisplay from "./AvatarDisplay";
 import AvatarCircle from "./AvatarCircle";
+
 
 const PostCard = ({ post, onDeletePost, onPinPost, onDeleteComment, onImageClick }) => {
   return (
@@ -9,8 +11,11 @@ const PostCard = ({ post, onDeletePost, onPinPost, onDeleteComment, onImageClick
       {/* Post Header */}
       <div className="card-header d-flex justify-content-between align-items-start">
         <div className="d-flex align-items-center">
-          <AvatarCircle username={post.user?.username} />
-          <div className="ms-3">
+        <AvatarDisplay
+          username={post.user?.username}
+          profile_picture={post.user?.profile_picture}
+        />          
+        <div className="ms-3">
             <p className="mb-0 text-dark fw-semibold">@{post.user?.username}</p>
             <div className="d-flex align-items-center gap-2">
               <small className="text-muted">{new Date(post.createdAt).toLocaleString()}</small>
@@ -124,37 +129,44 @@ const PostCard = ({ post, onDeletePost, onPinPost, onDeleteComment, onImageClick
 
       {/* Comments */}
       <div className="card-footer">
-        <p className="text-muted mb-2">Komentar ({post.comments?.length})</p>
-        <div className="d-flex flex-column gap-3">
-          {post.comments?.map((comment) => (
-            <div key={comment.id} className="d-flex align-items-start justify-content-between">
-              <div className="d-flex">
-                <AvatarCircle username={comment.user?.username} size={30} fontSize={14} />
-                <div className="ms-3">
-                  <p className="fw-bold text-primary mb-1">@{comment.user?.username}</p>
-                  <p className="mb-1">{comment.content}</p>
-                </div>
-              </div>
-              <Dropdown>
-                <Dropdown.Toggle variant="link" className="p-0 text-muted border-0">
-                  <i className="bi bi-three-dots-vertical"></i>
-                </Dropdown.Toggle>
-                <Dropdown.Menu align="end">
-                  <Dropdown.Item className="text-danger" onClick={() => onDeleteComment(comment.id)}>
-                    Hapus Komentar
-                  </Dropdown.Item>
-                </Dropdown.Menu>
-              </Dropdown>
-            </div>
-          ))}
+  <p className="text-muted mb-2">Komentar ({post.comments?.length})</p>
+  <div className="d-flex flex-column gap-3">
+    {post.comments?.map((comment) => (
+      <div key={comment.id} className="d-flex align-items-start justify-content-between">
+        <div className="d-flex">
+          <AvatarDisplay
+            username={comment.user?.username}
+            profile_picture={comment.user?.profile_picture}
+            size={30}
+            fontSize={14}
+          />
+          <div className="ms-3">
+            <p className="fw-bold text-primary mb-1">@{comment.user?.username}</p>
+            <p className="mb-1">{comment.content}</p>
+          </div>
         </div>
-        <PostCommentBox
-          postId={post.id}
-          onCommentSuccess={() => {
-            if (typeof window !== "undefined") window.location.reload();
-          }}
-        />
+        <Dropdown>
+          <Dropdown.Toggle variant="link" className="p-0 text-muted border-0">
+            <i className="bi bi-three-dots-vertical"></i>
+          </Dropdown.Toggle>
+          <Dropdown.Menu align="end">
+            <Dropdown.Item className="text-danger" onClick={() => onDeleteComment(comment.id)}>
+              Hapus Komentar
+            </Dropdown.Item>
+          </Dropdown.Menu>
+        </Dropdown>
       </div>
+    ))}
+  </div>
+
+  <PostCommentBox
+    postId={post.id}
+    onCommentSuccess={() => {
+      if (typeof window !== "undefined") window.location.reload();
+    }}
+  />
+</div>
+
     </div>
   );
 };

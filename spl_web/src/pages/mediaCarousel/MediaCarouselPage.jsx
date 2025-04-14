@@ -3,8 +3,9 @@ import MediaCarouselTable from "./components/MediaCarouselTable";
 import CreateMediaCarouselModal from "./components/CreateMediaCarouselModal";
 import EditMediaCarouselModal from "./components/EditMediaCarouselModal";
 import DetailMediaCarouselModal from "./components/DetailMediaCarouselModal";
-import { useMediaCarousel } from "../../context/MediaCarouselContext";
 import ConfirmModal from "../../components/common/ConfirmModal";
+import ToastNotification from "../../components/common/ToastNotification";
+import { useMediaCarousel } from "../../context/MediaCarouselContext";
 
 const MediaCarouselPage = () => {
   const {
@@ -20,6 +21,19 @@ const MediaCarouselPage = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [toast, setToast] = useState({
+    show: false,
+    message: "",
+    variant: "success",
+  });
+
+  const triggerToast = (message, variant = "success") => {
+    setToast({
+      show: true,
+      message,
+      variant,
+    });
+  };
 
   const handleOpenDetailModal = async (id) => {
     try {
@@ -27,7 +41,7 @@ const MediaCarouselPage = () => {
       setSelectedMediaCarousel(data);
       setShowDetailModal(true);
     } catch (err) {
-      alert(`❌ Gagal memuat detail: ${err.message}`);
+      alert(`Gagal memuat detail: ${err.message}`);
     }
   };
 
@@ -45,8 +59,9 @@ const MediaCarouselPage = () => {
     try {
       await addMediaCarousel(formData);
       setShowCreateModal(false);
+      triggerToast("Media carousel berhasil ditambahkan.");
     } catch (err) {
-      alert(`❌ Gagal menambahkan: ${err.message}`);
+      alert(`Gagal menambahkan: ${err.message}`);
     }
   };
 
@@ -54,8 +69,9 @@ const MediaCarouselPage = () => {
     try {
       await updateMediaCarousel(id, formData);
       setShowEditModal(false);
+      triggerToast("Media carousel berhasil diperbarui.");
     } catch (err) {
-      alert(`❌ Gagal mengubah data: ${err.message}`);
+      alert(`Gagal mengubah data: ${err.message}`);
     }
   };
 
@@ -63,8 +79,9 @@ const MediaCarouselPage = () => {
     try {
       await deleteMediaCarousel(selectedMediaCarousel.id);
       setShowDeleteModal(false);
+      triggerToast("Media carousel berhasil dihapus.", "danger");
     } catch (err) {
-      alert(`❌ Gagal menghapus: ${err.message}`);
+      alert(`Gagal menghapus: ${err.message}`);
     }
   };
 
@@ -100,7 +117,7 @@ const MediaCarouselPage = () => {
         show={showDeleteModal}
         onHide={() => setShowDeleteModal(false)}
         onConfirm={handleConfirmDelete}
-        title="🗑️ Hapus Media Carousel"
+        title="Hapus Media Carousel"
         body={`Yakin ingin menghapus media carousel "${selectedMediaCarousel?.title}"?`}
         confirmText="Hapus"
         variant="danger"
@@ -110,6 +127,13 @@ const MediaCarouselPage = () => {
         show={showDetailModal}
         onHide={() => setShowDetailModal(false)}
         mediaCarousel={selectedMediaCarousel}
+      />
+
+      <ToastNotification
+        show={toast.show}
+        onClose={() => setToast({ ...toast, show: false })}
+        message={toast.message}
+        variant={toast.variant}
       />
     </>
   );

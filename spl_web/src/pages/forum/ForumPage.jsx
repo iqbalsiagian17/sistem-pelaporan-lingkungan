@@ -4,6 +4,7 @@ import { usePost } from "../../context/PostContext";
 import PostCard from "./components/PostCard";
 import PostCreateModal from "./components/PostCreateModal";
 import ConfirmModal from "../../components/common/ConfirmModal";
+import ToastNotification from "../../components/common/ToastNotification";
 
 const ForumPage = () => {
   const { posts, addPost, removePost, removeComment, pinPost } = usePost();
@@ -15,6 +16,16 @@ const ForumPage = () => {
   const [showImageModal, setShowImageModal] = useState(false);
   const [startIndex, setStartIndex] = useState(0);
   const [imageList, setImageList] = useState([]);
+
+  const [toast, setToast] = useState({
+    show: false,
+    message: "",
+    variant: "success",
+  });
+
+  const showToast = (message, variant = "success") => {
+    setToast({ show: true, message, variant });
+  };
 
   const handleOpenImageModal = (images, index) => {
     setImageList(images);
@@ -31,16 +42,18 @@ const ForumPage = () => {
     try {
       await removePost(selectedPost.id);
       setShowDeleteModal(false);
+      showToast("Postingan berhasil dihapus.", "danger");
     } catch (err) {
-      alert(`❌ Gagal menghapus: ${err.message}`);
+      alert(`Gagal menghapus: ${err.message}`);
     }
   };
 
   const handleDeleteComment = async (commentId) => {
     try {
       await removeComment(commentId);
+      showToast("Komentar berhasil dihapus.", "danger");
     } catch (err) {
-      alert(`❌ Gagal hapus komentar: ${err.message}`);
+      alert(`Gagal hapus komentar: ${err.message}`);
     }
   };
 
@@ -48,8 +61,9 @@ const ForumPage = () => {
     try {
       await addPost(formData);
       setShowCreateModal(false);
+      showToast("Postingan berhasil ditambahkan.");
     } catch (err) {
-      alert(`❌ Gagal menambahkan post: ${err.message}`);
+      alert(`Gagal menambahkan post: ${err.message}`);
     }
   };
 
@@ -57,24 +71,21 @@ const ForumPage = () => {
   const notPinned = posts.filter((p) => !p.is_pinned);
 
   let filteredPosts = [...notPinned];
-
   if (filter === "terbaru") {
-    filteredPosts = filteredPosts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    filteredPosts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   } else if (filter === "populer") {
-    filteredPosts = filteredPosts.sort((a, b) => b.likes - a.likes);
+    filteredPosts.sort((a, b) => b.likes - a.likes);
   }
-  
-  
+
   const sortedPosts = [...pinned, ...filteredPosts];
 
   return (
     <div className="container mx-auto px-4 py-4">
       <div className="d-flex justify-content-between align-items-center mb-3">
         <Dropdown as={ButtonGroup}>
-          <Dropdown.Toggle variant="outline-secondary" size="">
+          <Dropdown.Toggle variant="outline-secondary">
             Filter: {filter === "terbaru" ? "Terbaru" :
-                    filter === "populer" ? "Populer" :
-                    filter === "admin" ? "Postingan Admin" : "Postingan Masyarakat"}
+                    filter === "populer" ? "Populer" : ""}
           </Dropdown.Toggle>
           <Dropdown.Menu>
             <Dropdown.Item onClick={() => setFilter("terbaru")}>Terbaru</Dropdown.Item>
@@ -112,7 +123,7 @@ const ForumPage = () => {
         show={showDeleteModal}
         onHide={() => setShowDeleteModal(false)}
         onConfirm={handleConfirmDelete}
-        title="🗑️ Hapus Postingan"
+        title="Hapus Postingan"
         body="Yakin ingin menghapus postingan ini?"
         confirmText="Hapus"
         variant="danger"
@@ -134,6 +145,13 @@ const ForumPage = () => {
           </Carousel>
         </Modal.Body>
       </Modal>
+
+      <ToastNotification
+        show={toast.show}
+        onClose={() => setToast({ ...toast, show: false })}
+        message={toast.message}
+        variant={toast.variant}
+      />
     </div>
   );
 };

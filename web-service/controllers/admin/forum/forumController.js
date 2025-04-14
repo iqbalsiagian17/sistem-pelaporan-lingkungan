@@ -23,12 +23,12 @@ exports.getAllPostsAdmin = async (req, res) => {
     try {
         const posts = await Post.findAll({
             include: [
-                { model: User, as: "user", attributes: ["id", "username"] },
+                { model: User, as: "user", attributes: ["id", "username", "profile_picture"] },
                 { model: PostImage, as: "images" },
                 {
                     model: Comment,
                     as: "comments",
-                    include: { model: User, as: "user", attributes: ["id", "username"] }
+                    include: { model: User, as: "user", attributes: ["id", "username", "profile_picture"] }
                 }
             ],
             order: [

@@ -14,15 +14,16 @@ const Navbar = () => {
   const handleOpenModal = () => setShowModal(true);
   const handleCloseModal = () => setShowModal(false);
 
+  const getNotifications = async () => {
+    try {
+      const data = await fetchAdminNotifications();
+      setNotifications(data);
+    } catch (err) {
+      console.error("Gagal mengambil notifikasi:", err);
+    }
+  };
+
   useEffect(() => {
-    const getNotifications = async () => {
-      try {
-        const data = await fetchAdminNotifications();
-        setNotifications(data);
-      } catch (err) {
-        console.error("Gagal mengambil notifikasi:", err);
-      }
-    };
     getNotifications();
   }, []);
 
@@ -39,6 +40,33 @@ const Navbar = () => {
     navigate("/auth/login");
   };
 
+  const handleMarkAllAsRead = async () => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      console.log("🔑 Token:", token);
+  
+      const res = await fetch("http://localhost:3000/api/notifications/read-all", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
+      const data = await res.json();
+      console.log("✅ Response:", data);
+  
+      if (res.ok) {
+        getNotifications(); // Refresh setelah ditandai semua
+      } else {
+        alert(data.message || "Gagal menandai semua notifikasi.");
+      }
+    } catch (err) {
+      console.error("❌ Gagal menandai semua dibaca:", err);
+      alert("Terjadi kesalahan saat menandai semua notifikasi.");
+    }
+  };
+  
   const unreadCount = notifications.filter((n) => !n.is_read).length;
 
   return (
@@ -57,28 +85,28 @@ const Navbar = () => {
             {/* NOTIFICATIONS */}
             <li className="nav-item dropdown-notifications navbar-dropdown dropdown me-3 me-xl-2">
               <a className="nav-link dropdown-toggle hide-arrow" href="#" data-bs-toggle="dropdown" data-bs-auto-close="outside">
-              <span className="position-relative">
-  <i className="icon-base bx bx-bell icon-md"></i>
-  {unreadCount > 0 && (
-    <span
-      className="badge bg-danger rounded-circle badge-notifications"
-      style={{
-        position: "absolute",
-        top: "-6px",
-        right: "-6px",
-        fontSize: "10px",
-        padding: "3px 6px",
-        minWidth: "20px",
-        height: "20px",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
-      {unreadCount}
-    </span>
-  )}
-</span>
+                <span className="position-relative">
+                  <i className="icon-base bx bx-bell icon-md"></i>
+                  {unreadCount > 0 && (
+                    <span
+                      className="badge bg-danger rounded-circle badge-notifications"
+                      style={{
+                        position: "absolute",
+                        top: "-6px",
+                        right: "-6px",
+                        fontSize: "10px",
+                        padding: "3px 6px",
+                        minWidth: "20px",
+                        height: "20px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      {unreadCount}
+                    </span>
+                  )}
+                </span>
               </a>
 
               <ul className="dropdown-menu dropdown-menu-end p-0" style={{ minWidth: "500px", maxWidth: "650px" }}>
@@ -87,9 +115,20 @@ const Navbar = () => {
                     <h6 className="mb-0 me-auto">Notifikasi</h6>
                     <div className="d-flex align-items-center h6 mb-0">
                       <span className="badge bg-label-primary me-2">{unreadCount} Baru</span>
-                      <a href="#" className="dropdown-notifications-all p-2" title="Tandai semua telah dibaca">
+
+                      {unreadCount > 1 && (
+                        <button
+                          className="btn btn-sm btn-outline-primary d-flex align-items-center gap-2"
+                          onClick={handleMarkAllAsRead}
+                        >
+                          <i className="bx bx-envelope-open"></i>
+                          <span className="d-none d-md-inline">Tandai semua dibaca</span>
+                        </button>
+                      )}
+
+                      {unreadCount === 0 && (
                         <i className="icon-base bx bx-envelope-open text-heading"></i>
-                      </a>
+                      )}
                     </div>
                   </div>
                 </li>
@@ -156,10 +195,11 @@ const Navbar = () => {
 
       {/* Modal */}
       <NotificationModal
-        show={showModal}
-        onClose={handleCloseModal}
-        notifications={notifications}
-      />
+  show={showModal}
+  onClose={handleCloseModal}
+  notifications={notifications}
+  onMarkAllRead={handleMarkAllAsRead}
+/>
     </>
   );
 };

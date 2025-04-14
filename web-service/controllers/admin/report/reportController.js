@@ -51,6 +51,7 @@ exports.getReportById = async (req, res) => {
     const report = await Report.findByPk(id, {
       include: [
         { model: ReportAttachment, as: 'attachments' },
+        { model: ReportEvidence, as: 'evidences' }, 
         { model: ReportStatusHistory, as: 'statusHistory', include: { model: User, as: 'admin', attributes: ['id', 'username'] } },
         { model: User, as: 'user', attributes: ['id', 'username', 'email'] }
       ]
@@ -178,13 +179,17 @@ exports.updateReportStatus = async (req, res) => {
       message
     });
 
-    // ✅ Upload bukti jika ada
-    if (new_status === "completed" && req.files && req.files.length > 0) {
+    if (new_status === "completed" && req.files) {
+      if (req.files.length > 5) {
+        return res.status(400).json({ message: 'Maksimal 5 gambar dapat diunggah sebagai bukti.' });
+      }
+
       const evidences = req.files.map(file => ({
         report_id: id,
         file: `uploads/evidences/${file.filename}`,
         uploaded_by: admin_id
       }));
+
       await ReportEvidence.bulkCreate(evidences);
     }
 

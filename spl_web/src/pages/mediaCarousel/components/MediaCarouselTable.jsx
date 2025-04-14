@@ -22,7 +22,7 @@ const MediaCarouselTable = ({ mediaCarousels = [], onView, onEdit, onDelete }) =
       <Card.Header className="fw-bold bg-light">
         <Row className="align-items-center">
           <Col md={6}>
-            <h5 className="mb-0">🎞️ Daftar Carousel</h5>
+            <h5 className="mb-0">Daftar Media Carousel</h5>
           </Col>
           <Col md={6}>
             <InputGroup>

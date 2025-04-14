@@ -3,6 +3,7 @@ import { Card, Table, Dropdown, Row, Col, InputGroup, Form, Button } from "react
 
 const AnnouncementTable = ({ announcements,onView, onDelete, onEdit }) => {
   const [searchQuery, setSearchQuery] = useState("");
+  const API_BASE_URL = "http://localhost:3000"; 
 
   const filtered = announcements.filter((a) =>
     a.title.toLowerCase().includes(searchQuery.toLowerCase())
@@ -55,7 +56,11 @@ const AnnouncementTable = ({ announcements,onView, onDelete, onEdit }) => {
                   <td>{a.title}</td>
                   <td>
                     {a.file ? (
-                      <a href={`/${a.file}`} target="_blank" rel="noreferrer">
+                      <a
+                        href={`${API_BASE_URL}/${a.file}`}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
                         📄 Lihat File
                       </a>
                     ) : (

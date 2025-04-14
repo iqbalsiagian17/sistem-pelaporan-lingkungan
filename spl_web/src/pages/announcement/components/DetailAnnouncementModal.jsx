@@ -1,5 +1,7 @@
 import { Modal, Button, Badge } from "react-bootstrap";
 
+const API_BASE_URL = "http://localhost:3000"; 
+
 const AnnouncementDetailModal = ({ show, onHide, announcement }) => {
   return (
     <Modal show={show} onHide={onHide} size="lg" centered>
@@ -36,7 +38,7 @@ const AnnouncementDetailModal = ({ show, onHide, announcement }) => {
               <div>
                 <p className="mb-1 fw-bold">📎 Lampiran:</p>
                 <a
-                  href={`/${announcement.file}`}
+                  href={`${API_BASE_URL}/${announcement.file}`}
                   className="btn btn-outline-primary btn-sm"
                   target="_blank"
                   rel="noopener noreferrer"

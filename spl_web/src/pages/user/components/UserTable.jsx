@@ -65,6 +65,7 @@ const UserTable = ({ users, onDelete, onBlock, onUnblock, onEdit, onChangePasswo
             <tr>
               <th>#</th>
               <th>Username</th>
+              <th>Profile</th>
               <th>Email</th>
               <th>No HP</th>
               <th>Role</th>
@@ -79,6 +80,18 @@ const UserTable = ({ users, onDelete, onBlock, onUnblock, onEdit, onChangePasswo
                 <tr key={user.id}>
                   <td>{indexOfFirstUser + index + 1}</td>
                   <td>{user.username}</td>
+                  <td>
+                    <img
+                      src={
+                        user.profile_picture
+                          ? `http://localhost:3000/${user.profile_picture}`
+                          : `https://ui-avatars.com/api/?name=${encodeURIComponent(user.username)}&background=66BB6A&color=fff`
+                      }
+                      alt={`Foto profil ${user.username}`}
+                      className="rounded-circle"
+                      style={{ width: "40px", height: "40px", objectFit: "cover" }}
+                    />
+                  </td>
                   <td>{user.email}</td>
                   <td>{user.phone_number}</td>
                   <td>

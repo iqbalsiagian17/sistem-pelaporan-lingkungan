@@ -1,11 +1,11 @@
 import { useState } from "react";
 import AnnouncementTable from "./components/AnnouncementTable";
-
 import DetailAnnouncementModal from "./components/DetailAnnouncementModal";
 import EditAnnouncementModal from "./components/EditAnnouncementModal";
 import DeleteAnnouncementModal from "./components/DeleteAnnouncementModal";
 import AnnouncementCreateModal from "./components/CreateAnnouncementModal";
 import { useAnnouncement } from "../../context/AnnouncementContext";
+import ToastNotification from "../../components/common/ToastNotification";
 
 const AnnouncementPage = () => {
   const {
@@ -13,7 +13,6 @@ const AnnouncementPage = () => {
     getAnnouncementById,
     deleteAnnouncement,
     updateAnnouncement,
-    removeAnnouncement,
     updateAnnouncementLocal,
     addAnnouncement,
   } = useAnnouncement();
@@ -24,13 +23,23 @@ const AnnouncementPage = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
 
+  const [toast, setToast] = useState({
+    show: false,
+    message: "",
+    variant: "success",
+  });
+
+  const showToast = (message, variant = "success") => {
+    setToast({ show: true, message, variant });
+  };
+
   const handleOpenDetailModal = async (id) => {
     try {
       const announcement = await getAnnouncementById(id);
       setSelectedAnnouncement(announcement);
       setShowDetailModal(true);
     } catch (error) {
-      alert(`❌ Gagal memuat detail: ${error.message}`);
+      alert(`Gagal memuat detail: ${error.message}`);
     }
   };
 
@@ -48,34 +57,34 @@ const AnnouncementPage = () => {
     try {
       await addAnnouncement(data);
       setShowCreateModal(false);
+      showToast("Pengumuman berhasil dibuat.");
     } catch (error) {
-      alert(`❌ Gagal membuat pengumuman: ${error.message}`);
+      alert(`Gagal membuat pengumuman: ${error.message}`);
     }
   };
 
   const handleConfirmDelete = async () => {
     if (!selectedAnnouncement?.id) return;
-  
+
     try {
       await deleteAnnouncement(selectedAnnouncement.id);
       setShowDeleteModal(false);
+      showToast("Pengumuman berhasil dihapus.", "danger");
     } catch (error) {
-      console.error("❌ Gagal hapus:", error.message);
-      alert(`❌ Gagal hapus: ${error.message}`);
+      alert(`Gagal hapus: ${error.message}`);
     }
   };
-  
 
   const handleSaveEdit = async (id, data) => {
     try {
       const updated = await updateAnnouncement(id, data);
       updateAnnouncementLocal(id, updated);
       setShowEditModal(false);
+      showToast("Pengumuman berhasil diperbarui.");
     } catch (error) {
-      alert(`❌ Gagal update: ${error.message}`);
+      alert(`Gagal update: ${error.message}`);
     }
   };
-  
 
   return (
     <>
@@ -115,6 +124,13 @@ const AnnouncementPage = () => {
         show={showDeleteModal}
         onHide={() => setShowDeleteModal(false)}
         onConfirm={handleConfirmDelete}
+      />
+
+      <ToastNotification
+        show={toast.show}
+        onClose={() => setToast({ ...toast, show: false })}
+        message={toast.message}
+        variant={toast.variant}
       />
     </>
   );

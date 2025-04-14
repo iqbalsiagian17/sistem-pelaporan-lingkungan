@@ -4,6 +4,7 @@ import CreateParameterModal from "./components/CreateParameterModal";
 import EditParameterModal from "./components/EditParameterModal";
 import DetailParameterModal from "./components/DetailParameterModal";
 import ConfirmModal from "../../components/common/ConfirmModal";
+import ToastNotification from "../../components/common/ToastNotification";
 import {
   getAllParameters,
   createParameter,
@@ -19,12 +20,22 @@ const ParameterPage = () => {
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
+  const [toast, setToast] = useState({
+    show: false,
+    message: "",
+    variant: "success",
+  });
+
+  const showToast = (message, variant = "success") => {
+    setToast({ show: true, message, variant });
+  };
+
   const fetchData = async () => {
     try {
       const result = await getAllParameters();
       setParameters(result);
     } catch (err) {
-      alert(`❌ Gagal memuat parameter: ${err.message}`);
+      alert(`Gagal memuat parameter: ${err.message}`);
     }
   };
 
@@ -33,8 +44,9 @@ const ParameterPage = () => {
       await createParameter(data);
       setShowCreateModal(false);
       fetchData();
+      showToast("Parameter berhasil ditambahkan.");
     } catch (err) {
-      alert(`❌ Gagal membuat: ${err.message}`);
+      alert(`Gagal membuat: ${err.message}`);
     }
   };
 
@@ -58,18 +70,20 @@ const ParameterPage = () => {
       await updateParameter(formData);
       setShowEditModal(false);
       fetchData();
+      showToast("Parameter berhasil diperbarui.");
     } catch (err) {
-      alert(`❌ Gagal memperbarui: ${err.message}`);
+      alert(`Gagal memperbarui: ${err.message}`);
     }
   };
 
   const handleConfirmDelete = async () => {
     try {
-      await deleteParameter();
+      await deleteParameter(selectedParameter.id); // penting: tambahkan ID-nya!
       setShowDeleteModal(false);
       fetchData();
+      showToast("Parameter berhasil dihapus.", "danger");
     } catch (err) {
-      alert(`❌ Gagal menghapus: ${err.message}`);
+      alert(`Gagal menghapus: ${err.message}`);
     }
   };
 
@@ -121,6 +135,13 @@ const ParameterPage = () => {
         show={showDetailModal}
         onHide={() => setShowDetailModal(false)}
         parameter={selectedParameter}
+      />
+
+      <ToastNotification
+        show={toast.show}
+        onClose={() => setToast({ ...toast, show: false })}
+        message={toast.message}
+        variant={toast.variant}
       />
     </>
   );

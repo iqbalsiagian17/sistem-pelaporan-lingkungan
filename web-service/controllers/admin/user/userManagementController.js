@@ -6,7 +6,7 @@ const bcrypt = require("bcryptjs"); // pastikan sudah diimport
 exports.getAllUsers = async (req, res) => {
     try {
         const users = await User.findAll({
-            attributes: ["id", "username", "email", "phone_number", "type", "blocked_until","auth_provider","createdAt"],
+            attributes: ["id", "username", "email", "phone_number", "type", "blocked_until","auth_provider","profile_picture","createdAt"],
             order: [["createdAt", "DESC"]]
         });
 
@@ -23,7 +23,7 @@ exports.getUserById = async (req, res) => {
         const { id } = req.params;
 
         const user = await User.findByPk(id, {
-            attributes: ["id", "username", "email", "phone_number", "type", "blocked_until", "auth_provider"],
+            attributes: ["id", "username", "email", "phone_number", "type", "blocked_until","profile_picture","createdAt","auth_provider"],
         });
 
         if (!user) {
@@ -165,7 +165,7 @@ exports.changeUserPassword = async (req, res) => {
       // ✅ 2. Ambil semua post user
       const posts = await Post.findAll({
         where: { user_id: id },
-        attributes: ["id", "content", "likes", "is_pinned", "createdAt"],
+        attributes: ["id", "content","total_likes", "is_pinned", "createdAt"], // ✅ "likes" dihapus
         include: {
           model: PostImage,
           as: "images",
@@ -173,6 +173,7 @@ exports.changeUserPassword = async (req, res) => {
         },
         order: [["createdAt", "DESC"]],
       });
+      
       
   
       // ✅ 3. Ambil semua laporan user
@@ -185,7 +186,7 @@ exports.changeUserPassword = async (req, res) => {
           "description",
           "status",
           "date",
-          "likes",
+          "total_likes",
           "village",
           "location_details",
           "latitude",
@@ -213,20 +214,28 @@ exports.changeUserPassword = async (req, res) => {
             "description",
             "status",
             "date",
-            "likes",
+            "total_likes",
             "village",
             "location_details",
             "latitude",
             "longitude"
           ],
-          include: {
-            model: ReportAttachment,
-            as: "attachments",
-            attributes: ["id", "file"]
-          }
+          include: [
+            {
+              model: User,
+              as: "user", // sesuai dengan relasi yang kamu buat
+              attributes: ["id", "username"]
+            },
+            {
+              model: ReportAttachment,
+              as: "attachments",
+              attributes: ["id", "file"]
+            }
+          ]
         },
         order: [["createdAt", "DESC"]]
       });
+      
   
       const liked_reports = likedReportsRaw.map((item) => item.report);
   

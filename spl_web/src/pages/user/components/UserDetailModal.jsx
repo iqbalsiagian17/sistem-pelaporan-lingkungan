@@ -71,7 +71,7 @@ const UserDetailModal = ({ show, onHide, user }) => {
                   <div key={post.id} className="border rounded p-3 shadow-sm bg-light">
                     <div className="d-flex justify-content-between align-items-start mb-2">
                       <div className="fw-bold text-primary">#{index + 1}</div>
-                      <Badge bg="secondary">{post.likes} Likes</Badge>
+                      <Badge bg="secondary">{post.total_likes} Likes</Badge>
                     </div>
                     <p className="mb-2">{post.content}</p>
 
@@ -143,7 +143,7 @@ const UserDetailModal = ({ show, onHide, user }) => {
                       </Badge>
                     </td>
                     <td>{new Date(report.date).toLocaleDateString("id-ID")}</td>
-                    <td>{report.likes}</td>
+                    <td>{report.total_likes}</td>
                   </tr>
                 ))}
               </tbody>
@@ -170,9 +170,10 @@ const UserDetailModal = ({ show, onHide, user }) => {
                 {likedReports.map((like, index) => (
                   <tr key={like.id}>
                     <td>{index + 1}</td>
-                    <td>{like.report.title}</td>
-                    <td>{like.report.user?.username || "Tidak diketahui"}</td>
-                    <td>{new Date(like.report.date).toLocaleDateString("id-ID")}</td>
+                    <td>{like?.title || "Tidak diketahui"}</td>
+                    <td>{like?.user?.username || "Tidak diketahui"}</td>
+                    <td>{like?.date ? new Date(like.date).toLocaleDateString("id-ID") : "-"}</td>
+
                   </tr>
                 ))}
               </tbody>

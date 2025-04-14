@@ -21,20 +21,40 @@ const registerFcmToken = async (req, res) => {
 const markAllAsRead = async (req, res) => {
   try {
     const userId = req.user?.id;
+    const userType = req.user?.type; // 1 = admin, 0 = user biasa
 
-    if (!userId) {
-      return res.status(401).json({ message: 'Unauthorized: User tidak ditemukan dari token.' });
+    if (!userId && userType !== 1) {
+      return res.status(401).json({ message: 'Unauthorized: Tidak valid.' });
     }
 
-    await Notification.update(
-      { is_read: true },
-      { where: { user_id: userId } }
-    );
+    if (userType === 1) {
+      // ✅ ADMIN: tandai notifikasi untuk admin (user_id = NULL dan role_target = 'admin')
+      await Notification.update(
+        { is_read: true },
+        {
+          where: {
+            user_id: null,
+            role_target: "admin",
+          },
+        }
+      );
+    } else {
+      // ✅ USER: tandai notifikasi milik user
+      await Notification.update(
+        { is_read: true },
+        {
+          where: {
+            user_id: userId,
+            role_target: "user",
+          },
+        }
+      );
+    }
 
-    return res.json({ message: 'Semua notifikasi berhasil ditandai sebagai dibaca.' });
+    return res.json({ message: "Semua notifikasi berhasil ditandai sebagai dibaca." });
   } catch (err) {
     console.error("❌ markAllAsRead error:", err);
-    return res.status(500).json({ message: 'Gagal menandai semua notifikasi.', error: err.message });
+    return res.status(500).json({ message: "Gagal menandai semua notifikasi.", error: err.message });
   }
 };
 
