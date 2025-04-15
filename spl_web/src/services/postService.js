@@ -41,6 +41,29 @@ export const createAdminComment = async (body) => {
   return data.comment;
 };
 
+// ✅ Update post (konten + gambar baru jika ada)
+export const updateAdminPost = async (id, formData) => {
+  const res = await fetchWithAuth(`${BASE_URL}/${id}`, {
+    method: "PUT",
+    body: formData,
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.message || "Gagal update post.");
+  return data.post;
+};
+
+export const updateAdminComment = async (id, body) => {
+  const res = await fetchWithAuth(`${BASE_URL}/comment/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.message || "Gagal update komentar.");
+  return data.comment;
+};
+
 // ✅ Delete post
 export const deleteAdminPost = async (id) => {
   const res = await fetchWithAuth(`${BASE_URL}/${id}`, {

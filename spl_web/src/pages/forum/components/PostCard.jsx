@@ -5,7 +5,7 @@ import AvatarDisplay from "./AvatarDisplay";
 import AvatarCircle from "./AvatarCircle";
 
 
-const PostCard = ({ post, onDeletePost, onPinPost, onDeleteComment, onImageClick }) => {
+const PostCard = ({ post, onDeletePost, onEditPost, onPinPost, onDeleteComment, onEditComment, onImageClick }) => {
   return (
     <div className="card shadow-sm mb-4 border rounded-lg">
       {/* Post Header */}
@@ -31,6 +31,7 @@ const PostCard = ({ post, onDeletePost, onPinPost, onDeleteComment, onImageClick
             <Dropdown.Item onClick={() => onPinPost(post.id)}>
               {post.is_pinned ? "Unpin Post" : "Pin Post"}
             </Dropdown.Item>
+            <Dropdown.Item onClick={() => onEditPost(post)}>Edit Postingan</Dropdown.Item> 
             <Dropdown.Item onClick={() => onDeletePost(post)} className="text-danger">
               Hapus Postingan
             </Dropdown.Item>
@@ -150,6 +151,10 @@ const PostCard = ({ post, onDeletePost, onPinPost, onDeleteComment, onImageClick
             <i className="bi bi-three-dots-vertical"></i>
           </Dropdown.Toggle>
           <Dropdown.Menu align="end">
+          <Dropdown.Item onClick={() => onEditComment(comment)}>
+            Edit Komentar
+          </Dropdown.Item>
+
             <Dropdown.Item className="text-danger" onClick={() => onDeleteComment(comment.id)}>
               Hapus Komentar
             </Dropdown.Item>

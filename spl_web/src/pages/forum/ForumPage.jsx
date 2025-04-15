@@ -3,11 +3,13 @@ import { Modal, Carousel, Dropdown, ButtonGroup } from "react-bootstrap";
 import { usePost } from "../../context/PostContext";
 import PostCard from "./components/PostCard";
 import PostCreateModal from "./components/PostCreateModal";
+import PostEditModal from "./components/PostEditModal";
 import ConfirmModal from "../../components/common/ConfirmModal";
+import CommentEditModal from "./components/CommentEditModal"; 
 import ToastNotification from "../../components/common/ToastNotification";
 
 const ForumPage = () => {
-  const { posts, addPost, removePost, removeComment, pinPost } = usePost();
+  const { posts, addPost, editPost, removePost, removeComment, pinPost, editComment } = usePost();
 
   const [selectedPost, setSelectedPost] = useState(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -16,6 +18,11 @@ const ForumPage = () => {
   const [showImageModal, setShowImageModal] = useState(false);
   const [startIndex, setStartIndex] = useState(0);
   const [imageList, setImageList] = useState([]);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showEditCommentModal, setShowEditCommentModal] = useState(false);
+  const [selectedComment, setSelectedComment] = useState(null);
+
+
 
   const [toast, setToast] = useState({
     show: false,
@@ -38,6 +45,16 @@ const ForumPage = () => {
     setShowDeleteModal(true);
   };
 
+  const handleOpenEditComment = (comment) => {
+    setSelectedComment(comment);
+    setShowEditCommentModal(true);
+  };
+
+  const handleOpenEditModal = (post) => {
+    setSelectedPost(post);
+    setShowEditModal(true);
+  };
+
   const handleConfirmDelete = async () => {
     try {
       await removePost(selectedPost.id);
@@ -57,6 +74,15 @@ const ForumPage = () => {
     }
   };
 
+  const handleEditComment = async (commentId, newContent) => {
+    try {
+      await editComment(commentId, newContent); // dari context
+      showToast("Komentar berhasil diperbarui.");
+    } catch (err) {
+      alert(`Gagal edit komentar: ${err.message}`);
+    }
+  };
+
   const handleCreatePost = async (formData) => {
     try {
       await addPost(formData);
@@ -66,6 +92,17 @@ const ForumPage = () => {
       alert(`Gagal menambahkan post: ${err.message}`);
     }
   };
+
+  const handleEditPost = async (formData) => {
+    try {
+      await editPost(selectedPost.id, formData);
+      setShowEditModal(false);
+      showToast("Postingan berhasil diperbarui.");
+    } catch (err) {
+      alert(`Gagal mengedit post: ${err.message}`);
+    }
+  };
+  
 
   const pinned = posts.filter((p) => p.is_pinned);
   const notPinned = posts.filter((p) => !p.is_pinned);
@@ -106,6 +143,8 @@ const ForumPage = () => {
             key={post.id}
             post={post}
             onDeletePost={handleOpenDeleteModal}
+            onEditPost={handleOpenEditModal}
+            onEditComment={handleOpenEditComment}
             onPinPost={pinPost}
             onDeleteComment={handleDeleteComment}
             onImageClick={handleOpenImageModal}
@@ -119,6 +158,13 @@ const ForumPage = () => {
         onCreate={handleCreatePost}
       />
 
+      <PostEditModal
+        show={showEditModal}
+        onHide={() => setShowEditModal(false)}
+        onSave={handleEditPost}
+        initialData={selectedPost}
+      />
+
       <ConfirmModal
         show={showDeleteModal}
         onHide={() => setShowDeleteModal(false)}
@@ -128,6 +174,14 @@ const ForumPage = () => {
         confirmText="Hapus"
         variant="danger"
       />
+
+      <CommentEditModal
+        show={showEditCommentModal}
+        onHide={() => setShowEditCommentModal(false)}
+        comment={selectedComment}
+        onSave={handleEditComment}
+      />
+
 
       <Modal show={showImageModal} onHide={() => setShowImageModal(false)} size="lg" centered>
         <Modal.Body className="p-0">

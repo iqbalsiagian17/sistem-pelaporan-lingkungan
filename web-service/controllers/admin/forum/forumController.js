@@ -46,45 +46,116 @@ exports.getAllPostsAdmin = async (req, res) => {
 
 exports.createPostAdmin = async (req, res) => {
     upload(req, res, async (err) => {
-        if (err) {
-            return res.status(400).json({ message: "File upload error", error: err.message });
+      if (err) {
+        return res.status(400).json({ message: "File upload error", error: err.message });
+      }
+  
+      try {
+        const { content } = req.body;
+        const user_id = req.user.id;
+  
+        if (!content) {
+          return res.status(400).json({ message: "Content is required" });
         }
-
-        try {
-            const { content } = req.body;
-            const user_id = req.user.id; // Admin's ID
-
-            if (!content) {
-                return res.status(400).json({ message: "Content is required" });
-            }
-
-            const newPost = await Post.create({ user_id, content });
-
-            let images = [];
-            if (req.files.length > 0) {
-                images = req.files.map((file) => ({
-                    post_id: newPost.id,
-                    image: `uploads/forum/${file.filename}`
-                }));
-                await PostImage.bulkCreate(images);
-            }
-
-            const fullPost = await Post.findByPk(newPost.id, {
-                include: [
-                    { model: User, as: "user", attributes: ["id", "username"] },
-                    { model: PostImage, as: "images" },
-                    { model: Comment, as: "comments" }
-                    
-                ]
-            });
-
-            res.status(201).json({ message: "Post created successfully", post: fullPost });
-        } catch (error) {
-            console.error("Error creating post:", error);
-            res.status(500).json({ message: "Server error", error: error.message });
+  
+        // 🔒 Validasi maksimal 5 gambar
+        if (req.files && req.files.length > 5) {
+          // Hapus file yg sudah terlanjur diupload
+          req.files.forEach((file) => {
+            const fs = require("fs");
+            if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
+          });
+          return res.status(400).json({ message: "Maksimal hanya boleh mengunggah 5 gambar" });
         }
+  
+        const newPost = await Post.create({ user_id, content });
+  
+        let images = [];
+        if (req.files && req.files.length > 0) {
+          images = req.files.map((file) => ({
+            post_id: newPost.id,
+            image: `uploads/forum/${file.filename}`,
+          }));
+          await PostImage.bulkCreate(images);
+        }
+  
+        const fullPost = await Post.findByPk(newPost.id, {
+          include: [
+            { model: User, as: "user", attributes: ["id", "username"] },
+            { model: PostImage, as: "images" },
+            { model: Comment, as: "comments" },
+          ],
+        });
+  
+        res.status(201).json({ message: "Post created successfully", post: fullPost });
+      } catch (error) {
+        console.error("Error creating post:", error);
+        res.status(500).json({ message: "Server error", error: error.message });
+      }
     });
+  };
+
+  exports.updatePostAdmin = async (req, res) => {
+  upload(req, res, async (err) => {
+    if (err) {
+      return res.status(400).json({ message: "File upload error", error: err.message });
+    }
+
+    try {
+      const { id } = req.params;
+      const { content } = req.body;
+      const user_id = req.user.id;
+
+      const post = await Post.findByPk(id, {
+        include: { model: PostImage, as: "images" }
+      });
+
+      if (!post) {
+        return res.status(404).json({ message: "Post tidak ditemukan" });
+      }
+
+      // Update konten
+      post.content = content || post.content;
+      post.user_id = user_id;
+      await post.save();
+
+      // Jika ada gambar baru, hapus gambar lama dulu
+      if (req.files && req.files.length > 0) {
+        // Hapus gambar lama dari filesystem
+        for (const image of post.images) {
+          if (fs.existsSync(image.image)) {
+            fs.unlinkSync(image.image);
+          }
+        }
+
+        // Hapus gambar lama dari database
+        await PostImage.destroy({ where: { post_id: post.id } });
+
+        // Simpan gambar baru
+        const newImages = req.files.map((file) => ({
+          post_id: post.id,
+          image: `uploads/forum/${file.filename}`
+        }));
+        await PostImage.bulkCreate(newImages);
+      }
+
+      // Ambil data lengkap yang sudah diperbarui
+      const updatedPost = await Post.findByPk(post.id, {
+        include: [
+          { model: User, as: "user", attributes: ["id", "username"] },
+          { model: PostImage, as: "images" },
+          { model: Comment, as: "comments" },
+        ],
+      });
+
+      res.status(200).json({ message: "Post berhasil diperbarui", post: updatedPost });
+    } catch (error) {
+      console.error("❌ Error updatePostAdmin:", error);
+      res.status(500).json({ message: "Server error", error: error.message });
+    }
+  });
 };
+  
 
 // ✅ DELETE POST (Admin)
 exports.deletePostAdmin = async (req, res) => {
@@ -137,6 +208,40 @@ exports.createCommentAdmin = async (req, res) => {
         console.error("Error adding comment:", error);
         res.status(500).json({ message: "Server error", error: error.message });
     }
+};
+
+exports.updateCommentAdmin = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { content } = req.body;
+    const user_id = req.user.id;
+
+    const comment = await Comment.findByPk(id);
+
+    if (!comment) {
+      return res.status(404).json({ message: "Komentar tidak ditemukan" });
+    }
+
+    // Opsional: validasi bahwa hanya pemilik komentar atau admin yang boleh mengedit
+    if (comment.user_id !== user_id) {
+      return res.status(403).json({ message: "Anda tidak memiliki izin untuk mengedit komentar ini" });
+    }
+
+    comment.content = content || comment.content;
+    await comment.save();
+
+    const updatedComment = await Comment.findByPk(id, {
+      include: { model: User, as: "user", attributes: ["id", "username", "profile_picture"] }
+    });
+
+    res.status(200).json({
+      message: "Komentar berhasil diperbarui",
+      comment: updatedComment,
+    });
+  } catch (error) {
+    console.error("Error updating comment:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
 };
 
 

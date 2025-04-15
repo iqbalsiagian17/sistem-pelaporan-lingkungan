@@ -2,8 +2,10 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import {
   fetchAdminPosts,
   fetchAdminPostById,
+  updateAdminPost,
   createAdminPost,
   createAdminComment,
+  updateAdminComment,
   deleteAdminPost,
   deleteAdminComment,
   togglePinPost,
@@ -33,9 +35,29 @@ export const PostProvider = ({ children }) => {
     setPosts((prev) => [newPost, ...prev]);
   };
 
+  const editPost = async (id, formData) => {
+    const updated = await updateAdminPost(id, formData);
+    setPosts((prev) =>
+      prev.map((post) => (post.id === id ? { ...post, ...updated } : post))
+    );
+  };
+
   const addComment = async (data) => {
     return await createAdminComment(data);
   };
+
+  const editComment = async (commentId, newContent) => {
+    const updated = await updateAdminComment(commentId, { content: newContent });
+    setPosts((prev) =>
+      prev.map((post) => ({
+        ...post,
+        comments: post.comments.map((comment) =>
+          comment.id === commentId ? { ...comment, ...updated } : comment
+        ),
+      }))
+    );
+  };
+  
 
   const removePost = async (id) => {
     await deleteAdminPost(id);
@@ -65,6 +87,8 @@ export const PostProvider = ({ children }) => {
         posts,
         loadPosts,
         addPost,
+        editPost,
+        editComment,
         addComment,
         removePost,
         removeComment,
