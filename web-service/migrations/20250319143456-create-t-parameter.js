@@ -9,6 +9,16 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
+      user_id: { 
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 't_user',
+          key: 'id'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE'
+      },
       about: {
         type: Sequelize.TEXT,
         allowNull: true

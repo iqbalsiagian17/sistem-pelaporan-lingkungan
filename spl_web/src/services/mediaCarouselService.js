@@ -22,8 +22,9 @@ export const fetchMediaCarouselById = async (id) => {
 export const createMediaCarousels = async (formData) => {
   const res = await fetchWithAuth(BASE_URL, {
     method: "POST",
-    body: formData,
+    body: formData, 
   });
+
   const data = await res.json();
   if (!res.ok) throw new Error(data.message || "Gagal membuat media carousel.");
   return data.mediacarousel;
@@ -35,6 +36,7 @@ export const updateMediaCarousels = async (id, formData) => {
     method: "PUT",
     body: formData,
   });
+
   const data = await res.json();
   if (!res.ok) throw new Error(data.message || "Gagal mengupdate media carousel.");
   return data.mediacarousel;

@@ -8,6 +8,16 @@ module.exports = {
               autoIncrement: true,
               primaryKey: true
           },
+          user_id: {
+            type: Sequelize.INTEGER,
+            allowNull: false,
+            references: {
+              model: 't_user', // pastikan ini nama tabel user kamu
+              key: 'id'
+            },
+            onUpdate: 'CASCADE',
+            onDelete: 'CASCADE'
+          },
           title: {
               type: Sequelize.STRING,
               allowNull: true

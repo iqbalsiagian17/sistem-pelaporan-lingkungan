@@ -20,32 +20,36 @@ const upload = multer({ storage }).single("image");
 
 // ✅ CREATE MEDIA CAROUSEL (Admin Only)
 exports.createMediaCarousel = async (req, res) => {
-    try {
-      const { title, description } = req.body;
-  
-      if (!title) {
-        return res.status(400).json({ message: "Judul wajib diisi." });
-      }
-  
-      if (!req.file) {
-        return res.status(400).json({ message: "Gambar wajib diunggah." });
-      }
-  
-      const newMediaCarousel = await MediaCarousel.create({
-        title,
-        description: description || "",
-        image: `uploads/carousel/${req.file.filename}`,
-      });
-  
-      res.status(201).json({
-        message: "Media carousel berhasil dibuat.",
-        mediacarousel: newMediaCarousel,
-      });
-    } catch (error) {
-      console.error("❌ Error createMediaCarousel:", error);
-      res.status(500).json({ message: "Terjadi kesalahan server", error: error.message });
+  try {
+    const { title, description } = req.body;
+    const user_id = req.user.id;
+
+    if (!title) {
+      return res.status(400).json({ message: "Judul wajib diisi." });
     }
-  };
+
+    if (!req.file) {
+      return res.status(400).json({ message: "Gambar wajib diunggah." });
+    }
+
+    const newMediaCarousel = await MediaCarousel.create({
+      title,
+      description: description || "",
+      image: `uploads/carousel/${req.file.filename}`,
+      user_id,
+    });
+
+    res.status(201).json({
+      message: "Media carousel berhasil dibuat.",
+      mediacarousel: newMediaCarousel,
+    });
+  } catch (error) {
+    console.error("❌ Error createMediaCarousel:", error);
+    res.status(500).json({ message: "Terjadi kesalahan server", error: error.message });
+  }
+};
+
+
   
   // ✅ GET ALL MEDIA CAROUSELS
   exports.getAllMediaCarousels = async (req, res) => {

@@ -29,10 +29,11 @@ export const AnnouncementProvider = ({ children }) => {
     return await fetchAnnouncementById(id);
   };
 
-  const addAnnouncement = async (data) => {
-    const created = await createAnnouncement(data);
+  const addAnnouncement = async (formData) => {
+    const created = await createAnnouncement(formData); // backend ambil user_id dari token
     setAnnouncements((prev) => [created, ...prev]);
   };
+
 
   const updateAnnouncementLocal = (id, newData) => {
     setAnnouncements((prev) =>
@@ -40,9 +41,11 @@ export const AnnouncementProvider = ({ children }) => {
     );
   };
 
-  const updateAnnouncement = async (id, data) => {
-    const updated = await updateAnnouncementService(id, data);
-    updateAnnouncementLocal(id, updated);
+  const updateAnnouncement = async (id, formData) => {
+    const updated = await updateAnnouncementService(id, formData); // backend ambil user_id dari token
+    setAnnouncements((prev) =>
+      prev.map((ann) => (ann.id === id ? { ...ann, ...updated } : ann))
+    );
     return updated;
   };
 

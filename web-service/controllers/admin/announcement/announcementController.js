@@ -27,6 +27,8 @@ exports.createAnnouncement = async (req, res) => {
   
       try {
         const { title, description } = req.body;
+        const user_id = req.user.id; // 🔥 ambil user_id dari token
+  
         if (!title || !description) {
           return res.status(400).json({ message: "Title and description are required" });
         }
@@ -34,12 +36,12 @@ exports.createAnnouncement = async (req, res) => {
         const newAnnouncement = await Announcement.create({
           title,
           description,
-          file: req.file ? `uploads/announcements/${req.file.filename}` : null
+          file: req.file ? `uploads/announcements/${req.file.filename}` : null,
+          user_id, // 🔥 simpan user_id
         });
   
-        // ✅ Kirim notifikasi ke semua user
-        const users = await User.findAll({ where: { type: 0 } }); // asumsi type 0 = user biasa
-
+        // Kirim notifikasi ke semua user
+        const users = await User.findAll({ where: { type: 0 } });
         await Promise.all(
           users.map(user =>
             Notification.create({
@@ -64,6 +66,7 @@ exports.createAnnouncement = async (req, res) => {
       }
     });
   };
+  
   
 
 // ✅ GET ALL ANNOUNCEMENTS
@@ -97,38 +100,44 @@ exports.getAnnouncementById = async (req, res) => {
 // ✅ UPDATE ANNOUNCEMENT (Admin Only)
 exports.updateAnnouncement = async (req, res) => {
     upload(req, res, async (err) => {
-        if (err) {
-            return res.status(400).json({ message: "File upload error", error: err.message });
+      if (err) {
+        return res.status(400).json({ message: "File upload error", error: err.message });
+      }
+  
+      try {
+        const { id } = req.params;
+        const { title, description } = req.body;
+        const user_id = req.user.id; // 🔥 ambil user_id dari token
+  
+        const announcement = await Announcement.findByPk(id);
+  
+        if (!announcement) {
+          return res.status(404).json({ message: "Announcement not found" });
         }
-
-        try {
-            const { id } = req.params;
-            const { title, description } = req.body;
-
-            const announcement = await Announcement.findByPk(id);
-            if (!announcement) {
-                return res.status(404).json({ message: "Announcement not found" });
-            }
-
-            if (req.file) {
-                // Hapus file lama
-                if (announcement.file && fs.existsSync(announcement.file)) {
-                    fs.unlinkSync(announcement.file);
-                }
-                announcement.file = `uploads/announcements/${req.file.filename}`;
-            }
-
-            announcement.title = title || announcement.title;
-            announcement.description = description || announcement.description;
-            await announcement.save();
-
-            res.status(200).json({ message: "Announcement updated successfully", announcement });
-        } catch (error) {
-            console.error("Error updating announcement:", error);
-            res.status(500).json({ message: "Server error", error: error.message });
+  
+        if (announcement.user_id !== user_id) {
+          return res.status(403).json({ message: "You do not have permission to update this announcement" });
         }
+  
+        if (req.file) {
+          if (announcement.file && fs.existsSync(announcement.file)) {
+            fs.unlinkSync(announcement.file);
+          }
+          announcement.file = `uploads/announcements/${req.file.filename}`;
+        }
+  
+        announcement.title = title || announcement.title;
+        announcement.description = description || announcement.description;
+        await announcement.save();
+  
+        res.status(200).json({ message: "Announcement updated successfully", announcement });
+      } catch (error) {
+        console.error("Error updating announcement:", error);
+        res.status(500).json({ message: "Server error", error: error.message });
+      }
     });
-};
+  };
+  
 
 // ✅ DELETE ANNOUNCEMENT (Admin Only)
 exports.deleteAnnouncement = async (req, res) => {

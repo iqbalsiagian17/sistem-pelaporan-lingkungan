@@ -3,17 +3,42 @@ const { t_parameter } = require('../../../models');
 // ✅ Public - Get Detail Parameter
 exports.getPublicParameter = async (req, res) => {
   try {
-    const parameter = await t_parameter.findOne({ where: { id: 1 } });
+    const parameter = await t_parameter.findOne({
+      attributes: [
+        "about",
+        "terms",
+        "report_guidelines",
+        "emergency_contact",
+        "ambulance_contact",
+        "police_contact",
+        "firefighter_contact",
+      ],
+      order: [["id", "ASC"]]
+    });
 
     if (!parameter) {
-      return res.status(404).json({ success: false, message: 'Parameter belum tersedia' });
+      return res.status(404).json({
+        success: false,
+        message: "Parameter belum tersedia",
+        data: null,
+      });
     }
 
-    res.status(200).json({ success: true, data: parameter });
+    res.status(200).json({
+      success: true,
+      message: "Data parameter berhasil diambil",
+      data: parameter,
+    });
   } catch (err) {
-    res.status(500).json({ success: false, message: 'Terjadi kesalahan pada server', error: err.message });
+    console.error("❌ Error getPublicParameter:", err);
+    res.status(500).json({
+      success: false,
+      message: "Terjadi kesalahan pada server",
+      error: err.message,
+    });
   }
 };
+
 
 // ✅ Admin - Get All Parameter (meski hanya 1 row)
 exports.getAllParameter = async (req, res) => {
@@ -37,23 +62,38 @@ exports.getAllParameter = async (req, res) => {
 // ✅ Admin - Update Parameter
 exports.updateParameter = async (req, res) => {
   try {
-    const id = 1;
-    const [affectedRows] = await t_parameter.update(req.body, { where: { id } });
+    const { id } = req.params;
+    const user_id = req.user.id;
 
-    if (affectedRows === 0) {
+    const parameter = await t_parameter.findByPk(id);
+
+    if (!parameter) {
       return res.status(404).json({ success: false, message: 'Parameter tidak ditemukan' });
     }
 
-    const updated = await t_parameter.findByPk(id);
+    if (parameter.user_id !== user_id) {
+      return res.status(403).json({ success: false, message: 'Anda tidak memiliki izin untuk memperbarui parameter ini' });
+    }
+
+    await parameter.update({
+      ...req.body,
+      user_id, // Tetap update user_id untuk tracking siapa yang terakhir ubah
+    });
+
     res.status(200).json({
       success: true,
       message: 'Parameter berhasil diperbarui',
-      data: updated,
+      data: parameter,
     });
   } catch (err) {
-    res.status(500).json({ success: false, message: 'Terjadi kesalahan pada server', error: err.message });
+    res.status(500).json({
+      success: false,
+      message: 'Terjadi kesalahan pada server',
+      error: err.message,
+    });
   }
 };
+
 
 // ✅ Admin - Create Parameter (jika belum ada)
 exports.createParameter = async (req, res) => {
@@ -63,7 +103,13 @@ exports.createParameter = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Parameter sudah tersedia' });
     }
 
-    const created = await t_parameter.create(req.body);
+    const user_id = req.user.id; // 🔥 Ambil user_id dari token
+
+    const created = await t_parameter.create({
+      ...req.body,
+      user_id,
+    });
+
     res.status(201).json({
       success: true,
       message: 'Parameter berhasil dibuat',
@@ -73,6 +119,7 @@ exports.createParameter = async (req, res) => {
     res.status(500).json({ success: false, message: 'Terjadi kesalahan pada server', error: err.message });
   }
 };
+
 
 // ✅ Admin - Delete Parameter (optional)
 exports.deleteParameter = async (req, res) => {

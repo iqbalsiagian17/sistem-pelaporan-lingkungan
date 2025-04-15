@@ -49,7 +49,7 @@ const EditParameterModal = ({ show, onHide, parameter, onSave }) => {
       return;
     }
 
-    onSave(form);
+    onSave({ ...form, id: parameter.id });
     onHide();
   };
 

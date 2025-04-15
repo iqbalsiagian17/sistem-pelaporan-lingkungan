@@ -38,12 +38,14 @@ export const ParameterProvider = ({ children }) => {
 
   const updateParameter = async (data) => {
     try {
-      const updated = await updateParam(data);
+      if (!parameter?.id) throw new Error("ID parameter tidak ditemukan.");
+      const updated = await updateParam(parameter.id, data);
       setParameter(updated);
     } catch (err) {
       setError("Gagal memperbarui parameter");
     }
   };
+  
 
   const deleteParameter = async () => {
     try {

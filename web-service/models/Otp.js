@@ -4,11 +4,21 @@ const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class t_otp extends Model {
     static associate(models) {
-      // define association here if needed
+      // Relasi ke User
+      t_otp.belongsTo(models.User, {
+        foreignKey: 'user_id',
+        as: 'user',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
+      });
     }
   }
 
   t_otp.init({
+    user_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
     user_email: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -26,16 +36,16 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       defaultValue: false,
     },
-    type: { // ⬅️ Tambahkan ini
+    type: {
       type: DataTypes.STRING,
       allowNull: false,
-      defaultValue: 'register', // atau bisa 'forgot' sesuai kebutuhan
+      defaultValue: 'register', // bisa juga 'forgot'
     }
   }, {
     sequelize,
     modelName: 't_otp',
     tableName: 't_otp',
-    timestamps: true, // createdAt & updatedAt otomatis
+    timestamps: true,
   });
 
   return t_otp;

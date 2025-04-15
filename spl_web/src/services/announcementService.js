@@ -20,10 +20,12 @@ export const fetchAnnouncementById = async (id) => {
 };
 
 // Tambah pengumuman baru
-export const createAnnouncement = async (payload) => {
+export const createAnnouncement = async (payload, userId) => {
+    payload.append("user_id", userId); // 🟢 Tambahkan manual jika backend butuh
+
     const response = await fetchWithAuth(BASE_URL, {
         method: "POST",
-        body: payload, // ✅ Langsung kirim FormData
+        body: payload,
     });
     const data = await response.json();
     if (!response.ok) throw new Error(data.message || "Gagal membuat pengumuman.");
@@ -31,10 +33,12 @@ export const createAnnouncement = async (payload) => {
 };
 
 // Update pengumuman
-export const updateAnnouncement = async (id, payload) => {
+export const updateAnnouncement = async (id, payload, userId) => {
+    payload.append("user_id", userId); // 🟢 Tambahkan user_id jika backend perlu
+
     const response = await fetchWithAuth(`${BASE_URL}/${id}`, {
         method: "PUT",
-        body: payload, // ✅ Langsung kirim FormData
+        body: payload,
     });
     const data = await response.json();
     if (!response.ok) throw new Error(data.message || "Gagal mengupdate pengumuman.");

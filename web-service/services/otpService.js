@@ -14,7 +14,7 @@ const generateNumericOtp = () => {
 };
 
 // ✅ Kirim OTP berdasarkan tipe ('register' atau 'forgot')
-exports.sendOtp = async (email, type = 'register') => {
+exports.sendOtp = async (email, type = 'register', user_id) => {
   const code = generateNumericOtp();
   const expiredAt = new Date(Date.now() + 5 * 60 * 1000); // 5 menit dari sekarang
 
@@ -23,6 +23,7 @@ exports.sendOtp = async (email, type = 'register') => {
     code,
     expired_at: expiredAt,
     type,
+    user_id, // ✅ simpan user_id
   });
 
   const subject = type === 'forgot'
@@ -87,9 +88,8 @@ exports.verifyOtp = async (email, code, type = 'register') => {
   return true;
 };
 
-
 // ✅ Kirim ulang OTP berdasarkan tipe
-exports.refreshOtp = async (email, type = 'register') => {
+exports.refreshOtp = async (email, type = 'register', user_id) => {
   // Tandai semua OTP lama sebagai digunakan
   await t_otp.update(
     { is_used: true },
@@ -101,9 +101,8 @@ exports.refreshOtp = async (email, type = 'register') => {
         expired_at: { [Op.gt]: new Date() },
       },
     }
-  );// Kirim OTP baru
-  return await exports.sendOtp(email, type);
+  );
+
+  // Kirim OTP baru
+  return await exports.sendOtp(email, type, user_id);
 };
-
-
-

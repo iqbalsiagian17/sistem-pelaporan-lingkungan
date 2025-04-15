@@ -42,7 +42,7 @@ const register = async (req, res) => {
       is_active: false, // user belum aktif sampai verifikasi OTP
     });
 
-    await sendOtp(email); // ✅ kirim OTP ke email
+    await sendOtp(email, 'register', newUser.id);
 
     await Notification.create({
       title: "Pengguna Baru",
@@ -218,7 +218,8 @@ const forgotPassword = async (req, res) => {
       return res.status(404).json({ message: "Email tidak ditemukan" });
     }
 
-    await sendOtp(email, 'forgot'); // ✅ kirim OTP dengan type forgot
+    const user_id = user.id; // 🔥 Ambil user_id dari hasil pencarian
+    await sendOtp(email, 'forgot', user_id); // ✅ Kirim OTP beserta user_id
 
     return res.status(200).json({ message: "Kode OTP telah dikirim ke email Anda" });
   } catch (error) {

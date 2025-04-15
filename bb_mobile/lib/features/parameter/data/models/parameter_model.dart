@@ -25,20 +25,24 @@ class ParameterItem {
     required this.updatedAt,
   });
 
-  factory ParameterItem.fromJson(Map<String, dynamic> json) {
-    return ParameterItem(
-      id: json['id'],
-      about: json['about'],
-      terms: json['terms'],
-      reportGuidelines: json['report_guidelines'],
-      emergencyContact: json['emergency_contact'],
-      ambulanceContact: json['ambulance_contact'],
-      policeContact: json['police_contact'],
-      firefighterContact: json['firefighter_contact'],
-      createdAt: DateTime.parse(json['createdAt']),
-      updatedAt: DateTime.parse(json['updatedAt']),
-    );
-  }
+factory ParameterItem.fromJson(Map<String, dynamic> json) {
+  return ParameterItem(
+    id: json['id'] ?? 0, // ✅ pastikan default kalau null
+    about: json['about'],
+    terms: json['terms'],
+    reportGuidelines: json['report_guidelines'],
+    emergencyContact: json['emergency_contact'],
+    ambulanceContact: json['ambulance_contact'],
+    policeContact: json['police_contact'],
+    firefighterContact: json['firefighter_contact'],
+    createdAt: json['createdAt'] != null
+        ? DateTime.parse(json['createdAt'])
+        : DateTime.now(), // ✅ fallback
+    updatedAt: json['updatedAt'] != null
+        ? DateTime.parse(json['updatedAt'])
+        : DateTime.now(),
+  );
+}
 
   Map<String, dynamic> toJson() {
     return {

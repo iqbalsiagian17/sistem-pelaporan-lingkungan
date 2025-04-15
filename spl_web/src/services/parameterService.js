@@ -12,16 +12,18 @@ export const getAllParameters = async () => {
 };
 
 // Update parameter (ID tetap 1 di backend)
-export const updateParameter = async (payload) => {
-  const response = await fetchWithAuth(BASE_URL, {
+export const updateParameter = async (id, payload) => {
+  const response = await fetchWithAuth(`${BASE_URL}/${id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
+
   const data = await response.json();
   if (!response.ok) throw new Error(data.message || "Gagal memperbarui parameter.");
   return data.data;
 };
+
 
 // Buat parameter (jika belum ada)
 export const createParameter = async (payload) => {
