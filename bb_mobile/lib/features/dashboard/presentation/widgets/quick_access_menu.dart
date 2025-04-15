@@ -23,7 +23,7 @@ class QuickAccessMenu extends StatelessWidget {
               color: const Color(0xFF66BB6A), // ini jadi background hijau
 
             onTap: () {
-                context.go(AppRoutes.allReport);
+                context.push(AppRoutes.allReport);
             },
           ),
           MenuItemWidget(
@@ -32,7 +32,7 @@ class QuickAccessMenu extends StatelessWidget {
               color: const Color(0xFF66BB6A), // ini jadi background hijau
 
             onTap: () {
-              context.go(AppRoutes.forum);
+              context.push(AppRoutes.forum);
             },
           ),
           MenuItemWidget(
@@ -41,7 +41,7 @@ class QuickAccessMenu extends StatelessWidget {
               color: const Color(0xFF66BB6A), // ini jadi background hijau
 
             onTap: () {
-              context.go(AppRoutes.allAnnouncement);
+              context.push(AppRoutes.allAnnouncement);
             },  
           ),
           MenuItemWidget(
@@ -50,7 +50,7 @@ class QuickAccessMenu extends StatelessWidget {
               color: const Color(0xFF66BB6A), // ini jadi background hijau
 
             onTap: () {
-              context.go(AppRoutes.emergency);
+              context.push(AppRoutes.emergency);
             },
           ),
         ],

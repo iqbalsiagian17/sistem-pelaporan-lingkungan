@@ -35,7 +35,7 @@ class EmeregencyTopBar extends StatelessWidget implements PreferredSizeWidget {
               if (Navigator.canPop(context)) {
                 Navigator.pop(context);
               } else {
-                context.go(AppRoutes.dashboard);
+                context.push(AppRoutes.dashboard);
               }
             },
           ),

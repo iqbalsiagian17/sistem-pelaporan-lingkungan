@@ -31,10 +31,10 @@ class ProfileMenu extends ConsumerWidget {
             const SizedBox(height: 20),
             const _SectionTitle("Umum"),
             _buildMenuItem(Icons.book, "Syarat & Ketentuan", () {
-              context.go(AppRoutes.terms);
+              context.push(AppRoutes.terms);
             }),
             _buildMenuItem(Icons.info_outline, "Tentang Aplikasi", () {
-              context.go(AppRoutes.about);
+              context.push(AppRoutes.about);
             }),
           ],
         );

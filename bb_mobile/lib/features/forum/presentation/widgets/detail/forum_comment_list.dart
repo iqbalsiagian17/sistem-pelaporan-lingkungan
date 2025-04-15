@@ -99,6 +99,7 @@ class ForumCommentList extends ConsumerWidget {
                     }
                   },
                   icon: const Icon(Icons.more_vert, color: Colors.black),
+                  color: Colors.white,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   itemBuilder: (context) => [
                     const PopupMenuItem(

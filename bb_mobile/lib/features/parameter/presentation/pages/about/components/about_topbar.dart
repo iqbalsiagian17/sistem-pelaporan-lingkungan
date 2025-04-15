@@ -34,7 +34,7 @@ class AboutTopBar extends StatelessWidget implements PreferredSizeWidget {
               if (Navigator.canPop(context)) {
                 Navigator.pop(context);
               } else {
-                context.go(AppRoutes.profile);
+                context.push(AppRoutes.profile);
               }
             },
           ),

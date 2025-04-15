@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class NotificationTopBar extends StatelessWidget implements PreferredSizeWidget {
   const NotificationTopBar({super.key});
@@ -12,16 +13,21 @@ class NotificationTopBar extends StatelessWidget implements PreferredSizeWidget 
       preferredSize: preferredSize,
       child: Container(
         decoration: const BoxDecoration(
-        color: const Color(0xFF66BB6A), 
-
+          color: Color(0xFF66BB6A),
           borderRadius: BorderRadius.only(
             bottomLeft: Radius.circular(24),
             bottomRight: Radius.circular(24),
           ),
         ),
         child: AppBar(
-          backgroundColor: Colors.transparent, // 🪟 Agar gradient terlihat
+          backgroundColor: Colors.transparent,
           elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () {
+              context.go('/dashboard'); // ⬅️ back langsung ke dashboard
+            },
+          ),
           title: const Text(
             'Kotak Masuk',
             style: TextStyle(
