@@ -5,6 +5,8 @@ abstract class ForumRepository {
   Future<ForumPostEntity?> getPostById(int postId);
   Future<bool> createPost({required String content, required List<String> imagePaths});
   Future<bool> createComment({required int postId, required String content});
+  Future<bool> updatePost({required int postId, required String content, required List<String> imagePaths});
+  Future<bool> updateComment({required int commentId, required String content});
   Future<bool> deletePost(int postId);
   Future<bool> deleteComment(int commentId);
 

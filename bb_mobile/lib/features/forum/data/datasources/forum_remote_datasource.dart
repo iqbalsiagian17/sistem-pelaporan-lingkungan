@@ -7,7 +7,9 @@ abstract class ForumRemoteDataSource {
   Future<List<ForumPostModel>> getAllPosts();
   Future<ForumPostModel?> getPostById(int postId);
   Future<bool> createPost({required String content, required List<String> imagePaths});
+  Future<bool> updatePost({required int postId, required String content, required List<String> imagePaths});
   Future<bool> createComment({required int postId, required String content});
+  Future<bool> updateComment({required int commentId, required String content});
   Future<bool> deletePost(int postId);
   Future<bool> deleteComment(int commentId);
 
@@ -65,6 +67,26 @@ class ForumRemoteDataSourceImpl implements ForumRemoteDataSource {
   }
 
   @override
+  Future<bool> updatePost({required int postId, required String content, required List<String> imagePaths,
+  }) async {
+    try {
+      final formData = FormData.fromMap({"content": content});
+      for (var path in imagePaths) {
+        formData.files.add(MapEntry(
+          "images",
+          await MultipartFile.fromFile(path),
+        ));
+      }
+
+      final response = await _dio.put("${ApiConstants.forumUrl}/update/$postId", data: formData);
+      return response.statusCode == 200;
+    } catch (e) {
+      _handleError(e, "updatePost");
+    }
+  }
+
+
+  @override
   Future<bool> createComment({required int postId, required String content}) async {
     try {
       final response = await _dio.post("${ApiConstants.forumUrl}/comment", data: {
@@ -76,6 +98,20 @@ class ForumRemoteDataSourceImpl implements ForumRemoteDataSource {
       _handleError(e, "createComment");
     }
   }
+
+@override
+Future<bool> updateComment({required int commentId, required String content}) async {
+  try {
+    final response = await _dio.put(
+      "${ApiConstants.forumUrl}/comment/update/$commentId",
+      data: {"content": content},
+    );
+    return response.statusCode == 200;
+  } catch (e) {
+    _handleError(e, "updateComment");
+  }
+}
+
 
   @override
   Future<bool> deletePost(int postId) async {

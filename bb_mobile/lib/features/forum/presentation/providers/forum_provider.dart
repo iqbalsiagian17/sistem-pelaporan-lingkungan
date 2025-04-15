@@ -1,3 +1,5 @@
+import 'package:bb_mobile/features/forum/domain/usecases/update_forum_comment_usecase.dart';
+import 'package:bb_mobile/features/forum/domain/usecases/update_forum_post_usecase.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:bb_mobile/features/forum/domain/entities/forum_post_entity.dart';
 import 'package:bb_mobile/features/forum/domain/usecases/create_forum_comment_usecase.dart';
@@ -11,6 +13,7 @@ import 'package:bb_mobile/features/forum/domain/usecases/unlike_forum_post_useca
 import 'package:bb_mobile/features/forum/domain/usecases/get_forum_post_like_count_usecase.dart';
 import 'package:bb_mobile/features/forum/presentation/providers/usecase_providers.dart';
 
+
 final forumProvider = StateNotifierProvider<ForumNotifier, ForumState>((ref) {
   return ForumNotifier(
     getPostsUseCase: ref.read(getForumPostsUseCaseProvider),
@@ -22,6 +25,8 @@ final forumProvider = StateNotifierProvider<ForumNotifier, ForumState>((ref) {
     likePostUseCase: ref.read(likePostUseCaseProvider),
     unlikePostUseCase: ref.read(unlikePostUseCaseProvider),
     getLikeCountUseCase: ref.read(getLikeCountUseCaseProvider),
+    updatePostUseCase: ref.read(updatePostUseCaseProvider),
+    updateCommentUseCase: ref.read(updateCommentUseCaseProvider),
   );
 });
 
@@ -63,12 +68,16 @@ class ForumNotifier extends StateNotifier<ForumState> {
   final LikeForumPostUseCase likePostUseCase;
   final UnlikeForumPostUseCase unlikePostUseCase;
   final GetForumPostLikeCountUseCase getLikeCountUseCase;
+  final UpdateForumPostUseCase updatePostUseCase;
+  final UpdateCommentUseCase updateCommentUseCase;
 
   ForumNotifier({
     required this.getPostsUseCase,
     required this.getPostByIdUseCase,
     required this.createPostUseCase,
+    required this.updatePostUseCase,
     required this.createCommentUseCase,
+    required this.updateCommentUseCase,
     required this.deletePostUseCase,
     required this.deleteCommentUseCase,
     required this.likePostUseCase,
@@ -112,6 +121,27 @@ class ForumNotifier extends StateNotifier<ForumState> {
     }
   }
 
+
+  Future<bool> updatePost({required int postId, required String content, required List<String> imagePaths,
+    }) async {
+    state = state.copyWith(isLoading: true, errorMessage: null);
+    try {
+      final result = await updatePostUseCase.call(
+        postId: postId,
+        content: content,
+        imagePaths: imagePaths,
+      );
+      if (result) {
+        await fetchAllPosts(); // Atau fetchPostById(postId) jika kamu ingin refresh satu postingan saja
+      }
+      return result;
+    } catch (e) {
+      state = state.copyWith(errorMessage: e.toString(), isLoading: false);
+      return false;
+    }
+  }
+
+
   Future<bool> addComment({required int postId, required String content}) async {
     state = state.copyWith(isLoading: true, errorMessage: null);
     try {
@@ -123,6 +153,19 @@ class ForumNotifier extends StateNotifier<ForumState> {
       return false;
     }
   }
+
+  Future<bool> updateComment({required int commentId, required String content, required int postId}) async {
+    state = state.copyWith(isLoading: true, errorMessage: null);
+    try {
+      final result = await updateCommentUseCase.call(commentId: commentId, content: content);
+      if (result) await fetchPostById(postId);
+      return result;
+    } catch (e) {
+      state = state.copyWith(errorMessage: e.toString(), isLoading: false);
+      return false;
+    }
+  }
+
 
   Future<bool> deletePost(int postId) async {
     state = state.copyWith(isLoading: true, errorMessage: null);

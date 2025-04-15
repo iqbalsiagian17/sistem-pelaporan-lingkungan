@@ -61,6 +61,76 @@ exports.createPost = async (req, res) => {
     });
 };
 
+// ✅ UPDATE POST (Only Owner)
+exports.updatePost = async (req, res) => {
+    upload(req, res, async (err) => {
+        if (err) {
+            return res.status(400).json({ message: "File upload error", error: err.message });
+        }
+
+        try {
+            const { id } = req.params;
+            const { content } = req.body;
+            const user_id = req.user.id;
+
+            const post = await Post.findByPk(id, { include: { model: PostImage, as: "images" } });
+
+            if (!post) {
+                return res.status(404).json({ message: "Post not found" });
+            }
+
+            if (post.user_id !== user_id) {
+                return res.status(403).json({ message: "You do not have permission to update this post" });
+            }
+
+            // Update isi konten jika ada
+            if (content) {
+                post.content = content;
+                await post.save();
+            }
+
+            // Jika ada gambar baru, hapus yang lama dan simpan yang baru
+            if (req.files.length > 0) {
+                // Hapus gambar lama dari folder
+                for (const image of post.images) {
+                    if (fs.existsSync(image.image)) {
+                        fs.unlinkSync(image.image);
+                    }
+                }
+
+                // Hapus data gambar lama dari DB
+                await PostImage.destroy({ where: { post_id: id } });
+
+                // Simpan gambar baru
+                const newImages = req.files.map((file) => ({
+                    post_id: post.id,
+                    image: `uploads/forum/${file.filename}`
+                }));
+
+                await PostImage.bulkCreate(newImages);
+            }
+
+            const updatedPost = await Post.findByPk(post.id, {
+                include: [
+                    { model: User, as: "user", attributes: ["id", "username", "profile_picture"] },
+                    { model: PostImage, as: "images" },
+                    {
+                        model: Comment,
+                        as: "comments",
+                        include: { model: User, as: "user", attributes: ["id", "username", "profile_picture"] }
+                    }
+                ]
+            });
+
+            res.status(200).json({ message: "Post updated successfully", post: updatedPost });
+        } catch (error) {
+            console.error("Error updating post:", error);
+            res.status(500).json({ message: "Server error", error: error.message });
+        }
+    });
+};
+
+
 exports.getAllPosts = async (req, res) => {
     try {
       const userId = req.user?.id || null;
@@ -155,6 +225,42 @@ exports.createComment = async (req, res) => {
         res.status(500).json({ message: "Server error", error: error.message });
     }
 };
+
+
+exports.updateComment = async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { content } = req.body;
+      const user_id = req.user.id;
+  
+      console.log("📝 UpdateComment → ID:", id);
+      console.log("📝 UpdateComment → Content:", content);
+      console.log("📝 UpdateComment → UserID:", user_id);
+  
+      const comment = await Comment.findByPk(id);
+  
+      if (!comment) {
+        console.log("❌ Comment not found");
+        return res.status(404).json({ message: "Comment not found" });
+      }
+  
+      if (comment.user_id !== user_id) {
+        console.log("❌ Unauthorized");
+        return res.status(403).json({ message: "Unauthorized to update this comment" });
+      }
+  
+      comment.content = content;
+      await comment.save();
+  
+      console.log("✅ Comment updated:", comment.content);
+      return res.status(200).json({ message: "Comment updated successfully" });
+    } catch (error) {
+      console.error("❌ Error updating comment:", error);
+      return res.status(500).json({ message: "Server error", error: error.message });
+    }
+  };
+  
+  
 
 // ✅ DELETE POST (Only Owner)
 exports.deletePost = async (req, res) => {

@@ -1,6 +1,7 @@
 import 'package:bb_mobile/core/services/auth/global_auth_service.dart';
 import 'package:bb_mobile/features/forum/domain/entities/forum_post_entity.dart';
 import 'package:bb_mobile/features/forum/presentation/providers/forum_provider.dart';
+import 'package:bb_mobile/features/forum/presentation/widgets/list/edit_post_modal.dart';
 import 'package:bb_mobile/widgets/snackbar/snackbar_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -54,6 +55,8 @@ class _PostPopupMenuState extends ConsumerState<PostPopupMenu> {
       onSelected: (value) {
         if (value == 'delete') {
           _showDeleteConfirmationSheet(context);
+        } else if (value == 'edit') {
+          _showEditPostModal(context);
         }
       },
       icon: const Icon(Icons.more_vert, color: Colors.black),
@@ -61,6 +64,17 @@ class _PostPopupMenuState extends ConsumerState<PostPopupMenu> {
       color: Colors.white,
       elevation: 2,
       itemBuilder: (context) => [
+        PopupMenuItem<String>(
+          value: 'edit',
+          child: Row(
+            children: const [
+              Icon(Icons.edit_outlined, color: Colors.blue),
+              SizedBox(width: 10),
+              Text("Edit Postingan"),
+            ],
+          ),
+        ),
+
         PopupMenuItem<String>(
           value: 'delete',
           child: Row(
@@ -134,6 +148,18 @@ class _PostPopupMenuState extends ConsumerState<PostPopupMenu> {
       ),
     );
   }
+
+  void _showEditPostModal(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (_) => EditPostModal(post: widget.post),
+    );
+  }
+
 
   Future<void> _deletePost() async {
     final success = await ref.read(forumProvider.notifier).deletePost(widget.post.id);

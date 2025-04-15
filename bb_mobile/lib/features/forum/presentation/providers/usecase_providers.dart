@@ -10,6 +10,8 @@ import 'package:bb_mobile/features/forum/domain/usecases/get_forum_post_by_id_us
 import 'package:bb_mobile/features/forum/domain/usecases/like_forum_post_usecase.dart';
 import 'package:bb_mobile/features/forum/domain/usecases/unlike_forum_post_usecase.dart';
 import 'package:bb_mobile/features/forum/domain/usecases/get_forum_post_like_count_usecase.dart';
+import 'package:bb_mobile/features/forum/domain/usecases/update_forum_comment_usecase.dart';
+import 'package:bb_mobile/features/forum/domain/usecases/update_forum_post_usecase.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final forumRemoteDataSourceProvider = Provider<ForumRemoteDataSource>((ref) {
@@ -33,8 +35,17 @@ final createPostUseCaseProvider = Provider<CreateForumPostUseCase>((ref) {
   return CreateForumPostUseCase(repository: ref.read(forumRepositoryProvider));
 });
 
+final updatePostUseCaseProvider = Provider<UpdateForumPostUseCase>((ref) {
+  return UpdateForumPostUseCase(repository: ref.read(forumRepositoryProvider));
+});
+
+
 final createCommentUseCaseProvider = Provider<CreateForumCommentUseCase>((ref) {
   return CreateForumCommentUseCase(repository: ref.read(forumRepositoryProvider));
+});
+
+final updateCommentUseCaseProvider = Provider<UpdateCommentUseCase>((ref) {
+  return UpdateCommentUseCase(repository: ref.read(forumRepositoryProvider));
 });
 
 final deletePostUseCaseProvider = Provider<DeleteForumPostUseCase>((ref) {
