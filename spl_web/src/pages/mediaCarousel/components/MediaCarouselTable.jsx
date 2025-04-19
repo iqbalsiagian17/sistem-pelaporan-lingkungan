@@ -19,29 +19,40 @@ const MediaCarouselTable = ({ mediaCarousels = [], onView, onEdit, onDelete }) =
 
   return (
     <Card className="shadow-sm border-0">
-      <Card.Header className="fw-bold bg-light">
+      <Card.Header className="bg-light">
         <Row className="align-items-center">
-          <Col md={6}>
-            <h5 className="mb-0">Daftar Media Carousel</h5>
+          {/* 📋 Judul */}
+          <Col xs={12} md={6} className="mb-2 mb-md-0 text-center text-md-start">
+            <h5 className="mb-0 text-primary fw-bold">
+               Daftar Media Carousel
+            </h5>
           </Col>
-          <Col md={6}>
-            <InputGroup>
-              <Form.Control
-                placeholder="Cari berdasarkan judul..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="shadow-sm"
-              />
-              <Button
-                variant="outline-secondary"
-                onClick={() => setSearch("")}
-              >
-                ❌
-              </Button>
-            </InputGroup>
+
+          {/* 🔍 Search + ❌ */}
+          <Col xs={12} md={6} className="d-flex justify-content-md-end justify-content-center align-items-center">
+            <div className="d-flex gap-2" style={{ maxWidth: "300px", width: "100%" }}>
+              <InputGroup>
+                <Form.Control
+                  type="text"
+                  placeholder="Cari berdasarkan judul..."
+                  value={search}
+                  className="border-0 shadow-sm"
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+                <Button
+                  variant="outline-secondary"
+                  className="border-0 shadow-sm"
+                  onClick={() => setSearch("")}
+                  title="Hapus Pencarian"
+                >
+                  <i className="bx bx-x" style={{ fontSize: "18px" }}></i>
+                </Button>
+              </InputGroup>
+            </div>
           </Col>
         </Row>
       </Card.Header>
+
 
       <div className="table-responsive">
         <Table hover className="align-middle mb-0">

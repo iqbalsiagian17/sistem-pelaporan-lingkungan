@@ -33,31 +33,40 @@ const UserTable = ({ users, onDelete, onBlock, onUnblock, onEdit, onChangePasswo
 
   return (
     <Card className="shadow-sm border-0">
-      <Card.Header className="fw-bold text-primary bg-light">
-        <Row className="align-items-center g-2">
-          <Col xs={12} md={6} className="text-center text-md-start">
-            <h5 className="mb-0">👥 Daftar Pengguna</h5>
+      <Card.Header className="bg-light">
+        <Row className="align-items-center">
+          {/* 📋 Judul */}
+          <Col xs={12} md={6} className="mb-2 mb-md-0 text-center text-md-start">
+            <h5 className="mb-0 text-primary fw-bold">
+               Daftar Pengguna
+            </h5>
           </Col>
-          <Col xs={12} md={6}>
-            <InputGroup>
-              <Form.Control
-                type="text"
-                placeholder="Cari berdasarkan username..."
-                value={searchQuery}
-                className="border-0 shadow-sm"
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-              <Button
-                variant="outline-secondary"
-                className="border-0 shadow-sm"
-                onClick={() => setSearchQuery("")}
-              >
-                ❌
-              </Button>
-            </InputGroup>
+
+          {/* 🔍 Search + ❌ (tanpa Export) */}
+          <Col xs={12} md={6} className="d-flex justify-content-md-end justify-content-center align-items-center">
+            <div className="d-flex gap-2" style={{ maxWidth: "300px", width: "100%" }}>
+              <InputGroup>
+                <Form.Control
+                  type="text"
+                  placeholder="Cari berdasarkan username..."
+                  value={searchQuery}
+                  className="border-0 shadow-sm"
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                <Button
+                  variant="outline-secondary"
+                  className="border-0 shadow-sm"
+                  onClick={() => setSearchQuery("")}
+                  title="Hapus Pencarian"
+                >
+                  <i className="bx bx-x" style={{ fontSize: "18px" }}></i>
+                </Button>
+              </InputGroup>
+            </div>
           </Col>
         </Row>
       </Card.Header>
+
 
       <div className="table-responsive">
         <Table hover className="align-middle">

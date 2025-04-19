@@ -6,7 +6,7 @@ const AnnouncementDetailModal = ({ show, onHide, announcement }) => {
   return (
     <Modal show={show} onHide={onHide} size="lg" centered>
       <Modal.Header closeButton>
-        <Modal.Title className="fw-bold">📢 Detail Pengumuman</Modal.Title>
+        <Modal.Title className="fw-bold"> Detail Pengumuman</Modal.Title>
       </Modal.Header>
 
       <Modal.Body>
@@ -17,7 +17,7 @@ const AnnouncementDetailModal = ({ show, onHide, announcement }) => {
 
             {/* Tanggal */}
             <p className="text-muted mb-3">
-              🗓️ Dibuat pada:{" "}
+               Dibuat pada:{" "}
               <Badge bg="light" text="dark">
                 {new Date(announcement.createdAt).toLocaleString("id-ID", {
                   dateStyle: "medium",
@@ -36,7 +36,7 @@ const AnnouncementDetailModal = ({ show, onHide, announcement }) => {
             {/* File */}
             {announcement.file && (
               <div>
-                <p className="mb-1 fw-bold">📎 Lampiran:</p>
+                <p className="mb-1 fw-bold">Lampiran:</p>
                 <a
                   href={`${API_BASE_URL}/${announcement.file}`}
                   className="btn btn-outline-primary btn-sm"

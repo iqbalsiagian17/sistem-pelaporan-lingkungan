@@ -18,14 +18,14 @@ const UserDetailModal = ({ show, onHide, user }) => {
     <Modal show={show} onHide={onHide} size="lg" centered scrollable>
       <Modal.Header closeButton className="bg-light border-bottom-0">
         <Modal.Title className="fw-semibold text-primary">
-          👤 Detail Pengguna - {username}
+          Detail Pengguna - {username}
         </Modal.Title>
       </Modal.Header>
 
       <Modal.Body className="px-4">
         {/* Informasi Umum */}
         <section className="mb-4">
-          <h6 className="fw-bold text-secondary border-bottom pb-2">🧾 Informasi Umum</h6>
+          <h6 className="fw-bold text-secondary border-bottom pb-2">Informasi Umum</h6>
           <Table bordered size="sm" className="mt-3">
             <tbody>
               <tr>
@@ -63,7 +63,7 @@ const UserDetailModal = ({ show, onHide, user }) => {
 
         {/* Postingan */}
         <section className="mb-4">
-          <h6 className="fw-bold text-secondary border-bottom pb-2">📝 Postingan</h6>
+          <h6 className="fw-bold text-secondary border-bottom pb-2">Postingan</h6>
           {posts.length > 0 ? (
             <>
               <div className="d-flex flex-column gap-3 mt-3">
@@ -116,7 +116,7 @@ const UserDetailModal = ({ show, onHide, user }) => {
 
         {/* Laporan */}
         <section className="mb-4">
-          <h6 className="fw-bold text-secondary border-bottom pb-2">📢 Laporan</h6>
+          <h6 className="fw-bold text-secondary border-bottom pb-2">Laporan</h6>
           {reports.length > 0 ? (
             <Table size="sm" bordered hover className="mt-2">
               <thead className="table-light">
@@ -155,7 +155,7 @@ const UserDetailModal = ({ show, onHide, user }) => {
 
         {/* Laporan yang Disukai */}
         <section>
-          <h6 className="fw-bold text-secondary border-bottom pb-2">❤️ Laporan yang Disukai</h6>
+          <h6 className="fw-bold text-secondary border-bottom pb-2">Laporan yang Disukai</h6>
           {likedReports.length > 0 ? (
             <Table size="sm" bordered hover className="mt-2">
               <thead className="table-light">

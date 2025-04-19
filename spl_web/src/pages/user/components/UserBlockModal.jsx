@@ -5,7 +5,7 @@ const UserBlockModal = ({ show, onHide, onConfirm, blockingUntil, setBlockingUnt
   return (
     <Modal show={show} onHide={onHide} centered>
       <Modal.Header closeButton>
-        <Modal.Title>🚫 Blokir Pengguna</Modal.Title>
+        <Modal.Title>Blokir Pengguna</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Form.Group>

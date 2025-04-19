@@ -4,7 +4,7 @@ const MediaDetailCarouselModal = ({ show, onHide, mediaCarousel }) => {
   return (
     <Modal show={show} onHide={onHide} centered size="lg">
       <Modal.Header closeButton>
-        <Modal.Title className="fw-bold">🖼️ Detail Media Carousel</Modal.Title>
+        <Modal.Title className="fw-bold">Detail Media Carousel</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         {mediaCarousel ? (

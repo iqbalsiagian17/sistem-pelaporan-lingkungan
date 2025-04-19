@@ -25,7 +25,7 @@ const UserEditModal = ({ show, onHide, user, onSave }) => {
   return (
     <Modal show={show} onHide={onHide} centered>
       <Modal.Header closeButton>
-        <Modal.Title>✏️ Edit Pengguna</Modal.Title>
+        <Modal.Title>Edit Pengguna</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Form.Group className="mb-3">

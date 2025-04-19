@@ -161,7 +161,8 @@ exports.createReport = async (req, res) => {
       });
 
       // Format nomor laporan: BB-MMYYYY-XXXX
-      const report_number = `BB-${month}${year}-${String(existingReports + 1).padStart(4, "0")}`;
+      const report_number = await generateUniqueReportNumber(date);
+
 
       const result = await sequelize.transaction(async (t) => {
         const newReport = await Report.create(
@@ -233,6 +234,25 @@ exports.createReport = async (req, res) => {
     }
   });
 };
+
+async function generateUniqueReportNumber(date) {
+  const reportDate = new Date(date);
+  const month = String(reportDate.getMonth() + 1).padStart(2, "0"); // MM
+  const year = reportDate.getFullYear(); // YYYY
+  let counter = 1;
+  let report_number;
+
+  while (true) {
+    report_number = `BB-${month}${year}-${String(counter).padStart(4, "0")}`;
+    const existingReport = await Report.findOne({ where: { report_number } });
+    if (!existingReport) {
+      break; // Jika tidak ada, berarti unik
+    }
+    counter++; // Kalau sudah ada, coba nomor berikutnya
+  }
+
+  return report_number;
+}
 
 // ✅ UPDATE REPORT (Hanya Bisa Jika Status Masih `pending` dan User yang Sama)
 exports.updateReport = async (req, res) => {

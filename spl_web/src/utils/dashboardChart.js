@@ -20,18 +20,48 @@ export const renderDashboardChart = (overviewData) => {
   if (!totalRevenueChartEl || typeof ApexCharts === "undefined") return;
 
   const chartThisYear = overviewData[`chart${currentYear}`] || new Array(12).fill(0);
-  const chartLastYear = overviewData[`chart${previousYear}`] || new Array(12).fill(0);
+  const chartLastYear = overviewData[`chart${previousYear}`] || null;
+
+  const series = [
+    { name: `${currentYear}`, data: chartThisYear },
+  ];
+
+  if (chartLastYear && chartLastYear.some(value => value !== 0)) {
+    series.push({ name: `${previousYear}`, data: chartLastYear });
+  }
 
   const options = {
-    series: [
-      { name: `${currentYear}`, data: chartThisYear },
-      { name: `${previousYear}`, data: chartLastYear },
-    ],
+    series: series,
     chart: {
       height: 300,
       stacked: true,
       type: "bar",
-      toolbar: { show: false },
+      toolbar: {
+        show: true,
+        tools: {
+          download: true, // ✅ Tampilkan tombol download
+          selection: false,
+          zoom: false,
+          zoomin: false,
+          zoomout: false,
+          pan: false,
+          reset: false,
+        },
+        export: {
+          csv: {
+            filename: `Total_Laporan_${currentYear}`,
+            columnDelimiter: ',',
+            headerCategory: 'Bulan',
+            headerValue: 'Jumlah',
+          },
+          svg: {
+            filename: `Total_Laporan_${currentYear}`,
+          },
+          png: {
+            filename: `Total_Laporan_${currentYear}`,
+          }
+        }
+      },
     },
     plotOptions: {
       bar: {
@@ -51,7 +81,7 @@ export const renderDashboardChart = (overviewData) => {
       colors: [cardColor],
     },
     legend: {
-      show: true,
+      show: series.length > 1,
       horizontalAlign: "left",
       position: "top",
       markers: { height: 8, width: 8, radius: 12, offsetX: -3 },
@@ -73,6 +103,9 @@ export const renderDashboardChart = (overviewData) => {
     yaxis: {
       labels: {
         style: { fontSize: "13px", colors: axisColor },
+        formatter: function (val) {
+          return Math.round(val); 
+        },    
       },
     },
     responsive: [],

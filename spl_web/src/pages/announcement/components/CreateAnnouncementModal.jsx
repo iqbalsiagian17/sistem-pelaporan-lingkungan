@@ -10,7 +10,7 @@ const AnnouncementCreateModal = ({ show, onHide, onCreate }) => {
 
   const handleSubmit = () => {
     if (!title.trim() || !description.trim()) {
-      alert("❌ Judul dan deskripsi wajib diisi.");
+      alert("Judul dan deskripsi wajib diisi.");
       return;
     }
 
@@ -31,7 +31,7 @@ const AnnouncementCreateModal = ({ show, onHide, onCreate }) => {
   return (
     <Modal show={show} onHide={onHide} centered size="lg">
       <Modal.Header closeButton>
-        <Modal.Title className="fw-bold">📢 Tambah Pengumuman</Modal.Title>
+        <Modal.Title className="fw-bold">Tambah Pengumuman</Modal.Title>
       </Modal.Header>
 
       <Modal.Body>

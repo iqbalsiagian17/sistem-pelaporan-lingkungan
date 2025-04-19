@@ -19,7 +19,7 @@ const MediaCarouselEditModal = ({ show, onHide, mediaCarousel, onSave }) => {
     e.preventDefault();
 
     if (!title.trim() || !description.trim()) {
-      alert("❌ Judul dan deskripsi wajib diisi.");
+      alert("Judul dan deskripsi wajib diisi.");
       return;
     }
 
@@ -34,7 +34,7 @@ const MediaCarouselEditModal = ({ show, onHide, mediaCarousel, onSave }) => {
   return (
     <Modal show={show} onHide={onHide} size="lg" centered>
       <Modal.Header closeButton>
-        <Modal.Title className="fw-bold">✏️ Edit Media Carousel</Modal.Title>
+        <Modal.Title className="fw-bold">Edit Media Carousel</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Form onSubmit={handleSubmit}>

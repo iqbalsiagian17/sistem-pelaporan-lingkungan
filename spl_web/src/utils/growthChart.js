@@ -5,7 +5,7 @@ export const renderGrowthChart = (value = 0) => {
     // Ambil config dari window.config (seperti dashboardChart.js)
     const config = window.config || {
       colors: {
-        primary: "#696cff",
+        primary: "#66bb6a",
         info: "#03c3ec",
         cardColor: "#fff",
         axisColor: "#ddd",

@@ -48,40 +48,46 @@ class RecentReportsSection extends ConsumerWidget {
             if (filtered.isEmpty) {
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-                child: Column(
-                  children: [
-                    const Text(
-                      "Belum Ada Aduan",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      "Yuk jadi yang pertama menyampaikan aduan!\nKami siap mendengarkan dan menindaklanjuti.",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 14, color: Colors.grey),
-                    ),
-                    const SizedBox(height: 16),
-                    ElevatedButton.icon(
-                      onPressed: () => context.go('/create-report'),
-                      icon: const Icon(Icons.add),
-                      label: const Text("Buat Aduan"),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFF66BB6A),
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                child: Center( // Membuat konten berada di tengah
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center, // Vertikal tengah
+                    crossAxisAlignment: CrossAxisAlignment.center, // Horizontal tengah
+                    mainAxisSize: MainAxisSize.min, // Supaya column tidak mengisi seluruh tinggi
+                    children: [
+                      const Text(
+                        "Belum Ada Aduan",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
                         ),
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 8),
+                      const Text(
+                        "Yuk jadi yang pertama menyampaikan aduan!\nKami siap mendengarkan dan menindaklanjuti.",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 14, color: Colors.grey),
+                      ),
+                      const SizedBox(height: 16),
+                      ElevatedButton.icon(
+                        onPressed: () => context.go('/create-report'),
+                        icon: const Icon(Icons.add),
+                        label: const Text("Buat Aduan"),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color(0xFF66BB6A),
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               );
             }
+
 
             return ListView.builder(
               itemCount: filtered.length,

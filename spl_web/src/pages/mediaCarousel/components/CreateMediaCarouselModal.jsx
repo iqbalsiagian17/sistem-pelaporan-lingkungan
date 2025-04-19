@@ -30,7 +30,7 @@ const MediaCarouselCreateModal = ({ show, onHide, onCreate }) => {
   return (
     <Modal show={show} onHide={onHide} size="lg" centered>
       <Modal.Header closeButton>
-        <Modal.Title className="fw-bold">🖼️ Tambah Carousel</Modal.Title>
+        <Modal.Title className="fw-bold"> Tambah Carousel</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Form>

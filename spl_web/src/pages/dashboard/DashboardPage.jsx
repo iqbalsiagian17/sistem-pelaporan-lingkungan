@@ -108,16 +108,16 @@ export const DashboardPage = () => {
                 </div>
                 <div className="col-lg-4 col-md-4 order-1">
                     <div className="row">
+                        {/* Card Laporan Selesai */}
                         <div className="col-lg-6 col-md-12 col-6 mb-4">
                             <div className="card">
                                 <div className="card-body">
                                     <div className="card-title d-flex align-items-start justify-content-between">
                                         <div className="avatar flex-shrink-0">
-                                            <img aria-label='dsahboard icon image'
-                                                src="/assets/img/icons/unicons/chart-success.png"
-                                                alt="chart success"
-                                                className="rounded"
-                                            />
+                                            <div className="bg-success rounded p-2">
+                                                <i className="bx bx-check-circle fs-3 text-white"></i> 
+                                                {/* ✅ Icon centang laporan selesai */}
+                                            </div>
                                         </div>
                                     </div>
                                     <span className="fw-medium d-block mb-1">Laporan Selesai</span>
@@ -128,33 +128,35 @@ export const DashboardPage = () => {
                                 </div>
                             </div>
                         </div>
+
+                        {/* Card Laporan Belum Selesai */}
                         <div className="col-lg-6 col-md-12 col-6 mb-4">
                             <div className="card">
                                 <div className="card-body">
                                     <div className="card-title d-flex align-items-start justify-content-between">
                                         <div className="avatar flex-shrink-0">
-                                            <img aria-label='dsahboard icon image'
-                                                src="/assets/img/icons/unicons/wallet-info.png"
-                                                alt="Credit Card"
-                                                className="rounded"
-                                            />
+                                            <div className="bg-warning rounded p-2">
+                                                <i className="bx bx-time fs-3 text-white"></i> 
+                                                {/* ✅ Icon jam laporan belum selesai */}
+                                            </div>
                                         </div>
                                     </div>
                                     <span>Laporan Belum Selesai</span>
                                     <h3 className="card-title text-nowrap mb-1">{inProgressReports}</h3>
-                                    <small className="text-success fw-medium">
-                                        <i className="bx bx-up-arrow-alt"></i> Dalam antrian
+                                    <small className="text-warning fw-medium">
+                                        <i className="bx bx-time"></i> Dalam antrian
                                     </small>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+
                 <div className="col-12 col-lg-8 order-2 order-md-3 order-lg-2 mb-4">
                     <div className="card">
                         <div className="row row-bordered g-0">
                             <div className="col-md-8">
-                                <h5 className="card-header m-0 me-2 pb-3">Total Laporan</h5>
+                                <h5 className="card-header m-0 me-2 pb-3">Total Laporan ({new Date().getFullYear()})</h5>
                                 <div id="totalRevenueChart" className="px-2"></div>
                             </div>
                             <div className="col-md-4">
@@ -166,10 +168,12 @@ export const DashboardPage = () => {
                                 </div>
 
                                 <div className="d-flex px-xxl-4 px-lg-2 p-4 gap-xxl-3 gap-lg-1 gap-3 justify-content-between">
+                                    {/* Laporan Belum Selesai */}
                                     <div className="d-flex">
                                         <div className="me-2">
-                                            <span className="badge bg-label-primary p-2">
-                                                <i className="bx bx-dollar text-primary"></i>
+                                            <span className="badge bg-label-warning p-2">
+                                                <i className="bx bx-time text-warning"></i> 
+                                                {/* ✅ Icon waktu / proses */}
                                             </span>
                                         </div>
                                         <div className="d-flex flex-column">
@@ -177,10 +181,13 @@ export const DashboardPage = () => {
                                             <h6 className="mb-0">{inProgressReports}</h6>
                                         </div>
                                     </div>
+
+                                    {/* Laporan Selesai */}
                                     <div className="d-flex">
                                         <div className="me-2">
-                                            <span className="badge bg-label-info p-2">
-                                                <i className="bx bx-wallet text-info"></i>
+                                            <span className="badge bg-label-success p-2">
+                                                <i className="bx bx-check-circle text-success"></i> 
+                                                {/* ✅ Icon centang / selesai */}
                                             </span>
                                         </div>
                                         <div className="d-flex flex-column">
@@ -200,31 +207,28 @@ export const DashboardPage = () => {
                                 <div className="card-body">
                                     <div className="card-title d-flex align-items-start justify-content-between">
                                         <div className="avatar flex-shrink-0">
-                                            <img aria-label='dsahboard icon image'
-                                                src="/assets/img/icons/unicons/paypal.png"
-                                                alt="Credit Card"
-                                                className="rounded"
-                                            />
+                                            <div className="bg-danger rounded p-2">
+                                                <i className="bx bx-error-circle fs-3 text-white"></i> 
+                                            </div>
                                         </div>
                                     </div>
                                     <span className="d-block mb-1">Laporan Tidak Valid</span>
                                     <h3 className="card-title text-nowrap mb-2">{rejectedReports}</h3>
                                     <small className="text-danger fw-medium">
-                                        <i className="bx bx-down-arrow-alt"></i>Butuh Tindakan Segera
+                                        <i className="bx bx-down-arrow-alt"></i> Butuh Tindakan Segera
                                     </small>
                                 </div>
                             </div>
                         </div>
+
                         <div className="col-6 mb-4">
                             <div className="card">
                                 <div className="card-body">
                                     <div className="card-title d-flex align-items-start justify-content-between">
                                         <div className="avatar flex-shrink-0">
-                                            <img aria-label='dsahboard icon image'
-                                                src="/assets/img/icons/unicons/cc-primary.png"
-                                                alt="Credit Card"
-                                                className="rounded"
-                                            />
+                                            <div className="bg-primary rounded p-2">
+                                                <i className="bx bx-file fs-3 text-white"></i> 
+                                            </div>
                                         </div>
                                     </div>
                                     <span className="fw-medium d-block mb-1">Laporan Baru</span>
@@ -235,7 +239,6 @@ export const DashboardPage = () => {
                                 </div>
                             </div>
                         </div>
-
                         <div className="col-12 mb-4">
                             <div className="card">
                                 <div className="card-body">
@@ -267,9 +270,14 @@ export const DashboardPage = () => {
                 <div className="col-md-6 col-12 mb-4">
                     <div className="card">
                     <div className="card-header pb-2">
-                        <h5 className="mb-1">Laporan Terbaru</h5>
+                        <h5 className="mb-1">
+                            <Link to="/reports" className="text-dark text-decoration-none">
+                                Laporan Terbaru
+                            </Link>
+                        </h5>
                         <small className="text-muted">5 laporan terbaru yang baru masuk</small>
                     </div>
+
                     <div className="table-responsive text-nowrap">
                         <table className="table table-hover">
                         <thead className="table-light">
@@ -305,7 +313,11 @@ export const DashboardPage = () => {
                 <div className="col-md-6 col-12 mb-4">
                     <div className="card">
                     <div className="card-header pb-2">
-                        <h5 className="mb-1">Pengguna Terbaru</h5>
+                        <h5 className="mb-1">
+                        <Link to="/users" className="text-dark text-decoration-none">
+                                Laporan Terbaru
+                            </Link>
+                        </h5>
                         <small className="text-muted">5 akun pengguna terbaru</small>
                     </div>
                     <div className="table-responsive text-nowrap">

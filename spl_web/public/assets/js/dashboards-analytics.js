@@ -4,8 +4,8 @@ import ApexCharts from "apexcharts";
 export const renderDashboardChart = (chart2024 = [], chart2023 = []) => {
   const config = window.config || {
     colors: {
-      primary: "#696cff",
-      info: "#03c3ec",
+      primary: "#66BB6A",
+      info: "#81C784",
       cardColor: "#fff",
       axisColor: "#ddd",
       borderColor: "#eceef1",
