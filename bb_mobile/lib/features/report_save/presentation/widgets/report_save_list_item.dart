@@ -1,4 +1,5 @@
 import 'package:bb_mobile/features/report_save/domain/entities/report_save_entity.dart';
+import 'package:bb_mobile/features/report_save/domain/mappers/report_save_mapper.dart';
 import 'package:bb_mobile/features/report_save/presentation/widgets/report_save_delete_modal.dart';
 import 'package:bb_mobile/core/utils/status_utils.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -20,7 +21,8 @@ class ReportSaveListItem extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return InkWell(
       onTap: () {
-        context.push('/report-detail', extra: {"type": "saved", "data": report});
+        final reportModel = convertSaveEntityToReportModel(report);
+        context.push('/detail-report', extra: reportModel);
       },
       borderRadius: BorderRadius.circular(12),
       splashColor: Color(0xFF66BB6A).withOpacity(0.2),
