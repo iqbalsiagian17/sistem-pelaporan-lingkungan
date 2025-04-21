@@ -3,6 +3,7 @@ import { Dropdown, Table, Badge, Card, Form, Row, Col, InputGroup, Button } from
 import statusData from "../../../data/statusData.json";
 import { exportReportsToExcel } from "../../../utils/exportReportsToExcel";
 import CustomPagination from "../../../components/common/CustomPagination";
+import ExportFilterModal from "../components/ExportFilterModal"; // Pastikan path sesuai!
 
 const LaporanTable = ({ reports, handleOpenDetailModal, handleOpenStatusModal, handleDeleteReport }) => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -10,6 +11,7 @@ const LaporanTable = ({ reports, handleOpenDetailModal, handleOpenStatusModal, h
   const [showStatusDropdown, setShowStatusDropdown] = useState(false);
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
   const [currentPage, setCurrentPage] = useState(1);
+  const [showExportModal, setShowExportModal] = useState(false);
   const reportsPerPage = 10;
 
   const dropdownRef = useRef(null);
@@ -27,7 +29,6 @@ const LaporanTable = ({ reports, handleOpenDetailModal, handleOpenStatusModal, h
       return matchSearch && matchStatus;
     });
 
-  // Klik di luar dropdown untuk close
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -40,7 +41,6 @@ const LaporanTable = ({ reports, handleOpenDetailModal, handleOpenStatusModal, h
     };
   }, []);
 
-  // Set posisi dropdown
   const handleDropdownToggle = () => {
     if (statusHeaderRef.current) {
       const rect = statusHeaderRef.current.getBoundingClientRect();
@@ -49,7 +49,7 @@ const LaporanTable = ({ reports, handleOpenDetailModal, handleOpenStatusModal, h
         left: rect.left + window.scrollX,
       });
     }
-    setShowStatusDropdown((prev) => !prev);
+    setShowStatusDropdown(prev => !prev);
   };
 
   const indexOfLastReport = currentPage * reportsPerPage;
@@ -59,56 +59,76 @@ const LaporanTable = ({ reports, handleOpenDetailModal, handleOpenStatusModal, h
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   const handleExportExcel = () => {
-    exportReportsToExcel(filteredReports);
+    setShowExportModal(true);
+  };
+
+  const handleFilteredExport = (filterOptions) => {
+    const { status, dateFrom, dateTo, location } = filterOptions;
+  
+    let filtered = [...filteredReports];
+  
+    if (status) {
+      filtered = filtered.filter(r => r.status === status);
+    }
+    if (dateFrom) {
+      filtered = filtered.filter(r => new Date(r.createdAt) >= new Date(dateFrom));
+    }
+    if (dateTo) {
+      filtered = filtered.filter(r => new Date(r.createdAt) <= new Date(dateTo));
+    }
+    if (location === "with_location") {
+      filtered = filtered.filter(r => r.latitude && r.longitude);
+    }
+    if (location === "without_location") {
+      filtered = filtered.filter(r => !r.latitude && !r.longitude);
+    }
+  
+    exportReportsToExcel(filtered);
   };
 
   return (
     <Card className="shadow-sm border-0">
-        <Card.Header className="bg-light">
-            <Row className="align-items-center">
-                <Col xs={12} md={6} className="mb-2 mb-md-0 text-center text-md-start">
-                <h5 className="mb-0 text-primary fw-bold">
-                    Daftar Laporan
-                </h5>
-                </Col>
+      <Card.Header className="bg-light">
+        <Row className="align-items-center">
+          <Col xs={12} md={6} className="mb-2 mb-md-0 text-center text-md-start">
+            <h5 className="mb-0 text-primary fw-bold">Daftar Laporan</h5>
+          </Col>
 
-                {/* 🔍 Search + ❌ + 📄 Export */}
-                <Col xs={12} md={6} className="d-flex justify-content-md-end justify-content-center align-items-center">
-                <div className="d-flex gap-2" style={{ maxWidth: "400px", width: "100%" }}>
-                    <InputGroup>
-                    <Form.Control
-                        type="text"
-                        placeholder="Cari Nomor Laporan..."
-                        value={searchQuery}
-                        className="border-0 shadow-sm"
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                    />
-                    <Button
-                        variant="outline-secondary"
-                        className="border-0 shadow-sm"
-                        onClick={() => setSearchQuery("")}
-                        title="Hapus Pencarian"
-                    >
-                        <i className="bx bx-x" style={{ fontSize: "18px" }}></i>
-                    </Button>
-                    </InputGroup>
+          <Col xs={12} md={6} className="d-flex justify-content-md-end justify-content-center align-items-center">
+            <div className="d-flex gap-2" style={{ maxWidth: "400px", width: "100%" }}>
+              <InputGroup>
+                <Form.Control
+                  type="text"
+                  placeholder="Cari Nomor Laporan..."
+                  value={searchQuery}
+                  className="border-0 shadow-sm"
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                <Button
+                  variant="outline-secondary"
+                  className="border-0 shadow-sm"
+                  onClick={() => setSearchQuery("")}
+                  title="Hapus Pencarian"
+                >
+                  <i className="bx bx-x" style={{ fontSize: "18px" }}></i>
+                </Button>
+              </InputGroup>
 
-                    <Button
-                    variant="success"
-                    className="border-0 shadow-sm d-flex align-items-center justify-content-center"
-                    style={{ width: "48px", height: "48px" }}
-                    onClick={handleExportExcel}
-                    title="Export Excel"
-                    >
-                    <i className="bx bx-spreadsheet" style={{ fontSize: "18px" }}></i>
-                    </Button>
-                </div>
-                </Col>
-            </Row>
-        </Card.Header>
+              <Button
+                variant="success"
+                className="border-0 shadow-sm d-flex align-items-center justify-content-center"
+                style={{ width: "48px", height: "48px" }}
+                onClick={handleExportExcel}
+                title="Export Excel"
+              >
+                <i className="bx bx-spreadsheet" style={{ fontSize: "18px" }}></i>
+              </Button>
+            </div>
+          </Col>
+        </Row>
+      </Card.Header>
 
-
-      {/* 🔹 Table */}
+      {/* Table */}
       <div className="table-responsive">
         <Table hover className="align-middle">
           <thead className="bg-light">
@@ -160,22 +180,13 @@ const LaporanTable = ({ reports, handleOpenDetailModal, handleOpenStatusModal, h
                         <i className="bx bx-dots-vertical-rounded" style={{ fontSize: "18px" }}></i>
                       </button>
                       <div className="dropdown-menu dropdown-menu-end">
-                        <button
-                          className="dropdown-item"
-                          onClick={() => handleOpenDetailModal(report.id)}
-                        >
+                        <button className="dropdown-item" onClick={() => handleOpenDetailModal(report.id)}>
                           <i className="bx bx-show me-1"></i> Lihat Laporan
                         </button>
-                        <button
-                          className="dropdown-item"
-                          onClick={() => handleOpenStatusModal(report)}
-                        >
+                        <button className="dropdown-item" onClick={() => handleOpenStatusModal(report)}>
                           <i className="bx bx-task me-1"></i> Tindak Lanjuti
                         </button>
-                        <button
-                          className="dropdown-item text-danger"
-                          onClick={() => handleDeleteReport(report.id)}
-                        >
+                        <button className="dropdown-item text-danger" onClick={() => handleDeleteReport(report.id)}>
                           <i className="bx bx-trash me-1"></i> Hapus
                         </button>
                       </div>
@@ -237,6 +248,13 @@ const LaporanTable = ({ reports, handleOpenDetailModal, handleOpenStatusModal, h
           </Dropdown.Menu>
         </div>
       )}
+
+      {/* Modal Export Filter */}
+      <ExportFilterModal
+        show={showExportModal}
+        onClose={() => setShowExportModal(false)}
+        onExport={handleFilteredExport}
+      />
     </Card>
   );
 };

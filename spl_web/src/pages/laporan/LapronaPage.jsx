@@ -57,13 +57,15 @@ const LaporanPage = () => {
     }
 
     const allowed = {
-      pending: ["verified", "rejected"],
-      verified: ["in_progress"],
-      in_progress: ["completed"],
-      completed: ["closed"],
-      rejected: [],
-      closed: [],
+      pending: ["verified", "rejected"], // Pending: bisa diverifikasi atau ditolak
+      verified: ["in_progress", "canceled"], // Verified: jalan atau dibatalkan
+      in_progress: ["completed", "canceled"], // In progress: selesai atau dibatalkan
+      completed: ["closed", "canceled"], // Completed: ditutup atau dibatalkan
+      rejected: [], // Ditolak: tidak bisa ubah
+      closed: [], // Ditutup: tidak bisa ubah
+      canceled: [], // Dibatalkan: tidak bisa ubah
     };
+    
 
     if (!allowed[selectedReport.status]?.includes(newStatus)) {
       showToast(`Tidak bisa ubah dari '${selectedReport.status}' ke '${newStatus}'`);

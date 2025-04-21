@@ -1,27 +1,29 @@
 {
-    "allowedTransitions": {
-      "pending": ["verified", "rejected"],
-      "verified": ["in_progress"],
-      "in_progress": ["completed"],
-      "completed": ["closed"],
-      "rejected": [],
-      "closed": []
-    },
-    "statusTranslations": {
-      "pending": "Menunggu Verifikasi",
-      "verified": "Sudah Diverifikasi",
-      "in_progress": "Sedang Diproses",
-      "completed": "Selesai",
-      "closed": "Ditutup",
-      "rejected": "Ditolak"
-    },
-    "statusMappings": {
-        "pending": { "label": "Menunggu Verifikasi", "color": "warning" },
-        "verified": { "label": "Sudah Diverifikasi", "color": "info" },
-        "in_progress": { "label": "Sedang Diproses", "color": "primary" },
-        "completed": { "label": "Selesai", "color": "success" },
-        "closed": { "label": "Ditutup", "color": "secondary" },
-        "rejected": { "label": "Ditolak", "color": "danger" }
-    }
+  "allowedTransitions": {
+    "pending": ["verified", "rejected"],
+    "verified": ["in_progress", "canceled"],
+    "in_progress": ["completed", "canceled"],
+    "completed": ["closed", "canceled"],
+    "rejected": [],
+    "canceled": [],
+    "closed": []
+  },
+  "statusTranslations": {
+    "pending": "Menunggu Verifikasi",
+    "verified": "Sudah Diverifikasi",
+    "in_progress": "Sedang Diproses",
+    "completed": "Selesai",
+    "closed": "Ditutup",
+    "rejected": "Ditolak",
+    "canceled": "Dibatalkan"
+  },
+  "statusMappings": {
+    "pending": { "label": "Menunggu Verifikasi", "color": "warning" },
+    "verified": { "label": "Sudah Diverifikasi", "color": "info" },
+    "in_progress": { "label": "Sedang Diproses", "color": "primary" },
+    "completed": { "label": "Selesai", "color": "success" },
+    "closed": { "label": "Ditutup", "color": "secondary" },
+    "rejected": { "label": "Ditolak", "color": "danger" },
+    "canceled": { "label": "Dibatalkan", "color": "dark" }
+  }
 }
-  

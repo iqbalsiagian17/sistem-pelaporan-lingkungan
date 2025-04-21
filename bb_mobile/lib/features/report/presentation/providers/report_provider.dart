@@ -89,7 +89,7 @@ class ReportNotifier extends StateNotifier<AsyncValue<List<ReportEntity>>> {
 
     if (userId != null) {
       final hasPending = currentReports.any(
-        (r) => r.userId == userId && r.status != 'closed' && r.status != 'rejected',
+        (r) => r.userId == userId && r.status != 'closed' && r.status != 'rejected' && r.status != 'canceled',
       );
       if (hasPending) {
         throw Exception("Anda masih memiliki laporan yang belum selesai.");
