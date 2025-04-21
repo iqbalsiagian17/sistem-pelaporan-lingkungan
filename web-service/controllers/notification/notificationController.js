@@ -63,37 +63,6 @@ const NotificationController = {
 
   registerFcmToken,
   markAllAsRead,
-  // Buat notifikasi (oleh sistem)
-  async create(req, res) {
-    try {
-      const {
-        user_id = null,
-        title,
-        message,
-        type = "general",
-        sent_by = "system",
-        role_target = "user",
-      } = req.body;
-
-      if (!title || !message) {
-        return res.status(400).json({ error: "Judul dan pesan wajib diisi." });
-      }
-
-      const notification = await Notification.create({
-        user_id,
-        title,
-        message,
-        type,
-        sent_by,
-        role_target,
-      });
-
-      return res.status(201).json({ notification });
-    } catch (error) {
-      console.error("Error create notification:", error);
-      return res.status(500).json({ error: "Gagal membuat notifikasi." });
-    }
-  },
 
   // Ambil semua notifikasi (admin)
   async getAll(req, res) {
@@ -161,56 +130,6 @@ const NotificationController = {
     }
   },
 
-  // ✅ Notifikasi saat user mengirim laporan
-  async notifyReportSubmitted(report) {
-    try {
-      await Notification.create({
-        user_id: null,
-        title: "Laporan Baru Masuk",
-        message: `Laporan baru dari ${report.user?.username || 'pengguna'} dengan judul \"${report.title}\"`,
-        type: "report",
-        sent_by: "system",
-        role_target: "admin",
-      });
-    } catch (err) {
-      console.error("notifyReportSubmitted error:", err);
-    }
-  },
-
-  // ✅ Notifikasi saat status laporan diubah oleh admin
-  async notifyStatusChange(history) {
-    try {
-      const report = await Report.findByPk(history.report_id);
-      if (!report) return;
-
-      await Notification.create({
-        user_id: report.user_id,
-        title: "Status Laporan Diperbarui",
-        message: `Status laporan Anda (\"${report.title}\") telah diubah dari ${history.previous_status} menjadi ${history.new_status}.`,
-        type: "report_status",
-        sent_by: history.changed_by,
-        role_target: "user",
-      });
-    } catch (err) {
-      console.error("notifyStatusChange error:", err);
-    }
-  },
-
-  // ✅ Notifikasi saat user mendaftar
-  async notifyUserRegistered(user) {
-    try {
-      await Notification.create({
-        user_id: null,
-        title: "Pengguna Baru Terdaftar",
-        message: `Akun baru didaftarkan oleh ${user.username} (${user.email})`,
-        type: "user",
-        sent_by: "system",
-        role_target: "admin",
-      });
-    } catch (err) {
-      console.error("notifyUserRegistered error:", err);
-    }
-  }
 };
 
 

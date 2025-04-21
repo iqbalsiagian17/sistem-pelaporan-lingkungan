@@ -3,9 +3,6 @@ const router = express.Router();
 const NotificationController = require("../../controllers/notification/NotificationController");
 const authMiddleware = require("../../middleware/authMiddleware");
 
-// ✅ Buat notifikasi manual (opsional, untuk admin)
-router.post("/", NotificationController.create);
-
 // ✅ Ambil semua notifikasi (untuk admin)
 router.get("/", NotificationController.getAll);
 
@@ -17,18 +14,8 @@ router.put("/read/:id", NotificationController.markAsRead);
 
 router.put("/read-all", authMiddleware, NotificationController.markAllAsRead); 
 
-
 // ✅ Hapus notifikasi
 router.delete("/:id", NotificationController.delete);
-
-// ✅ [OTOMATIS] Notifikasi: laporan baru dari user
-router.post("/trigger/report-submitted", NotificationController.notifyReportSubmitted);
-
-// ✅ [OTOMATIS] Notifikasi: perubahan status laporan
-router.post("/trigger/status-changed", NotificationController.notifyStatusChange);
-
-// ✅ [OTOMATIS] Notifikasi: user baru mendaftar
-router.post("/trigger/user-registered", NotificationController.notifyUserRegistered);
 
 router.post("/user/fcm-token", NotificationController.registerFcmToken);
 

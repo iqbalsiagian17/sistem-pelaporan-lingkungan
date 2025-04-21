@@ -18,6 +18,9 @@ class ReportStatusFilterBottomSheet extends StatelessWidget {
       {'label': 'Diproses', 'value': 'in_progress'},
       {'label': 'Selesai', 'value': 'completed'},
       {'label': 'Ditutup', 'value': 'closed'},
+      {'label': 'Ditolak', 'value': 'rejected'},
+      {'label': 'Dibatalkan', 'value': 'canceled'},
+      // Tambah status lain pun aman, tetap scrollable
     ];
 
     return Padding(
@@ -30,18 +33,26 @@ class ReportStatusFilterBottomSheet extends StatelessWidget {
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
           ),
           const SizedBox(height: 16),
-          ...statuses.map((status) {
-            final selected = selectedStatus == status['value'];
-            return ListTile(
-              contentPadding: EdgeInsets.zero,
-              title: Text(status['label']!),
-              trailing: selected ? const Icon(Icons.check, color: Colors.green) : null,
-              onTap: () {
-                onStatusSelected(status['value']!);
-                Navigator.pop(context);
-              },
-            );
-          }),
+          Flexible( // ✅ Flexible agar tidak error jika bottom sheet kecil
+            child: SingleChildScrollView(
+              child: Column(
+                children: statuses.map((status) {
+                  final selected = selectedStatus == status['value'];
+                  return ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(status['label']!),
+                    trailing: selected
+                        ? const Icon(Icons.check, color: Colors.green)
+                        : null,
+                    onTap: () {
+                      onStatusSelected(status['value']!);
+                      Navigator.pop(context);
+                    },
+                  );
+                }).toList(),
+              ),
+            ),
+          ),
         ],
       ),
     );
