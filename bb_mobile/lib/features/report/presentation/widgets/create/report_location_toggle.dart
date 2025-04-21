@@ -26,15 +26,24 @@ class _ReportLocationToggleState extends State<ReportLocationToggle> with Widget
   int countdown = 0;
   Timer? _countdownTimer;
   StreamSubscription<ServiceStatus>? _serviceStatusStream;
+  late ValueNotifier<bool> disableAtLocationButton;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    disableAtLocationButton = ValueNotifier(false);
     _checkLocationAvailability();
-    _serviceStatusStream = Geolocator.getServiceStatusStream().listen((_) {
+  _serviceStatusStream = Geolocator.getServiceStatusStream().listen((ServiceStatus status) {
+    if (status == ServiceStatus.enabled) {
+      // Kalau GPS aktif, langsung cek ulang lokasi
+      _checkLocationAvailability(forceEnable: true);
+    } else {
+      // Kalau GPS off
       _checkLocationAvailability();
-    });
+    }
+  });
+
   }
 
   @override
@@ -42,53 +51,66 @@ class _ReportLocationToggleState extends State<ReportLocationToggle> with Widget
     WidgetsBinding.instance.removeObserver(this);
     _countdownTimer?.cancel();
     _serviceStatusStream?.cancel();
+    disableAtLocationButton.dispose();
     super.dispose();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      _startCountdownAndRefresh(); // Mulai ulang countdown saat kembali ke app
+      _startCountdownAndRefresh();
     }
   }
 
-  Future<void> _checkLocationAvailability() async {
-    try {
-      setState(() => isChecking = true);
-      final serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      final permission = await Geolocator.checkPermission();
+  Future<void> _checkLocationAvailability({bool forceEnable = false}) async {
+  try {
+    setState(() => isChecking = true);
+    final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    var permission = await Geolocator.checkPermission();
 
-      if (permission == LocationPermission.denied) {
-        await Geolocator.requestPermission();
-      }
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+    }
 
-      if (!serviceEnabled || permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
-        if (!mounted) return;
-          setState(() {
-            isLocationAvailable = false;
-            isChecking = false;
-          });
-        return;
-      }
-
-      final position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-        timeLimit: const Duration(seconds: 10),
-      );
-
-      setState(() {
-        isLocationAvailable = position != null;
-        isChecking = false;
-        countdown = 0;
-      });
-    } catch (_) {
-    if (!mounted) return;
+    if (!serviceEnabled || permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
+      if (!mounted) return;
       setState(() {
         isLocationAvailable = false;
         isChecking = false;
+        countdown = 0;
       });
+      widget.onChange(false);
+      disableAtLocationButton.value = true;
+      return;
     }
+
+    final position = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+      timeLimit: const Duration(seconds: 10),
+    );
+
+    setState(() {
+      isLocationAvailable = position != null;
+      isChecking = false;
+      countdown = 0;
+    });
+
+    // Kalau berhasil dapat posisi dan "forceEnable" = true, maka reset tombol
+    if (forceEnable && position != null) {
+      widget.onChange(true); // Balik ke "Masih di Lokasi"
+      disableAtLocationButton.value = false; // Enable tombol "Masih di Lokasi"
+    }
+  } catch (_) {
+    if (!mounted) return;
+    setState(() {
+      isLocationAvailable = false;
+      isChecking = false;
+      countdown = 0;
+    });
+    widget.onChange(false);
+    disableAtLocationButton.value = true;
   }
+}
 
   void _startCountdownAndRefresh() {
     if (countdown > 0) return;
@@ -231,7 +253,7 @@ Future<void> _showLocationMap(BuildContext context) async {
 }
 
 
-  @override
+   @override
   Widget build(BuildContext context) {
     final infoColor = isLocationAvailable ? const Color(0xFF2E7D32) : const Color(0xFFF57F17);
     final bgColor = isLocationAvailable ? const Color(0xFFE8F5E9) : const Color(0xFFFFF8E1);
@@ -244,20 +266,24 @@ Future<void> _showLocationMap(BuildContext context) async {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text("Apakah Anda masih di lokasi kejadian?",
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        const Text("Apakah Anda masih di lokasi kejadian?", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
         const SizedBox(height: 10),
         Row(
           children: [
             Expanded(
-              child: ElevatedButton(
-                onPressed: widget.isDisabled ? null : () => widget.onChange(true),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: widget.isAtLocation ? const Color(0xFF66BB6A) : Colors.white,
-                  foregroundColor: widget.isAtLocation ? Colors.white : Colors.black,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-                child: const Text("Masih di Lokasi"),
+              child: ValueListenableBuilder<bool>(
+                valueListenable: disableAtLocationButton,
+                builder: (context, isDisabledManual, child) {
+                  return ElevatedButton(
+                    onPressed: (widget.isDisabled || isDisabledManual) ? null : () => widget.onChange(true),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: widget.isAtLocation ? const Color(0xFF66BB6A) : Colors.white,
+                      foregroundColor: widget.isAtLocation ? Colors.white : Colors.black,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    child: const Text("Masih di Lokasi"),
+                  );
+                },
               ),
             ),
             const SizedBox(width: 10),
@@ -312,10 +338,7 @@ Future<void> _showLocationMap(BuildContext context) async {
                           ? Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                const SizedBox(
-                                    width: 18,
-                                    height: 18,
-                                    child: CircularProgressIndicator(strokeWidth: 2)),
+                                const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2)),
                                 const SizedBox(width: 10),
                                 Text("Mengecek lokasi... ($countdown detik)"),
                               ],
