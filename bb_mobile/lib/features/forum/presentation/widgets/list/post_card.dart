@@ -57,7 +57,12 @@ class PostCard extends ConsumerWidget {
                     Text(post.content, style: const TextStyle(fontSize: 16)),
                     const SizedBox(height: 12),
                     if (post.images.isNotEmpty)
-                      PostImageGrid(images: post.images.map((img) => img.imageUrl).toList()),
+                      PostImageGrid(
+                        images: post.images
+                            .map((img) => img.imageUrl)
+                            .where((url) => url.isNotEmpty)
+                            .toList(),
+                      ),
                     const SizedBox(height: 10),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,

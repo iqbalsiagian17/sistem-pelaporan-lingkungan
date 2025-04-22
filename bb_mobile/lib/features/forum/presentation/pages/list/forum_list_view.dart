@@ -30,17 +30,15 @@ class _ForumListViewState extends ConsumerState<ForumListView> with SingleTicker
     super.didChangeDependencies();
     final query = GoRouterState.of(context).uri.queryParameters;
     if (!_hasOpenedModal && query['openModal'] == 'create') {
-      _hasOpenedModal = true; // Supaya tidak buka berkali-kali saat rebuild
+      _hasOpenedModal = true;
       Future.microtask(() => _showCreatePostModal());
     }
   }
 
-  /// 🔄 Refresh semua postingan
   Future<void> _refreshForumPosts() async {
     await ref.read(forumProvider.notifier).fetchAllPosts();
   }
 
-  /// ➕ Tampilkan modal tambah postingan
   Future<void> _showCreatePostModal() async {
     final result = await showModalBottomSheet<bool>(
       context: context,
@@ -60,7 +58,6 @@ class _ForumListViewState extends ConsumerState<ForumListView> with SingleTicker
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(110),
         child: Column(
@@ -70,12 +67,16 @@ class _ForumListViewState extends ConsumerState<ForumListView> with SingleTicker
           ],
         ),
       ),
-
-      body: ForumTabView(
-        tabController: _tabController,
-        onRefresh: _refreshForumPosts,
+      body: Column(
+        children: [
+          Expanded(
+            child: ForumTabView(
+              tabController: _tabController,
+              onRefresh: _refreshForumPosts,
+            ),
+          ),
+        ],
       ),
-
       floatingActionButton: FloatingActionButton(
         onPressed: _showCreatePostModal,
         backgroundColor: const Color(0xFF66BB6A),

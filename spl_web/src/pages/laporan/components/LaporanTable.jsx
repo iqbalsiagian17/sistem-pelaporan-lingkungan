@@ -1,25 +1,24 @@
 import { useState, useEffect, useRef } from "react";
-import { Dropdown, Table, Badge, Card, Form, Row, Col, InputGroup, Button } from "react-bootstrap";
+import { Dropdown, Table, Badge, Card, Form, Row, Col, InputGroup, Button, Spinner } from "react-bootstrap";
 import statusData from "../../../data/statusData.json";
 import { exportReportsToExcel } from "../../../utils/exportReportsToExcel";
 import CustomPagination from "../../../components/common/CustomPagination";
-import ExportFilterModal from "../components/ExportFilterModal"; // Pastikan path sesuai!
+import ExportFilterModal from "../components/ExportFilterModal";
 
-const LaporanTable = ({ reports, handleOpenDetailModal, handleOpenStatusModal, handleDeleteReport }) => {
+const LaporanTable = ({ reports, handleOpenDetailModal, handleOpenStatusModal, handleDeleteReport, isLoading }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("");
   const [showStatusDropdown, setShowStatusDropdown] = useState(false);
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
   const [currentPage, setCurrentPage] = useState(1);
   const [showExportModal, setShowExportModal] = useState(false);
-  const reportsPerPage = 10;
 
+  const reportsPerPage = 10;
   const dropdownRef = useRef(null);
   const statusHeaderRef = useRef(null);
 
   const statusMappings = statusData.statusMappings;
 
-  // Filter laporan berdasarkan search dan status
   const filteredReports = reports
     .slice()
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
@@ -56,33 +55,22 @@ const LaporanTable = ({ reports, handleOpenDetailModal, handleOpenStatusModal, h
   const indexOfFirstReport = indexOfLastReport - reportsPerPage;
   const currentReports = filteredReports.slice(indexOfFirstReport, indexOfLastReport);
   const totalPages = Math.ceil(filteredReports.length / reportsPerPage);
+
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-  const handleExportExcel = () => {
-    setShowExportModal(true);
-  };
+  const handleExportExcel = () => setShowExportModal(true);
 
   const handleFilteredExport = (filterOptions) => {
     const { status, dateFrom, dateTo, location } = filterOptions;
-  
+
     let filtered = [...filteredReports];
-  
-    if (status) {
-      filtered = filtered.filter(r => r.status === status);
-    }
-    if (dateFrom) {
-      filtered = filtered.filter(r => new Date(r.createdAt) >= new Date(dateFrom));
-    }
-    if (dateTo) {
-      filtered = filtered.filter(r => new Date(r.createdAt) <= new Date(dateTo));
-    }
-    if (location === "with_location") {
-      filtered = filtered.filter(r => r.latitude && r.longitude);
-    }
-    if (location === "without_location") {
-      filtered = filtered.filter(r => !r.latitude && !r.longitude);
-    }
-  
+
+    if (status) filtered = filtered.filter(r => r.status === status);
+    if (dateFrom) filtered = filtered.filter(r => new Date(r.createdAt) >= new Date(dateFrom));
+    if (dateTo) filtered = filtered.filter(r => new Date(r.createdAt) <= new Date(dateTo));
+    if (location === "with_location") filtered = filtered.filter(r => r.latitude && r.longitude);
+    if (location === "without_location") filtered = filtered.filter(r => !r.latitude && !r.longitude);
+
     exportReportsToExcel(filtered);
   };
 
@@ -93,7 +81,6 @@ const LaporanTable = ({ reports, handleOpenDetailModal, handleOpenStatusModal, h
           <Col xs={12} md={6} className="mb-2 mb-md-0 text-center text-md-start">
             <h5 className="mb-0 text-primary fw-bold">Daftar Laporan</h5>
           </Col>
-
           <Col xs={12} md={6} className="d-flex justify-content-md-end justify-content-center align-items-center">
             <div className="d-flex gap-2" style={{ maxWidth: "400px", width: "100%" }}>
               <InputGroup>
@@ -128,94 +115,93 @@ const LaporanTable = ({ reports, handleOpenDetailModal, handleOpenStatusModal, h
         </Row>
       </Card.Header>
 
-      {/* Table */}
+      {/* Table Section */}
       <div className="table-responsive">
-        <Table hover className="align-middle">
-          <thead className="bg-light">
-            <tr>
-              <th>No</th>
-              <th>Pelapor</th>
-              <th>Judul</th>
-              <th>Nomor</th>
-              <th>Diajukan</th>
-              <th ref={statusHeaderRef} className="position-relative">
-                <Button
-                  variant="light"
-                  size="sm"
-                  className="border-0"
-                  onClick={handleDropdownToggle}
-                >
-                  Status <i className="bx bx-filter-alt"></i>
-                </Button>
-              </th>
-              <th>Aksi</th>
-            </tr>
-          </thead>
-          <tbody>
-            {currentReports.length > 0 ? (
-              currentReports.map((report, index) => (
-                <tr key={report.id}>
-                  <td>{indexOfFirstReport + index + 1}</td>
-                  <td>{report.user?.username || "-"}</td>
-                  <td><strong>{report.title || "-"}</strong></td>
-                  <td>{report.report_number || "-"}</td>
-                  <td>
-                    {new Date(report.createdAt).toLocaleDateString("id-ID")}{" "}
-                    {Date.now() - new Date(report.createdAt).getTime() < 24 * 60 * 60 * 1000 && (
-                      <span className="badge bg-success ms-1">Baru</span>
-                    )}
-                  </td>
-                  <td>
-                    <Badge bg={statusMappings[report.status]?.color || "secondary"} className="text-uppercase">
-                      {statusMappings[report.status]?.label || "Tidak Diketahui"}
-                    </Badge>
-                  </td>
-                  <td>
-                    <div className="dropdown">
-                      <button
-                        type="button"
-                        className="btn p-0 dropdown-toggle hide-arrow"
-                        data-bs-toggle="dropdown"
-                      >
-                        <i className="bx bx-dots-vertical-rounded" style={{ fontSize: "18px" }}></i>
-                      </button>
-                      <div className="dropdown-menu dropdown-menu-end">
-                        <button className="dropdown-item" onClick={() => handleOpenDetailModal(report.id)}>
-                          <i className="bx bx-show me-1"></i> Lihat Laporan
-                        </button>
-                        <button className="dropdown-item" onClick={() => handleOpenStatusModal(report)}>
-                          <i className="bx bx-task me-1"></i> Tindak Lanjuti
-                        </button>
-                        <button className="dropdown-item text-danger" onClick={() => handleDeleteReport(report.id)}>
-                          <i className="bx bx-trash me-1"></i> Hapus
-                        </button>
-                      </div>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="7" className="text-center text-muted">
-                  Tidak ada laporan yang ditemukan.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </Table>
-
-        {filteredReports.length > reportsPerPage && (
-          <div className="d-flex justify-content-center my-3">
-            <CustomPagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={paginate}
-            />
+        {isLoading ? (
+          <div className="d-flex justify-content-center align-items-center" style={{ minHeight: "300px" }}>
+            <Spinner animation="border" variant="primary" />
           </div>
+        ) : (
+          <>
+            <Table hover className="align-middle">
+              <thead className="bg-light">
+                <tr>
+                  <th>No</th>
+                  <th>Pelapor</th>
+                  <th>Judul</th>
+                  <th>Nomor</th>
+                  <th>Diajukan</th>
+                  <th ref={statusHeaderRef} className="position-relative">
+                    <Button variant="light" size="sm" className="border-0" onClick={handleDropdownToggle}>
+                      Status <i className="bx bx-filter-alt"></i>
+                    </Button>
+                  </th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                {currentReports.length > 0 ? (
+                  currentReports.map((report, index) => (
+                    <tr key={report.id}>
+                      <td>{indexOfFirstReport + index + 1}</td>
+                      <td>{report.user?.username || "-"}</td>
+                      <td><strong>{report.title || "-"}</strong></td>
+                      <td>{report.report_number || "-"}</td>
+                      <td>
+                        {new Date(report.createdAt).toLocaleDateString("id-ID")}{" "}
+                        {Date.now() - new Date(report.createdAt).getTime() < 24 * 60 * 60 * 1000 && (
+                          <span className="badge bg-success ms-1">Baru</span>
+                        )}
+                      </td>
+                      <td>
+                        <Badge bg={statusMappings[report.status]?.color || "secondary"} className="text-uppercase">
+                          {statusMappings[report.status]?.label || "Tidak Diketahui"}
+                        </Badge>
+                      </td>
+                      <td>
+                        <div className="dropdown">
+                          <button type="button" className="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
+                            <i className="bx bx-dots-vertical-rounded" style={{ fontSize: "18px" }}></i>
+                          </button>
+                          <div className="dropdown-menu dropdown-menu-end">
+                            <button className="dropdown-item" onClick={() => handleOpenDetailModal(report.id)}>
+                              <i className="bx bx-show me-1"></i> Lihat Laporan
+                            </button>
+                            <button className="dropdown-item" onClick={() => handleOpenStatusModal(report)}>
+                              <i className="bx bx-task me-1"></i> Tindak Lanjuti
+                            </button>
+                            <button className="dropdown-item text-danger" onClick={() => handleDeleteReport(report.id)}>
+                              <i className="bx bx-trash me-1"></i> Hapus
+                            </button>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="7" className="text-center text-muted">
+                      Tidak ada laporan yang ditemukan.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </Table>
+
+            {filteredReports.length > reportsPerPage && (
+              <div className="d-flex justify-content-center my-3">
+                <CustomPagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={paginate}
+                />
+              </div>
+            )}
+          </>
         )}
       </div>
 
-      {/* 🔥 Dropdown Status */}
+      {/* Dropdown Status */}
       {showStatusDropdown && (
         <div
           ref={dropdownRef}
@@ -249,7 +235,7 @@ const LaporanTable = ({ reports, handleOpenDetailModal, handleOpenStatusModal, h
         </div>
       )}
 
-      {/* Modal Export Filter */}
+      {/* Export Filter Modal */}
       <ExportFilterModal
         show={showExportModal}
         onClose={() => setShowExportModal(false)}

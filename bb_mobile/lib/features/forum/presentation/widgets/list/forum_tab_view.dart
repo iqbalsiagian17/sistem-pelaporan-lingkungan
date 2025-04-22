@@ -34,19 +34,17 @@ class _ForumTabViewState extends ConsumerState<ForumTabView> {
   Widget build(BuildContext context) {
     final state = ref.watch(forumProvider);
 
-    return Expanded(
-      child: TabBarView(
-        controller: widget.tabController,
-        physics: const NeverScrollableScrollPhysics(),
-        children: [
-          state.isLoading
-              ? _buildSkeletonList()
-              : _buildPostList(state.posts),
-          state.isLoading
-              ? _buildSkeletonList()
-              : _buildPostList(_getPopularPosts(state.posts)),
-        ],
-      ),
+    return TabBarView(
+      controller: widget.tabController,
+      physics: const NeverScrollableScrollPhysics(),
+      children: [
+        state.isLoading
+            ? _buildSkeletonList()
+            : _buildPostList(state.posts),
+        state.isLoading
+            ? _buildSkeletonList()
+            : _buildPostList(_getPopularPosts(state.posts)),
+      ],
     );
   }
 
@@ -56,8 +54,6 @@ class _ForumTabViewState extends ConsumerState<ForumTabView> {
     }
     print("📦 Total post ditemukan: ${posts.length}");
 
-
-    // Urutkan pinned post ke atas
     final pinned = posts.where((p) => p.isPinned).toList();
     final notPinned = posts.where((p) => !p.isPinned).toList();
     final sorted = [...pinned, ...notPinned];
