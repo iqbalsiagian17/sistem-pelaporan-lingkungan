@@ -1,25 +1,26 @@
+import 'package:bb_mobile/widgets/network/connection_listener_wrapper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:bb_mobile/injection.dart';
 import 'package:bb_mobile/routes/app_routes.dart';
-import 'package:bb_mobile/core/services/auth/auth_auto_refresh_service.dart'; // ⬅️ Tambahkan
+import 'package:bb_mobile/core/services/auth/auth_auto_refresh_service.dart';
 import 'package:bb_mobile/core/services/auth/global_auth_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await globalAuthService.init(); // <-- wajib agar userId tersedia
+  await globalAuthService.init(); // Inisialisasi userId
+  await initializeDateFormatting('id_ID', null); // Format tanggal lokal
+  await initializeDependencies(); // Inisialisasi dependency injection
 
-
-  // 🌐 Format tanggal lokal
-  await initializeDateFormatting('id_ID', null);
-
-  // 🚀 Init semua dependency
-  await initializeDependencies();
-
-  // 🟢 Jalankan App
-  runApp(const ProviderScope(child: MyApp()));
+  runApp(
+    ProviderScope(
+      child: ConnectionListenerWrapper( // ⬅️ Bungkus dengan koneksi listener
+        child: const MyApp(),
+      ),
+    ),
+  );
 }
 
 class MyApp extends StatefulWidget {

@@ -1,7 +1,11 @@
 import 'package:bb_mobile/features/dashboard/presentation/widgets/media_carousel_banner.dart';
-import 'package:bb_mobile/features/report/presentation/providers/report_provider.dart' show reportProvider;
+import 'package:bb_mobile/features/report/presentation/providers/report_provider.dart'
+    show reportProvider;
+import 'package:bb_mobile/widgets/snackbar/snackbar_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:back_button_interceptor/back_button_interceptor.dart';
+import 'package:flutter/services.dart';
 
 import 'package:bb_mobile/widgets/navbar/top_navbar.dart';
 import 'package:bb_mobile/widgets/navbar/bottom_navbar.dart';
@@ -18,15 +22,43 @@ class DashboardView extends ConsumerStatefulWidget {
 
 class _DashboardViewState extends ConsumerState<DashboardView> {
   int _selectedIndex = 0;
-
-  Future<void> _refreshContent() async {
-    await ref.read(reportProvider.notifier).fetchReports();
-  }
+  DateTime? _lastBackPressed;
 
   @override
   void initState() {
     super.initState();
     Future.microtask(() => ref.read(reportProvider.notifier).fetchReports());
+    BackButtonInterceptor.add(_onBackPressed);
+  }
+
+  @override
+  void dispose() {
+    BackButtonInterceptor.remove(_onBackPressed);
+    super.dispose();
+  }
+
+  bool _onBackPressed(bool stopDefaultButtonEvent, RouteInfo info) {
+    // Jika bisa pop → berarti halaman ini bukan root, jangan intercept
+    if (Navigator.of(context).canPop()) return false;
+
+    // Jika tidak bisa pop, aktifkan fitur "tekan dua kali untuk keluar"
+    final now = DateTime.now();
+    if (_lastBackPressed == null ||
+        now.difference(_lastBackPressed!) > const Duration(seconds: 2)) {
+      _lastBackPressed = now;
+
+      // Gunakan SnackbarHelper milikmu
+      SnackbarHelper.showSnackbar(context, "Ketuk lagi untuk keluar dari Balige Bersih");
+
+      return true;
+    }
+
+    SystemNavigator.pop(); // keluar aplikasi
+    return true;
+  }
+
+  Future<void> _refreshContent() async {
+    await ref.read(reportProvider.notifier).fetchReports();
   }
 
   void _onNavItemTapped(int index) {
@@ -39,7 +71,7 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
-      appBar: const TopBar(), 
+      appBar: const TopBar(),
       body: RefreshIndicator(
         onRefresh: _refreshContent,
         color: const Color(0xFF1976D2),
