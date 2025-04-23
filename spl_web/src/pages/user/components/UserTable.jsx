@@ -9,9 +9,19 @@ import {
   InputGroup,
   Button,
   Badge,
+  Spinner,
 } from "react-bootstrap";
 
-const UserTable = ({ users, onDelete, onBlock, onUnblock, onEdit, onChangePassword, onDetail }) => {
+const UserTable = ({
+  users,
+  isLoading = false,
+  onDelete,
+  onBlock,
+  onUnblock,
+  onEdit,
+  onChangePassword,
+  onDetail,
+}) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const usersPerPage = 10;
@@ -35,14 +45,9 @@ const UserTable = ({ users, onDelete, onBlock, onUnblock, onEdit, onChangePasswo
     <Card className="shadow-sm border-0">
       <Card.Header className="bg-light">
         <Row className="align-items-center">
-          {/* 📋 Judul */}
           <Col xs={12} md={6} className="mb-2 mb-md-0 text-center text-md-start">
-            <h5 className="mb-0 text-primary fw-bold">
-               Daftar Pengguna
-            </h5>
+            <h5 className="mb-0 text-primary fw-bold">Daftar Pengguna</h5>
           </Col>
-
-          {/* 🔍 Search + ❌ (tanpa Export) */}
           <Col xs={12} md={6} className="d-flex justify-content-md-end justify-content-center align-items-center">
             <div className="d-flex gap-2" style={{ maxWidth: "300px", width: "100%" }}>
               <InputGroup>
@@ -67,7 +72,6 @@ const UserTable = ({ users, onDelete, onBlock, onUnblock, onEdit, onChangePasswo
         </Row>
       </Card.Header>
 
-
       <div className="table-responsive">
         <Table hover className="align-middle">
           <thead className="bg-light">
@@ -79,12 +83,19 @@ const UserTable = ({ users, onDelete, onBlock, onUnblock, onEdit, onChangePasswo
               <th>No HP</th>
               <th>Role</th>
               <th>Jenis Akun</th>
-              <th>Status Blokir</th>
+              <th>Status</th>
               <th>Aksi</th>
             </tr>
           </thead>
           <tbody>
-            {currentUsers.length > 0 ? (
+            {isLoading ? (
+              <tr>
+                <td colSpan="9" className="text-center py-5">
+                  <Spinner animation="border" variant="primary" />
+                  <div className="text-muted mt-2">Memuat data pengguna...</div>
+                </td>
+              </tr>
+            ) : currentUsers.length > 0 ? (
               currentUsers.map((user, index) => (
                 <tr key={user.id}>
                   <td>{indexOfFirstUser + index + 1}</td>
@@ -94,7 +105,9 @@ const UserTable = ({ users, onDelete, onBlock, onUnblock, onEdit, onChangePasswo
                       src={
                         user.profile_picture
                           ? `http://localhost:3000/${user.profile_picture}`
-                          : `https://ui-avatars.com/api/?name=${encodeURIComponent(user.username)}&background=66BB6A&color=fff`
+                          : `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                              user.username
+                            )}&background=66BB6A&color=fff`
                       }
                       alt={`Foto profil ${user.username}`}
                       className="rounded-circle"
@@ -135,7 +148,6 @@ const UserTable = ({ users, onDelete, onBlock, onUnblock, onEdit, onChangePasswo
                         <button className="dropdown-item" onClick={() => onDetail(user.id)}>
                           <i className="icon-base bx bx-info-circle me-1"></i> Detail
                         </button>
-
                         <button className="dropdown-item" onClick={() => onEdit(user)}>
                           <i className="icon-base bx bx-edit-alt me-1"></i> Edit
                         </button>
@@ -161,7 +173,7 @@ const UserTable = ({ users, onDelete, onBlock, onUnblock, onEdit, onChangePasswo
               ))
             ) : (
               <tr>
-                <td colSpan="8" className="text-center text-muted">
+                <td colSpan="9" className="text-center text-muted py-5">
                   Tidak ada pengguna ditemukan.
                 </td>
               </tr>
@@ -169,7 +181,7 @@ const UserTable = ({ users, onDelete, onBlock, onUnblock, onEdit, onChangePasswo
           </tbody>
         </Table>
 
-        {filteredUsers.length > usersPerPage && (
+        {!isLoading && filteredUsers.length > usersPerPage && (
           <div className="d-flex justify-content-center my-3">
             <CustomPagination
               currentPage={currentPage}

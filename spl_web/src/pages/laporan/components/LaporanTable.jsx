@@ -140,52 +140,60 @@ const LaporanTable = ({ reports, handleOpenDetailModal, handleOpenStatusModal, h
                 </tr>
               </thead>
               <tbody>
-                {currentReports.length > 0 ? (
-                  currentReports.map((report, index) => (
-                    <tr key={report.id}>
-                      <td>{indexOfFirstReport + index + 1}</td>
-                      <td>{report.user?.username || "-"}</td>
-                      <td><strong>{report.title || "-"}</strong></td>
-                      <td>{report.report_number || "-"}</td>
-                      <td>
-                        {new Date(report.createdAt).toLocaleDateString("id-ID")}{" "}
-                        {Date.now() - new Date(report.createdAt).getTime() < 24 * 60 * 60 * 1000 && (
-                          <span className="badge bg-success ms-1">Baru</span>
-                        )}
-                      </td>
-                      <td>
-                        <Badge bg={statusMappings[report.status]?.color || "secondary"} className="text-uppercase">
-                          {statusMappings[report.status]?.label || "Tidak Diketahui"}
-                        </Badge>
-                      </td>
-                      <td>
-                        <div className="dropdown">
-                          <button type="button" className="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
-                            <i className="bx bx-dots-vertical-rounded" style={{ fontSize: "18px" }}></i>
-                          </button>
-                          <div className="dropdown-menu dropdown-menu-end">
-                            <button className="dropdown-item" onClick={() => handleOpenDetailModal(report.id)}>
-                              <i className="bx bx-show me-1"></i> Lihat Laporan
-                            </button>
-                            <button className="dropdown-item" onClick={() => handleOpenStatusModal(report)}>
-                              <i className="bx bx-task me-1"></i> Tindak Lanjuti
-                            </button>
-                            <button className="dropdown-item text-danger" onClick={() => handleDeleteReport(report.id)}>
-                              <i className="bx bx-trash me-1"></i> Hapus
-                            </button>
-                          </div>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="7" className="text-center text-muted">
-                      Tidak ada laporan yang ditemukan.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
+  {isLoading ? (
+    <tr>
+      <td colSpan="7" className="text-center py-5">
+        <Spinner animation="border" variant="primary" />
+        <div className="text-muted mt-2">Memuat data laporan...</div>
+      </td>
+    </tr>
+  ) : currentReports.length > 0 ? (
+    currentReports.map((report, index) => (
+      <tr key={report.id}>
+        <td>{indexOfFirstReport + index + 1}</td>
+        <td>{report.user?.username || "-"}</td>
+        <td><strong>{report.title || "-"}</strong></td>
+        <td>{report.report_number || "-"}</td>
+        <td>
+          {new Date(report.createdAt).toLocaleDateString("id-ID")}{" "}
+          {Date.now() - new Date(report.createdAt).getTime() < 24 * 60 * 60 * 1000 && (
+            <span className="badge bg-success ms-1">Baru</span>
+          )}
+        </td>
+        <td>
+          <Badge bg={statusMappings[report.status]?.color || "secondary"} className="text-uppercase">
+            {statusMappings[report.status]?.label || "Tidak Diketahui"}
+          </Badge>
+        </td>
+        <td>
+          <div className="dropdown">
+            <button type="button" className="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
+              <i className="bx bx-dots-vertical-rounded" style={{ fontSize: "18px" }}></i>
+            </button>
+            <div className="dropdown-menu dropdown-menu-end">
+              <button className="dropdown-item" onClick={() => handleOpenDetailModal(report.id)}>
+                <i className="bx bx-show me-1"></i> Lihat Laporan
+              </button>
+              <button className="dropdown-item" onClick={() => handleOpenStatusModal(report)}>
+                <i className="bx bx-task me-1"></i> Tindak Lanjuti
+              </button>
+              <button className="dropdown-item text-danger" onClick={() => handleDeleteReport(report.id)}>
+                <i className="bx bx-trash me-1"></i> Hapus
+              </button>
+            </div>
+          </div>
+        </td>
+      </tr>
+    ))
+  ) : (
+    <tr>
+      <td colSpan="7" className="text-center text-muted py-5">
+        Tidak ada laporan yang ditemukan.
+      </td>
+    </tr>
+  )}
+</tbody>
+
             </Table>
 
             {filteredReports.length > reportsPerPage && (

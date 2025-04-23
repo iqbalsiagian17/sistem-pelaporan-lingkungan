@@ -1,5 +1,5 @@
 import { useUser } from "../../context/UserContext";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import UserTable from "./components/UserTable";
 import UserBlockModal from "./components/UserBlockModal";
 import UserEditModal from "./components/UserEditModal";
@@ -8,8 +8,6 @@ import ConfirmModal from "../../components/common/ConfirmModal";
 import ToastNotification from "../../components/common/ToastNotification";
 import UserDetailModal from "./components/UserDetailModal";
 import { getUserDetails } from "../../services/userService";
-
-
 
 const UserManagementPage = () => {
   const {
@@ -21,6 +19,7 @@ const UserManagementPage = () => {
     removeUser,
     updateUserLocal,
     changeUserPassword,
+    fetchUsers, // ✅ kalau kamu punya fungsi ini di context
   } = useUser();
 
   const [selectedUser, setSelectedUser] = useState(null);
@@ -31,7 +30,7 @@ const UserManagementPage = () => {
   const [blockingUntil, setBlockingUntil] = useState("");
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [detailUser, setDetailUser] = useState(null);
-
+  const [isLoading, setIsLoading] = useState(true); // ✅ untuk kontrol loading awal
 
   const [toast, setToast] = useState({
     show: false,
@@ -42,6 +41,21 @@ const UserManagementPage = () => {
   const showToast = (message, variant = "success") => {
     setToast({ show: true, message, variant });
   };
+
+  // ✅ Ambil data user saat pertama render
+  useEffect(() => {
+    const loadUsers = async () => {
+      setIsLoading(true);
+      try {
+        await fetchUsers?.(); // ❗ pastikan fungsi fetchUsers ada di context kamu
+      } catch (err) {
+        showToast("Gagal memuat data pengguna", "danger");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadUsers();
+  }, []);
 
   const handleDelete = (user) => {
     setSelectedUser(user);
@@ -103,16 +117,16 @@ const UserManagementPage = () => {
   };
 
   const handleViewDetail = async (userId) => {
-    const data = await getUserDetails(userId); // ✅ sesuaikan dengan nama fungsi
+    const data = await getUserDetails(userId);
     setDetailUser(data);
     setShowDetailModal(true);
   };
-  
 
   return (
     <div>
       <UserTable
         users={users}
+        isLoading={isLoading} // ✅ kirim status loading ke UserTable
         onDelete={handleDelete}
         onBlock={handleBlock}
         onUnblock={handleUnblock}

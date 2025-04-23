@@ -55,8 +55,7 @@ Future<Map<String, dynamic>> login(String identifier, String password) async {
 
     return response.data;
   } on DioException catch (e) {
-    final errorMsg = _handleDioError(e);
-    return {"error": errorMsg};
+    throw _handleDioError(e); 
   } catch (e) {
     return {"error": "Terjadi kesalahan tidak terduga."};
   }
@@ -207,7 +206,7 @@ Future<Map<String, dynamic>> verifyForgotOtp(String email, String code) async {
       final status = e.response!.statusCode;
       switch (status) {
         case 400: return "Permintaan tidak valid.";
-        case 401: return "Akses tidak sah.";
+        case 401: return "Login gagal. Periksa kembali email, nomor telepon, atau kata sandi Anda.";
         case 403: return "Tidak diizinkan.";
         case 404: return "Tidak ditemukan.";
         case 500: return "Server error.";

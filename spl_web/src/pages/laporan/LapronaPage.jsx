@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import LaporanTable from "./components/LaporanTable";
 import DetailLaporanModal from "./components/DetailLaporanModal";
 import StatusLaporanModal from "./components/StatusLaporanModal";
@@ -14,6 +14,7 @@ const LaporanPage = () => {
     deleteReport,
     updateReportLocally,
     removeReport,
+    fetchReports // asumsi ini tersedia di context
   } = useReport();
 
   const [selectedReport, setSelectedReport] = useState(null);
@@ -23,19 +24,38 @@ const LaporanPage = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [reportToDelete, setReportToDelete] = useState(null);
+  const [isLoading, setIsLoading] = useState(true); // loading fetch awal
+  const [isActionLoading, setIsActionLoading] = useState(false); // loading aksi
 
   const [toast, setToast] = useState({ show: false, message: "", variant: "success" });
   const showToast = (msg, variant = "success") => {
     setToast({ show: true, message: msg, variant });
   };
 
+  useEffect(() => {
+    const loadReports = async () => {
+      try {
+        setIsLoading(true);
+        await fetchReports?.(); // pastikan ini ada di context, jika tidak hapus baris ini
+      } catch (error) {
+        showToast("Gagal memuat laporan");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadReports();
+  }, []);
+
   const handleOpenDetailModal = async (id) => {
     try {
+      setIsActionLoading(true);
       const report = await getReportById(id);
       setSelectedReport(report);
       setShowDetailModal(true);
     } catch (error) {
       showToast(`Terjadi kesalahan: ${error.message}`);
+    } finally {
+      setIsActionLoading(false);
     }
   };
 
@@ -57,15 +77,14 @@ const LaporanPage = () => {
     }
 
     const allowed = {
-      pending: ["verified", "rejected"], // Pending: bisa diverifikasi atau ditolak
-      verified: ["in_progress", "canceled"], // Verified: jalan atau dibatalkan
-      in_progress: ["completed", "canceled"], // In progress: selesai atau dibatalkan
-      completed: ["closed", "canceled"], // Completed: ditutup atau dibatalkan
-      rejected: [], // Ditolak: tidak bisa ubah
-      closed: [], // Ditutup: tidak bisa ubah
-      canceled: [], // Dibatalkan: tidak bisa ubah
+      pending: ["verified", "rejected"],
+      verified: ["in_progress", "canceled"],
+      in_progress: ["completed", "canceled"],
+      completed: ["closed", "canceled"],
+      rejected: [],
+      closed: [],
+      canceled: [],
     };
-    
 
     if (!allowed[selectedReport.status]?.includes(newStatus)) {
       showToast(`Tidak bisa ubah dari '${selectedReport.status}' ke '${newStatus}'`);
@@ -73,6 +92,7 @@ const LaporanPage = () => {
     }
 
     try {
+      setIsActionLoading(true);
       await updateReportStatus(selectedReport.id, {
         new_status: newStatus,
         message,
@@ -82,6 +102,8 @@ const LaporanPage = () => {
       setShowStatusModal(false);
     } catch (error) {
       showToast(`❌ ${error.message}`);
+    } finally {
+      setIsActionLoading(false);
     }
   };
 
@@ -93,8 +115,8 @@ const LaporanPage = () => {
 
   const confirmDeleteReport = async () => {
     if (!reportToDelete) return;
-
     try {
+      setIsActionLoading(true);
       await deleteReport(reportToDelete.id);
       showToast("Laporan berhasil dihapus");
       removeReport(reportToDelete.id);
@@ -103,6 +125,7 @@ const LaporanPage = () => {
     } finally {
       setShowDeleteModal(false);
       setReportToDelete(null);
+      setIsActionLoading(false);
     }
   };
 
@@ -110,6 +133,7 @@ const LaporanPage = () => {
     <>
       <LaporanTable
         reports={reports}
+        isLoading={isLoading}
         handleOpenDetailModal={handleOpenDetailModal}
         handleOpenStatusModal={handleOpenStatusModal}
         handleDeleteReport={handleDeleteReport}
