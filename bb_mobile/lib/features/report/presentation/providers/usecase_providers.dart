@@ -3,7 +3,9 @@ import 'package:bb_mobile/features/report/domain/usecases/check_liked_status_use
 import 'package:bb_mobile/features/report/domain/usecases/create_report_usecase.dart';
 import 'package:bb_mobile/features/report/domain/usecases/delete_report_usecase.dart';
 import 'package:bb_mobile/features/report/domain/usecases/get_like_count_usecase.dart';
+import 'package:bb_mobile/features/report/domain/usecases/get_rating_usecase.dart';
 import 'package:bb_mobile/features/report/domain/usecases/like_report_usecase.dart';
+import 'package:bb_mobile/features/report/domain/usecases/submit_rating_usecase.dart';
 import 'package:bb_mobile/features/report/domain/usecases/unlike_report_usecase.dart';
 import 'package:bb_mobile/features/report/domain/usecases/update_report_usecase.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -61,4 +63,14 @@ final checkLikedStatusUseCaseProvider = Provider<CheckLikedStatusUseCase>((ref) 
 final getLikeCountUseCaseProvider = Provider<GetLikeCountUseCase>((ref) {
   final repository = ref.read(reportRepositoryProvider);
   return GetLikeCountUseCase(repository);
+});
+
+final submitRatingUseCaseProvider = Provider<SubmitRatingUsecase>((ref) {
+  final repository = ref.read(reportRepositoryProvider);
+  return SubmitRatingUsecase(repository);
+});
+
+final getRatingUseCaseProvider = Provider<GetRatingUsecase>((ref) {
+  final repository = ref.read(reportRepositoryProvider);
+  return GetRatingUsecase(repository);
 });

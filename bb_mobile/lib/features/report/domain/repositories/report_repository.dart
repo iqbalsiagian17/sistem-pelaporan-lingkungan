@@ -33,4 +33,12 @@ abstract class ReportRepository {
   Future<bool> unlikeReport(int reportId);
   Future<bool> isLiked(int reportId);
   Future<int> getLikeCount(int reportId);
+
+  Future<bool> submitRating({
+      required int reportId,
+      required int rating,
+      String? review,
+    });
+
+    Future<Map<String, dynamic>?> getRating(int reportId);
 }

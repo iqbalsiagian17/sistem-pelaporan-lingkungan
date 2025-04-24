@@ -2,6 +2,8 @@ import 'package:bb_mobile/core/constants/api.dart';
 import 'package:bb_mobile/features/report/data/models/report_evidence_model.dart';
 import 'package:bb_mobile/features/report/data/models/report_model.dart';
 import 'package:bb_mobile/features/report/data/models/report_status_history_model.dart';
+import 'package:bb_mobile/features/report/presentation/providers/report_provider.dart';
+import 'package:bb_mobile/features/report/presentation/widgets/detail/rating_bottom_sheet.dart';
 import 'package:bb_mobile/features/report/presentation/widgets/detail/report_detail_admin_comment.dart';
 import 'package:bb_mobile/features/report/presentation/widgets/detail/report_detail_description.dart';
 import 'package:bb_mobile/features/report/presentation/widgets/detail/report_detail_image.dart';
@@ -20,6 +22,29 @@ class ReportDetailView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+
+    // Tampilkan modal rating otomatis jika statusnya 'completed'
+  if (report.status == 'completed') {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final result = await ref
+          .read(reportProvider.notifier)
+          .getRating(report.id); // Cek apakah user sudah kasih rating
+
+      if (result == null && context.mounted) {
+        // Belum ada rating, tampilkan modal
+        showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+          ),
+          builder: (_) => RatingBottomSheet(reportId: report.id),
+        );
+      }
+    });
+  }
+
+  
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: ReportDetailTopBar(title: "Detail Laporan"),

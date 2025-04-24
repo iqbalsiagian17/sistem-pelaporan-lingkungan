@@ -97,4 +97,22 @@ Future<ReportEntity?> updateReport({
   Future<int> getLikeCount(int reportId) async {
     return await remoteDataSource.getLikeCount(reportId);
   }
+
+  @override
+  Future<bool> submitRating({
+    required int reportId,
+    required int rating,
+    String? review,
+  }) async {
+    return await remoteDataSource.submitRating(
+      reportId: reportId,
+      rating: rating,
+      review: review,
+    );
+  }
+
+  @override
+  Future<Map<String, dynamic>?> getRating(int reportId) async {
+    return await remoteDataSource.getRating(reportId);
+  }
 }

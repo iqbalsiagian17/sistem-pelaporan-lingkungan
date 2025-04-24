@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'package:bb_mobile/features/report/domain/usecases/get_rating_usecase.dart';
+import 'package:bb_mobile/features/report/domain/usecases/submit_rating_usecase.dart';
 import 'package:bb_mobile/features/report/domain/usecases/update_report_usecase.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:bb_mobile/core/services/auth/global_auth_service.dart';
@@ -21,6 +23,9 @@ final reportProvider = StateNotifierProvider<ReportNotifier, AsyncValue<List<Rep
   final unlikeUseCase = ref.read(unlikeReportUseCaseProvider);
   final checkLikedUseCase = ref.read(checkLikedStatusUseCaseProvider);
   final likeCountUseCase = ref.read(getLikeCountUseCaseProvider);
+  final submitRatingUseCase = ref.read(submitRatingUseCaseProvider);
+  final getRatingUseCase = ref.read(getRatingUseCaseProvider);
+  
 
   return ReportNotifier(
     fetchUseCase,
@@ -31,6 +36,8 @@ final reportProvider = StateNotifierProvider<ReportNotifier, AsyncValue<List<Rep
     unlikeUseCase,
     checkLikedUseCase,
     likeCountUseCase,
+    submitRatingUseCase,
+    getRatingUseCase,
   );
 });
 
@@ -43,6 +50,8 @@ class ReportNotifier extends StateNotifier<AsyncValue<List<ReportEntity>>> {
   final UnlikeReportUseCase _unlikeReportUseCase;
   final CheckLikedStatusUseCase _checkLikedStatusUseCase;
   final GetLikeCountUseCase _getLikeCountUseCase;
+  final SubmitRatingUsecase _submitRatingUseCase;
+  final GetRatingUsecase _getRatingUseCase;
 
   final _likedReportIds = <int>{};
   final _likeCounts = <int, int>{};
@@ -59,6 +68,8 @@ class ReportNotifier extends StateNotifier<AsyncValue<List<ReportEntity>>> {
     this._unlikeReportUseCase,
     this._checkLikedStatusUseCase,
     this._getLikeCountUseCase,
+    this._submitRatingUseCase,
+    this._getRatingUseCase,
   ) : super(const AsyncLoading()) {
     fetchReports();
   }
@@ -243,6 +254,32 @@ class ReportNotifier extends StateNotifier<AsyncValue<List<ReportEntity>>> {
       } catch (_) {
         return null;
       }
+    }
+  }
+
+  Future<bool> submitRating({
+    required int reportId,
+    required int rating,
+    String? review,
+  }) async {
+    try {
+      final result = await _submitRatingUseCase.call(
+        reportId: reportId,
+        rating: rating,
+        review: review,
+      );
+      await fetchReports();
+      return result;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getRating(int reportId) async {
+    try {
+      return await _getRatingUseCase.call(reportId);
+    } catch (_) {
+      return null;
     }
   }
 

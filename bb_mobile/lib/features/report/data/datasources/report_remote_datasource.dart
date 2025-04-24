@@ -37,6 +37,12 @@ abstract class ReportRemoteDataSource {
   Future<bool> unlikeReport(int reportId);
   Future<bool> isLiked(int reportId);
   Future<int> getLikeCount(int reportId);
+  Future<bool> submitRating({
+    required int reportId,
+    required int rating,
+    String? review,
+  });
+  Future<Map<String, dynamic>?> getRating(int reportId);
 }
 
 class ReportRemoteDataSourceImpl implements ReportRemoteDataSource {
@@ -256,6 +262,44 @@ Future<ReportEntity?> updateReport({
     } catch (e) {
       print(" [getLikeCount] Error: $e");
       return 0;
+    }
+  }
+
+  @override
+  Future<bool> submitRating({
+    required int reportId,
+    required int rating,
+    String? review,
+  }) async {
+    try {
+      final response = await dio.post(
+        "${ApiConstants.userReportUrl}/$reportId/rating",
+        data: {
+          "rating": rating,
+          if (review != null) "review": review,
+        },
+      );
+
+      return response.statusCode == 201;
+    } on DioException catch (e) {
+      throw Exception("Gagal mengirim penilaian: ${e.response?.data}");
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>?> getRating(int reportId) async {
+    try {
+      final response = await dio.get(
+        "${ApiConstants.userReportUrl}/$reportId/rating",
+      );
+
+      if (response.statusCode == 200 && response.data['data'] != null) {
+        return response.data['data'];
+      }
+
+      return null;
+    } on DioException catch (e) {
+      throw Exception("Gagal mengambil penilaian: ${e.response?.data}");
     }
   }
 
