@@ -12,5 +12,7 @@ router.put('/:id', authMiddleware, userReportController.updateReport);
 router.delete('/:id', authMiddleware, userReportController.deleteReport);
 router.get('/:id/report-stats', authMiddleware, userReportController.getReportStats);
 
+router.post('/:id/rating', authMiddleware, userReportController.createRating);
+router.get('/:id/rating', authMiddleware, userReportController.getRatingByReportId);
 
 module.exports = router;

@@ -1,4 +1,4 @@
-const { User, Report, ReportAttachment, ReportStatusHistory, Notification, ReportEvidence, UserReportSave  } = require('../../../models');
+const { User, Report, ReportAttachment, ReportStatusHistory, Notification, ReportEvidence, UserReportSave, RatingReport  } = require('../../../models');
 const { sequelize } = require('../../../models');
 const { Op } = require("sequelize");
 const multer = require('multer');
@@ -394,4 +394,85 @@ exports.getReportStats = async (req, res) => {
   }
 };
 
+exports.createRating = async (req, res) => {
+  try {
+    const user_id = req.user.id;
+    const report_id = req.params.id; // ✅ dari route param
+    const { rating, review } = req.body;
 
+    if (!rating) {
+      return res.status(400).json({ message: "Rating wajib diisi" });
+    }
+
+    // Cek apakah laporan valid dan statusnya "completed"
+    const report = await Report.findByPk(report_id);
+    if (!report || report.user_id !== user_id || report.status !== 'completed') {
+      return res.status(400).json({ message: "Laporan tidak valid atau belum selesai" });
+    }
+
+    // Cek apakah user sudah pernah memberi rating
+    const existingRating = await RatingReport.findOne({ where: { report_id, user_id } });
+    if (existingRating) {
+      return res.status(400).json({ message: "Anda sudah memberikan rating untuk laporan ini" });
+    }
+
+    // Simpan rating
+    const newRating = await RatingReport.create({
+      report_id,
+      user_id,
+      rating,
+      review: review || null
+    });
+
+    // Ubah status menjadi "closed"
+    report.status = 'closed';
+    await report.save();
+
+    // Ambil data user untuk notifikasi admin
+    const user = await User.findByPk(user_id);
+
+    // ✅ Kirim notifikasi ke admin
+    await Notification.create({
+      title: "Penilaian Laporan Baru",
+      message: `Pengguna ${user.username} telah memberikan penilaian terhadap laporan dengan nomor ${report.report_number}.`,
+      type: "report",
+      report_id: report.id,
+      sent_by: "system",
+      role_target: "admin"
+    });
+
+    res.status(201).json({
+      message: "Terima kasih atas penilaian Anda!",
+      data: newRating
+    });
+  } catch (error) {
+    console.error("❌ Error createRating:", error);
+    res.status(500).json({ message: "Gagal menyimpan penilaian", error: error.message });
+  }
+};
+
+exports.getRatingByReportId = async (req, res) => {
+  try {
+    const report_id = req.params.id; // ✅ ambil dari route param
+
+    const rating = await RatingReport.findOne({
+      where: { report_id },
+      include: [
+        { model: User, as: 'user', attributes: ['id', 'username'] },
+        { model: Report, as: 'report', attributes: ['id', 'title', 'report_number'] }
+      ]
+    });
+
+    if (!rating) {
+      return res.status(404).json({ message: "Rating tidak ditemukan" });
+    }
+
+    res.status(200).json({
+      message: "Rating berhasil diambil",
+      data: rating
+    });
+  } catch (error) {
+    console.error("❌ Error getRatingByReportId:", error);
+    res.status(500).json({ message: "Gagal mengambil rating", error: error.message });
+  }
+};

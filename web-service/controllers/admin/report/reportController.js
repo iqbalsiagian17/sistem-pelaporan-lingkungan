@@ -1,4 +1,4 @@
-const { Report, ReportAttachment, ReportStatusHistory, ReportEvidence, User, Notification, sequelize } = require('../../../models');
+const { Report, ReportAttachment, ReportStatusHistory, ReportEvidence, User, Notification,RatingReport, sequelize } = require('../../../models');
 const { sendNotificationToUser } = require('../../../services/firebaseService');
 const fs = require('fs');
 const path = require('path');
@@ -245,12 +245,15 @@ exports.autoCloseCompletedReports = async () => {
   const SYSTEM_USER_ID = 1; // Gunakan ID admin sistem default
 
   try {
-    const batasWaktu = new Date(Date.now() - 24 * 60 * 60 * 1000); // 24 jam
+    const batasWaktu = new Date(Date.now() - 48 * 60 * 60 * 1000); // 48 jam
 
     const reports = await Report.findAll({
       where: {
         status: 'completed',
-        updatedAt: { [Op.lte]: batasWaktu }
+        updatedAt: { [Op.lte]: batasWaktu },
+        id: {
+          [Op.notIn]: sequelize.literal(`(SELECT report_id FROM t_rating_report)`)
+        }
       },
       include: [
         { model: User, as: 'user', attributes: ['id', 'fcm_token'] }
