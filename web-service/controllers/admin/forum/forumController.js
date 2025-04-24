@@ -1,4 +1,5 @@
-const { Post, PostImage, Comment, User } = require("../../../models");
+const { Post, PostImage, Comment, User, Notification } = require("../../../models");
+const { sendNotificationToUser } = require('../../../services/firebaseService');
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
@@ -188,27 +189,68 @@ exports.deletePostAdmin = async (req, res) => {
   };
 
 
-exports.createCommentAdmin = async (req, res) => {
+  exports.createCommentAdmin = async (req, res) => {
     try {
-        const { post_id, content } = req.body;
-        const user_id = req.user.id;
-
-        if (!post_id || !content) {
-            return res.status(400).json({ message: "Post ID and content are required" });
-        }
-
-        const newComment = await Comment.create({ post_id, user_id, content });
-
-        const fullComment = await Comment.findByPk(newComment.id, {
-            include: { model: User, as: "user", attributes: ["id", "username"] }
-        });
-
-        res.status(201).json({ message: "Comment added successfully", comment: fullComment });
+      const { post_id, content } = req.body;
+      const user_id = req.user.id;
+  
+      if (!post_id || !content) {
+        return res.status(400).json({ message: "Post ID and content are required" });
+      }
+  
+      // Buat komentar baru
+      const newComment = await Comment.create({ post_id, user_id, content });
+  
+      // Ambil info user admin yang mengomentari
+      const fullComment = await Comment.findByPk(newComment.id, {
+        include: { model: User, as: "user", attributes: ["id", "username"] }
+      });
+  
+      // Ambil postingan untuk dapatkan pemiliknya
+      const post = await Post.findByPk(post_id, {
+        include: { model: User, as: "user", attributes: ["id", "fcm_token"] }
+      });
+  
+      if (!post) {
+        return res.status(404).json({ message: "Postingan tidak ditemukan" });
+      }
+  
+      // 🔔 Buat notifikasi gaya Instagram
+      const notifTitle = `${fullComment.user.username}`;
+      const notifMessage = `berkomentar: "${content.length > 80 ? content.slice(0, 77) + '...' : content}"`;
+  
+      await Notification.create({
+        user_id: post.user.id,
+        title: notifTitle,
+        message: notifMessage,
+        type: "general",
+        sent_by: "system", // ✅ dari admin
+        role_target: "user",
+        is_read: false,
+      });
+  
+      // 🚀 Kirim FCM jika ada token
+      if (post.user.fcm_token) {
+        await sendNotificationToUser(
+          post.user.fcm_token,
+          notifTitle,
+          notifMessage,
+          {
+            type: "comment",
+            route: "notification",
+            post_id: post.id.toString(),
+          }
+        );
+      }
+  
+      res.status(201).json({ message: "Comment added successfully", comment: fullComment });
+  
     } catch (error) {
-        console.error("Error adding comment:", error);
-        res.status(500).json({ message: "Server error", error: error.message });
+      console.error("❌ Error adding comment by admin:", error);
+      res.status(500).json({ message: "Server error", error: error.message });
     }
-};
+  };
+  
 
 exports.updateCommentAdmin = async (req, res) => {
   try {
