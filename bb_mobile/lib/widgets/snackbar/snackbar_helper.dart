@@ -85,7 +85,7 @@ class _AnimatedTopSnackbarState extends State<_AnimatedTopSnackbar>
     final mediaTopPadding = MediaQuery.of(context).padding.top;
 
     return Positioned(
-      top: mediaTopPadding + 12,
+      top: mediaTopPadding + 55,
       left: 20,
       right: 20,
       child: Material(

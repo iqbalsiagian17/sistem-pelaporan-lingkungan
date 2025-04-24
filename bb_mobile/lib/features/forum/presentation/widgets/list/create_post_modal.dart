@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:bb_mobile/core/utils/validators.dart';
 import 'package:bb_mobile/features/forum/presentation/providers/forum_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,6 +15,7 @@ class CreatePostModal extends ConsumerStatefulWidget {
 class _CreatePostModalState extends ConsumerState<CreatePostModal> {
   final TextEditingController _contentController = TextEditingController();
   final List<File> _selectedImages = [];
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
   static const int _maxImages = 5;
 
@@ -68,96 +70,100 @@ class _CreatePostModalState extends ConsumerState<CreatePostModal> {
         top: 20,
         bottom: MediaQuery.of(context).viewInsets.bottom + 20,
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          /// Header
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                "Buat Postingan",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              IconButton(
-                icon: const Icon(Icons.close, color: Colors.black),
-                onPressed: () => Navigator.pop(context),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-
-          /// Input konten
-          TextField(
-            controller: _contentController,
-            decoration: InputDecoration(
-              hintText: "Apa yang sedang terjadi?",
-              hintStyle: TextStyle(color: Colors.grey.shade500),
-              filled: true,
-              fillColor: Colors.grey.shade100,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: BorderSide.none,
-              ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            /// Header
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  "Buat Postingan",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close, color: Colors.black),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ],
             ),
-            maxLines: null,
-            keyboardType: TextInputType.multiline,
-          ),
-          const SizedBox(height: 10),
+            const SizedBox(height: 10),
 
-          /// Preview gambar
-          if (_selectedImages.isNotEmpty) _buildImagePreview(),
-
-          /// Tombol aksi
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              IconButton(
-                icon: Icon(
-                  Icons.image,
-                  color: _selectedImages.length >= _maxImages ? Colors.grey : Color(0xFF66BB6A),
-                  size: 28,
+            /// Input konten
+            TextFormField(
+              controller: _contentController,
+              decoration: InputDecoration(
+                hintText: "Apa yang sedang terjadi?",
+                hintStyle: TextStyle(color: Colors.grey.shade500),
+                filled: true,
+                fillColor: Colors.grey.shade100,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide.none,
                 ),
-                onPressed: _selectedImages.length >= _maxImages ? null : _pickImage,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFF66BB6A),
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
+              maxLines: null,
+              keyboardType: TextInputType.multiline,
+              validator: (value) => Validators.validateNotEmpty(value?.trim(), fieldName: "Konten"),
+            ),
+            const SizedBox(height: 10),
+
+            /// Preview gambar
+            if (_selectedImages.isNotEmpty) _buildImagePreview(),
+
+            /// Tombol aksi
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                IconButton(
+                  icon: Icon(
+                    Icons.image,
+                    color: _selectedImages.length >= _maxImages ? Colors.grey : Color(0xFF66BB6A),
+                    size: 28,
                   ),
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  onPressed: _selectedImages.length >= _maxImages ? null : _pickImage,
                 ),
-                onPressed: _isLoading
-                    ? null
-                    : () async {
-                        if (_contentController.text.trim().isEmpty) return;
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFF66BB6A),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  ),
+                  onPressed: _isLoading
+                      ? null
+                      : () async {
+                          if (!_formKey.currentState!.validate()) return;
 
-                        setState(() => _isLoading = true);
+                          setState(() => _isLoading = true);
 
-                        final success = await forumNotifier.createPost(
-                          content: _contentController.text.trim(),
-                          imagePaths: _selectedImages.map((e) => e.path).toList(),
-                        );
+                          final success = await forumNotifier.createPost(
+                            content: _contentController.text.trim(),
+                            imagePaths: _selectedImages.map((e) => e.path).toList(),
+                          );
 
-                        if (mounted) {
-                          setState(() => _isLoading = false);
-                          Navigator.pop(context, success);
-                        }
-                      },
-                child: _isLoading
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                      )
-                    : const Text("Posting"),
-              ),
-            ],
-          ),
-        ],
+                          if (mounted) {
+                            setState(() => _isLoading = false);
+                            Navigator.pop(context, success);
+                          }
+                        },
+                  child: _isLoading
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                        )
+                      : const Text("Posting"),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

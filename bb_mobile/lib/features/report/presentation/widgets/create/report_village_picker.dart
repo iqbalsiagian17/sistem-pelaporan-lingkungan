@@ -4,12 +4,14 @@ class ReportVillagePicker extends StatelessWidget {
   final TextEditingController controller;
   final void Function(String) onSelected;
   final FocusNode focusNode;
+  final String? Function(String?)? validator;
 
   const ReportVillagePicker({
     super.key,
     required this.controller,
     required this.onSelected,
     required this.focusNode,
+    this.validator,
   });
 
   static final List<String> _villages = [
@@ -87,7 +89,8 @@ class ReportVillagePicker extends StatelessWidget {
           child: AbsorbPointer(
             child: TextFormField(
               controller: controller,
-              focusNode: focusNode, // ✅ ini dia
+              focusNode: focusNode,
+              validator: validator, // ✅ Tambahkan validator ke TextFormField
               decoration: InputDecoration(
                 prefixIcon: const Icon(Icons.location_on_outlined),
                 hintText: "Pilih Desa/Kelurahan",

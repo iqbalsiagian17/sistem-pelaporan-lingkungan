@@ -1,31 +1,33 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:go_router/go_router.dart';
+import 'package:bb_mobile/routes/app_routes.dart'; // ✅ Import route
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
 
-// Background handler untuk ketika notifikasi ditekan saat app ditutup
+late GoRouter _router;
+
 @pragma('vm:entry-point')
 void notificationTapBackground(NotificationResponse response) {
-  print('🔕 [Background] Notifikasi ditekan: ${response.payload}');
+  debugPrint('🔕 [Background] Notifikasi ditekan: ${response.payload}');
+  // Navigasi tidak bisa langsung dari isolate, bisa disimpan ke storage lalu ditangani saat resume
 }
 
-Future<void> setupFirebaseMessaging() async {
-  // 🔧 Inisialisasi Firebase
+Future<void> setupFirebaseMessaging(GoRouter router) async {
+  _router = router;
+
   await Firebase.initializeApp();
 
-  // 🔔 Minta izin notifikasi
   NotificationSettings settings =
       await FirebaseMessaging.instance.requestPermission();
+  debugPrint('🔔 Izin notifikasi: ${settings.authorizationStatus}');
 
-  print('🔔 Izin notifikasi: ${settings.authorizationStatus}');
-
-  // 📲 Dapatkan token FCM
   final token = await FirebaseMessaging.instance.getToken();
-  print("📲 Token FCM: $token");
+  debugPrint("📲 Token FCM: $token");
 
-  // 🔧 Inisialisasi notifikasi lokal (foreground)
   const AndroidInitializationSettings androidInit =
       AndroidInitializationSettings('@mipmap/ic_launcher');
 
@@ -35,15 +37,18 @@ Future<void> setupFirebaseMessaging() async {
   await flutterLocalNotificationsPlugin.initialize(
     initSettings,
     onDidReceiveNotificationResponse: (NotificationResponse response) {
-      print("🔔 Notifikasi ditekan: ${response.payload}");
+      final payload = response.payload;
+      debugPrint("🔔 Notifikasi ditekan (foreground/background): $payload");
+      if (payload == AppRoutes.notification) {
+        _router.go(AppRoutes.notification);
+      }
     },
     onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
   );
 
-  // 🔔 Buat channel notifikasi penting
   const AndroidNotificationChannel channel = AndroidNotificationChannel(
-    'high_importance_channel', // ID
-    'Notifikasi Penting', // Nama
+    'high_importance_channel',
+    'Notifikasi Penting',
     description: 'Channel untuk notifikasi penting',
     importance: Importance.high,
   );
@@ -54,43 +59,33 @@ Future<void> setupFirebaseMessaging() async {
       ?.createNotificationChannel(channel);
 
   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-    if (message.notification != null) {
-      final notification = message.notification!;
-      final android = notification.android;
+    final notification = message.notification;
+    final data = message.data;
+    final title = notification?.title ?? data['title'] ?? 'Notifikasi';
+    final body = notification?.body ?? data['body'] ?? 'Ada pesan baru';
+    final route = data['route'] ?? AppRoutes.notification; // ✅ default ke /notification
 
-      flutterLocalNotificationsPlugin.show(
-        notification.hashCode,
-        notification.title ?? 'Judul Kosong',
-        notification.body ?? 'Isi Kosong',
-        NotificationDetails(
-          android: AndroidNotificationDetails(
-            channel.id,
-            channel.name,
-            channelDescription: channel.description,
-            icon: android?.smallIcon ?? '@mipmap/ic_launcher',
-            importance: Importance.max,
-            priority: Priority.high,
-          ),
+    flutterLocalNotificationsPlugin.show(
+      notification.hashCode,
+      title,
+      body,
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'high_importance_channel',
+          'Notifikasi Penting',
+          channelDescription: 'Channel untuk notifikasi penting',
+          importance: Importance.max,
+          priority: Priority.high,
         ),
-      );
-    } else if (message.data.isNotEmpty) {
-      // fallback jika message.notification null
-      flutterLocalNotificationsPlugin.show(
-        DateTime.now().millisecondsSinceEpoch ~/ 1000,
-        message.data['title'] ?? 'Notifikasi',
-        message.data['body'] ?? 'Pesan baru masuk',
-        const NotificationDetails(
-          android: AndroidNotificationDetails(
-            'high_importance_channel',
-            'Notifikasi Penting',
-            channelDescription: 'Channel untuk notifikasi penting',
-            importance: Importance.max,
-            priority: Priority.high,
-          ),
-        ),
-      );
-    } else {
-      print("Tidak ada notifikasi dan data.");
+      ),
+      payload: route,
+    );
+  });
+
+  FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+    final route = message.data['route'];
+    if (route != null) {
+      _router.go('/$route');
     }
   });
 }

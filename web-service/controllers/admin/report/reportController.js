@@ -222,7 +222,8 @@ const generateNotificationMessage = (status, reportNumber) => {
           notifMessage,
           {
             report_id: report.id.toString(),
-            type: "report_status_update"
+            type: "report_status_update",
+            route: "notification"
           }
         );
       }
@@ -294,7 +295,8 @@ exports.autoCloseCompletedReports = async () => {
           notifMessage,
           {
             report_id: report.id.toString(),
-            type: "report_status_update" // Konsisten seperti updateReportStatus
+            type: "report_status_update", // Konsisten seperti updateReportStatus
+            route: "notification"
           }
         );
       }

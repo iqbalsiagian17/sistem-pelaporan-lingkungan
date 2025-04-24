@@ -1,7 +1,7 @@
-import 'package:bb_mobile/features/report/presentation/widgets/create/report_village_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:bb_mobile/core/utils/validators.dart';
 import 'package:bb_mobile/features/report/presentation/widgets/create/report_text_field.dart';
-import 'package:bb_mobile/features/report/presentation/widgets/create/report_location_toggle.dart';
+import 'package:bb_mobile/features/report/presentation/widgets/create/report_village_picker.dart';
 
 class ReportFormFields extends StatelessWidget {
   final bool isAtLocation;
@@ -43,6 +43,7 @@ class ReportFormFields extends StatelessWidget {
           hint: "Masukkan judul laporan",
           controller: titleController,
           focusNode: titleFocus,
+          validator: (val) => Validators.validateNotEmpty(val, fieldName: "Judul"),
         ),
         const SizedBox(height: 12),
 
@@ -52,14 +53,16 @@ class ReportFormFields extends StatelessWidget {
           controller: descController,
           maxLines: 5,
           focusNode: descFocus,
+          validator: (val) => Validators.validateNotEmpty(val, fieldName: "Deskripsi"),
         ),
         const SizedBox(height: 12),
 
         if (!isAtLocation)
           ReportVillagePicker(
             controller: villageController,
-            onSelected: (val) {},
             focusNode: villageFocus,
+            onSelected: (val) {},
+            validator: (val) => Validators.validateNotEmpty(val, fieldName: "Nama Desa"),
           ),
 
         const SizedBox(height: 12),
@@ -67,8 +70,9 @@ class ReportFormFields extends StatelessWidget {
         ReportTextField(
           title: "Detail Lokasi (Opsional)",
           hint: "Contoh: Di samping kantor desa",
-          controller: locationDetailController, 
+          controller: locationDetailController,
           focusNode: locationDetailFocus,
+          // Tidak pakai validator, karena ini opsional
         ),
       ],
     );

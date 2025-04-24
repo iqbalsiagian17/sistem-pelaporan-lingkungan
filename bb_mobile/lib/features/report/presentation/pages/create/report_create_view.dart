@@ -28,6 +28,8 @@ class _ReportCreateViewState extends ConsumerState<ReportCreateView> {
   final _descController = TextEditingController();
   final _locationDetailController = TextEditingController();
   final _villageController = TextEditingController();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
 
   final FocusNode _titleFocus = FocusNode();
   final FocusNode _descFocus = FocusNode();
@@ -55,8 +57,8 @@ class _ReportCreateViewState extends ConsumerState<ReportCreateView> {
     _locationDetailFocus.unfocus();
     FocusScope.of(context).unfocus();
 
-    if (_titleController.text.isEmpty || _descController.text.isEmpty) {
-      SnackbarHelper.showSnackbar(context, "Judul dan rincian aduan wajib diisi", isError: true);
+    if (!_formKey.currentState!.validate()) {
+/*       SnackbarHelper.showSnackbar(context, "Judul dan rincian aduan wajib diisi", isError: true); */
       return;
     }
 
@@ -140,18 +142,21 @@ class _ReportCreateViewState extends ConsumerState<ReportCreateView> {
               onChange: (val) => setState(() => isAtLocation = val),
             ),
             const SizedBox(height: 16),
-            ReportFormFields(
-              isAtLocation: isAtLocation,
-              onLocationChange: (val) => setState(() => isAtLocation = val),
-              isLocationAvailable: latitude != null && longitude != null,
-              titleController: _titleController,
-              descController: _descController,
-              villageController: _villageController,
-              locationDetailController: _locationDetailController,
-              titleFocus: _titleFocus,
-              descFocus: _descFocus,
-              villageFocus: _villageFocus,
-              locationDetailFocus: _locationDetailFocus,
+            Form(
+              key: _formKey,
+              child: ReportFormFields(
+                isAtLocation: isAtLocation,
+                onLocationChange: (val) => setState(() => isAtLocation = val),
+                isLocationAvailable: latitude != null && longitude != null,
+                titleController: _titleController,
+                descController: _descController,
+                villageController: _villageController,
+                locationDetailController: _locationDetailController,
+                titleFocus: _titleFocus,
+                descFocus: _descFocus,
+                villageFocus: _villageFocus,
+                locationDetailFocus: _locationDetailFocus,
+              ),
             ),
             const SizedBox(height: 16),
             ReportUploadButtons(
