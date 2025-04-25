@@ -28,7 +28,7 @@ module.exports = {
         allowNull: false,
       },
       type: {
-        type: Sequelize.ENUM('report', 'account', 'verification', 'general'),
+        type: Sequelize.ENUM('report', 'account', 'verification', 'general', 'forum'),
         allowNull: false,
         defaultValue: 'general',
       },

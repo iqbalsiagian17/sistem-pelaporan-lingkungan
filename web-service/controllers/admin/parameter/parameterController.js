@@ -124,7 +124,9 @@ exports.createParameter = async (req, res) => {
 // ✅ Admin - Delete Parameter (optional)
 exports.deleteParameter = async (req, res) => {
   try {
-    const deleted = await t_parameter.destroy({ where: { id: 1 } });
+    const { id } = req.params;
+
+    const deleted = await t_parameter.destroy({ where: { id } });
 
     if (!deleted) {
       return res.status(404).json({ success: false, message: 'Parameter tidak ditemukan' });
@@ -132,6 +134,10 @@ exports.deleteParameter = async (req, res) => {
 
     res.status(200).json({ success: true, message: 'Parameter berhasil dihapus' });
   } catch (err) {
-    res.status(500).json({ success: false, message: 'Terjadi kesalahan pada server', error: err.message });
+    res.status(500).json({
+      success: false,
+      message: 'Terjadi kesalahan pada server',
+      error: err.message,
+    });
   }
 };

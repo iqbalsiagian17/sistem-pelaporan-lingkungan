@@ -1,12 +1,15 @@
 import 'package:bb_mobile/core/constants/api.dart';
+import 'package:bb_mobile/core/services/auth/global_auth_service.dart';
 import 'package:bb_mobile/features/report/data/models/report_evidence_model.dart';
 import 'package:bb_mobile/features/report/data/models/report_model.dart';
+import 'package:bb_mobile/features/report/data/models/report_rating_model.dart';
 import 'package:bb_mobile/features/report/data/models/report_status_history_model.dart';
 import 'package:bb_mobile/features/report/presentation/providers/report_provider.dart';
 import 'package:bb_mobile/features/report/presentation/widgets/detail/rating_bottom_sheet.dart';
 import 'package:bb_mobile/features/report/presentation/widgets/detail/report_detail_admin_comment.dart';
 import 'package:bb_mobile/features/report/presentation/widgets/detail/report_detail_description.dart';
 import 'package:bb_mobile/features/report/presentation/widgets/detail/report_detail_image.dart';
+import 'package:bb_mobile/features/report/presentation/widgets/detail/report_detail_user_review.dart';
 import 'package:bb_mobile/features/report/presentation/widgets/detail/report_detail_info.dart';
 import 'package:bb_mobile/features/report/presentation/widgets/detail/report_detail_location.dart';
 import 'package:bb_mobile/features/report/presentation/widgets/detail/report_detail_status.dart';
@@ -14,42 +17,70 @@ import 'package:bb_mobile/features/report/presentation/widgets/detail/report_det
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-
-class ReportDetailView extends ConsumerWidget {
+class ReportDetailView extends ConsumerStatefulWidget {
   final ReportModel report;
 
   const ReportDetailView({super.key, required this.report});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ReportDetailView> createState() => _ReportDetailViewState();
+}
 
-    // Tampilkan modal rating otomatis jika statusnya 'completed'
-  if (report.status == 'completed') {
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final result = await ref
-          .read(reportProvider.notifier)
-          .getRating(report.id); // Cek apakah user sudah kasih rating
+class _ReportDetailViewState extends ConsumerState<ReportDetailView> {
+  ReportRatingModel? userRating;
 
-      if (result == null && context.mounted) {
-        // Belum ada rating, tampilkan modal
+  @override
+  void initState() {
+    super.initState();
+    _checkAndShowRatingBottomSheet();
+    _fetchUserRating();
+  }
+
+  Future<void> _checkAndShowRatingBottomSheet() async {
+    final currentUserId = await globalAuthService.getUserId(); // ambil ID user dari shared preferences
+    final reportOwnerId = widget.report.userId;
+
+    if (widget.report.status == 'completed' &&
+        currentUserId != null &&
+        currentUserId == reportOwnerId) {
+      final alreadyRated = await ref.read(reportProvider.notifier).getRating(widget.report.id);
+      if (alreadyRated == null && context.mounted) {
         showModalBottomSheet(
           context: context,
           isScrollControlled: true,
           shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
           ),
-          builder: (_) => RatingBottomSheet(reportId: report.id),
+          builder: (_) => RatingBottomSheet(
+            reportId: widget.report.id,
+            onSubmitted: () {
+              ref.read(reportProvider.notifier).fetchReports();
+              _fetchUserRating();
+            },
+          ),
         );
       }
-    });
+    }
   }
 
-  
+  Future<void> _fetchUserRating() async {
+    final result = await ref.read(reportProvider.notifier).getRating(widget.report.id);
+    if (result != null && mounted) {
+      setState(() {
+        userRating = ReportRatingModel.fromJson(result);
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final report = widget.report;
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: ReportDetailTopBar(title: "Detail Laporan"),
-body: SingleChildScrollView(
-  padding: EdgeInsets.zero,
+      body: SingleChildScrollView(
+        padding: EdgeInsets.zero,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -76,6 +107,7 @@ body: SingleChildScrollView(
                             reportId: report.id,
                             status: report.status,
                             total_likes: report.total_likes,
+                            reportUserId: report.userId, // ✅ Diperlukan untuk validasi pemilik
                           ),
                           const SizedBox(height: 10),
                           Text(
@@ -128,6 +160,14 @@ body: SingleChildScrollView(
               )
             else
               _noAdminResponseCard(),
+            const SizedBox(height: 16),
+
+            // 🔹 Review User (jika sudah rating)
+            if (userRating != null)
+              ReportDetailUserReview(
+                rating: userRating!.rating,
+                review: userRating!.review,
+              ),
             const SizedBox(height: 16),
           ],
         ),

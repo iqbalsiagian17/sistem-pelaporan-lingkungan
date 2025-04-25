@@ -47,10 +47,11 @@ export const ParameterProvider = ({ children }) => {
   };
   
 
-  const deleteParameter = async () => {
+  const deleteParameter = async (data) => {
     try {
-      await deleteParam();
-      setParameter(null);
+      if (!parameter?.id) throw new Error("ID parameter tidak ditemukan.");
+      const deleted = await deleteParam();
+      setParameter(deleted);
     } catch (err) {
       setError("Gagal menghapus parameter");
     }

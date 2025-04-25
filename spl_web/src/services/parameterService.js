@@ -38,8 +38,8 @@ export const createParameter = async (payload) => {
 };
 
 // Hapus parameter (opsional, ID tetap 1)
-export const deleteParameter = async () => {
-  const response = await fetchWithAuth(BASE_URL, {
+export const deleteParameter = async (id) => {
+  const response = await fetchWithAuth(`${BASE_URL}/${id}`, {
     method: "DELETE",
   });
   const data = await response.json();

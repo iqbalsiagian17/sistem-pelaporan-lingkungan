@@ -95,15 +95,14 @@ class _MediaCarouselBannerState extends ConsumerState<MediaCarouselBanner> {
         SmoothPageIndicator(
           controller: _controller,
           count: items.length,
-          effect: const ExpandingDotsEffect(
-            dotHeight: 10,
-            dotWidth: 10,
-            spacing: 8,
-            radius: 16,
-            dotColor: Colors.grey,
-            activeDotColor: Color(0xFF1976D2),
-            expansionFactor: 4,
-          ),
+          effect: const SwapEffect(
+  dotHeight: 10,
+  dotWidth: 10,
+  spacing: 8,
+  dotColor: Colors.grey,
+  activeDotColor: Color(0xFF1976D2),
+),
+
         ),
       ],
     );

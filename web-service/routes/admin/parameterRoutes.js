@@ -9,6 +9,6 @@ const authMiddleware = require('../../middleware/authMiddleware'); // middleware
 router.post('/', authMiddleware, isAdmin, parameterController.createParameter);
 router.get('/', authMiddleware, isAdmin, parameterController.getAllParameter); 
 router.put('/:id', authMiddleware, isAdmin, parameterController.updateParameter);
-router.delete('/', authMiddleware, isAdmin,     parameterController.deleteParameter);
+router.delete('/:id', authMiddleware, isAdmin,     parameterController.deleteParameter);
 
 module.exports = router;

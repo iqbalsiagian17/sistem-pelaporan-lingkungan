@@ -1,4 +1,3 @@
-import 'package:bb_mobile/widgets/network/connection_listener_wrapper.dart';
 import 'package:firebase_core/firebase_core.dart'; // 🔧 WAJIB Tambah
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -29,12 +28,10 @@ Future<void> main() async {
 
   runApp(
     ProviderScope(
-      child: ConnectionListenerWrapper(
         child: MyApp(initialRoute: initialRoute),
       ),
-    ),
-  );
-}
+    );
+  }
 
 class MyApp extends StatefulWidget {
   final String? initialRoute;

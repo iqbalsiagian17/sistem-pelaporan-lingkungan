@@ -1,3 +1,4 @@
+import 'package:bb_mobile/core/services/auth/global_auth_service.dart';
 import 'package:bb_mobile/core/utils/status_utils.dart';
 import 'package:bb_mobile/routes/app_routes.dart';
 import 'package:bb_mobile/widgets/snackbar/snackbar_helper.dart';
@@ -147,21 +148,45 @@ class RecentReportsSection extends ConsumerWidget {
                                 style: const TextStyle(fontSize: 12, color: Colors.grey),
                               ),
                               const SizedBox(height: 4),
-                              AnimatedContainer(
-                                duration: const Duration(milliseconds: 300),
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                decoration: BoxDecoration(
-                                  color: StatusUtils.getStatusColor(report.status),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Text(
-                                  StatusUtils.getTranslatedStatus(report.status),
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
+                              FutureBuilder<int?>(
+                                future: globalAuthService.getUserId(),
+                                builder: (context, snapshot) {
+                                  final isOwner = snapshot.data == report.userId;
+
+                                  return Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      AnimatedContainer(
+                                        duration: const Duration(milliseconds: 300),
+                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                        decoration: BoxDecoration(
+                                          color: StatusUtils.getStatusColor(report.status),
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                        child: Text(
+                                          StatusUtils.getTranslatedStatus(report.status),
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                      if (report.status == 'completed' && isOwner)
+                                        Padding(
+                                          padding: const EdgeInsets.only(top: 4.0),
+                                          child: Text(
+                                            "Segera berikan tanggapan anda",
+                                            style: TextStyle(
+                                              fontSize: 11,
+                                              fontStyle: FontStyle.italic,
+                                              color: Colors.orange[800],
+                                            ),
+                                          ),
+                                        ),
+                                    ],
+                                  );
+                                },
                               ),
                             ],
                           ),
