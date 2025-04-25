@@ -94,6 +94,7 @@ module.exports = (sequelize, DataTypes) => {
       Report.hasMany(models.ReportStatusHistory, { foreignKey: 'report_id', as: 'statusHistory' });
       Report.hasMany(models.UserReportLikeHistory, { foreignKey: 'report_id', as: 'likesRelation' });
       Report.hasMany(models.ReportEvidence, { foreignKey: 'report_id', as: 'evidences' });
+      Report.hasOne(models.RatingReport, { foreignKey: 'report_id', as: 'rating' }); // ⬅ Ubah 'ratings' menjadi 'rating'
     };
 
   return Report;

@@ -63,6 +63,7 @@ module.exports = (sequelize, DataTypes) => {
     RatingReport.associate = (models) => {
       RatingReport.belongsTo(models.User, { foreignKey: "user_id", as: "user" });
       RatingReport.belongsTo(models.Report, { foreignKey: "report_id", as: "report" });
+      
     };
   
     return RatingReport;

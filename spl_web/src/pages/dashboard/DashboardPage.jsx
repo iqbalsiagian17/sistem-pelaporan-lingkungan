@@ -125,7 +125,7 @@ export const DashboardPage = () => {
   return (
     <>
       <div className="row">
-        <div className="col-lg-8 mb-4 order-0">
+        <div className="col-lg-8 mb-4 order-1">
           <WelcomeCard totalReports={totalReports} />
         </div>
 

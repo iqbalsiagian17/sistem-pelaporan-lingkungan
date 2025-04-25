@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Modal, Button, Spinner, Table, Badge, Card, ListGroup, Row, Col } from "react-bootstrap";
-import { FaFileAlt, FaClock, FaUser, FaEnvelope, FaClipboardList, FaTimesCircle, FaCheckCircle, FaMapMarkerAlt, FaThumbsUp, FaImage, FaHistory, FaMap, FaArrowRight } from "react-icons/fa";
+import { FaFileAlt, FaClock, FaUser, FaEnvelope, FaClipboardList, FaTimesCircle, FaCheckCircle, FaMapMarkerAlt, FaThumbsUp, FaImage, FaHistory, FaMap, FaArrowRight, FaInfoCircle, FaStar, FaRegStar } from "react-icons/fa";
 import getFullImageUrl from "../../../utils/getFullImageUrl"; // 🔥 Import helper function
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
@@ -263,6 +263,73 @@ const DetailLaporanModal = ({ show, onHide, report }) => {
             </Card>
           </>
         ) : <p className="text-center text-muted">Memuat detail...</p>}
+
+        {/* Penilaian Pelapor */}
+      <Card className="mt-4 shadow border-0">
+        <Card.Body>
+          <h5 className="fw-bold text-primary mb-3 d-flex align-items-center">
+            Penilaian Pelapor
+            <Button
+              variant="link"
+              size="sm"
+              className="ms-2 p-0"
+              title="Informasi Penilaian"
+              onClick={() => {
+                const toast = document.createElement("div");
+                toast.innerText = "Ini adalah penilaian yang dilakukan oleh pelapor terhadap laporan yang diberikan kepada Dinas Lingkungan Hidup.";
+                toast.style.position = "fixed";
+                toast.style.bottom = "80px";
+                toast.style.left = "50%";
+                toast.style.transform = "translateX(-50%)";
+                toast.style.background = "#fff";
+                toast.style.color = "#333";
+                toast.style.padding = "12px 18px";
+                toast.style.boxShadow = "0 0 10px rgba(0,0,0,0.1)";
+                toast.style.borderRadius = "8px";
+                toast.style.zIndex = "9999";
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 3500);
+              }}
+            >
+              <FaInfoCircle className="text-muted" />
+            </Button>
+          </h5>
+
+          {report?.rating?.rating != null ? (
+            <>
+              {/* Bintang */}
+              <div className="mb-2">
+                {Array.from({ length: 5 }, (_, i) =>
+                  i < report.rating.rating ? (
+                    <FaStar
+                      key={i}
+                      color="#f4b400"
+                      size={20}
+                      className="me-1"
+                    />
+                  ) : (
+                    <FaRegStar
+                      key={i}
+                      color="#e0e0e0"
+                      size={20}
+                      className="me-1"
+                    />
+                  )
+                )}
+              </div>
+
+              {/* Komentar */}
+              {report.rating.review ? (
+                <p className="text-muted mb-0">{report.rating.review}</p>
+              ) : (
+                <p className="text-muted fst-italic">Tidak ada komentar tambahan</p>
+              )}
+            </>
+          ) : (
+            <p className="text-muted">Belum ada penilaian dari pelapor</p>
+          )}
+        </Card.Body>
+      </Card>
       </Modal.Body>
 
       <Modal.Footer className="bg-white shadow-sm">
