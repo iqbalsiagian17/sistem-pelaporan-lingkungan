@@ -36,7 +36,7 @@ class _ForgotPasswordViewState extends ConsumerState<ForgotPasswordView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Lupa Password")),
+      appBar: AppBar(title: const Text("Lupa Kata Sandi")),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Form(

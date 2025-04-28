@@ -78,7 +78,6 @@ export const renderDashboardChart = (overviewData) => {
       curve: "smooth",
       width: 6,
       lineCap: "round",
-      colors: [cardColor],
     },
     legend: {
       show: series.length > 1,
@@ -92,6 +91,7 @@ export const renderDashboardChart = (overviewData) => {
       borderColor: borderColor,
       padding: { top: 0, bottom: -8, left: 20, right: 20 },
     },
+    
     xaxis: {
       categories: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
       labels: {

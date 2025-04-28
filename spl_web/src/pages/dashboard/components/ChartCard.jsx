@@ -23,7 +23,7 @@ const ChartCard = ({ allReports }) => {
           <div id="totalRevenueChart" className="px-2"></div>
         </div>
         <div className="col-md-4 d-flex flex-column justify-content-center align-items-center p-3">
-          <div id="growthChart" style={{ width: "100%", height: "120px" }}></div>
+          <div id="growthChart" ></div>
           <div className="text-center">
             <h3 className="fw-bold mb-1 text-success">{completionPercentage}%</h3>
             <p className="text-muted small mb-0">Laporan Sudah Di Proses</p>

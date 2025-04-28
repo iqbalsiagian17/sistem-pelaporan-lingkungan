@@ -11,7 +11,7 @@ import WelcomeCard from "./components/WelcomeCard";
 import CompletionCard from "./components/CompletionCard";
 import InProgressCard from "./components/InProgressCard";
 import ChartCard from "./components/ChartCard";
-import TopLikedReports from "./components/TopLikedReports";
+import RatingYearChart from "./components/RatingYearChart";
 import LatestReportsTable from "./components/LatestReportsTable";
 import LatestUsersTable from "./components/LatestUsersTable";
 import DetailLaporanModal from "../laporan/components/DetailLaporanModal";
@@ -140,20 +140,14 @@ export const DashboardPage = () => {
           </div>
         </div>
 
-        <div className="col-12 col-lg-8 order-2 order-md-3 order-lg-2 mb-4">
-          <ChartCard allReports={allReports} />
-        </div>
+        <div className="col-12 col-md-12 col-lg-6 order-3 order-md-2 mb-4">
+  <ChartCard allReports={allReports} />
+</div>
 
-        <div className="col-12 col-md-8 col-lg-4 order-3 order-md-2">
-          <TopLikedReports
-            filteredTopReports={filteredTopReports}
-            filter={filter}
-            setFilter={setFilter}
-            translateStatus={translateStatus}
-            getStatusColor={getStatusColor}
-            handleOpenDetailModal={handleOpenDetailModal}
-          />
-        </div>
+<div className="col-12 col-md-12 col-lg-6 order-3 order-md-2 mb-4">
+  <RatingYearChart ratingAnalytics={overview.ratingAnalytics} />
+</div>
+
       </div>
 
       <div className="row mt-4">

@@ -58,7 +58,7 @@ class _ForgotPasswordBottomSheetState
             mainAxisSize: MainAxisSize.min,
             children: [
               const Text(
-                "Reset Password",
+                "Mengatur Ulang Kata Sandi",
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w700,
@@ -66,7 +66,7 @@ class _ForgotPasswordBottomSheetState
               ),
               const SizedBox(height: 12),
               const Text(
-                "Masukkan email terdaftar untuk menerima kode OTP reset password.",
+                "Masukkan email terdaftar untuk menerima kode OTP Mengatur Ulang Kata Sandi.",
                 textAlign: TextAlign.center,
                 style: TextStyle(color: Colors.black54),
               ),

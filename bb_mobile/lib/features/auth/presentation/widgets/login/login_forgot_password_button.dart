@@ -24,7 +24,7 @@ class LoginForgotPasswordButton extends StatelessWidget {
             );
           },
         child: const Text(
-          'Lupa Password?',
+          'Lupa Kata Sandi?',
           style: TextStyle(
             fontWeight: FontWeight.bold,
             color: Color(0xFF66BB6A),
