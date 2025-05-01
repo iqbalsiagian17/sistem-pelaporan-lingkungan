@@ -13,6 +13,11 @@ class AnnouncementListView extends ConsumerWidget {
     final state = ref.watch(announcementProvider);
     final notifier = ref.read(announcementProvider.notifier);
 
+    // ✅ Paksa fetch ulang saat masuk halaman
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      notifier.fetchAnnouncements();
+    });
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AnnouncementListTopBar(

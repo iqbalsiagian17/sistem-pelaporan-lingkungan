@@ -223,9 +223,12 @@ exports.createComment = async (req, res) => {
       });
   
       // Ambil postingan untuk mengetahui siapa pemiliknya
-      const post = await Post.findByPk(post_id, {
-        include: { model: User, as: "user", attributes: ["id", "fcm_token"] }
-      });
+      const post = await Post.findByPk(post_id);
+
+      const targetUser = await User.findByPk(post.user_id, {
+        attributes: ["id", "fcm_token", "username"]
+      });      
+
   
       if (!post) {
         return res.status(404).json({ message: "Postingan tidak ditemukan" });
@@ -236,10 +239,10 @@ exports.createComment = async (req, res) => {
       const notifMessage = `berkomentar: "${content.length > 80 ? content.slice(0, 77) + '...' : content}"`;
         
       await Notification.create({
-        user_id: post.user.id,
+        user_id: targetUser.id,
         title: notifTitle,
         message: notifMessage,
-        type: "general",
+        type: "forum",
         sent_by: "system",
         role_target: "user",
         is_read: false,

@@ -112,6 +112,9 @@ return GestureDetector(
           // Misal arahkan ke halaman list announcement (bisa ke detail kalau sudah ada id-nya)
           context.go(AppRoutes.allAnnouncement);
           break;
+        
+        case "forum":
+          context.go(AppRoutes.forum);
 
         default:
           ScaffoldMessenger.of(context).showSnackBar(
