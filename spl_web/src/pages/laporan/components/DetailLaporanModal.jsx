@@ -61,6 +61,13 @@ const DetailLaporanModal = ({ show, onHide, report }) => {
   const googleMapsUrl = hasCoordinates
     ? `https://www.google.com/maps/search/${report.latitude},${report.longitude}`
     : null;
+  const completedStatuses = report?.statusHistory?.filter((h) => h.new_status === "completed") || [];
+  const getEvidenceForCompletedStatus = (currentCreatedAt, nextCreatedAt) => {
+    return report?.evidences?.filter((e) => {
+      const evidenceDate = new Date(e.createdAt);
+      return evidenceDate >= new Date(currentCreatedAt) && evidenceDate < new Date(nextCreatedAt);
+    });
+  };
 
   return (
     <Modal show={show} onHide={onHide} size="xl" centered>
@@ -196,71 +203,93 @@ const DetailLaporanModal = ({ show, onHide, report }) => {
 
             {/* Riwayat Status */}
             <Card className="shadow border-0">
-              <Card.Body>
-                <h5 className="fw-bold text-primary mb-3">
-                  Riwayat Perubahan Status
-                </h5>
-                {report.statusHistory?.length ? (
-                  <div className="d-flex flex-column gap-3 w-100">
-                    {report.statusHistory.map((history, index) => (
-                      <div
-                        key={index}
-                        className="p-3 rounded shadow-sm w-100"
-                        style={{
-                          background: "#ffffff",
-                          borderLeft: "4px solid #007bff"
-                        }}
-                      >
-                        <div className="d-flex justify-content-between align-items-center">
-                          <span className="fw-bold text-dark">{history.changed_by?.username || "Admin"}</span>
-                          <span className="text-muted small">{new Date(history.createdAt).toLocaleString()}</span>
-                        </div>
+          <Card.Body>
+            <h5 className="fw-bold text-primary mb-3">Riwayat Perubahan Status</h5>
+            {report.statusHistory?.length ? (
+              <div className="d-flex flex-column gap-3 w-100">
+                {report.statusHistory.map((history, index) => {
+                  const isCompleted = history.new_status === "completed";
 
-                        <div className="d-flex align-items-center mt-2">
-                          <span className="badge bg-secondary me-2">{history.previous_status.toUpperCase()}</span>
-                          <FaArrowRight className="text-muted" />
-                          <span className="badge bg-primary ms-2">{history.new_status.toUpperCase()}</span>
-                        </div>
+                  // Cari completed berikutnya untuk batas akhir pencarian evidence
+                  let nextCompletedDate = "9999-12-31T23:59:59Z";
+                  if (isCompleted) {
+                    const nextCompleted = completedStatuses.find(
+                      (c) => new Date(c.createdAt) > new Date(history.createdAt)
+                    );
+                    if (nextCompleted) nextCompletedDate = nextCompleted.createdAt;
+                  }
 
-                        {history.message && (
-                          <div className="mt-2 p-2 rounded w-100" style={{ background: "#f8f9fa" }}>
-                            <p className="mb-0 text-dark">{history.message}</p>
-                          </div>
-                        )}
+                  const evidencesForThisStatus = isCompleted
+                    ? getEvidenceForCompletedStatus(history.createdAt, nextCompletedDate)
+                    : [];
 
-                        {history.new_status === "completed" && report.evidences?.length > 0 && (
-                          <div className="mt-3">
-                            <p className="fw-bold mb-2">📷 Bukti Tindakan:</p>
-                            <Row>
-                              {report.evidences.map((evidence, i) => {
-                                const imageUrl = getFullImageUrl(evidence.file);
-                                return (
-                                  <Col xs={6} md={4} key={i} className="mb-2">
-                                    <Card className="shadow-sm border-0">
-                                      <a href={imageUrl} target="_blank" rel="noopener noreferrer">
-                                        <img
-                                          src={imageUrl}
-                                          alt={`Evidence ${i + 1}`}
-                                          className="card-img-top rounded"
-                                          style={{ height: "180px", objectFit: "cover" }}
-                                          onError={(e) => {
-                                            e.target.src = "/assets/img/default-image.png";
-                                          }}
-                                        />
-                                      </a>
-                                    </Card>
-                                  </Col>
-                                );
-                              })}
-                            </Row>
-                          </div>
-                        )}
+                  return (
+                    <div
+                      key={index}
+                      className="p-3 rounded shadow-sm w-100"
+                      style={{ background: "#ffffff", borderLeft: "4px solid #007bff" }}
+                    >
+                      <div className="d-flex justify-content-between align-items-center">
+                        <span className="fw-bold text-dark">
+                          {history.changed_by?.username || "Admin"}
+                        </span>
+                        <span className="text-muted small">
+                          {new Date(history.createdAt).toLocaleString()}
+                        </span>
                       </div>
-                    ))}
-                  </div>
-                ) : <p className="text-muted">Tidak ada riwayat perubahan status</p>}
-              </Card.Body>
-            </Card>
+
+                      <div className="d-flex align-items-center mt-2">
+                        <span className="badge bg-secondary me-2">
+                          {history.previous_status.toUpperCase()}
+                        </span>
+                        <FaArrowRight className="text-muted" />
+                        <span className="badge bg-primary ms-2">
+                          {history.new_status.toUpperCase()}
+                        </span>
+                      </div>
+
+                      {history.message && (
+                        <div className="mt-2 p-2 rounded w-100" style={{ background: "#f8f9fa" }}>
+                          <p className="mb-0 text-dark">{history.message}</p>
+                        </div>
+                      )}
+
+                      {isCompleted && evidencesForThisStatus.length > 0 && (
+                        <div className="mt-3">
+                          <p className="fw-bold mb-2">📷 Bukti Tindakan:</p>
+                          <Row>
+                            {evidencesForThisStatus.map((evidence, i) => {
+                              const imageUrl = getFullImageUrl(evidence.file);
+                              return (
+                                <Col xs={6} md={4} key={i} className="mb-2">
+                                  <Card className="shadow-sm border-0">
+                                    <a href={imageUrl} target="_blank" rel="noopener noreferrer">
+                                      <img
+                                        src={imageUrl}
+                                        alt={`Evidence ${i + 1}`}
+                                        className="card-img-top rounded"
+                                        style={{ height: "180px", objectFit: "cover" }}
+                                        onError={(e) => {
+                                          e.target.src = "/assets/img/default-image.png";
+                                        }}
+                                      />
+                                    </a>
+                                  </Card>
+                                </Col>
+                              );
+                            })}
+                          </Row>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="text-muted">Tidak ada riwayat perubahan status</p>
+            )}
+          </Card.Body>
+        </Card>
           </>
         ) : <p className="text-center text-muted">Memuat detail...</p>}
 

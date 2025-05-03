@@ -19,6 +19,16 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false
       },
+      createdAt: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW // ✅ Pastikan default waktu dibuat
+      },
+      updatedAt: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW // ✅ Pastikan default waktu diperbarui
+      }
     }, {
       tableName: 't_report_evidences',
       timestamps: true

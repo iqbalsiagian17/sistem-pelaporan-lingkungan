@@ -6,7 +6,8 @@
     "completed": ["closed", "canceled"],
     "rejected": [],
     "canceled": [],
-    "closed": []
+    "closed": [],
+    "reopened": ["in_progress", "completed"]
   },
   "statusTranslations": {
     "pending": "Menunggu Verifikasi",
@@ -15,7 +16,8 @@
     "completed": "Selesai",
     "closed": "Ditutup",
     "rejected": "Ditolak",
-    "canceled": "Dibatalkan"
+    "canceled": "Dibatalkan",
+    "reopened": "Dibuka Ulang"
   },
   "statusMappings": {
     "pending": { "label": "Menunggu Verifikasi", "color": "warning" },
@@ -24,6 +26,7 @@
     "completed": { "label": "Selesai", "color": "success" },
     "closed": { "label": "Ditutup", "color": "secondary" },
     "rejected": { "label": "Ditolak", "color": "danger" },
-    "canceled": { "label": "Dibatalkan", "color": "dark" }
+    "canceled": { "label": "Dibatalkan", "color": "dark" },
+    "reopened": { "label": "Dibuka Ulang", "color": "warning" }
   }
 }

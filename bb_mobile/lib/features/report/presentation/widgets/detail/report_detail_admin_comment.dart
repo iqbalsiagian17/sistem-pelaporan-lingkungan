@@ -4,6 +4,8 @@ import 'package:bb_mobile/core/constants/api.dart';
 import 'package:bb_mobile/core/utils/status_utils.dart';
 import 'package:bb_mobile/features/report/data/models/report_evidence_model.dart';
 import 'package:bb_mobile/features/report/data/models/report_status_history_model.dart';
+import 'package:bb_mobile/features/report/data/models/user_model.dart';
+
 
 class ReportDetailStatusHistory extends StatelessWidget {
   final List<ReportStatusHistoryModel> statusHistory;
@@ -19,6 +21,8 @@ class ReportDetailStatusHistory extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final sortedHistory = [...statusHistory]..sort((a, b) => a.createdAt.compareTo(b.createdAt));
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -36,7 +40,6 @@ class ReportDetailStatusHistory extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 🔹 Header
           Row(
             children: const [
               Icon(Icons.timeline, color: Color(0xFF66BB6A), size: 20),
@@ -52,28 +55,47 @@ class ReportDetailStatusHistory extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 10),
-
-          // 🔹 Konten Riwayat
           if (statusHistory.isEmpty)
             _emptyHistory()
           else
             ListView.separated(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              itemCount: statusHistory.length,
+              itemCount: sortedHistory.length,
               separatorBuilder: (_, __) => const Divider(),
               itemBuilder: (context, index) {
-                final history = statusHistory[index];
-                final isLast = index == statusHistory.length - 1;
-                final showEvidence = ['completed', 'closed'].contains(history.newStatus) &&
-                    evidences.isNotEmpty &&
-                    isLast;
+                final history = sortedHistory[index];
+                final isCompleted = history.newStatus == 'completed';
+
+                final thisCompletedAt = DateTime.tryParse(history.createdAt)?.toUtc() ?? DateTime.utc(0);
+                final nextCompleted = sortedHistory.skip(index + 1).firstWhere(
+                  (h) => h.newStatus == 'completed',
+                  orElse: () => ReportStatusHistoryModel(
+                    id: 0,
+                    previousStatus: '',
+                    newStatus: '',
+                    message: '',
+                    createdAt: '9999-12-31T23:59:59.000Z',
+                    admin: UserModel(id: 1, username: '', email: '', phoneNumber: '', type: 0, profilePicture: '', createdAt: ''),
+                  ),
+                );
+                final nextCompletedDate = DateTime.tryParse(nextCompleted.createdAt)?.toUtc() ?? DateTime.utc(9999);
+
+                final evidencesForThisCompleted = evidences.where((e) {
+                  try {
+                    final evidenceDate = DateTime.parse(e.createdAt).toUtc();
+                    return evidenceDate.isAfter(thisCompletedAt.subtract(const Duration(seconds: 1))) &&
+                           evidenceDate.isBefore(nextCompletedDate);
+                  } catch (_) {
+                    return false;
+                  }
+                }).toList();
 
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _statusItem(history),
-                    if (showEvidence) ...[
+                    if (isCompleted && evidencesForThisCompleted.isNotEmpty) ...[
                       const SizedBox(height: 16),
                       const Text(
                         "Bukti Penanganan",
@@ -84,9 +106,9 @@ class ReportDetailStatusHistory extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 10),
-                        _evidenceGrid(context),
+                      _evidenceGrid(context, evidencesForThisCompleted),
                       const SizedBox(height: 16),
-                    ],
+                    ]
                   ],
                 );
               },
@@ -171,33 +193,33 @@ class ReportDetailStatusHistory extends StatelessWidget {
     );
   }
 
-Widget _evidenceGrid(BuildContext context) {
-  return Wrap(
-    spacing: 10,
-    runSpacing: 10,
-    children: evidences.map((e) {
-      final imageUrl = "${ApiConstants.baseUrl}/${e.file}";
-      return GestureDetector(
-        onTap: () => _showImageDialog(context, imageUrl),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: Image.network(
-            imageUrl,
-            width: 100,
-            height: 100,
-            fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) => Container(
+  Widget _evidenceGrid(BuildContext context, List<ReportEvidenceModel> specificEvidences) {
+    return Wrap(
+      spacing: 10,
+      runSpacing: 10,
+      children: specificEvidences.map((e) {
+        final imageUrl = "${ApiConstants.baseUrl}/${e.file}";
+        return GestureDetector(
+          onTap: () => _showImageDialog(context, imageUrl),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Image.network(
+              imageUrl,
               width: 100,
               height: 100,
-              color: Colors.grey[200],
-              child: const Icon(Icons.broken_image, color: Colors.grey),
+              fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) => Container(
+                width: 100,
+                height: 100,
+                color: Colors.grey[200],
+                child: const Icon(Icons.broken_image, color: Colors.grey),
+              ),
             ),
           ),
-        ),
-      );
-    }).toList(),
-  );
-}
+        );
+      }).toList(),
+    );
+  }
 
   void _showImageDialog(BuildContext context, String imageUrl) {
     showDialog(
@@ -224,7 +246,6 @@ Widget _evidenceGrid(BuildContext context) {
       },
     );
   }
-
 
   String _formatCreatedAt(String dateTime) {
     try {

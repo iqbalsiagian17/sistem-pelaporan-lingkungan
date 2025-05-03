@@ -1,6 +1,4 @@
 const admin = require('firebase-admin');
-
-// Ambil file serviceAccountKey dari Firebase Console
 const serviceAccount = require('../config/firebase-admin-sdk.json');
 
 admin.initializeApp({
@@ -14,7 +12,32 @@ const sendNotificationToUser = async (fcmToken, title, body, data = {}) => {
       title,
       body,
     },
-    data, // optional untuk payload tambahan
+    android: {
+      priority: "high",
+      notification: {
+        channelId: "high_importance_channel", // pastikan cocok dengan Flutter
+        sound: "default",
+        notificationCount: 1,
+      },
+    },
+    apns: {
+      headers: {
+        'apns-priority': '10',
+      },
+      payload: {
+        aps: {
+          alert: {
+            title,
+            body,
+          },
+          sound: 'default',
+        },
+      },
+    },
+    data: {
+      ...data,
+      click_action: "FLUTTER_NOTIFICATION_CLICK", // agar Flutter bisa tangkap
+    },
   };
 
   try {

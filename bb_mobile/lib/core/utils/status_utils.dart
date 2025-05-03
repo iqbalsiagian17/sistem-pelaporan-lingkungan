@@ -18,6 +18,8 @@ class StatusUtils {
         return "Ditutup";
       case 'canceled':
         return "Dibatalkan";
+      case 'reopened':
+        return "Dibuka Kembali";
       default:
         return "Status Tidak Diketahui";
     }
@@ -40,6 +42,8 @@ class StatusUtils {
         return const Color(0xFF757575); // Abu netral
       case 'canceled':
         return const Color(0xFFEF5350); // Merah muda lembut
+      case 'reopened':
+        return const Color(0xFF42A5F5); // Biru muda cerah
       default:
         return const Color(0xFFBDBDBD); // Abu terang untuk status tidak dikenal
     }
@@ -55,6 +59,7 @@ class StatusUtils {
       'completed',
       'closed',
       'canceled',
+      'reopened',
     ];
 
     for (final key in statusKeys) {

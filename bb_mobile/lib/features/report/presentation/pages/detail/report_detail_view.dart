@@ -37,31 +37,64 @@ class _ReportDetailViewState extends ConsumerState<ReportDetailView> {
   }
 
   Future<void> _checkAndShowRatingBottomSheet() async {
-    final currentUserId = await globalAuthService.getUserId(); // ambil ID user dari shared preferences
-    final reportOwnerId = widget.report.userId;
+  final currentUserId = await globalAuthService.getUserId();
+  final reportOwnerId = widget.report.userId;
 
-    if (widget.report.status == 'completed' &&
-        currentUserId != null &&
-        currentUserId == reportOwnerId) {
-      final alreadyRated = await ref.read(reportProvider.notifier).getRating(widget.report.id);
-      if (alreadyRated == null && context.mounted) {
-        showModalBottomSheet(
-          context: context,
-          isScrollControlled: true,
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-          ),
-          builder: (_) => RatingBottomSheet(
-            reportId: widget.report.id,
-            onSubmitted: () {
-              ref.read(reportProvider.notifier).fetchReports();
-              _fetchUserRating();
-            },
-          ),
-        );
+  if (widget.report.status == 'completed' &&
+      currentUserId != null &&
+      currentUserId == reportOwnerId) {
+    try {
+      final ratingJson =
+          await ref.read(reportProvider.notifier).getRating(widget.report.id);
+
+      if (!context.mounted) return;
+
+      if (ratingJson == null) {
+        _showRatingModal(); // Belum ada rating sama sekali
+        return;
       }
+
+      final rating = ReportRatingModel.fromJson(ratingJson);
+
+      if (!rating.isLatest) {
+        _showRatingModal(); // Ada rating tapi bukan yang terakhir
+        return;
+      }
+
+      final completedCount = widget.report.statusHistory
+          .where((h) => h.newStatus == 'completed')
+          .length;
+
+      if (rating.round < completedCount) {
+        _showRatingModal(); // Sudah pernah rating tapi belum untuk completed terakhir
+        return;
+      }
+
+    } catch (e) {
+      debugPrint("❌ Error saat cek rating: $e");
     }
   }
+}
+
+
+void _showRatingModal() {
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+    ),
+    builder: (_) => RatingBottomSheet(
+      reportId: widget.report.id,
+      onSubmitted: () {
+        ref.read(reportProvider.notifier).fetchReports();
+        _fetchUserRating(); // refresh tampilan review
+      },
+    ),
+  );
+}
+
+
 
   Future<void> _fetchUserRating() async {
     final result = await ref.read(reportProvider.notifier).getRating(widget.report.id);

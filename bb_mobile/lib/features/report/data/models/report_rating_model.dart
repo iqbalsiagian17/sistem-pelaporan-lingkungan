@@ -1,11 +1,11 @@
-// report_rating_model.dart
 class ReportRatingModel {
   final int id;
   final int reportId;
   final int userId;
   final int rating;
   final String? review;
-  final DateTime ratedAt;
+  final int round;
+  final bool isLatest;
 
   ReportRatingModel({
     required this.id,
@@ -13,7 +13,8 @@ class ReportRatingModel {
     required this.userId,
     required this.rating,
     this.review,
-    required this.ratedAt,
+    required this.round,
+    required this.isLatest,
   });
 
   factory ReportRatingModel.fromJson(Map<String, dynamic> json) {
@@ -23,7 +24,8 @@ class ReportRatingModel {
       userId: json['user_id'],
       rating: json['rating'],
       review: json['review'],
-      ratedAt: DateTime.parse(json['rated_at']),
+      round: json['round'],
+      isLatest: json['is_latest'],
     );
   }
 }

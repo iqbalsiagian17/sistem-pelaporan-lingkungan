@@ -54,7 +54,7 @@ exports.getAllReports = async (req, res) => {
         {
           model: ReportEvidence,
           as: 'evidences',
-          attributes: ['id', 'file'] // ✅ Tambahkan ini
+          attributes: ['id', 'file', 'createdAt'] // ✅ Tambahkan ini
         }
       ],
       order: [['createdAt', 'DESC']] // Urutkan laporan dari yang terbaru
@@ -103,7 +103,7 @@ exports.getReportById = async (req, res) => {
         {
           model: ReportEvidence,
           as: 'evidences', // ⬅️ Tambahkan ini
-          attributes: ['id', 'file']
+          attributes: ['id', 'file', 'createdAt'] // ⬅️ Ambil file dan createdAt
         }
       ]
     });
@@ -397,49 +397,82 @@ exports.getReportStats = async (req, res) => {
 exports.createRating = async (req, res) => {
   try {
     const user_id = req.user.id;
-    const report_id = req.params.id; // ✅ dari route param
+    const report_id = req.params.id;
     const { rating, review } = req.body;
 
     if (!rating) {
       return res.status(400).json({ message: "Rating wajib diisi" });
     }
 
-    // Cek apakah laporan valid dan statusnya "completed"
     const report = await Report.findByPk(report_id);
     if (!report || report.user_id !== user_id || report.status !== 'completed') {
       return res.status(400).json({ message: "Laporan tidak valid atau belum selesai" });
     }
 
-    // Cek apakah user sudah pernah memberi rating
-    const existingRating = await RatingReport.findOne({ where: { report_id, user_id } });
-    if (existingRating) {
-      return res.status(400).json({ message: "Anda sudah memberikan rating untuk laporan ini" });
+    const lastRating = await RatingReport.findOne({
+      where: { report_id, user_id },
+      order: [['round', 'DESC']]
+    });
+
+    let nextRound = 1;
+    if (lastRating) {
+      if (lastRating.is_latest) {
+        await lastRating.update({ is_latest: false });
+      }
+      nextRound = lastRating.round + 1;
     }
 
-    // Simpan rating
     const newRating = await RatingReport.create({
       report_id,
       user_id,
       rating,
-      review: review || null
+      review: review || null,
+      rated_at: new Date(),
+      round: nextRound,
+      is_latest: true
     });
 
-    // Ubah status menjadi "closed"
-    report.status = 'closed';
+    const previous_status = report.status;
+    let new_status = 'closed';
+    let statusMessage = 'Laporan ditutup setelah penilaian.';
+
+    const hasBeenReopened = await ReportStatusHistory.findOne({
+      where: {
+        report_id,
+        new_status: 'reopened'
+      }
+    });
+
+    if (newRating.round === 1 || newRating.is_latest) {
+      if (rating < 3 && !hasBeenReopened) {
+        new_status = 'reopened';
+        statusMessage = 'Laporan dibuka kembali berdasarkan review pengguna.';
+      }
+
+    report.status = new_status;
     await report.save();
 
-    // Ambil data user untuk notifikasi admin
+    await ReportStatusHistory.create({
+      report_id,
+      changed_by: user_id,
+      previous_status,
+      new_status,
+      message: statusMessage
+    });
+
     const user = await User.findByPk(user_id);
 
-    // ✅ Kirim notifikasi ke admin
     await Notification.create({
-      title: "Penilaian Laporan Baru",
-      message: `Pengguna ${user.username} telah memberikan penilaian terhadap laporan dengan nomor ${report.report_number}.`,
+      title: new_status === 'reopened' ? "Laporan Dibuka Kembali" : "Penilaian Laporan Baru",
+      message: new_status === 'reopened'
+        ? `Laporan #${report.report_number} dibuka kembali karena mendapatkan rating kurang dari 3 oleh pengguna ${user.username}.`
+        : `Pengguna ${user.username} telah memberikan penilaian terhadap laporan dengan nomor ${report.report_number}.`,
       type: "report",
       report_id: report.id,
       sent_by: "system",
       role_target: "admin"
     });
+    }
 
     res.status(201).json({
       message: "Terima kasih atas penilaian Anda!",
@@ -451,16 +484,14 @@ exports.createRating = async (req, res) => {
   }
 };
 
-exports.getRatingByReportId = async (req, res) => {
+exports.getLatestRating = async (req, res) => {
   try {
-    const report_id = req.params.id; // ✅ ambil dari route param
+    const { id: report_id } = req.params;
+    const user_id = req.user.id;
 
     const rating = await RatingReport.findOne({
-      where: { report_id },
-      include: [
-        { model: User, as: 'user', attributes: ['id', 'username'] },
-        { model: Report, as: 'report', attributes: ['id', 'title', 'report_number'] }
-      ]
+      where: { report_id, user_id, is_latest: true },
+      order: [['round', 'DESC']]
     });
 
     if (!rating) {
@@ -468,11 +499,39 @@ exports.getRatingByReportId = async (req, res) => {
     }
 
     res.status(200).json({
-      message: "Rating berhasil diambil",
+      message: "Rating terbaru berhasil diambil",
       data: rating
+    });
+  } catch (error) {
+    console.error("❌ Error getLatestRating:", error);
+    res.status(500).json({ message: "Gagal mengambil rating", error: error.message });
+  }
+};
+
+
+exports.getRatingByReportId = async (req, res) => {
+  try {
+    const report_id = req.params.id;
+
+    const latestRating = await RatingReport.findOne({
+      where: { report_id, is_latest: true },
+      include: [
+        { model: User, as: 'user', attributes: ['id', 'username'] },
+        { model: Report, as: 'report', attributes: ['id', 'title', 'report_number'] }
+      ]
+    });
+
+    if (!latestRating) {
+      return res.status(404).json({ message: "Rating tidak ditemukan" });
+    }
+
+    res.status(200).json({
+      message: "Rating berhasil diambil",
+      data: latestRating
     });
   } catch (error) {
     console.error("❌ Error getRatingByReportId:", error);
     res.status(500).json({ message: "Gagal mengambil rating", error: error.message });
   }
 };
+

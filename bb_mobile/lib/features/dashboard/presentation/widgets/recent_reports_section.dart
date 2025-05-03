@@ -42,7 +42,7 @@ class RecentReportsSection extends ConsumerWidget {
           ),
           data: (reports) {
             final filtered = reports
-                .where((r) => ["verified", "in_progress", "completed", "closed"].contains(r.status))
+                .where((r) => ["verified", "in_progress", "completed", "reopened", "closed"].contains(r.status))
                 .take(5)
                 .toList();
 

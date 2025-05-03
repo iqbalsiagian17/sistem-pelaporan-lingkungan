@@ -122,6 +122,8 @@ const getNotificationTitleByStatus = (status) => {
       return "Laporan Telah Ditutup";
     case "canceled":
       return "Laporan Telah Dibatalkan";
+    case "reopened":
+      return "Laporan Dibuka Kembali oleh Pengguna";
     default:
       return "Status Laporan Diperbarui";
   }
@@ -143,6 +145,8 @@ const generateNotificationMessage = (status, reportNumber) => {
       return `Laporan Anda dengan nomor ${reportNumber} telah resmi ditutup. Terima kasih telah peduli terhadap lingkungan.`;
     case "canceled":
       return `Laporan Anda dengan nomor ${reportNumber} telah dibatalkan oleh tim Dinas. Terima kasih atas pengertiannya.`;   
+    case "reopened":
+      return `Laporan Anda dengan nomor ${reportNumber} telah dibuka kembali berdasarkan penilaian Anda sebelumnya. Tim akan menindaklanjuti kembali laporan ini.`;
     default:
       return `Laporan Anda dengan nomor ${reportNumber} mengalami pembaruan status. Silakan cek untuk informasi lengkap.`;
   }
@@ -153,89 +157,104 @@ const generateNotificationMessage = (status, reportNumber) => {
 
 
 
-  exports.updateReportStatus = async (req, res) => {
-    try {
-      const admin_id = req.user.id;
-      const { id } = req.params;
-      const { new_status, message } = req.body;
+exports.updateReportStatus = async (req, res) => {
+  try {
+    const admin_id = req.user.id;
+    const { id } = req.params;
+    const { new_status, message } = req.body;
 
-      if (!new_status || !message) {
-        return res.status(400).json({ message: 'Status baru dan pesan wajib diisi' });
-      }
-
-      const report = await Report.findByPk(id, {
-        include: [
-          { model: User, as: 'user', attributes: ['id', 'fcm_token'] }
-        ]
-      });
-      
-      if (!report) return res.status(404).json({ message: 'Laporan tidak ditemukan' });
-
-      const previous_status = report.status;
-
-      // Update status laporan
-      report.status = new_status;
-      await report.save();
-
-      // Catat perubahan di histori
-      await ReportStatusHistory.create({
-        report_id: id,
-        changed_by: admin_id,
-        previous_status,
-        new_status,
-        message
-      });
-
-      // Kalau status completed dan ada bukti, upload buktinya
-      if (new_status === "completed" && req.files) {
-        if (req.files.length > 5) {
-          return res.status(400).json({ message: 'Maksimal 5 gambar dapat diunggah sebagai bukti.' });
-        }
-
-        const evidences = req.files.map(file => ({
-          report_id: id,
-          file: `uploads/evidences/${file.filename}`,
-          uploaded_by: admin_id
-        }));
-
-        await ReportEvidence.bulkCreate(evidences);
-      }
-
-      // Buat notifikasi
-      const notifTitle = getNotificationTitleByStatus(new_status);
-      const notifMessage = generateNotificationMessage(new_status, report.report_number);
-
-      await Notification.create({
-        user_id: report.user_id,
-        report_id: report.id, 
-        title: notifTitle,
-        message: notifMessage,
-        type: "report",
-        sent_by: "system",
-        role_target: "user"
-      });
-
-      // Kirim FCM kalau user punya token
-      if (report.user.fcm_token) {
-        await sendNotificationToUser(
-          report.user.fcm_token,
-          notifTitle,
-          notifMessage,
-          {
-            report_id: report.id.toString(),
-            type: "report_status_update",
-            route: "notification"
-          }
-        );
-      }
-
-      res.status(200).json({ message: 'Status laporan berhasil diperbarui' });
-
-    } catch (error) {
-      console.error("❌ Error:", error);
-      res.status(500).json({ message: "Terjadi kesalahan", error: error.message });
+    if (!new_status || !message) {
+      return res.status(400).json({ message: 'Status baru dan pesan wajib diisi' });
     }
-  };
+
+    // ✅ Validasi status yang diperbolehkan
+    const allowedStatuses = [
+      "pending", "verified", "in_progress", "completed",
+      "rejected", "closed", "canceled", "reopened"
+    ];
+    if (!allowedStatuses.includes(new_status)) {
+      return res.status(400).json({ message: "Status laporan tidak valid." });
+    }
+
+    const report = await Report.findByPk(id, {
+      include: [
+        { model: User, as: 'user', attributes: ['id', 'fcm_token'] }
+      ]
+    });
+
+    if (!report) return res.status(404).json({ message: 'Laporan tidak ditemukan' });
+
+    const previous_status = report.status;
+
+    // ✅ Update status laporan
+    report.status = new_status;
+    await report.save();
+
+    // ✅ Catat perubahan di histori
+    await ReportStatusHistory.create({
+      report_id: id,
+      changed_by: admin_id,
+      previous_status,
+      new_status,
+      message
+    });
+
+    // ✅ Jika completed dan ada file bukti
+    if (new_status === "completed" && req.files) {
+      if (req.files.length > 5) {
+        return res.status(400).json({ message: 'Maksimal 5 gambar dapat diunggah sebagai bukti.' });
+      }
+
+      const evidences = req.files.map(file => ({
+        report_id: id,
+        file: `uploads/evidences/${file.filename}`,
+        uploaded_by: admin_id
+      }));
+
+      await ReportEvidence.bulkCreate(evidences);
+    }
+
+    // ✅ Siapkan notifikasi
+    const notifTitle = getNotificationTitleByStatus(new_status);
+    const notifMessage = generateNotificationMessage(new_status, report.report_number);
+
+    await Notification.create({
+      user_id: report.user_id,
+      report_id: report.id,
+      title: notifTitle,
+      message: notifMessage,
+      type: "report",
+      sent_by: "system",
+      role_target: "user"
+    });
+
+    // ✅ Kirim FCM jika user punya token
+    if (report.user.fcm_token) {
+      await sendNotificationToUser(
+        report.user.fcm_token,
+        notifTitle,
+        notifMessage,
+        {
+          report_id: report.id.toString(),
+          type: "report_status_update",
+          route: "notification"
+        }
+      );
+    }
+
+    // ✅ Log khusus jika laporan berasal dari reopened
+    if (previous_status === 'reopened') {
+      console.log(`✅ Admin ${admin_id} menindaklanjuti ulang laporan #${report.report_number} dari status 'reopened' ke '${new_status}'`);
+    }
+
+    res.status(200).json({ message: 'Status laporan berhasil diperbarui' });
+
+  } catch (error) {
+    console.error("❌ Error updateReportStatus:", error);
+    res.status(500).json({ message: "Terjadi kesalahan", error: error.message });
+  }
+};
+
 
 
 // Auto-close laporan setelah 24 jam

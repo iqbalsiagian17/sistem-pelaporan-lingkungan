@@ -34,15 +34,20 @@ module.exports = {
         type: Sequelize.TEXT,
         allowNull: true
       },
+      round: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        defaultValue: 1 // pertama kali rating = round 1
+      },
+      is_latest: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: true // hanya 1 per report_id + user_id
+      },
       rated_at: {
         type: Sequelize.DATE,
         allowNull: false,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
-      },
-      auto_closed: {
-        type: Sequelize.BOOLEAN,
-        allowNull: false,
-        defaultValue: false
       },
       createdAt: {
         allowNull: false,

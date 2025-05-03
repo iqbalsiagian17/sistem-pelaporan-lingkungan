@@ -14,5 +14,6 @@ router.get('/:id/report-stats', authMiddleware, userReportController.getReportSt
 
 router.post('/:id/rating', authMiddleware, userReportController.createRating);
 router.get('/:id/rating', authMiddleware, userReportController.getRatingByReportId);
+router.get('/:id/rating-latest', authMiddleware, userReportController.getLatestRating); // ✅ NEW
 
 module.exports = router;

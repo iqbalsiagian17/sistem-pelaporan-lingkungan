@@ -50,5 +50,17 @@ class ReportStatusHistoryModel extends ReportStatusHistoryEntity {
         'admin': (admin as UserModel).toJson(), 
       };
 
+  static ReportStatusHistoryModel empty() {
+    return ReportStatusHistoryModel(
+      id: -1,
+      previousStatus: '',
+      newStatus: '',
+      message: '',
+      createdAt: '9999-12-31T23:59:59',
+      admin: UserModel(id: 1, username: '', email: '', phoneNumber: '', type: 0, profilePicture: '', createdAt: ''),
+    );
+  }
+
+
       
 }

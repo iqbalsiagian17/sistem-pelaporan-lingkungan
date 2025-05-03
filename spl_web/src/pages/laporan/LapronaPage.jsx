@@ -84,6 +84,7 @@ const LaporanPage = () => {
       rejected: [],
       closed: [],
       canceled: [],
+      reopened: ["in_progress", "completed"],
     };
 
     if (!allowed[selectedReport.status]?.includes(newStatus)) {
