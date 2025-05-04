@@ -98,24 +98,31 @@ const getOverview = async (req, res) => {
 
     // --- ANALISIS RATING ---
 
-    // 1. Rata-rata rating dari semua laporan
-    const allRatingAvgResult = await RatingReport.findOne({
-      attributes: [[Sequelize.fn("AVG", Sequelize.col("rating")), "avg_rating"]],
-      raw: true,
-    });
-    const averageRatingAll = parseFloat(allRatingAvgResult?.avg_rating || 0).toFixed(2);
+// 1. Rata-rata rating dari semua laporan (hanya yang is_latest = true)
+const allRatingAvgResult = await RatingReport.findOne({
+  attributes: [[Sequelize.fn("AVG", Sequelize.col("rating")), "avg_rating"]],
+  where: {
+    is_latest: true, // ✅ hanya rating terbaru
+  },
+  raw: true,
+});
+const averageRatingAll = parseFloat(allRatingAvgResult?.avg_rating || 0).toFixed(2);
 
-    // 2. Rata-rata rating berdasarkan tahun
-    const averageRatingByYear = await RatingReport.findAll({
-      attributes: [
-        [Sequelize.fn("YEAR", Sequelize.col("rated_at")), "year"],
-        [Sequelize.fn("AVG", Sequelize.col("rating")), "avg_rating"],
-        [Sequelize.fn("COUNT", Sequelize.col("id")), "jumlah_rating"],
-      ],
-      group: ["year"],
-      order: [["year", "ASC"]],
-      raw: true,
-    });
+// 2. Rata-rata rating per tahun (hanya yang is_latest = true)
+const averageRatingByYear = await RatingReport.findAll({
+  attributes: [
+    [Sequelize.fn("YEAR", Sequelize.col("rated_at")), "year"],
+    [Sequelize.fn("AVG", Sequelize.col("rating")), "avg_rating"],
+    [Sequelize.fn("COUNT", Sequelize.col("id")), "jumlah_rating"],
+  ],
+  where: {
+    is_latest: true, // ✅ hanya rating terbaru
+  },
+  group: ["year"],
+  order: [["year", "ASC"]],
+  raw: true,
+});
+
 
     return res.json({
       totalReports,

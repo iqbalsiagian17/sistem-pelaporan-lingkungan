@@ -28,11 +28,11 @@ module.exports = {
         onDelete: 'CASCADE'
       },
       previous_status: {
-        type: Sequelize.ENUM('pending', 'rejected', 'verified', 'in_progress', 'completed', 'closed'),
+        type: Sequelize.ENUM('pending', 'rejected', 'verified', 'in_progress', 'completed', 'reopened', 'closed'),
         allowNull: false
       },
       new_status: {
-        type: Sequelize.ENUM('pending', 'rejected', 'verified', 'in_progress', 'completed', 'closed'),
+        type: Sequelize.ENUM('pending', 'rejected', 'verified', 'in_progress', 'completed', 'reopened', 'closed'),
         allowNull: false
       },
       message: {

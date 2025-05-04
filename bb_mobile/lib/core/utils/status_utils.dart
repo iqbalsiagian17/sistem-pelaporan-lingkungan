@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class StatusUtils {
   // 🔹 Konversi status dari backend ke bahasa Indonesia
   static String getTranslatedStatus(String? status) {
-    switch (status) {
+    switch (status?.toLowerCase()) {
       case 'pending':
         return "Menunggu Konfirmasi";
       case 'rejected':
@@ -27,7 +27,7 @@ class StatusUtils {
 
   // 🔹 Warna status yang lebih modern dan simpel
   static Color getStatusColor(String? status) {
-    switch (status) {
+    switch (status?.toLowerCase()) {
       case 'pending':
         return const Color(0xFFFBC02D); // Kuning elegan
       case 'rejected':

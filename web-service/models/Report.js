@@ -35,7 +35,7 @@ module.exports = (sequelize, DataTypes) => {
               allowNull: false
           },
           status: {
-              type: DataTypes.ENUM('pending', 'rejected', 'verified', 'in_progress', 'completed', 'closed', 'cancelled'),
+              type: DataTypes.ENUM('pending', 'rejected', 'verified', 'in_progress', 'completed', 'closed', 'reopened', 'cancelled'),
               defaultValue: 'pending'
           },
           village: {
