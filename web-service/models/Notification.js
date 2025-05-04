@@ -43,7 +43,6 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       tableName: 't_notification',
-      underscored: true,
       timestamps: true, // ✅ untuk createdAt dan updatedAt otomatis
     }
   );

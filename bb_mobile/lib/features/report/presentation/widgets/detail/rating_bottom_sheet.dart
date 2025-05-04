@@ -28,15 +28,25 @@ class _RatingBottomSheetState extends ConsumerState<RatingBottomSheet> {
     "Terima kasih atas tindak lanjutnya",
   ];
 
-  final List<String> _negativeComments = [
-    "Tindak lanjut terlalu lama",
-    "Kurang respon dari petugas",
-    "Mohon ditingkatkan lagi pelayanannya",
+  final List<String> _neutralComments = [
+    "Cukup baik, tapi masih bisa ditingkatkan",
+    "Layanan sudah oke, namun kurang konsisten",
+    "Masih ada yang perlu diperbaiki",
   ];
+
+  final List<String> _negativeComments = [
+    "Laporan tidak ditangani dengan baik",
+    "Penanganan tidak sesuai harapan",
+    "Masalah belum benar-benar selesai",
+    "Butuh peninjauan ulang atas laporan ini",
+    "Saya merasa laporan saya diabaikan",
+  ];
+
 
   List<String> get _currentComments {
     if (_selectedRating == null) return [];
     if (_selectedRating! <= 2) return _negativeComments;
+    if (_selectedRating == 3) return _neutralComments;
     return _positiveComments;
   }
 
@@ -56,6 +66,12 @@ class _RatingBottomSheetState extends ConsumerState<RatingBottomSheet> {
 
   void _submitRating() async {
     if (_selectedRating == null) return;
+
+    // ⛔️ Konfirmasi jika rating < 2
+    if (_selectedRating! < 3) {
+      final confirm = await _showLowRatingConfirmation();
+      if (!confirm) return; // Batalkan jika user tidak setuju
+    }
 
     setState(() => _isSubmitting = true);
 
@@ -79,6 +95,7 @@ class _RatingBottomSheetState extends ConsumerState<RatingBottomSheet> {
       );
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -207,4 +224,85 @@ class _RatingBottomSheetState extends ConsumerState<RatingBottomSheet> {
 
     );
   }
+
+  Future<bool> _showLowRatingConfirmation() async {
+  return await showModalBottomSheet<bool>(
+    context: context,
+    backgroundColor: Colors.white,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+    ),
+    builder: (context) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.warning_amber_rounded, size: 50, color: Colors.red),
+            const SizedBox(height: 12),
+            const Text(
+              "Penilaian Sangat Rendah",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              "Penilaian di bawah 3 akan memicu peninjauan ulang laporan oleh Dinas Lingkungan Hidup.\n\n"
+              "Untuk memproses peninjauan ulang, Anda *wajib* memberikan komentar yang jelas dan jujur sebagai alasan penilaian rendah.\n"
+              "Komentar Anda akan menjadi bahan verifikasi oleh admin, jadi pastikan alasan yang diberikan dapat dipertanggungjawabkan.",
+              style: TextStyle(fontSize: 14, color: Colors.black54, height: 1.5),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pop(context, false),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      side: const BorderSide(color: Color(0xFF66BB6A)),
+                    ),
+                    child: const Text(
+                      "Batal",
+                      style: TextStyle(
+                        color: Color(0xFF66BB6A),
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.pop(context, true),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      backgroundColor: Colors.red,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text(
+                      "Lanjutkan",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    },
+  ) ?? false;
+}
+
+
 }

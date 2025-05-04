@@ -25,7 +25,7 @@ class UserEntity {
       phoneNumber: json['phone_number'],
       type: json['type'],
       profilePicture: json['profile_picture'],
-      createdAt: json['created_at'] ?? '', 
+      createdAt: json['createdAt'] ?? '', 
     );
   }
 }

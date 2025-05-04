@@ -69,7 +69,7 @@ const NotificationController = {
     try {
       const notifications = await Notification.findAll({
         include: [{ model: User, as: "user", attributes: ["id", "username", "email"] }],
-        order: [["created_at", "DESC"]],
+        order: [["createdAt", "DESC"]],
       });
 
       return res.json({ notifications });
@@ -86,7 +86,7 @@ const NotificationController = {
 
       const notifications = await Notification.findAll({
         where: { user_id: userId },
-        order: [["created_at", "DESC"]],
+        order: [["createdAt", "DESC"]],
       });
 
       return res.json({ notifications });

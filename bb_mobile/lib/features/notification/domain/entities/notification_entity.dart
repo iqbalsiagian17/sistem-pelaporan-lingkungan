@@ -33,8 +33,8 @@ class UserNotificationEntity {
       userId: json['user_id'],
       reportId: json['report_id'],
       roleTarget: json['role_target'] ?? 'user',
-      createdAt: DateTime.parse(json['created_at']),
-      updatedAt: DateTime.parse(json['updated_at']),
+      createdAt: DateTime.parse(json['createdAt']),
+      updatedAt: DateTime.parse(json['updatedAt']),
     );
   }
 

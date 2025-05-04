@@ -249,18 +249,19 @@ exports.createComment = async (req, res) => {
       });
   
       // 🚀 Kirim FCM jika tersedia token
-      if (post.user.fcm_token) {
+      if (targetUser.fcm_token) {
         await sendNotificationToUser(
-          post.user.fcm_token,
+          targetUser.fcm_token,
           notifTitle,
           notifMessage,
           {
             type: "comment",
             route: "notification",
-            post_id: post.id.toString(), // jika ingin diarahkan langsung ke postingan
+            post_id: post.id.toString(),
           }
         );
       }
+      
   
       res.status(201).json({ message: "Comment added successfully", comment: fullComment });
   

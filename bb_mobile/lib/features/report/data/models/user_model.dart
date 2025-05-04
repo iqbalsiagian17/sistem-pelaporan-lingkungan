@@ -27,7 +27,7 @@ class UserModel extends UserEntity {
       phoneNumber: json['phone_number'] ?? '',
       type: json['type'] ?? 0,
       profilePicture: json["profile_picture"] ?? "",
-      createdAt: json['created_at'] ?? '', // Assuming createdAt is a string
+      createdAt: json['createdAt'] ?? '', // Assuming createdAt is a string
     );
   }
 
@@ -51,7 +51,7 @@ class UserModel extends UserEntity {
         'phone_number': phoneNumber,
         'type': type,
         'profile_picture': profilePicture,
-        'created_at': createdAt,
+        'createdAt': createdAt,
       };
 
       

@@ -23,7 +23,7 @@ class ReportStatusHistoryEntity {
       previousStatus: json['previous_status'],
       newStatus: json['new_status'],
       message: json['message'],
-      createdAt: json['created_at'],
+      createdAt: json['createdAt'],
       admin: UserEntity.fromJson(json['admin']),
     );
   }
