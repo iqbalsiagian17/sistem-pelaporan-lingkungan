@@ -6,8 +6,7 @@ import 'package:bb_mobile/features/notification/domain/usecases/mark_notificatio
 import 'package:bb_mobile/features/notification/presentation/providers/usecase_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-final notificationProvider =
-    StateNotifierProvider<NotificationNotifier, AsyncValue<List<UserNotificationEntity>>>(
+final notificationProvider = StateNotifierProvider<NotificationNotifier, NotificationState>(
   (ref) => NotificationNotifier(
     getUserNotificationsUseCase: ref.read(getUserNotificationsUseCaseProvider),
     markAsReadUseCase: ref.read(markNotificationAsReadUseCaseProvider),
@@ -15,7 +14,27 @@ final notificationProvider =
   ),
 );
 
-class NotificationNotifier extends StateNotifier<AsyncValue<List<UserNotificationEntity>>> {
+class NotificationState {
+  final List<UserNotificationEntity> notifications;
+  final int unreadCount;
+
+  NotificationState({
+    required this.notifications,
+    required this.unreadCount,
+  });
+
+  NotificationState copyWith({
+    List<UserNotificationEntity>? notifications,
+    int? unreadCount,
+  }) {
+    return NotificationState(
+      notifications: notifications ?? this.notifications,
+      unreadCount: unreadCount ?? this.unreadCount,
+    );
+  }
+}
+
+class NotificationNotifier extends StateNotifier<NotificationState> {
   final GetUserNotificationsUseCase getUserNotificationsUseCase;
   final MarkNotificationAsReadUseCase markAsReadUseCase;
   final MarkAllNotificationsAsReadUseCase markAllAsReadUseCase;
@@ -24,34 +43,16 @@ class NotificationNotifier extends StateNotifier<AsyncValue<List<UserNotificatio
     required this.getUserNotificationsUseCase,
     required this.markAsReadUseCase,
     required this.markAllAsReadUseCase,
-  }) : super(const AsyncLoading());
+  }) : super(NotificationState(notifications: [], unreadCount: 0));
 
-  /// 🚀 Ambil notifikasi untuk user tertentu
   Future<void> loadNotifications(String userId) async {
-    state = const AsyncLoading();
     try {
       final notifications = await getUserNotificationsUseCase(userId);
-      state = AsyncValue.data(notifications);
-    } catch (e, st) {
-      state = AsyncValue.error(e, st);
-    }
-  }
-
-  /// ✅ Tandai notifikasi tertentu sebagai dibaca
-  Future<void> markAsRead(int id) async {
-    try {
-      await markAsReadUseCase(id);
-      state = state.whenData((notifs) => [
-            for (final notif in notifs)
-              if (notif.id == id)
-                notif.copyWith(isRead: true)
-              else
-                notif
-          ]);
+      final unread = _countUnread(notifications, int.tryParse(userId));
+      state = NotificationState(notifications: notifications, unreadCount: unread);
     } catch (_) {}
   }
 
-  /// 🔄 Refresh berdasarkan user saat ini (pakai token)
   Future<void> refresh() async {
     final userId = await globalAuthService.getUserId();
     if (userId != null) {
@@ -59,28 +60,29 @@ class NotificationNotifier extends StateNotifier<AsyncValue<List<UserNotificatio
     }
   }
 
-  /// ✅ Tandai semua notifikasi sebagai dibaca
-  Future<void> markAllAsRead() async {
+  Future<void> markAsRead(int id) async {
     try {
-      await markAllAsReadUseCase();
-      state = state.whenData((notifs) =>
-          notifs.map((n) => n.copyWith(isRead: true)).toList());
+      await markAsReadUseCase(id);
+      final updated = state.notifications.map((n) {
+        return n.id == id ? n.copyWith(isRead: true) : n;
+      }).toList();
+      final unread = _countUnread(updated, globalAuthService.userId);
+      state = state.copyWith(notifications: updated, unreadCount: unread);
     } catch (_) {}
   }
 
-  /// 🔔 Hitung notifikasi yang belum dibaca (khusus user saat ini)
-  int get unreadCount {
-    final userId = globalAuthService.userId;
-    return state.when(
-      data: (list) => list.where((e) {
-        return !e.isRead &&
-            (
-              e.userId == userId || // untuk user spesifik
-              (e.userId == null && e.roleTarget == 'user') // general
-            );
-      }).length,
-      error: (_, __) => 0,
-      loading: () => 0,
-    );
+  Future<void> markAllAsRead() async {
+    try {
+      await markAllAsReadUseCase();
+      final updated = state.notifications.map((n) => n.copyWith(isRead: true)).toList();
+      state = state.copyWith(notifications: updated, unreadCount: 0);
+    } catch (_) {}
+  }
+
+  int _countUnread(List<UserNotificationEntity> list, int? userId) {
+    return list.where((e) =>
+        !e.isRead &&
+        (e.userId == userId ||
+            (e.userId == null && e.roleTarget == 'user'))).length;
   }
 }

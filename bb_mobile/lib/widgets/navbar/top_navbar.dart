@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -14,20 +15,27 @@ class TopBar extends ConsumerStatefulWidget implements PreferredSizeWidget {
 }
 
 class _TopBarState extends ConsumerState<TopBar> with WidgetsBindingObserver {
+  Timer? _pollingTimer;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _startPolling();
+  }
+
+  void _startPolling() {
     _refreshNotif();
+    _pollingTimer = Timer.periodic(const Duration(seconds: 10), (_) => _refreshNotif());
   }
 
   void _refreshNotif() {
-    final notifier = ref.read(notificationProvider.notifier);
-    notifier.refresh();
+    ref.read(notificationProvider.notifier).refresh();
   }
 
   @override
   void dispose() {
+    _pollingTimer?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -41,7 +49,7 @@ class _TopBarState extends ConsumerState<TopBar> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    final unreadCount = ref.watch(notificationProvider.notifier).unreadCount;
+    final unreadCount = ref.watch(notificationProvider).unreadCount;
 
     return AppBar(
       backgroundColor: const Color(0xFF66BB6A),
@@ -56,48 +64,42 @@ class _TopBarState extends ConsumerState<TopBar> with WidgetsBindingObserver {
       centerTitle: false,
       elevation: 0,
       actions: [
-        // 🔽 Tambah dropdown
         PopupMenuButton<int>(
-        icon: const Icon(Icons.add, color: Colors.white),
-        color: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          icon: const Icon(Icons.add, color: Colors.white),
+          color: Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          elevation: 8,
+          offset: const Offset(0, 45),
+          onSelected: (value) {
+            if (value == 0) {
+              context.push('/create-report');
+            } else if (value == 1) {
+              context.push('/forum?openModal=create');
+            }
+          },
+          itemBuilder: (context) => [
+            PopupMenuItem<int>(
+              value: 0,
+              child: Row(
+                children: const [
+                  Icon(Icons.add, size: 20, color: Color(0xFF66BB6A)),
+                  SizedBox(width: 10),
+                  Text("Buat Aduan Baru"),
+                ],
+              ),
+            ),
+            PopupMenuItem<int>(
+              value: 1,
+              child: Row(
+                children: const [
+                  Icon(Icons.forum, size: 20, color: Color(0xFF66BB6A)),
+                  SizedBox(width: 10),
+                  Text("Buat Postingan Forum"),
+                ],
+              ),
+            ),
+          ],
         ),
-        elevation: 8,
-        offset: const Offset(0, 45), // posisi pop-up sedikit di bawah icon
-        onSelected: (value) {
-          if (value == 0) {
-            context.push('/create-report');
-          } else if (value == 1) {
-            context.push('/forum?openModal=create');
-          }
-        },
-        itemBuilder: (context) => [
-          PopupMenuItem<int>(
-            value: 0,
-            child: Row(
-              children: const [
-                Icon(Icons.add, size: 20, color: Color(0xFF66BB6A)),
-                SizedBox(width: 10),
-                Text("Buat Aduan Baru"),
-              ],
-            ),
-          ),
-          PopupMenuItem<int>(
-            value: 1,
-            child: Row(
-              children: const [
-                Icon(Icons.forum, size: 20, color: Color(0xFF66BB6A)),
-                SizedBox(width: 10),
-                Text("Buat Postingan Forum"),
-              ],
-            ),
-          ),
-        ],
-      )
-      ,
-
-        // 🔔 Notifikasi dengan badge
         Stack(
           children: [
             IconButton(
@@ -130,7 +132,6 @@ class _TopBarState extends ConsumerState<TopBar> with WidgetsBindingObserver {
               ),
           ],
         ),
-
         const SizedBox(width: 8),
       ],
     );

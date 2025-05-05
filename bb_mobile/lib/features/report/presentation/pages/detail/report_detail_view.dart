@@ -208,12 +208,18 @@ class _ReportDetailViewState extends ConsumerState<ReportDetailView> {
             const SizedBox(height: 16),
 
             // 🔹 Review User (jika sudah rating)
-            if (userRating != null)
-              ReportDetailUserReview(
-                rating: userRating!.rating,
-                review: userRating!.review,
-              ),
-            const SizedBox(height: 16),
+            Builder(
+  builder: (_) {
+    if (userRating != null) {
+      return ReportDetailUserReview(
+        rating: userRating!.rating,
+        review: userRating!.review,
+      );
+    }
+    return const SizedBox();
+  },
+),
+
           ],
         ),
       ),
