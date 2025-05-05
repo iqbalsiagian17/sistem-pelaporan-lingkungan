@@ -78,17 +78,16 @@ class _ReportDetailImageState extends State<ReportDetailImage> {
             child: SmoothPageIndicator(
               controller: _controller,
               count: widget.imageUrls.length,
-              effect: const ExpandingDotsEffect(
+              effect: const SwapEffect(
                 dotHeight: 10,
                 dotWidth: 10,
                 spacing: 8,
                 radius: 16,
                 dotColor: Colors.grey,
                 activeDotColor: Color(0xFF1976D2),
-                expansionFactor: 4,
               ),
             ),
-          ),
+          ), 
       ],
     );
   }

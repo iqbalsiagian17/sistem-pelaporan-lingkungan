@@ -77,22 +77,22 @@ class _ReportDetailViewState extends ConsumerState<ReportDetailView> {
 }
 
 
-void _showRatingModal() {
-  showModalBottomSheet(
-    context: context,
-    isScrollControlled: true,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-    ),
-    builder: (_) => RatingBottomSheet(
-      reportId: widget.report.id,
-      onSubmitted: () {
-        ref.read(reportProvider.notifier).fetchReports();
-        _fetchUserRating(); // refresh tampilan review
-      },
-    ),
-  );
-}
+  void _showRatingModal() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (_) => RatingBottomSheet(
+        reportId: widget.report.id,
+        onSubmitted: () async {
+          await ref.read(reportProvider.notifier).fetchReports();
+          _fetchUserRating(); // refresh rating user
+        },
+      ),
+    );
+  }
 
 
 
@@ -107,7 +107,19 @@ void _showRatingModal() {
 
   @override
   Widget build(BuildContext context) {
-    final report = widget.report;
+    final reportsAsync = ref.watch(reportProvider);
+    final report = reportsAsync.whenOrNull(
+      data: (list) => list.firstWhere(
+        (r) => r.id == widget.report.id,
+        orElse: () => widget.report,
+      ),
+    );
+
+    if (report == null) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
 
     return Scaffold(
       backgroundColor: Colors.white,

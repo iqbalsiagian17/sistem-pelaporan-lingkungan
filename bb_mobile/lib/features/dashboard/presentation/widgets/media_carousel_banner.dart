@@ -96,13 +96,12 @@ class _MediaCarouselBannerState extends ConsumerState<MediaCarouselBanner> {
           controller: _controller,
           count: items.length,
           effect: const SwapEffect(
-  dotHeight: 10,
-  dotWidth: 10,
-  spacing: 8,
-  dotColor: Colors.grey,
-  activeDotColor: Color(0xFF1976D2),
-),
-
+          dotHeight: 10,
+          dotWidth: 10,
+          spacing: 8,
+          dotColor: Colors.grey,
+          activeDotColor: Color(0xFF1976D2),
+        ),
         ),
       ],
     );
