@@ -15,7 +15,8 @@ class GoogleAuthNotifier extends StateNotifier<AsyncValue<bool>> {
     state = const AsyncValue.loading();
     final result = await authGoogleDataSource.loginWithGoogle();
     if (result.containsKey("error")) {
-      state = AsyncValue.error(result["error"], StackTrace.current);
+      final message = result["error"] ?? "Login dibatalkan oleh pengguna.";
+      state = AsyncValue.error(message, StackTrace.current);
       return false;
     }
 

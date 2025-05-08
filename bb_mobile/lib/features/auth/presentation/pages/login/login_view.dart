@@ -57,9 +57,10 @@ class LoginView extends ConsumerWidget {
                           context.go(AppRoutes.dashboard);
                         }
                       } else {
+                        final errorMessage = google.error?.toString() ?? "Login dibatalkan oleh pengguna.";
                         SnackbarHelper.showSnackbar(
                           context,
-                          google.error.toString(),
+                          errorMessage,
                           isError: true,
                         );
                       }

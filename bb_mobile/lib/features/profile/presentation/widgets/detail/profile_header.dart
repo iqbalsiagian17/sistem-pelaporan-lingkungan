@@ -6,8 +6,15 @@ import 'package:bb_mobile/features/profile/presentation/providers/user_profile_p
 import 'package:bb_mobile/widgets/skeleton/skeleton_header_profile.dart';
 import 'package:image_picker/image_picker.dart';
 
-class ProfileHeader extends ConsumerWidget {
+class ProfileHeader extends ConsumerStatefulWidget {
   const ProfileHeader({super.key});
+
+  @override
+  ConsumerState<ProfileHeader> createState() => _ProfileHeaderState();
+}
+
+class _ProfileHeaderState extends ConsumerState<ProfileHeader> {
+  bool _isPickingImage = false;
 
   Color _generateColorFromUsername(String username) {
     int hash = username.hashCode;
@@ -29,36 +36,42 @@ class ProfileHeader extends ConsumerWidget {
     return "${ApiConstants.baseUrl}/${path.replaceAll(r'\', '/')}";
   }
 
-  Future<void> _pickImage(BuildContext context, WidgetRef ref) async {
-    final picker = ImagePicker();
-    final image = await picker.pickImage(source: ImageSource.gallery);
+  Future<void> _pickImage(BuildContext context) async {
+    if (_isPickingImage) return; // ✅ Cegah multiple tap
+    _isPickingImage = true;
 
-    if (image != null) {
-      final success = await ref
-          .read(userProfileProvider.notifier)
-          .changeProfilePicture(image.path);
+    try {
+      final picker = ImagePicker();
+      final image = await picker.pickImage(source: ImageSource.gallery);
 
-      if (context.mounted) {
-        if (success) {
+      if (image != null) {
+        final success = await ref
+            .read(userProfileProvider.notifier)
+            .changeProfilePicture(image.path);
+
+        if (context.mounted) {
           SnackbarHelper.showSnackbar(
             context,
-            'Foto profil berhasil diperbarui',
-            isError: false,
-          );
-        } else {
-          SnackbarHelper.showSnackbar(
-            context,
-            'Gagal memperbarui foto profil',
-            isError: true,
+            success ? 'Foto profil berhasil diperbarui' : 'Gagal memperbarui foto profil',
+            isError: !success,
           );
         }
       }
+    } catch (e) {
+      if (context.mounted) {
+        SnackbarHelper.showSnackbar(
+          context,
+          'Terjadi kesalahan: $e',
+          isError: true,
+        );
+      }
+    } finally {
+      _isPickingImage = false;
     }
   }
 
-
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final state = ref.watch(userProfileProvider);
 
     return state.when(
@@ -147,7 +160,7 @@ class ProfileHeader extends ConsumerWidget {
                   bottom: 0,
                   right: 0,
                   child: GestureDetector(
-                    onTap: () => _pickImage(context, ref),
+                    onTap: () => _pickImage(context),
                     child: Container(
                       padding: const EdgeInsets.all(6),
                       decoration: BoxDecoration(
@@ -173,9 +186,7 @@ class ProfileHeader extends ConsumerWidget {
             ),
             const SizedBox(height: 5),
             Text(
-              user.phoneNumber.isNotEmpty
-                  ? user.phoneNumber
-                  : "Tidak ada nomor",
+              user.phoneNumber.isNotEmpty ? user.phoneNumber : "Tidak ada nomor",
               style: const TextStyle(fontSize: 14, color: Colors.black54),
             ),
             const SizedBox(height: 5),
@@ -186,8 +197,7 @@ class ProfileHeader extends ConsumerWidget {
             if (isGoogleUser)
               Container(
                 margin: const EdgeInsets.only(top: 8),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: Colors.grey.shade100,
                   borderRadius: BorderRadius.circular(30),
@@ -196,8 +206,7 @@ class ProfileHeader extends ConsumerWidget {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Image.asset('assets/images/google.png',
-                        width: 16, height: 16),
+                    Image.asset('assets/images/google.png', width: 16, height: 16),
                     const SizedBox(width: 6),
                     const Text(
                       "Terhubung ke Google",
