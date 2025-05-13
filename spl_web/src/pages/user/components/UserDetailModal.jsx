@@ -80,7 +80,7 @@ const UserDetailModal = ({ show, onHide, user }) => {
                         {post.images.map((img) => (
                           <img
                             key={img.id}
-                            src={`http://localhost:3000/${img.image}`}
+                            src={`http://69.62.82.58:3000/${img.image}`}
                             alt="gambar postingan"
                             className="rounded"
                             style={{

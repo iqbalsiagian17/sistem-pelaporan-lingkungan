@@ -76,7 +76,7 @@ const MediaCarouselTable = ({ mediaCarousels = [], onView, onEdit, onDelete }) =
                   <td>
                         {item.image ? (
                             <img
-                            src={`http://localhost:3000/${item.image}`}
+                            src={`http://69.62.82.58:3000/${item.image}`}
                             alt="carousel"
                             style={{ width: "120px", height: "auto", objectFit: "cover", borderRadius: "6px" }}
                             />

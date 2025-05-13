@@ -44,7 +44,7 @@ const PostCard = ({ post, onDeletePost, onEditPost, onPinPost, onDeleteComment, 
         <p className="text-dark">{post.content}</p>
         <div className="mt-2 text-muted small d-flex align-items-center gap-1">
           <i className="bi bi-heart-fill text-danger"></i>
-          <span>{post.likes || 0} suka</span>
+          <span>{post.total_likes || 0} suka</span>
         </div>
 
         {/* Gambar */}
@@ -53,7 +53,7 @@ const PostCard = ({ post, onDeletePost, onEditPost, onPinPost, onDeleteComment, 
             {post.images.length === 1 && (
               <div className="mb-2">
                 <img
-                  src={`http://localhost:3000/${post.images[0].image}`}
+                  src={`http://69.62.82.58:3000/${post.images[0].image}`}
                   alt="post-img"
                   className="w-100 rounded-3"
                   onClick={() => onImageClick(post.images, 0)}
@@ -67,7 +67,7 @@ const PostCard = ({ post, onDeletePost, onEditPost, onPinPost, onDeleteComment, 
                 {post.images.map((img, i) => (
                   <div key={img.id} className="col-6">
                     <img
-                      src={`http://localhost:3000/${img.image}`}
+                      src={`http://69.62.82.58:3000/${img.image}`}
                       className="w-100 rounded-3"
                       onClick={() => onImageClick(post.images, i)}
                       style={{ height: "500px", objectFit: "cover", cursor: "pointer" }}
@@ -81,7 +81,7 @@ const PostCard = ({ post, onDeletePost, onEditPost, onPinPost, onDeleteComment, 
               <div className="row g-2">
                 <div className="col-12 mb-2">
                   <img
-                    src={`http://localhost:3000/${post.images[0].image}`}
+                    src={`http://69.62.82.58:3000/${post.images[0].image}`}
                     className="w-100 rounded-3"
                     onClick={() => onImageClick(post.images, 0)}
                     style={{ height: "500px", objectFit: "cover", cursor: "pointer" }}
@@ -90,7 +90,7 @@ const PostCard = ({ post, onDeletePost, onEditPost, onPinPost, onDeleteComment, 
                 {post.images.slice(1).map((img, i) => (
                   <div key={img.id} className="col-6">
                     <img
-                      src={`http://localhost:3000/${img.image}`}
+                      src={`http://69.62.82.58:3000/${img.image}`}
                       className="w-100 rounded-3"
                       onClick={() => onImageClick(post.images, i + 1)}
                       style={{ height: "500px", objectFit: "cover", cursor: "pointer" }}
@@ -105,7 +105,7 @@ const PostCard = ({ post, onDeletePost, onEditPost, onPinPost, onDeleteComment, 
                 {post.images.slice(0, 4).map((img, i) => (
                   <div key={img.id} className="col-6 position-relative">
                     <img
-                      src={`http://localhost:3000/${img.image}`}
+                      src={`http://69.62.82.58:3000/${img.image}`}
                       className="w-100 rounded-3"
                       style={{ height: "500px", objectFit: "cover", cursor: "pointer" }}
                       onClick={() => onImageClick(post.images, i)}

@@ -9,9 +9,12 @@ const ChartCard = ({ allReports }) => {
 
   const totalValidReports = processedReports + unprocessedReports;
 
-  const completionPercentage = totalValidReports > 0
-    ? Math.round((processedReports / totalValidReports) * 100)
-    : 0;
+  const completionPercentage =
+    totalValidReports > 0
+      ? Math.round((processedReports / totalValidReports) * 100)
+      : 0;
+
+  const isDataEmpty = totalValidReports === 0;
 
   return (
     <div className="card">
@@ -20,15 +23,21 @@ const ChartCard = ({ allReports }) => {
           <h5 className="card-header m-0 me-2 pb-3">
             Total Laporan ({new Date().getFullYear()})
           </h5>
-          <div id="totalRevenueChart" className="px-2"></div>
+          {!isDataEmpty && (
+            <div id="totalRevenueChart" className="px-2"></div>
+          )}
         </div>
-        <div className="col-md-4 d-flex flex-column justify-content-center align-items-center p-3">
-          <div id="growthChart" ></div>
-          <div className="text-center">
-            <h3 className="fw-bold mb-1 text-success">{completionPercentage}%</h3>
-            <p className="text-muted small mb-0">Laporan Sudah Di Proses</p>
+        {!isDataEmpty && (
+          <div className="col-md-4 d-flex flex-column justify-content-center align-items-center p-3">
+            <div id="growthChart"></div>
+            <div className="text-center">
+              <h3 className="fw-bold mb-1 text-success">
+                {completionPercentage}%
+              </h3>
+              <p className="text-muted small mb-0">Laporan Sudah Di Proses</p>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

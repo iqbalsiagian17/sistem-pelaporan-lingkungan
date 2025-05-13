@@ -1,7 +1,7 @@
 // src/services/parameterService.js
 import { fetchWithAuth } from "../utils/fetchWithAuth";
 
-const BASE_URL = "http://localhost:3000/api/admin/parameters";
+const BASE_URL = "http://69.62.82.58:3000/api/admin/parameters";
 
 // Ambil semua parameter (meskipun hanya 1 row)
 export const getAllParameters = async () => {

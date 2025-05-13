@@ -1,6 +1,6 @@
 import { Modal, Button, Badge } from "react-bootstrap";
 
-const API_BASE_URL = "http://localhost:3000"; 
+const API_BASE_URL = "http://69.62.82.58:3000"; 
 
 const AnnouncementDetailModal = ({ show, onHide, announcement }) => {
   return (

@@ -1,7 +1,7 @@
 // src/services/announcementService.js
 import { fetchWithAuth } from "../utils/fetchWithAuth";
 
-const BASE_URL = "http://localhost:3000/api/admin/announcements";
+const BASE_URL = "http://69.62.82.58:3000/api/admin/announcements";
 
 // Ambil semua pengumuman
 export const fetchAnnouncements = async () => {
