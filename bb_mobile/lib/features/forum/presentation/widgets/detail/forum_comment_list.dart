@@ -20,31 +20,31 @@ class ForumCommentList extends ConsumerStatefulWidget {
 }
 
 class _ForumCommentListState extends ConsumerState<ForumCommentList> {
-  final Map<int, bool> _expandedReplies = {}; // state expanded/collapsed
+  final Map<int, bool> _expandedReplies = {};
 
   @override
   Widget build(BuildContext context) {
     final userId = ref.watch(globalAuthServiceProvider).userId;
 
     if (widget.post.comments.isEmpty) {
-      return const Center(
-        child: Padding(
-          padding: EdgeInsets.all(20),
-          child: Text("Belum ada komentar.", style: TextStyle(color: Colors.grey, fontSize: 14)),
+      return const Padding(
+        padding: EdgeInsets.all(20),
+        child: Center(
+          child: Text(
+            "Belum ada komentar.",
+            style: TextStyle(color: Colors.grey, fontSize: 14),
+          ),
         ),
       );
     }
 
     final parentComments = widget.post.comments.where((c) => c.parentId == null).toList();
 
-    return SizedBox(
-      height: MediaQuery.of(context).size.height * 0.4,
-      child: ListView(
-        children: parentComments
-            .map((parent) => _buildCommentWithReplies(context, parent, widget.post, userId!, 0))
-            .expand((e) => e)
-            .toList(),
-      ),
+    return Column(
+      children: parentComments
+          .map((parent) => _buildCommentWithReplies(context, parent, widget.post, userId!, 0))
+          .expand((e) => e)
+          .toList(),
     );
   }
 
@@ -96,7 +96,7 @@ class _ForumCommentListState extends ConsumerState<ForumCommentList> {
     if (allReplies.isNotEmpty) {
       replyWidgets.add(
         Padding(
-          padding: EdgeInsets.only(left: (depth + 1) * 24 + 16, top: 4, bottom: 8),
+padding: EdgeInsets.only(left: depth * 24 + 40, top: 4, bottom: 8),
           child: GestureDetector(
             onTap: () {
               setState(() {
@@ -108,7 +108,7 @@ class _ForumCommentListState extends ConsumerState<ForumCommentList> {
                   ? "Sembunyikan balasan"
                   : "Tampilkan ${allReplies.length} balasan",
               style: TextStyle(
-                color: Colors.grey.shade600, // ✅ warna abu seperti disabled
+                color: Colors.grey.shade600,
                 fontSize: 13,
                 fontStyle: FontStyle.italic,
               ),
@@ -117,7 +117,6 @@ class _ForumCommentListState extends ConsumerState<ForumCommentList> {
         ),
       );
     }
-
 
     return [commentWidget, ...replyWidgets];
   }

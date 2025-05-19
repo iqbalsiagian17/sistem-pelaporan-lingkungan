@@ -57,27 +57,27 @@ class _ForumImageGridState extends State<ForumImageGrid> {
           ),
         ),
         if (widget.images.length > 1)
-          Padding(
-            padding: const EdgeInsets.only(top: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(
-                widget.images.length,
-                (index) => AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  margin: const EdgeInsets.symmetric(horizontal: 4),
-                  width: _currentIndex == index ? 10 : 8,
-                  height: _currentIndex == index ? 10 : 8,
-                  decoration: BoxDecoration(
-                    color: _currentIndex == index
-                        ? Colors.green
-                        : Colors.grey.shade400,
-                    shape: BoxShape.circle,
-                  ),
+        Padding(
+          padding: const EdgeInsets.only(top: 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(
+              widget.images.length,
+              (index) => AnimatedContainer(
+                duration: const Duration(milliseconds: 250),
+                margin: const EdgeInsets.symmetric(horizontal: 4),
+                width: _currentIndex == index ? 10 : 8,
+                height: _currentIndex == index ? 10 : 8,
+                decoration: BoxDecoration(
+                  color: _currentIndex == index
+                      ? const Color(0xFF66BB6A) // ✅ hijau tema aplikasi
+                      : const Color(0xFFBDBDBD), // abu-abu soft untuk dot lain
+                  shape: BoxShape.circle,
                 ),
               ),
             ),
           ),
+        )
       ],
     );
   }

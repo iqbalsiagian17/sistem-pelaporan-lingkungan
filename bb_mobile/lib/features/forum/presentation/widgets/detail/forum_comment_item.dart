@@ -46,7 +46,7 @@ class ForumCommentItem extends ConsumerWidget {
 
     return Padding(
       padding: EdgeInsets.only(
-        left: isReply ? 5 : 12,
+        left: isReply ? 2 : 12,
         right: 12,
         top: 8,
         bottom: 8,
@@ -82,9 +82,9 @@ class ForumCommentItem extends ConsumerWidget {
                     GestureDetector(
                       onTap: () => _showUserInfo(context),
                       child: Text(
-                        comment.user.username.length > 20
-                            ? '${comment.user.username.substring(0, 15)}...'
-                            : comment.user.username,
+                        comment.user.username.length > 23
+                          ? '${comment.user.username.substring(0, 23)}...'
+                          : comment.user.username,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: isReply ? 12 : 14, // ⬅️ lebih kecil untuk reply

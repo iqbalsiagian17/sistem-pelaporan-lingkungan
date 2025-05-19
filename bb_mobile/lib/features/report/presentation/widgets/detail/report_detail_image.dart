@@ -83,8 +83,8 @@ class _ReportDetailImageState extends State<ReportDetailImage> {
                 dotWidth: 10,
                 spacing: 8,
                 radius: 16,
-                dotColor: Colors.grey,
-                activeDotColor: Color(0xFF1976D2),
+                dotColor: Color(0xFFBDBDBD), // abu muda untuk dot tidak aktif
+                activeDotColor: Color(0xFF66BB6A), // hijau tema aplikasi
               ),
             ),
           ), 

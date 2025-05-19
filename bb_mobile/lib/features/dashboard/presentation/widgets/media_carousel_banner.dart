@@ -84,28 +84,29 @@ class _MediaCarouselBannerState extends ConsumerState<MediaCarouselBanner> {
     );
   }
 
-  Widget _buildCarousel({required List<Widget> items}) {
-    return Column(
-      children: [
-        SizedBox(
-          height: 180,
-          child: PageView(controller: _controller, children: items),
-        ),
-        const SizedBox(height: 12),
-        SmoothPageIndicator(
-          controller: _controller,
-          count: items.length,
-          effect: const SwapEffect(
+Widget _buildCarousel({required List<Widget> items}) {
+  return Column(
+    children: [
+      SizedBox(
+        height: 180,
+        child: PageView(controller: _controller, children: items),
+      ),
+      const SizedBox(height: 12),
+      SmoothPageIndicator(
+        controller: _controller,
+        count: items.length,
+        effect: const SwapEffect(
           dotHeight: 10,
           dotWidth: 10,
           spacing: 8,
-          dotColor: Colors.grey,
-          activeDotColor: Color(0xFF1976D2),
+          dotColor: Color(0xFFBDBDBD), // abu muda untuk dot tidak aktif
+          activeDotColor: Color(0xFF66BB6A), // hijau tema aplikasi
         ),
-        ),
-      ],
-    );
-  }
+      ),
+    ],
+  );
+}
+
 
   Widget _carouselCard({
     required Widget image,
