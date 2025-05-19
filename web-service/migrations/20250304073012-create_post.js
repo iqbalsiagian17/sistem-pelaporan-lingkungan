@@ -30,7 +30,12 @@ module.exports = {
             type: Sequelize.BOOLEAN,
             allowNull: false,
             defaultValue: false
-        },
+          },
+          is_edited: {
+              type: Sequelize.BOOLEAN,
+              allowNull: false,
+              defaultValue: false
+          },
           createdAt: {
               type: Sequelize.DATE,
               allowNull: false,

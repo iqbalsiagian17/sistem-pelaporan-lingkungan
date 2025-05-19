@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_BASE_URL = "http://69.62.82.58:3000"; // Base URL untuk server lokal
+const API_BASE_URL = "http://localhost:3000"; // Base URL untuk server lokal
 
 const api = axios.create({
   baseURL: API_BASE_URL,

@@ -93,7 +93,7 @@ const PostEditModal = ({ show, onHide, onSave, initialData }) => {
                   {initialData.images.map((img) => (
                     <img
                       key={img.id}
-                      src={`http://69.62.82.58:3000/${img.image}`}
+                      src={`http://localhost:3000/${img.image}`}
                       alt="existing"
                       style={{ width: "100px", height: "100px", objectFit: "cover", borderRadius: 8 }}
                     />

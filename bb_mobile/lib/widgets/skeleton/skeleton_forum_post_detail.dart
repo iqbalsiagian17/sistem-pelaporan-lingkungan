@@ -28,8 +28,6 @@ class ForumDetailSkeleton extends StatelessWidget {
                     const SizedBox(height: 12),
                     _buildImageGrid(),
                     const SizedBox(height: 12),
-                    _buildActionButtons(),
-                    const SizedBox(height: 16),
                     const Divider(thickness: 1),
                     _buildCommentList(),
                   ],
@@ -89,20 +87,18 @@ class ForumDetailSkeleton extends StatelessWidget {
     );
   }
 
-  Widget _buildImageGrid() {
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: List.generate(3, (index) => _buildShimmerBox(width: 100, height: 100, radius: BorderRadius.circular(12))),
-    );
-  }
-
-  Widget _buildActionButtons() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: List.generate(3, (index) => _buildShimmerBox(width: 80, height: 20, radius: BorderRadius.circular(20))),
-    );
-  }
+Widget _buildImageGrid() {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      _buildShimmerBox(
+        width: double.infinity,
+        height: 200,
+        radius: BorderRadius.circular(14),
+      ),
+    ],
+  );
+}
 
   Widget _buildCommentList() {
     return Column(

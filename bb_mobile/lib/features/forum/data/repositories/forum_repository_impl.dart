@@ -25,8 +25,8 @@ class ForumRepositoryImpl implements ForumRepository {
   }
 
   @override
-  Future<bool> updatePost({required int postId, required String content, required List<String> imagePaths,}) {
-    return remoteDataSource.updatePost(postId: postId, content: content, imagePaths: imagePaths);
+  Future<bool> updatePost({required int postId, required String content, required List<String> imagePaths, required List<String> keptOldImages}) {
+    return remoteDataSource.updatePost(postId: postId, content: content, imagePaths: imagePaths, keptOldImages: keptOldImages);
   }
 @override
 Future<bool> updateComment({required int commentId, required String content}) {
@@ -35,8 +35,8 @@ Future<bool> updateComment({required int commentId, required String content}) {
 
 
   @override
-  Future<bool> createComment({required int postId, required String content}) {
-    return remoteDataSource.createComment(postId: postId, content: content);
+  Future<bool> createComment({required int postId, required String content, int? parentId}) {
+    return remoteDataSource.createComment(postId: postId, content: content, parentId: parentId);
   }
 
   @override

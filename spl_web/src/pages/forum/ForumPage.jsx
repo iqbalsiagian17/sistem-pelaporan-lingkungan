@@ -189,7 +189,7 @@ const ForumPage = () => {
             {imageList.map((img) => (
               <Carousel.Item key={img.id}>
                 <img
-                  src={`http://69.62.82.58:3000/${img.image}`}
+                  src={`http://localhost:3000/${img.image}`}
                   alt="slide"
                   className="d-block w-100"
                   style={{ objectFit: "contain", maxHeight: "80vh" }}

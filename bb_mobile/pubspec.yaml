@@ -53,6 +53,7 @@ dependencies:
   flutter_riverpod: ^2.6.0
   connectivity_plus: ^5.0.2
   back_button_interceptor: ^6.0.0
+  phosphor_flutter: ^1.0.0
 
 
 

@@ -10,6 +10,7 @@ class ForumPostEntity {
   final String updatedAt;
   final int total_likes;
   final bool isPinned;
+  final bool isEdited; 
   final int likeCount;
   final bool isLiked;
   final UserEntity user;
@@ -24,6 +25,7 @@ class ForumPostEntity {
     required this.updatedAt,
     required this.total_likes,
     required this.isPinned,
+    required this.isEdited,
     required this.likeCount,
     required this.isLiked,
     required this.user,
@@ -42,6 +44,7 @@ class ForumPostEntity {
     String? updatedAt,
     int? total_likes,
     bool? isPinned,
+    bool? isEdited,
     int? likeCount,
     bool? isLiked,
     UserEntity? user,
@@ -56,6 +59,7 @@ class ForumPostEntity {
       updatedAt: updatedAt ?? this.updatedAt,
       total_likes: total_likes ?? this.total_likes,
       isPinned: isPinned ?? this.isPinned,
+      isEdited: isEdited ?? this.isEdited,
       likeCount: likeCount ?? this.likeCount,
       isLiked: isLiked ?? this.isLiked,
       user: user ?? this.user,

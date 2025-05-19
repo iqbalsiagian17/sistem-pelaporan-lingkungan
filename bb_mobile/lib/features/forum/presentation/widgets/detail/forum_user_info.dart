@@ -27,7 +27,7 @@ class ForumUserInfo extends StatelessWidget {
   Widget build(BuildContext context) {
     final profileUrl = post.user.profilePicture;
     final hasImage = profileUrl != null && profileUrl.isNotEmpty;
-    final imageUrl = hasImage ? getFullImageUrl(profileUrl!) : null;
+    final imageUrl = hasImage ? getFullImageUrl(profileUrl) : null;
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -66,8 +66,11 @@ class ForumUserInfo extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  DateUtilsCustom.timeAgo(DateTime.parse(post.createdAt)),
-                  style: TextStyle(color: Colors.grey.shade500, fontSize: 12),
+                  "• ${DateUtilsCustom.timeAgo(DateTime.parse(post.createdAt))}${post.isEdited ? " (diubah)" : ""}",
+                  style: TextStyle(
+                    color: Colors.grey.shade600,
+                    fontSize: 12,
+                  ),
                 ),
               ],
             ),

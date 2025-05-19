@@ -89,6 +89,7 @@ class ReportRemoteDataSourceImpl implements ReportRemoteDataSource {
   }
 
   @override
+@override
 Future<ReportEntity?> createReport({
   required String title,
   required String description,
@@ -129,18 +130,33 @@ Future<ReportEntity?> createReport({
     final response = await dio.post(
       '${ApiConstants.userReportUrl}/create',
       data: formData,
-      options: Options(contentType: "multipart/form-data"),
+      options: Options(
+        contentType: "multipart/form-data",
+        headers: {
+          "Accept": "application/json", // 🟢 Penting agar server tidak balas HTML
+        },
+      ),
     );
 
     if (response.statusCode == 201 && response.data['report'] != null) {
       return ReportModel.fromJson(response.data['report']);
     }
 
-    return null;
+    throw Exception("Respons tidak sesuai format yang diharapkan.");
   } on DioException catch (e) {
-    throw Exception("Gagal membuat laporan: ${e.response?.data}");
+    final data = e.response?.data;
+    if (data is Map<String, dynamic> && data.containsKey('message')) {
+      throw Exception("Gagal membuat laporan: ${data['message']}");
+    } else if (data is String && data.contains("<html")) {
+      throw Exception("Gagal membuat laporan: Respons HTML diterima dari server.");
+    } else {
+      throw Exception("Gagal membuat laporan: ${e.message}");
+    }
+  } catch (e) {
+    throw Exception("Kesalahan tak terduga: $e");
   }
 }
+
 
 
   @override

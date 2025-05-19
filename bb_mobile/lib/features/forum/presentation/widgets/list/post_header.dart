@@ -59,7 +59,7 @@ class PostHeader extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  "• ${DateUtilsCustom.timeAgo(DateTime.parse(post.createdAt))}",
+                  "• ${DateUtilsCustom.timeAgo(DateTime.parse(post.createdAt))}${post.isEdited ? " (diubah)" : ""}",
                   style: TextStyle(
                     color: Colors.grey.shade600,
                     fontSize: 12,

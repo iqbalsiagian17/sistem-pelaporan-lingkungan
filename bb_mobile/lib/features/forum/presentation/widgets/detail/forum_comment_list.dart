@@ -1,14 +1,11 @@
-import 'package:bb_mobile/core/constants/api.dart';
+// forum_comment_list.dart
 import 'package:bb_mobile/core/providers/auth_provider.dart';
-import 'package:bb_mobile/core/utils/date_utils.dart';
 import 'package:bb_mobile/features/forum/domain/entities/forum_post_entity.dart';
-import 'package:bb_mobile/features/forum/presentation/providers/forum_provider.dart';
-import 'package:bb_mobile/widgets/snackbar/snackbar_helper.dart';
+import 'package:bb_mobile/features/forum/presentation/widgets/detail/forum_comment_item.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class ForumCommentList extends ConsumerWidget {
+class ForumCommentList extends ConsumerStatefulWidget {
   final ForumPostEntity post;
   final VoidCallback? onCommentDeleted;
 
@@ -19,10 +16,17 @@ class ForumCommentList extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ForumCommentList> createState() => _ForumCommentListState();
+}
+
+class _ForumCommentListState extends ConsumerState<ForumCommentList> {
+  final Map<int, bool> _expandedReplies = {}; // state expanded/collapsed
+
+  @override
+  Widget build(BuildContext context) {
     final userId = ref.watch(globalAuthServiceProvider).userId;
 
-    if (post.comments.isEmpty) {
+    if (widget.post.comments.isEmpty) {
       return const Center(
         child: Padding(
           padding: EdgeInsets.all(20),
@@ -31,284 +35,90 @@ class ForumCommentList extends ConsumerWidget {
       );
     }
 
+    final parentComments = widget.post.comments.where((c) => c.parentId == null).toList();
+
     return SizedBox(
       height: MediaQuery.of(context).size.height * 0.4,
-      child: ListView.separated(
-        itemCount: post.comments.length,
-        separatorBuilder: (_, __) => const Divider(height: 16, color: Colors.grey, thickness: 0.5),
-        itemBuilder: (context, index) {
-          final comment = post.comments[index];
-          final commentUserId = comment.user.id;
-          final isOwner = commentUserId.toString() == userId.toString();
-
-          print("🧪 Comment #$index → commentUserId: $commentUserId | userId: $userId | isOwner: $isOwner");
-
-          final hasImage = comment.user.profilePicture != null &&
-              comment.user.profilePicture!.isNotEmpty;
-          final imageUrl = hasImage
-              ? "${ApiConstants.baseUrl}/${comment.user.profilePicture!.replaceAll(r'\', '/')}"
-              : null;
-
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ClipOval(
-                  child: hasImage
-                      ? Image.network(
-                          imageUrl!,
-                          width: 40,
-                          height: 40,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) =>
-                              _buildFallbackAvatar(comment.user.username),
-                        )
-                      : _buildFallbackAvatar(comment.user.username),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Text(
-                            comment.user.username,
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                          ),
-                          const SizedBox(width: 6),
-                          Text(
-                            "• ${DateUtilsCustom.timeAgo(DateTime.parse(comment.createdAt))}",
-                            style: TextStyle(color: Colors.grey.shade500, fontSize: 12),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 6),
-                      Text(comment.content, style: const TextStyle(fontSize: 14, height: 1.4)),
-                    ],
-                  ),
-                ),
-                if (isOwner)
-                  PopupMenuButton<String>(
-                  onSelected: (value) {
-                    if (value == 'delete') {
-                      _showDeleteConfirmation(context, ref, comment.id, post.id);
-                    } else if (value == 'edit') {
-                      _showEditCommentModal(context, ref, comment.id, comment.content, post.id);
-                    }
-                  },
-                  icon: const Icon(Icons.more_vert, color: Colors.black),
-                  color: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  itemBuilder: (context) => [
-                    const PopupMenuItem(
-                      value: 'edit',
-                      child: Row(
-                        children: [
-                          Icon(Icons.edit, color: Colors.blue),
-                          SizedBox(width: 10),
-                          Text("Edit Komentar"),
-                        ],
-                      ),
-                    ),
-                    const PopupMenuItem(
-                      value: 'delete',
-                      child: Row(
-                        children: [
-                          Icon(Icons.delete, color: Colors.red),
-                          SizedBox(width: 10),
-                          Text("Hapus Komentar"),
-                        ],
-                      ),
-                    )
-                  ],
-                ),
-              ],
-            ),
-          );
-        },
+      child: ListView(
+        children: parentComments
+            .map((parent) => _buildCommentWithReplies(context, parent, widget.post, userId!, 0))
+            .expand((e) => e)
+            .toList(),
       ),
     );
   }
 
-  Widget _buildFallbackAvatar(String username) {
-    final color = _colorFromUsername(username);
-    final initial = username.isNotEmpty ? username[0].toUpperCase() : "?";
-    return CircleAvatar(
-      radius: 20,
-      backgroundColor: color,
-      child: Text(
-        initial,
-        style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
-      ),
-    );
-  }
+  List<Widget> _buildCommentWithReplies(
+    BuildContext context,
+    dynamic parent,
+    ForumPostEntity post,
+    int userId,
+    int depth,
+  ) {
+    final isOwner = parent.user.id != null && parent.user.id == userId;
 
-  void _showDeleteConfirmation(BuildContext context, WidgetRef ref, int commentId, int postId) {
-    HapticFeedback.mediumImpact();
-
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (context) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.warning_amber_rounded, size: 50, color: Colors.redAccent),
-              const SizedBox(height: 12),
-              const Text("Konfirmasi Hapus", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-              const SizedBox(height: 8),
-              const Text("Yakin ingin menghapus komentar ini?", textAlign: TextAlign.center),
-              const SizedBox(height: 20),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text("Batal"),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
-                      onPressed: () async {
-                        final success =
-                            await ref.read(forumProvider.notifier).deleteComment(commentId, postId);
-
-                        if (context.mounted) {
-                          Navigator.pop(context);
-
-                          if (success) {
-                            onCommentDeleted?.call();
-                            SnackbarHelper.showSnackbar(
-                              context,
-                              "Komentar berhasil dihapus",
-                            );
-                          } else {
-                            SnackbarHelper.showSnackbar(
-                              context,
-                              "Gagal menghapus komentar",
-                              isError: true,
-                            );
-                          }
-                        }
-                      },
-                      child: const Text("Hapus", style: TextStyle(color: Colors.white)),
-                    ),
-                  ),
-                ],
-              )
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  void _showEditCommentModal(
-  BuildContext context,
-  WidgetRef ref,
-  int commentId,
-  String initialContent,
-  int postId,
-) {
-  final controller = TextEditingController(text: initialContent);
-  HapticFeedback.mediumImpact();
-
-  showModalBottomSheet(
-    context: context,
-    isScrollControlled: true,
-    backgroundColor: Colors.white,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-    ),
-    builder: (context) {
-      return Padding(
-        padding: EdgeInsets.only(
-          left: 16,
-          right: 16,
-          top: 20,
-          bottom: MediaQuery.of(context).viewInsets.bottom + 20,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text("Edit Komentar", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-            const SizedBox(height: 12),
-            TextField(
-              controller: controller,
-              maxLines: null,
-              decoration: InputDecoration(
-                hintText: "Tulis komentar...",
-                filled: true,
-                fillColor: Colors.grey.shade100,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide.none,
-                ),
+    final commentWidget = Padding(
+      padding: EdgeInsets.only(left: depth * 24),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (depth > 0)
+            Container(
+              width: 24,
+              alignment: Alignment.topCenter,
+              child: Container(
+                width: 2,
+                height: 80,
+                color: Colors.grey.shade300,
               ),
             ),
-            const SizedBox(height: 20),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text("Batal"),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF66BB6A)),
-                    onPressed: () async {
-                      final newContent = controller.text.trim();
-                      if (newContent.isEmpty) return;
-
-                      final success = await ref.read(forumProvider.notifier).updateComment(
-                            commentId: commentId,
-                            content: newContent,
-                            postId: postId,
-                          );
-
-                      if (context.mounted) {
-                        Navigator.pop(context);
-                        if (success) {
-                          SnackbarHelper.showSnackbar(context, "Komentar berhasil diperbarui");
-                        } else {
-                          SnackbarHelper.showSnackbar(context, "Gagal memperbarui komentar", isError: true);
-                        }
-                      }
-                    },
-                    child: const Text("Simpan", style: TextStyle(color: Colors.white)),
-                  ),
-                ),
-              ],
+          Expanded(
+            child: ForumCommentItem(
+              post: post,
+              comment: parent,
+              isOwner: isOwner,
+              onCommentDeleted: widget.onCommentDeleted,
             ),
-          ],
+          ),
+        ],
+      ),
+    );
+
+    final allReplies = post.comments.where((c) => c.parentId == parent.id).toList();
+    final isExpanded = _expandedReplies[parent.id] ?? false;
+    final visibleReplies = isExpanded ? allReplies : [];
+
+    final replyWidgets = visibleReplies
+        .map((reply) => _buildCommentWithReplies(context, reply, post, userId, depth + 1))
+        .expand((e) => e)
+        .toList();
+
+    if (allReplies.isNotEmpty) {
+      replyWidgets.add(
+        Padding(
+          padding: EdgeInsets.only(left: (depth + 1) * 24 + 16, top: 4, bottom: 8),
+          child: GestureDetector(
+            onTap: () {
+              setState(() {
+                _expandedReplies[parent.id] = !isExpanded;
+              });
+            },
+            child: Text(
+              isExpanded
+                  ? "Sembunyikan balasan"
+                  : "Tampilkan ${allReplies.length} balasan",
+              style: TextStyle(
+                color: Colors.grey.shade600, // ✅ warna abu seperti disabled
+                fontSize: 13,
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          ),
         ),
       );
-    },
-  );
-}
+    }
 
 
-  Color _colorFromUsername(String username) {
-    final colors = [
-      Colors.blue,
-      const Color(0xFF66BB6A),
-      Colors.purple,
-      Colors.deepOrange,
-      Colors.teal,
-      Colors.indigo,
-    ];
-    return colors[username.length % colors.length];
+    return [commentWidget, ...replyWidgets];
   }
 }

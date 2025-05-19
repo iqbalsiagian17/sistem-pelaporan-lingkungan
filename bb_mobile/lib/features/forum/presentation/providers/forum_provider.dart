@@ -2,6 +2,7 @@ import 'package:bb_mobile/features/forum/domain/usecases/update_forum_comment_us
 import 'package:bb_mobile/features/forum/domain/usecases/update_forum_post_usecase.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:bb_mobile/features/forum/domain/entities/forum_post_entity.dart';
+import 'package:bb_mobile/features/forum/domain/entities/forum_comment_entity.dart';
 import 'package:bb_mobile/features/forum/domain/usecases/create_forum_comment_usecase.dart';
 import 'package:bb_mobile/features/forum/domain/usecases/create_forum_post_usecase.dart';
 import 'package:bb_mobile/features/forum/domain/usecases/delete_forum_comment_usecase.dart';
@@ -12,7 +13,6 @@ import 'package:bb_mobile/features/forum/domain/usecases/like_forum_post_usecase
 import 'package:bb_mobile/features/forum/domain/usecases/unlike_forum_post_usecase.dart';
 import 'package:bb_mobile/features/forum/domain/usecases/get_forum_post_like_count_usecase.dart';
 import 'package:bb_mobile/features/forum/presentation/providers/usecase_providers.dart';
-
 
 final forumProvider = StateNotifierProvider<ForumNotifier, ForumState>((ref) {
   return ForumNotifier(
@@ -30,17 +30,19 @@ final forumProvider = StateNotifierProvider<ForumNotifier, ForumState>((ref) {
   );
 });
 
-class ForumState {
+final class ForumState {
   final List<ForumPostEntity> posts;
   final ForumPostEntity? selectedPost;
   final bool isLoading;
   final String? errorMessage;
+  final ForumCommentEntity? replyToComment;
 
   const ForumState({
     this.posts = const [],
     this.selectedPost,
     this.isLoading = false,
     this.errorMessage,
+    this.replyToComment,
   });
 
   ForumState copyWith({
@@ -48,12 +50,15 @@ class ForumState {
     ForumPostEntity? selectedPost,
     bool? isLoading,
     String? errorMessage,
+    ForumCommentEntity? replyToComment,
+    bool clearReply = false, // ✅ Tambahkan trigger manual
   }) {
     return ForumState(
       posts: posts ?? this.posts,
       selectedPost: selectedPost ?? this.selectedPost,
       isLoading: isLoading ?? this.isLoading,
-      errorMessage: errorMessage,
+      errorMessage: errorMessage ?? this.errorMessage,
+      replyToComment: clearReply ? null : replyToComment ?? this.replyToComment,
     );
   }
 }
@@ -85,15 +90,17 @@ class ForumNotifier extends StateNotifier<ForumState> {
     required this.getLikeCountUseCase,
   }) : super(const ForumState());
 
-  Future<void> fetchAllPosts() async {
-    state = state.copyWith(isLoading: true, errorMessage: null);
-    try {
-      final result = await getPostsUseCase.call();
-      state = state.copyWith(posts: result, isLoading: false);
-    } catch (e) {
-      state = state.copyWith(errorMessage: e.toString(), isLoading: false);
-    }
+Future<void> fetchAllPosts() async {
+  state = state.copyWith(isLoading: true, errorMessage: null);
+  try {
+    final result = await getPostsUseCase.call();
+    print("🎯 Total posts dari usecase: ${result.length}");
+    state = state.copyWith(posts: result, isLoading: false);
+  } catch (e) {
+    state = state.copyWith(errorMessage: e.toString(), isLoading: false);
   }
+}
+
 
   Future<void> fetchPostById(int postId) async {
     state = state.copyWith(isLoading: true, errorMessage: null);
@@ -121,18 +128,22 @@ class ForumNotifier extends StateNotifier<ForumState> {
     }
   }
 
-
-  Future<bool> updatePost({required int postId, required String content, required List<String> imagePaths,
-    }) async {
+  Future<bool> updatePost({
+    required int postId,
+    required String content,
+    required List<String> imagePaths,
+    required List<String> keptOldImages,
+  }) async {
     state = state.copyWith(isLoading: true, errorMessage: null);
     try {
       final result = await updatePostUseCase.call(
         postId: postId,
         content: content,
         imagePaths: imagePaths,
+        keptOldImages: keptOldImages,
       );
       if (result) {
-        await fetchAllPosts(); // Atau fetchPostById(postId) jika kamu ingin refresh satu postingan saja
+        await fetchAllPosts();
       }
       return result;
     } catch (e) {
@@ -141,18 +152,29 @@ class ForumNotifier extends StateNotifier<ForumState> {
     }
   }
 
-
-  Future<bool> addComment({required int postId, required String content}) async {
+Future<bool> addComment({required int postId, required String content,  int? parentId,}) async {
     state = state.copyWith(isLoading: true, errorMessage: null);
     try {
-      final result = await createCommentUseCase.call(postId: postId, content: content);
-      if (result) await fetchPostById(postId);
+      final parentId = state.replyToComment?.id; // ⬅️ Ambil dari state
+
+      final result = await createCommentUseCase.call(
+        postId: postId,
+        content: content,
+        parentId: parentId, // <-- ini sudah otomatis dari state.replyToComment?.id
+      );
+
+      if (result) {
+        await fetchPostById(postId);
+        clearReplyTarget(); // ⬅️ Reset setelah reply dikirim
+      }
+
       return result;
     } catch (e) {
       state = state.copyWith(errorMessage: e.toString(), isLoading: false);
       return false;
     }
   }
+
 
   Future<bool> updateComment({required int commentId, required String content, required int postId}) async {
     state = state.copyWith(isLoading: true, errorMessage: null);
@@ -165,7 +187,6 @@ class ForumNotifier extends StateNotifier<ForumState> {
       return false;
     }
   }
-
 
   Future<bool> deletePost(int postId) async {
     state = state.copyWith(isLoading: true, errorMessage: null);
@@ -214,18 +235,15 @@ class ForumNotifier extends StateNotifier<ForumState> {
     }
   }
 
-
   Future<int> getLikeCount(int postId) async {
     try {
       final count = await getLikeCountUseCase.call(postId);
       return count;
     } catch (e) {
-      print(" [getLikeCount] Error: $e");
       state = state.copyWith(errorMessage: e.toString());
       return 0;
     }
   }
-
 
   void updatePostLikeStatus(int postId, bool isLiked, int likeCount) {
     final updatedPosts = state.posts.map((post) {
@@ -242,6 +260,14 @@ class ForumNotifier extends StateNotifier<ForumState> {
 
     state = state.copyWith(posts: updatedPosts, selectedPost: updatedSelected);
   }
+
+  void setReplyTarget(ForumCommentEntity comment) {
+    state = state.copyWith(replyToComment: comment);
+  }
+  
+void clearReplyTarget() {
+  state = state.copyWith(clearReply: true);
+}
 
 
   void clearState() {

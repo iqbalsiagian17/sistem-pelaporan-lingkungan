@@ -23,7 +23,10 @@ class _FullScreenImageSliderState extends State<FullScreenImageSlider> {
   @override
   void initState() {
     super.initState();
-    _pageController = PageController(initialPage: widget.initialIndex);
+    _pageController = PageController(
+      initialPage: widget.initialIndex,
+      viewportFraction: 0.94, // ✅ memberi jarak antar gambar
+    );
     _currentIndex = widget.initialIndex;
   }
 
@@ -36,39 +39,58 @@ class _FullScreenImageSliderState extends State<FullScreenImageSlider> {
           PageView.builder(
             controller: _pageController,
             itemCount: widget.images.length,
-            onPageChanged: (index) {
-              setState(() {
-                _currentIndex = index;
-              });
-            },
+            onPageChanged: (index) => setState(() => _currentIndex = index),
             itemBuilder: (context, index) {
-              return InteractiveViewer(
-                minScale: 1.0,
-                maxScale: 3.0,
-                child: Center(
-                  child: CachedNetworkImage(
-                    imageUrl: widget.images[index].imageUrl,
-                    placeholder: (context, url) =>
-                        const CircularProgressIndicator(),
-                    errorWidget: (context, url, error) =>
-                        const Icon(Icons.error, color: Colors.red),
-                    fit: BoxFit.contain,
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: GestureDetector(
+                  onVerticalDragUpdate: (details) {
+                    if (details.primaryDelta != null &&
+                        details.primaryDelta! > 12) {
+                      Navigator.pop(context);
+                    }
+                  },
+                  child: ClipRect(
+                    child: InteractiveViewer(
+                      minScale: 1.0,
+                      maxScale: 4.0,
+                      panEnabled: true,
+                      child: CachedNetworkImage(
+                        imageUrl: widget.images[index].imageUrl,
+                        placeholder: (context, url) => const Center(
+                          child: CircularProgressIndicator(color: Colors.white),
+                        ),
+                        errorWidget: (context, url, error) =>
+                            const Icon(Icons.broken_image, color: Colors.red),
+                        fit: BoxFit.contain,
+                      ),
+                    ),
                   ),
                 ),
               );
             },
           ),
+
+          // Tombol close
           Positioned(
-            top: 40,
-            left: 16,
-            child: IconButton(
-              icon: const Icon(Icons.close, color: Colors.white, size: 30),
-              onPressed: () => Navigator.pop(context),
+            top: MediaQuery.of(context).padding.top + 10,
+            left: 10,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.5),
+                shape: BoxShape.circle,
+              ),
+              child: IconButton(
+                icon: const Icon(Icons.close, color: Colors.white),
+                onPressed: () => Navigator.pop(context),
+              ),
             ),
           ),
+
+          // Indikator dot
           if (widget.images.length > 1)
             Positioned(
-              bottom: 20,
+              bottom: 30,
               left: 0,
               right: 0,
               child: Row(
@@ -76,14 +98,14 @@ class _FullScreenImageSliderState extends State<FullScreenImageSlider> {
                 children: List.generate(
                   widget.images.length,
                   (index) => AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    margin: const EdgeInsets.symmetric(horizontal: 4),
-                    width: _currentIndex == index ? 10 : 6,
-                    height: _currentIndex == index ? 10 : 6,
+                    duration: const Duration(milliseconds: 300),
+                    margin: const EdgeInsets.symmetric(horizontal: 5),
+                    width: _currentIndex == index ? 12 : 8,
+                    height: _currentIndex == index ? 12 : 8,
                     decoration: BoxDecoration(
                       color: _currentIndex == index
                           ? Colors.white
-                          : Colors.grey,
+                          : Colors.white.withOpacity(0.4),
                       shape: BoxShape.circle,
                     ),
                   ),

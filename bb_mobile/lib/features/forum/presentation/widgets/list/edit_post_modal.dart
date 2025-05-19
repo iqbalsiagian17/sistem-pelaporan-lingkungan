@@ -22,7 +22,7 @@ class _EditPostModalState extends ConsumerState<EditPostModal> {
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
-  static const int _maxImages = 5;
+  static const int _maxImages = 10;
 
   @override
   void initState() {
@@ -30,6 +30,13 @@ class _EditPostModalState extends ConsumerState<EditPostModal> {
     _contentController = TextEditingController(text: widget.post.content);
     _selectedImages = [];
     _existingImages = widget.post.images.map((e) => e.imageUrl).toList();
+  }
+
+  List<String> _getRelativeImagePaths(List<String> urls) {
+    return urls.map((url) {
+      final uri = Uri.parse(url);
+      return uri.path.startsWith('/uploads/') ? uri.path.substring(1) : uri.path;
+    }).toList();
   }
 
   Future<void> _pickImage() async {
@@ -57,7 +64,7 @@ class _EditPostModalState extends ConsumerState<EditPostModal> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text("Batas Maksimum Tercapai"),
-        content: const Text("Anda hanya dapat mengunggah maksimal 5 gambar."),
+        content: const Text("Anda hanya dapat mengunggah maksimal 10 gambar."),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -88,7 +95,6 @@ class _EditPostModalState extends ConsumerState<EditPostModal> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            /// Header
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -100,8 +106,6 @@ class _EditPostModalState extends ConsumerState<EditPostModal> {
               ],
             ),
             const SizedBox(height: 10),
-
-            /// Input konten
             TextFormField(
               controller: _contentController,
               decoration: InputDecoration(
@@ -119,8 +123,6 @@ class _EditPostModalState extends ConsumerState<EditPostModal> {
               validator: (value) => Validators.validateNotEmpty(value?.trim(), fieldName: "Konten"),
             ),
             const SizedBox(height: 10),
-
-            /// Info gambar lama
             if (_existingImages.isNotEmpty)
               const Padding(
                 padding: EdgeInsets.only(bottom: 4),
@@ -129,11 +131,7 @@ class _EditPostModalState extends ConsumerState<EditPostModal> {
                   style: TextStyle(color: Colors.orange, fontSize: 12),
                 ),
               ),
-
-            /// Preview gambar
             if (_existingImages.isNotEmpty || _selectedImages.isNotEmpty) _buildImagePreview(),
-
-            /// Tombol aksi
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -142,7 +140,7 @@ class _EditPostModalState extends ConsumerState<EditPostModal> {
                     Icons.image,
                     color: _selectedImages.length + _existingImages.length >= _maxImages
                         ? Colors.grey
-                        : Color(0xFF66BB6A),
+                        : const Color(0xFF66BB6A),
                     size: 28,
                   ),
                   onPressed: _selectedImages.length + _existingImages.length >= _maxImages
@@ -151,7 +149,7 @@ class _EditPostModalState extends ConsumerState<EditPostModal> {
                 ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF66BB6A),
+                    backgroundColor: const Color(0xFF66BB6A),
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
@@ -166,6 +164,7 @@ class _EditPostModalState extends ConsumerState<EditPostModal> {
                             postId: widget.post.id,
                             content: _contentController.text.trim(),
                             imagePaths: _selectedImages.map((e) => e.path).toList(),
+                            keptOldImages: _getRelativeImagePaths(_existingImages), // ✅ Fix utama
                           );
                           if (mounted) {
                             setState(() => _isLoading = false);

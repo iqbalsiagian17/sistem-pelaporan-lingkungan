@@ -17,7 +17,7 @@ class _CreatePostModalState extends ConsumerState<CreatePostModal> {
   final List<File> _selectedImages = [];
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
-  static const int _maxImages = 5;
+  static const int _maxImages = 10;
 
   Future<void> _pickImage() async {
     if (_selectedImages.length >= _maxImages) {
@@ -44,7 +44,7 @@ class _CreatePostModalState extends ConsumerState<CreatePostModal> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text("Batas Maksimum Tercapai"),
-        content: const Text("Anda hanya dapat mengunggah maksimal 5 gambar."),
+        content: const Text("Anda hanya dapat mengunggah maksimal 10 gambar."),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),

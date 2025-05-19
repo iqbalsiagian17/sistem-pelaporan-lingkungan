@@ -17,7 +17,7 @@ const storage = multer.diskStorage({
         cb(null, Date.now() + path.extname(file.originalname));
     }
 });
-const upload = multer({ storage }).array("images", 5); // Maksimal 5 gambar
+const upload = multer({ storage }).array("images", 10); // Maksimal 10 gambar
 
 
 exports.getAllPostsAdmin = async (req, res) => {
@@ -59,8 +59,8 @@ exports.createPostAdmin = async (req, res) => {
           return res.status(400).json({ message: "Content is required" });
         }
   
-        // 🔒 Validasi maksimal 5 gambar
-        if (req.files && req.files.length > 5) {
+        // 🔒 Validasi maksimal 10 gambar
+        if (req.files && req.files.length > 10) {
           // Hapus file yg sudah terlanjur diupload
           req.files.forEach((file) => {
             const fs = require("fs");
@@ -261,31 +261,39 @@ exports.updateCommentAdmin = async (req, res) => {
     const { content } = req.body;
     const user_id = req.user.id;
 
+    console.log("🛠️ Admin UpdateComment → ID:", id);
+    console.log("🛠️ Admin UpdateComment → Content:", content);
+    console.log("🛠️ Admin UpdateComment → UserID:", user_id);
+
     const comment = await Comment.findByPk(id);
 
     if (!comment) {
+      console.log("❌ Komentar tidak ditemukan");
       return res.status(404).json({ message: "Komentar tidak ditemukan" });
     }
 
-    // Opsional: validasi bahwa hanya pemilik komentar atau admin yang boleh mengedit
+    // 🔒 Hanya admin yg mengedit komentarnya sendiri
     if (comment.user_id !== user_id) {
+      console.log("❌ Tidak diizinkan mengedit komentar orang lain");
       return res.status(403).json({ message: "Anda tidak memiliki izin untuk mengedit komentar ini" });
     }
 
-    comment.content = content || comment.content;
+    comment.content = content;
+    comment.is_edited = true; // ✅ tandai sebagai sudah diedit
     await comment.save();
 
     const updatedComment = await Comment.findByPk(id, {
       include: { model: User, as: "user", attributes: ["id", "username", "profile_picture"] }
     });
 
-    res.status(200).json({
+    console.log("✅ Komentar berhasil diperbarui");
+    return res.status(200).json({
       message: "Komentar berhasil diperbarui",
       comment: updatedComment,
     });
   } catch (error) {
-    console.error("Error updating comment:", error);
-    res.status(500).json({ message: "Server error", error: error.message });
+    console.error("❌ Error updating comment (admin):", error);
+    return res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 

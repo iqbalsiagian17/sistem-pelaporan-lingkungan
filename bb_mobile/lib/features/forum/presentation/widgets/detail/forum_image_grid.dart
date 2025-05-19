@@ -20,19 +20,20 @@ class _ForumImageGridState extends State<ForumImageGrid> {
   @override
   void initState() {
     super.initState();
-    _pageController = PageController();
+    _pageController = PageController(); // Full width, no padding
   }
 
   @override
   Widget build(BuildContext context) {
     if (widget.images.isEmpty) return const SizedBox.shrink();
 
-    return GestureDetector(
-      onTap: () => _openImageViewer(context, _currentIndex),
-      child: Stack(
-        children: [
-          SizedBox(
+    return Column(
+      children: [
+        GestureDetector(
+          onTap: () => _openImageViewer(context, _currentIndex),
+          child: SizedBox(
             height: 300,
+            width: double.infinity,
             child: PageView.builder(
               controller: _pageController,
               itemCount: widget.images.length,
@@ -41,50 +42,43 @@ class _ForumImageGridState extends State<ForumImageGrid> {
               },
               itemBuilder: (context, index) {
                 return ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(0), // or keep 14 if needed
                   child: CachedNetworkImage(
                     imageUrl: widget.images[index].imageUrl,
                     placeholder: (context, url) => _buildImageSkeleton(),
                     errorWidget: (context, url, error) =>
                         const Icon(Icons.error, color: Colors.red),
                     fit: BoxFit.cover,
+                    width: MediaQuery.of(context).size.width,
                   ),
                 );
               },
             ),
           ),
-          if (widget.images.length > 1)
-            Positioned(
-              bottom: 8,
-              right: 8,
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.6),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: List.generate(
-                    widget.images.length,
-                    (index) => AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      margin: const EdgeInsets.symmetric(horizontal: 2),
-                      width: _currentIndex == index ? 8 : 6,
-                      height: _currentIndex == index ? 8 : 6,
-                      decoration: BoxDecoration(
-                        color: Colors.white
-                            .withOpacity(_currentIndex == index ? 1.0 : 0.5),
-                        shape: BoxShape.circle,
-                      ),
-                    ),
+        ),
+        if (widget.images.length > 1)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(
+                widget.images.length,
+                (index) => AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  margin: const EdgeInsets.symmetric(horizontal: 4),
+                  width: _currentIndex == index ? 10 : 8,
+                  height: _currentIndex == index ? 10 : 8,
+                  decoration: BoxDecoration(
+                    color: _currentIndex == index
+                        ? Colors.green
+                        : Colors.grey.shade400,
+                    shape: BoxShape.circle,
                   ),
                 ),
               ),
             ),
-        ],
-      ),
+          ),
+      ],
     );
   }
 
@@ -93,11 +87,11 @@ class _ForumImageGridState extends State<ForumImageGrid> {
       baseColor: Colors.grey.shade300,
       highlightColor: Colors.grey.shade100,
       child: Container(
+        width: double.infinity,
+        height: 300,
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: borderRadius != null
-              ? BorderRadius.circular(borderRadius)
-              : BorderRadius.zero,
+          borderRadius: BorderRadius.circular(borderRadius ?? 0),
         ),
       ),
     );

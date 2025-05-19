@@ -56,7 +56,7 @@ class _ForumDetailViewState extends ConsumerState<ForumDetailView> {
                   child: RefreshIndicator(
                     onRefresh: _refreshData,
                     child: SingleChildScrollView(
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -65,7 +65,10 @@ class _ForumDetailViewState extends ConsumerState<ForumDetailView> {
                           ForumPostContent(post: post),
                           const SizedBox(height: 12),
                           if (post.images.isNotEmpty)
-                            ForumImageGrid(images: post.images),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 0),
+                              child: ForumImageGrid(images: post.images),
+                            ),
                           const SizedBox(height: 12),
                           ForumAction(postId: post.id, commentCount: post.commentCount),
                           const Divider(thickness: 1),

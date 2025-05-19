@@ -1,8 +1,8 @@
 import 'package:bb_mobile/core/providers/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:bb_mobile/features/forum/presentation/providers/forum_provider.dart';
-import 'package:bb_mobile/features/forum/domain/entities/forum_post_entity.dart';
 
 class ForumAction extends ConsumerStatefulWidget {
   final int postId;
@@ -48,7 +48,6 @@ class _ForumActionState extends ConsumerState<ForumAction> {
         _loading = false;
       });
     } catch (e) {
-      // Handle error (bisa tampilkan error message atau kosongkan widget)
       setState(() {
         _loading = false;
       });
@@ -87,31 +86,50 @@ class _ForumActionState extends ConsumerState<ForumAction> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               InkWell(
+                borderRadius: BorderRadius.circular(20),
                 onTap: _toggleLike,
                 child: Row(
                   children: [
-                    AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 300),
-                      transitionBuilder: (child, animation) =>
-                          ScaleTransition(scale: animation, child: child),
-                      child: Icon(
-                        _isLiked ? Icons.favorite : Icons.favorite_border,
-                        key: ValueKey(_isLiked),
-                        color: _isLiked ? Colors.red : Colors.grey.shade700,
-                        size: 20,
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: _isLiked ? Colors.red.withOpacity(0.1) : Colors.transparent,
+                      ),
+                      child: AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 300),
+                        transitionBuilder: (child, animation) =>
+                            ScaleTransition(scale: animation, child: child),
+                        child: Icon(
+                          _isLiked ? PhosphorIcons.heartFill : PhosphorIcons.heart,
+                          key: ValueKey(_isLiked),
+                          color: _isLiked ? Colors.red : Colors.grey.shade700,
+                          size: 22,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 6),
                     Text(
                       '$_likeCount',
-                      style: TextStyle(color: Colors.grey.shade700, fontSize: 14),
+                      style: TextStyle(color: _isLiked ? Colors.red : Colors.grey.shade700, fontSize: 14),
                     ),
                   ],
                 ),
               ),
-              Text(
-                "${widget.commentCount} Komentar",
-                style: TextStyle(color: Colors.grey.shade700, fontSize: 14, fontWeight: FontWeight.w500),
+              Row(
+                children: [
+                  Icon(
+                    PhosphorIcons.chatCircleText,
+                    size: 20,
+                    color: Colors.grey.shade700,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    "${widget.commentCount} Komentar",
+                    style: TextStyle(color: Colors.grey.shade700, fontSize: 14, fontWeight: FontWeight.w500),
+                  ),
+                ],
               ),
             ],
           ),

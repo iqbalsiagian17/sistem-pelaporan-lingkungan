@@ -92,6 +92,8 @@ return GestureDetector(
     onTap: () async {
       await ref.read(notificationProvider.notifier).markAsRead(notif.id);
 
+      if (!context.mounted) return; // ✅ tambahkan ini agar aman
+
       switch (notif.type) {
         case "report":
           if (notif.reportId != null) {

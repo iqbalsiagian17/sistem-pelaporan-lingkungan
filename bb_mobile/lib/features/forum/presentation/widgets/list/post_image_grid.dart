@@ -20,21 +20,23 @@ class PostImageGrid extends StatelessWidget {
     }
   }
 
-  /// 📌 **1 Gambar (Full Width)**
   Widget _buildSingleImage(String imageUrl) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: CachedNetworkImage(
         imageUrl: imageUrl,
         placeholder: (context, url) => buildImageSkeleton(),
-        errorWidget: (context, url, error) => const Icon(Icons.error, color: Colors.red),
+        errorWidget: (context, url, error) {
+          debugPrint("❌ Gagal memuat gambar (single): $url");
+          debugPrint("🪵 Detail error: $error");
+          return const Icon(Icons.error, color: Colors.red);
+        },
         fit: BoxFit.cover,
         width: double.infinity,
       ),
     );
   }
 
-  /// 📌 **2 Gambar (Dua Kolom)**
   Widget _buildTwoImages(List<String> images) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -46,7 +48,11 @@ class PostImageGrid extends StatelessWidget {
               child: CachedNetworkImage(
                 imageUrl: imageUrl,
                 placeholder: (context, url) => buildImageSkeleton(),
-                errorWidget: (context, url, error) => const Icon(Icons.error, color: Colors.red),
+                errorWidget: (context, url, error) {
+                  debugPrint("❌ Gagal memuat gambar (two): $url");
+                  debugPrint("🪵 Detail error: $error");
+                  return const Icon(Icons.error, color: Colors.red);
+                },
                 fit: BoxFit.cover,
               ),
             ),
@@ -56,7 +62,6 @@ class PostImageGrid extends StatelessWidget {
     );
   }
 
-  /// 📌 **3+ Gambar (Grid)**
   Widget _buildGridImages(List<String> images) {
     int maxVisibleImages = 4;
     bool showMoreOverlay = images.length > maxVisibleImages;
@@ -65,7 +70,7 @@ class PostImageGrid extends StatelessWidget {
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2, // Bisa diubah ke 3 jika ingin lebih rapat
+        crossAxisCount: 2,
         crossAxisSpacing: 4,
         mainAxisSpacing: 4,
       ),
@@ -77,14 +82,17 @@ class PostImageGrid extends StatelessWidget {
         return CachedNetworkImage(
           imageUrl: images[index],
           placeholder: (context, url) => buildImageSkeleton(),
-          errorWidget: (context, url, error) => const Icon(Icons.error, color: Colors.red),
+          errorWidget: (context, url, error) {
+            debugPrint("❌ Gagal memuat gambar (grid): $url");
+            debugPrint("🪵 Detail error: $error");
+            return const Icon(Icons.error, color: Colors.red);
+          },
           fit: BoxFit.cover,
         );
       },
     );
   }
 
-  /// 📌 **Widget untuk Menampilkan Overlay `4+`**
   Widget _buildMoreImagesOverlay(String imageUrl, int remainingCount) {
     return Stack(
       fit: StackFit.expand,
@@ -92,11 +100,15 @@ class PostImageGrid extends StatelessWidget {
         CachedNetworkImage(
           imageUrl: imageUrl,
           placeholder: (context, url) => buildImageSkeleton(),
-          errorWidget: (context, url, error) => const Icon(Icons.error, color: Colors.red),
+          errorWidget: (context, url, error) {
+            debugPrint("❌ Gagal memuat gambar (overlay): $url");
+            debugPrint("🪵 Detail error: $error");
+            return const Icon(Icons.error, color: Colors.red);
+          },
           fit: BoxFit.cover,
         ),
         Container(
-          color: Colors.black.withOpacity(0.6), // 🔹 Overlay transparan
+          color: Colors.black.withOpacity(0.6),
           child: Center(
             child: Text(
               "+$remainingCount",

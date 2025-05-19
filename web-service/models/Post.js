@@ -25,6 +25,11 @@ module.exports = (sequelize, DataTypes) => {
                 allowNull: false,
                 defaultValue: 0,
             },
+            is_edited: {
+                type: DataTypes.BOOLEAN,
+                allowNull: false,
+                defaultValue: false
+            },
             is_pinned: {
                 type: DataTypes.BOOLEAN,
                 allowNull: false,

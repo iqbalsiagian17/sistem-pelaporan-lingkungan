@@ -17,7 +17,7 @@ const storage = multer.diskStorage({
         cb(null, Date.now() + path.extname(file.originalname));
     }
 });
-const upload = multer({ storage }).array("images", 5); // Maksimal 5 gambar
+const upload = multer({ storage }).array("images", 10); // Maksimal 10 gambar
 
 // ✅ CREATE POST (User Only)
 exports.createPost = async (req, res) => {
@@ -64,72 +64,96 @@ exports.createPost = async (req, res) => {
 
 // ✅ UPDATE POST (Only Owner)
 exports.updatePost = async (req, res) => {
-    upload(req, res, async (err) => {
-        if (err) {
-            return res.status(400).json({ message: "File upload error", error: err.message });
-        }
+  upload(req, res, async (err) => {
+    if (err) {
+      return res.status(400).json({ message: "File upload error", error: err.message });
+    }
 
+    try {
+      const { id } = req.params;
+      const { content, keptOldImages } = req.body;
+      const user_id = req.user.id;
+
+      console.log("📩 Received body:", req.body);
+      console.log("📎 Files received:", req.files?.length || 0);
+
+            // ✅ Parse dan normalisasi disini (urutan penting!)
+            let keptImages = [];
+      if (typeof keptOldImages === "string") {
         try {
-            const { id } = req.params;
-            const { content } = req.body;
-            const user_id = req.user.id;
-
-            const post = await Post.findByPk(id, { include: { model: PostImage, as: "images" } });
-
-            if (!post) {
-                return res.status(404).json({ message: "Post not found" });
-            }
-
-            if (post.user_id !== user_id) {
-                return res.status(403).json({ message: "You do not have permission to update this post" });
-            }
-
-            // Update isi konten jika ada
-            if (content) {
-                post.content = content;
-                await post.save();
-            }
-
-            // Jika ada gambar baru, hapus yang lama dan simpan yang baru
-            if (req.files.length > 0) {
-                // Hapus gambar lama dari folder
-                for (const image of post.images) {
-                    if (fs.existsSync(image.image)) {
-                        fs.unlinkSync(image.image);
-                    }
-                }
-
-                // Hapus data gambar lama dari DB
-                await PostImage.destroy({ where: { post_id: id } });
-
-                // Simpan gambar baru
-                const newImages = req.files.map((file) => ({
-                    post_id: post.id,
-                    image: `uploads/forum/${file.filename}`
-                }));
-
-                await PostImage.bulkCreate(newImages);
-            }
-
-            const updatedPost = await Post.findByPk(post.id, {
-                include: [
-                    { model: User, as: "user", attributes: ["id", "username", "profile_picture"] },
-                    { model: PostImage, as: "images" },
-                    {
-                        model: Comment,
-                        as: "comments",
-                        include: { model: User, as: "user", attributes: ["id", "username", "profile_picture"] }
-                    }
-                ]
-            });
-
-            res.status(200).json({ message: "Post updated successfully", post: updatedPost });
-        } catch (error) {
-            console.error("Error updating post:", error);
-            res.status(500).json({ message: "Server error", error: error.message });
+          keptImages = JSON.parse(keptOldImages);
+        } catch (parseError) {
+          return res.status(400).json({ message: "Invalid keptOldImages format", error: parseError.message });
         }
-    });
+      } else if (Array.isArray(keptOldImages)) {
+        keptImages = keptOldImages;
+      }
+
+
+      const normalizedKeptImages = keptImages.map(p => p.replace(/\\/g, '/'));
+
+      const post = await Post.findByPk(id, {
+        include: { model: PostImage, as: "images" }
+      });
+
+      if (!post) return res.status(404).json({ message: "Post not found" });
+      if (post.user_id !== user_id) return res.status(403).json({ message: "Unauthorized" });
+
+      // ✏️ Update konten jika berubah
+      if (content && content !== post.content) {
+        post.content = content;
+        post.is_edited = true;
+        await post.save();
+      }
+
+      // 🔥 Debug
+      console.log("🧪 normalizedKeptImages:", normalizedKeptImages);
+      console.log("🧪 image paths in DB:", post.images.map(img => img.image));
+
+      // 🗑️ Hapus gambar yang tidak dipertahankan
+      for (const image of post.images) {
+        const shouldKeep = normalizedKeptImages.includes(image.image.replace(/\\/g, '/'));
+        console.log(`🧹 Gambar ${image.image} → ${shouldKeep ? '✅ Dibiarkan' : '❌ Dihapus'}`);
+
+        if (!shouldKeep) {
+          if (fs.existsSync(image.image)) {
+            fs.unlinkSync(image.image);
+          }
+          await image.destroy();
+        }
+      }
+
+      // 📥 Simpan gambar baru jika ada
+      if (req.files.length > 0) {
+        const newImages = req.files.map((file) => ({
+          post_id: post.id,
+          image: `uploads/forum/${file.filename}`,
+        }));
+        await PostImage.bulkCreate(newImages);
+      }
+
+      // 🔁 Ambil ulang post
+      const updatedPost = await Post.findByPk(post.id, {
+        include: [
+          { model: User, as: "user", attributes: ["id", "username", "profile_picture"] },
+          { model: PostImage, as: "images" },
+          {
+            model: Comment,
+            as: "comments",
+            include: { model: User, as: "user", attributes: ["id", "username", "profile_picture"] },
+          },
+        ],
+      });
+
+      return res.status(200).json({ message: "Post updated successfully", post: updatedPost });
+    } catch (error) {
+      console.error("❌ Error updating post:", error);
+      return res.status(500).json({ message: "Server error", error: error.message });
+    }
+  });
 };
+
+
 
 
 exports.getAllPosts = async (req, res) => {
@@ -161,6 +185,7 @@ exports.getAllPosts = async (req, res) => {
         return {
           ...plainPost,
           is_liked: plainPost.likesRelation && plainPost.likesRelation.length > 0,
+          is_edited: plainPost.is_edited ?? false, // ✅ TAMBAHKAN INI
         };
       });
   
@@ -197,7 +222,13 @@ exports.getPostById = async (req, res) => {
             return res.status(404).json({ message: "Post not found" });
         }
 
-        res.status(200).json({ message: "Post retrieved successfully", post });
+      res.status(200).json({
+        message: "Post retrieved successfully",
+        post: {
+          ...post.get({ plain: true }),
+          is_edited: post.is_edited ?? false, // ✅ TAMBAHKAN INI
+        }
+      });
     } catch (error) {
         console.error("Error fetching post:", error);
         res.status(500).json({ message: "Server error", error: error.message });
@@ -206,38 +237,47 @@ exports.getPostById = async (req, res) => {
 
 // ✅ CREATE COMMENT (User Only)
 exports.createComment = async (req, res) => {
-    try {
-      const { post_id, content } = req.body;
-      const user_id = req.user.id;
-  
-      if (!post_id || !content) {
-        return res.status(400).json({ message: "Post ID and content are required" });
-      }
-  
-      // Buat komentar baru
-      const newComment = await Comment.create({ post_id, user_id, content });
-  
-      // Ambil info lengkap user yang mengomentari
-      const fullComment = await Comment.findByPk(newComment.id, {
-        include: { model: User, as: "user", attributes: ["id", "username"] }
-      });
-  
-      // Ambil postingan untuk mengetahui siapa pemiliknya
-      const post = await Post.findByPk(post_id);
+  try {
+    const { post_id, content, parent_id } = req.body;
+    const user_id = req.user.id;
 
-      const targetUser = await User.findByPk(post.user_id, {
-        attributes: ["id", "fcm_token", "username"]
-      });      
+    if (!post_id || !content) {
+      return res.status(400).json({ message: "Post ID and content are required" });
+    }
 
-  
-      if (!post) {
-        return res.status(404).json({ message: "Postingan tidak ditemukan" });
+    // ✅ Validasi parent_id jika ada
+    if (parent_id) {
+      const parentComment = await Comment.findByPk(parent_id);
+      if (!parentComment || parentComment.post_id !== parseInt(post_id)) {
+        return res.status(400).json({ message: "Invalid parent comment" });
       }
-  
-      // 🔔 Buat notifikasi untuk pemilik postingan
+    }
+
+    // Buat komentar (reply jika parent_id disertakan)
+    const newComment = await Comment.create({
+      post_id,
+      user_id,
+      content,
+      parent_id: parent_id || null,
+    });
+
+    const fullComment = await Comment.findByPk(newComment.id, {
+      include: { model: User, as: "user", attributes: ["id", "username"] }
+    });
+
+    const post = await Post.findByPk(post_id);
+    if (!post) {
+      return res.status(404).json({ message: "Postingan tidak ditemukan" });
+    }
+
+    const targetUser = await User.findByPk(post.user_id, {
+      attributes: ["id", "fcm_token", "username"]
+    });
+
+    if (post.user_id !== user_id) {
       const notifTitle = `${fullComment.user.username}`;
       const notifMessage = `berkomentar: "${content.length > 80 ? content.slice(0, 77) + '...' : content}"`;
-        
+
       await Notification.create({
         user_id: targetUser.id,
         title: notifTitle,
@@ -247,8 +287,7 @@ exports.createComment = async (req, res) => {
         role_target: "user",
         is_read: false,
       });
-  
-      // 🚀 Kirim FCM jika tersedia token
+
       if (targetUser.fcm_token) {
         await sendNotificationToUser(
           targetUser.fcm_token,
@@ -261,15 +300,52 @@ exports.createComment = async (req, res) => {
           }
         );
       }
-      
-  
-      res.status(201).json({ message: "Comment added successfully", comment: fullComment });
-  
-    } catch (error) {
-      console.error("Error adding comment:", error);
-      res.status(500).json({ message: "Server error", error: error.message });
     }
-  };
+
+    if (parent_id) {
+    const parentComment = await Comment.findByPk(parent_id, {
+      include: { model: User, as: "user", attributes: ["id", "fcm_token", "username"] }
+    });
+
+    if (parentComment && parentComment.user.id !== user_id) {
+      const replyNotifTitle = `${fullComment.user.username}`;
+      const replyNotifMessage = `membalas komentarmu: "${content.length > 80 ? content.slice(0, 77) + '...' : content}"`;
+
+      await Notification.create({
+        user_id: parentComment.user.id,
+        title: replyNotifTitle,
+        message: replyNotifMessage,
+        type: "forum",
+        sent_by: "system",
+        role_target: "user",
+        is_read: false,
+      });
+
+      if (parentComment.user.fcm_token) {
+        await sendNotificationToUser(
+          parentComment.user.fcm_token,
+          replyNotifTitle,
+          replyNotifMessage,
+          {
+            type: "comment",
+            route: "notification",
+            post_id: post.id.toString(),
+            parent_id: parentComment.id.toString(),
+          }
+        );
+      }
+    }
+  }
+
+    res.status(201).json({ message: "Comment added successfully", comment: fullComment });
+
+  } catch (error) {
+    console.error("Error adding comment:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+
   
 
 
@@ -296,6 +372,7 @@ exports.updateComment = async (req, res) => {
       }
   
       comment.content = content;
+      comment.is_edited = true; // ✅ tandai sebagai sudah di-edit
       await comment.save();
   
       console.log("✅ Comment updated:", comment.content);

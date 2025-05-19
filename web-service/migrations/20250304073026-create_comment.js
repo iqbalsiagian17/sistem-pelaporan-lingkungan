@@ -30,6 +30,20 @@ module.exports = {
               type: Sequelize.TEXT,
               allowNull: false
           },
+          is_edited: {
+              type: Sequelize.BOOLEAN,
+              allowNull: false,
+              defaultValue: false
+          },
+           parent_id: {
+            type: Sequelize.INTEGER,
+            allowNull: true,
+            references: {
+                model: "t_comment", // self-reference
+                key: "id"
+            },
+            onDelete: "CASCADE"
+          },
           createdAt: {
               type: Sequelize.DATE,
               allowNull: false,

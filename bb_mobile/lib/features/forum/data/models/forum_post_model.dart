@@ -11,6 +11,7 @@ class ForumPostModel {
   final String updatedAt;
   final int total_likes;
   final bool isPinned;
+  final bool isEdited; // ✅ Tambahkan ini
   final bool isLiked;
   final UserModel user;
   final List<ForumImageModel> images;
@@ -24,6 +25,7 @@ class ForumPostModel {
     required this.updatedAt,
     required this.total_likes,
     required this.isPinned,
+    this.isEdited = false, 
     required this.isLiked, 
     required this.user,
     required this.images,
@@ -42,6 +44,7 @@ class ForumPostModel {
       updatedAt: json['updatedAt'],
       total_likes: json['total_likes'] ?? 0,
       isPinned: json['is_pinned'] ?? false,
+      isEdited: json['is_edited'] ?? false, 
       isLiked: json['is_liked'] ?? false, 
       user: UserModel.fromJson(json['user']),
       images: (json['images'] as List)
@@ -62,6 +65,7 @@ class ForumPostModel {
       updatedAt: updatedAt,
       total_likes: total_likes,
       isPinned: isPinned,
+      isEdited: isEdited,
       likeCount: total_likes,
       isLiked: isLiked, 
       user: user,

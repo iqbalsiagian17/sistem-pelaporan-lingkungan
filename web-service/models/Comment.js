@@ -28,7 +28,22 @@ module.exports = (sequelize, DataTypes) => {
             content: {
                 type: DataTypes.TEXT,
                 allowNull: false
-            }
+            },
+            is_edited: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false
+            },
+            parent_id: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
+            references: {
+                model: "t_comment", // self-reference
+                key: "id"
+            },
+            onDelete: "CASCADE"
+          },
+
         },
         {
             tableName: "t_comment",
@@ -39,6 +54,10 @@ module.exports = (sequelize, DataTypes) => {
     Comment.associate = (models) => {
         Comment.belongsTo(models.Post, { foreignKey: "post_id", as: "post" });
         Comment.belongsTo(models.User, { foreignKey: "user_id", as: "user" });
+
+        Comment.belongsTo(models.Comment, { foreignKey: "parent_id", as: "parent" });
+        Comment.hasMany(models.Comment, { foreignKey: "parent_id", as: "replies" });
+
     };
 
     return Comment;

@@ -8,7 +8,12 @@ class CreateForumCommentUseCase {
   Future<bool> call({
     required int postId,
     required String content,
-  }) async {
-    return await repository.createComment(postId: postId, content: content);
+    int? parentId, // ⬅️ Tambahkan ini
+  }) {
+    return repository.createComment(
+      postId: postId,
+      content: content,
+      parentId: parentId, // ⬅️ Kirim ke repository
+    );
   }
 }

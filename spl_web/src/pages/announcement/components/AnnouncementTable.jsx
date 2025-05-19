@@ -3,7 +3,7 @@ import { Card, Table, Dropdown, Row, Col, InputGroup, Form, Button } from "react
 
 const AnnouncementTable = ({ announcements,onView, onDelete, onEdit }) => {
   const [searchQuery, setSearchQuery] = useState("");
-  const API_BASE_URL = "http://69.62.82.58:3000"; 
+  const API_BASE_URL = "http://localhost:3000"; 
 
   const filtered = announcements.filter((a) =>
     a.title.toLowerCase().includes(searchQuery.toLowerCase())

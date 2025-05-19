@@ -1,6 +1,6 @@
 import { fetchWithAuth } from "../utils/fetchWithAuth";
 
-const BASE_URL = "http://69.62.82.58:3000/api/admin/users";
+const BASE_URL = "http://localhost:3000/api/admin/users";
 
 export const getAllUsers = async () => {
   const response = await fetchWithAuth(BASE_URL);

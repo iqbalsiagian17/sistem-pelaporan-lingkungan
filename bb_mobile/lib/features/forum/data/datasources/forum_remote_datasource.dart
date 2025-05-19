@@ -7,8 +7,8 @@ abstract class ForumRemoteDataSource {
   Future<List<ForumPostModel>> getAllPosts();
   Future<ForumPostModel?> getPostById(int postId);
   Future<bool> createPost({required String content, required List<String> imagePaths});
-  Future<bool> updatePost({required int postId, required String content, required List<String> imagePaths});
-  Future<bool> createComment({required int postId, required String content});
+  Future<bool> updatePost({required int postId, required String content, required List<String> imagePaths, required List<String> keptOldImages});
+  Future<bool> createComment({required int postId, required String content, int? parentId});
   Future<bool> updateComment({required int commentId, required String content});
   Future<bool> deletePost(int postId);
   Future<bool> deleteComment(int commentId);
@@ -23,20 +23,26 @@ abstract class ForumRemoteDataSource {
 class ForumRemoteDataSourceImpl implements ForumRemoteDataSource {
   final Dio _dio = DioClient.instance;
 
-  @override
-  Future<List<ForumPostModel>> getAllPosts() async {
-    try {
-      final response = await _dio.get("${ApiConstants.forumUrl}/");
-      if (response.statusCode == 200) {
-        final data = response.data['posts'] as List;
-        return data.map((post) => ForumPostModel.fromJson(post)).toList();
-      } else {
-        throw Exception("Gagal mengambil postingan forum.");
-      }
-    } catch (e) {
-      _handleError(e, "getAllPosts");
+@override
+Future<List<ForumPostModel>> getAllPosts() async {
+  try {
+    final response = await _dio.get("${ApiConstants.forumUrl}/");
+    if (response.statusCode == 200) {
+      final data = response.data['posts'] as List;
+
+      // ⬇️ Letakkan print SEBELUM return
+      print("✅ Jumlah data post: ${data.length}");
+
+      return data.map((post) => ForumPostModel.fromJson(post)).toList();
+    } else {
+      throw Exception("Gagal mengambil postingan forum.");
     }
+  } catch (e) {
+    _handleError(e, "getAllPosts");
+    return []; // fallback untuk menghindari null
   }
+}
+
 
   @override
   Future<ForumPostModel?> getPostById(int postId) async {
@@ -67,10 +73,14 @@ class ForumRemoteDataSourceImpl implements ForumRemoteDataSource {
   }
 
   @override
-  Future<bool> updatePost({required int postId, required String content, required List<String> imagePaths,
+  Future<bool> updatePost({required int postId, required String content, required List<String> imagePaths, required List<String> keptOldImages
   }) async {
     try {
-      final formData = FormData.fromMap({"content": content});
+    final formData = FormData.fromMap({
+      "content": content,
+      "keptOldImages": keptOldImages.isNotEmpty ? keptOldImages : [], // boleh kosong
+    });
+
       for (var path in imagePaths) {
         formData.files.add(MapEntry(
           "images",
@@ -85,19 +95,26 @@ class ForumRemoteDataSourceImpl implements ForumRemoteDataSource {
     }
   }
 
+@override
+Future<bool> createComment({
+  required int postId,
+  required String content,
+  int? parentId, // ✅ tambahkan parameter opsional
+}) async {
+  try {
+    final data = {
+      "post_id": postId,
+      "content": content,
+      if (parentId != null) "parent_id": parentId, // ✅ kirim hanya jika tidak null
+    };
 
-  @override
-  Future<bool> createComment({required int postId, required String content}) async {
-    try {
-      final response = await _dio.post("${ApiConstants.forumUrl}/comment", data: {
-        "post_id": postId,
-        "content": content,
-      });
-      return response.statusCode == 201;
-    } catch (e) {
-      _handleError(e, "createComment");
-    }
+    final response = await _dio.post("${ApiConstants.forumUrl}/comment", data: data);
+    return response.statusCode == 201;
+  } catch (e) {
+    _handleError(e, "createComment");
   }
+}
+
 
 @override
 Future<bool> updateComment({required int commentId, required String content}) async {

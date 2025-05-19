@@ -9,6 +9,8 @@ class ForumPostContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final createdAtLocal = DateTime.parse(post.createdAt).toLocal();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -25,8 +27,8 @@ class ForumPostContent extends StatelessWidget {
 
         // 🕒 Waktu & Tanggal Posting
         Text(
-          "${DateUtilsCustom.formatTime(DateTime.parse(post.createdAt))} · "
-          "${DateUtilsCustom.formatDate(DateTime.parse(post.createdAt))}",
+          "${DateUtilsCustom.formatTime(createdAtLocal)} · "
+          "${DateUtilsCustom.formatDate(createdAtLocal)}",
           style: TextStyle(
             fontSize: 14,
             color: Colors.grey.shade600,

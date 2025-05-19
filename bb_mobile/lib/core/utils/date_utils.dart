@@ -28,4 +28,17 @@ class DateUtilsCustom {
 
     return DateFormat('dd MMM yyyy', 'id_ID').format(date); // Gunakan format tanggal jika lebih dari 7 hari
   }
+
+  static String shortTimeAgo(DateTime date) {
+    final now = DateTime.now();
+    final diff = now.difference(date);
+
+    if (diff.inSeconds < 60) return '${diff.inSeconds}d';
+    if (diff.inMinutes < 60) return '${diff.inMinutes}m';
+    if (diff.inHours < 24) return '${diff.inHours}jm';
+    if (diff.inDays < 7) return '${diff.inDays}hr';
+    if (diff.inDays < 30) return '${(diff.inDays / 7).floor()}mg';
+    if (diff.inDays < 365) return '${(diff.inDays / 30).floor()}bln';
+    return '${(diff.inDays / 365).floor()}y';
+  }
 }

@@ -9,11 +9,13 @@ class UpdateForumPostUseCase {
     required int postId,
     required String content,
     required List<String> imagePaths,
+    required List<String> keptOldImages, // ✅ Tambahkan parameter baru
   }) async {
     return await repository.updatePost(
       postId: postId,
       content: content,
       imagePaths: imagePaths,
+      keptOldImages: keptOldImages, // ✅ Teruskan ke repository
     );
   }
 }
