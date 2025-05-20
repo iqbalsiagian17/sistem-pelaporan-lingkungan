@@ -10,8 +10,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class PostCard extends ConsumerWidget {
   final ForumPostEntity post;
+  final VoidCallback? onEdit;
+  final Future<void> Function()? onDelete;
 
-  const PostCard({super.key, required this.post});
+  const PostCard({
+    super.key,
+    required this.post,
+    this.onEdit,
+    this.onDelete,
+  });
 
   void _showUserInfo(BuildContext context) {
     showModalBottomSheet(
@@ -52,6 +59,8 @@ class PostCard extends ConsumerWidget {
                     PostHeader(
                       post: post,
                       onUserTap: () => _showUserInfo(context),
+                      onEditTap: onEdit,
+                      onDeleteTap: onDelete,
                     ),
                     const SizedBox(height: 8),
                     Text(post.content, style: const TextStyle(fontSize: 16)),

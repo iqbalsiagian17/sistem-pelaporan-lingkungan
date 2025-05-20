@@ -7,11 +7,15 @@ import 'package:flutter/material.dart';
 class PostHeader extends StatelessWidget {
   final ForumPostEntity post;
   final VoidCallback? onUserTap;
+  final VoidCallback? onEditTap;
+  final Future<void> Function()? onDeleteTap;
 
   const PostHeader({
     super.key,
     required this.post,
     this.onUserTap,
+    this.onEditTap,
+    this.onDeleteTap,
   });
 
   String _getInitial(String username) {
@@ -69,7 +73,11 @@ class PostHeader extends StatelessWidget {
             ),
           ),
         ),
-        PostPopupMenu(post: post),
+        PostPopupMenu(
+          post: post,
+          onEdit: onEditTap,
+          onDelete: onDeleteTap,
+        ),
       ],
     );
   }

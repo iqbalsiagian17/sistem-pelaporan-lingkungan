@@ -7,8 +7,15 @@ import 'package:flutter/material.dart';
 
 class ForumUserInfo extends StatelessWidget {
   final ForumPostEntity post;
+  final VoidCallback? onEditTap;
+  final Future<void> Function()? onDeleteTap;
 
-  const ForumUserInfo({super.key, required this.post});
+  const ForumUserInfo({
+    super.key,
+    required this.post,
+    this.onEditTap,
+    this.onDeleteTap,
+  });
 
   String getFullImageUrl(String path) {
     return "${ApiConstants.baseUrl}/${path.replaceAll(r'\', '/')}";
@@ -32,7 +39,7 @@ class ForumUserInfo extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        /// 🟢 Avatar - bisa diklik
+        /// 🟢 Avatar
         GestureDetector(
           onTap: () => _showUserModal(context),
           child: ClipOval(
@@ -49,7 +56,7 @@ class ForumUserInfo extends StatelessWidget {
         ),
         const SizedBox(width: 12),
 
-        /// 🟢 Informasi User - bisa diklik
+        /// 🟢 Informasi User
         Expanded(
           child: GestureDetector(
             onTap: () => _showUserModal(context),
@@ -78,7 +85,11 @@ class ForumUserInfo extends StatelessWidget {
         ),
 
         /// 🟢 Tombol Titik Tiga
-        PostPopupMenu(post: post),
+        PostPopupMenu(
+          post: post,
+          onEdit: onEditTap,
+          onDelete: onDeleteTap,
+        ),
       ],
     );
   }

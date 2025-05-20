@@ -1,8 +1,5 @@
 import 'package:bb_mobile/core/services/auth/global_auth_service.dart';
 import 'package:bb_mobile/features/forum/domain/entities/forum_post_entity.dart';
-import 'package:bb_mobile/features/forum/presentation/providers/forum_provider.dart';
-import 'package:bb_mobile/features/forum/presentation/widgets/list/edit_post_modal.dart';
-import 'package:bb_mobile/widgets/snackbar/snackbar_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,8 +8,15 @@ final globalAuthServiceProvider = Provider((ref) => GlobalAuthService());
 
 class PostPopupMenu extends ConsumerStatefulWidget {
   final ForumPostEntity post;
+  final VoidCallback? onEdit;
+  final Future<void> Function()? onDelete;
 
-  const PostPopupMenu({super.key, required this.post});
+  const PostPopupMenu({
+    super.key,
+    required this.post,
+    this.onEdit,
+    this.onDelete,
+  });
 
   @override
   ConsumerState<PostPopupMenu> createState() => _PostPopupMenuState();
@@ -38,25 +42,15 @@ class _PostPopupMenuState extends ConsumerState<PostPopupMenu> {
 
   @override
   Widget build(BuildContext context) {
-    final forumState = ref.watch(forumProvider);
-    final currentPost = forumState.posts.firstWhere(
-      (p) => p.id == widget.post.id,
-      orElse: () => widget.post,
-    );
-
-    final postOwnerId = currentPost.user.id;
-
-    // 🔒 Tampilkan tombol hanya jika user login & pemilik postingan
-    if (_userId == null || _userId != postOwnerId) {
-      return const SizedBox.shrink();
-    }
+    final isOwner = _userId == widget.post.user.id;
+    if (!isOwner) return const SizedBox.shrink();
 
     return PopupMenuButton<String>(
       onSelected: (value) {
-        if (value == 'delete') {
+        if (value == 'edit') {
+          widget.onEdit?.call();
+        } else if (value == 'delete') {
           _showDeleteConfirmationSheet(context);
-        } else if (value == 'edit') {
-          _showEditPostModal(context);
         }
       },
       icon: const Icon(Icons.more_vert, color: Colors.black),
@@ -74,7 +68,6 @@ class _PostPopupMenuState extends ConsumerState<PostPopupMenu> {
             ],
           ),
         ),
-
         PopupMenuItem<String>(
           value: 'delete',
           child: Row(
@@ -134,10 +127,8 @@ class _PostPopupMenuState extends ConsumerState<PostPopupMenu> {
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
                     onPressed: () async {
-                      if (!mounted) return;
-                        Navigator.pop(context);
-                        final rootContext = Navigator.of(context, rootNavigator: true).context;
-                        await _deletePost(rootContext);
+                      Navigator.pop(context);
+                      await widget.onDelete?.call();
                     },
                     child: const Text("Hapus", style: TextStyle(color: Colors.white)),
                   ),
@@ -149,38 +140,4 @@ class _PostPopupMenuState extends ConsumerState<PostPopupMenu> {
       ),
     );
   }
-
-Future<void> _showEditPostModal(BuildContext context) async {
-  final rootContext = Navigator.of(context, rootNavigator: true).context;
-
-  final result = await showModalBottomSheet<bool>(
-    context: rootContext,
-    isScrollControlled: true,
-    useRootNavigator: true,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-    ),
-    builder: (_) => EditPostModal(post: widget.post),
-  );
-
-  if (result == true && mounted) {
-    await ref.read(forumProvider.notifier).fetchAllPosts();
-    await Future.delayed(const Duration(milliseconds: 150));
-    SnackbarHelper.showSnackbar(rootContext, "Postingan berhasil diperbarui.");
-  }
-}
-
-
-
-
-
-Future<void> _deletePost(BuildContext snackbarContext) async {
-  final success = await ref.read(forumProvider.notifier).deletePost(widget.post.id);
-  SnackbarHelper.showSnackbar(
-    snackbarContext,
-    success ? "Postingan berhasil dihapus" : "Gagal menghapus postingan",
-    isError: !success,
-  );
-}
-
 }

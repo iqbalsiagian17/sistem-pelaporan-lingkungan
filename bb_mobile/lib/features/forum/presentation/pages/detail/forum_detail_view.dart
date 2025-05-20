@@ -7,8 +7,10 @@ import 'package:bb_mobile/features/forum/presentation/widgets/detail/forum_detai
 import 'package:bb_mobile/features/forum/presentation/widgets/detail/forum_image_grid.dart';
 import 'package:bb_mobile/features/forum/presentation/widgets/detail/forum_post_content.dart';
 import 'package:bb_mobile/features/forum/presentation/widgets/detail/forum_user_info.dart';
+import 'package:bb_mobile/features/forum/presentation/widgets/list/edit_post_modal.dart';
 import 'package:bb_mobile/features/profile/presentation/providers/user_profile_provider.dart';
 import 'package:bb_mobile/widgets/skeleton/skeleton_forum_post_detail.dart';
+import 'package:bb_mobile/widgets/snackbar/snackbar_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -44,6 +46,36 @@ class _ForumDetailViewState extends ConsumerState<ForumDetailView> {
       return const ForumDetailSkeleton();
     }
 
+    Future<void> _showEditPostModal(ForumPostEntity post) async {
+      final result = await showModalBottomSheet<bool>(
+        context: context,
+        useRootNavigator: true,
+        isScrollControlled: true,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        ),
+        builder: (_) => EditPostModal(post: post),
+      );
+
+      if (result == true && mounted) {
+        await _refreshData();
+        SnackbarHelper.showSnackbar(context, 'Postingan berhasil diperbarui!');
+      }
+    }
+
+    Future<void> _deletePost(ForumPostEntity post) async {
+      final success = await ref.read(forumProvider.notifier).deletePost(post.id);
+      if (!mounted) return;
+
+      Navigator.pop(context); // keluar dari detail view
+      SnackbarHelper.showSnackbar(
+        context,
+        success ? 'Postingan berhasil dihapus' : 'Gagal menghapus postingan',
+        isError: !success,
+      );
+    }
+
+
     return userState.when(
       data: (_) {
         return Scaffold(
@@ -60,7 +92,11 @@ class _ForumDetailViewState extends ConsumerState<ForumDetailView> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          ForumUserInfo(post: post),
+                          ForumUserInfo(
+                            post: post,
+                            onEditTap: () => _showEditPostModal(post),
+                            onDeleteTap: () => _deletePost(post),
+                          ),
                           const SizedBox(height: 12),
                           ForumPostContent(post: post),
                           const SizedBox(height: 12),

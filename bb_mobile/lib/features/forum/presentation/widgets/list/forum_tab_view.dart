@@ -8,11 +8,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class ForumTabView extends ConsumerStatefulWidget {
   final TabController tabController;
   final Future<void> Function() onRefresh;
+  final void Function(ForumPostEntity post) onEditPost;
+  final Future<void> Function(ForumPostEntity post) onDeletePost;
 
   const ForumTabView({
     super.key,
     required this.tabController,
     required this.onRefresh,
+    required this.onEditPost,
+    required this.onDeletePost,
   });
 
   @override
@@ -36,7 +40,6 @@ class _ForumTabViewState extends ConsumerState<ForumTabView> {
 
     return TabBarView(
       controller: widget.tabController,
-      physics: const NeverScrollableScrollPhysics(),
       children: [
         state.isLoading
             ? _buildSkeletonList()
@@ -52,7 +55,6 @@ class _ForumTabViewState extends ConsumerState<ForumTabView> {
     if (posts.isEmpty) {
       return const Center(child: Text("Belum ada postingan."));
     }
-    print("📦 Total post ditemukan: ${posts.length}");
 
     final pinned = posts.where((p) => p.isPinned).toList();
     final notPinned = posts.where((p) => !p.isPinned).toList();
@@ -63,7 +65,11 @@ class _ForumTabViewState extends ConsumerState<ForumTabView> {
       child: ListView.builder(
         padding: EdgeInsets.zero,
         itemCount: sorted.length,
-        itemBuilder: (context, index) => PostCard(post: sorted[index]),
+        itemBuilder: (context, index) => PostCard(
+          post: sorted[index],
+          onEdit: () => widget.onEditPost(sorted[index]),
+          onDelete: () => widget.onDeletePost(sorted[index]),
+        ),
       ),
     );
   }
