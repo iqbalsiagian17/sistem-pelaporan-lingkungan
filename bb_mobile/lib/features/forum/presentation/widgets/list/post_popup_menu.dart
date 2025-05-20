@@ -135,8 +135,9 @@ class _PostPopupMenuState extends ConsumerState<PostPopupMenu> {
                     style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
                     onPressed: () async {
                       if (!mounted) return;
-                      Navigator.pop(context);
-                      await _deletePost();
+                        Navigator.pop(context);
+                        final rootContext = Navigator.of(context, rootNavigator: true).context;
+                        await _deletePost(rootContext);
                     },
                     child: const Text("Hapus", style: TextStyle(color: Colors.white)),
                   ),
@@ -149,27 +150,37 @@ class _PostPopupMenuState extends ConsumerState<PostPopupMenu> {
     );
   }
 
-  void _showEditPostModal(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (_) => EditPostModal(post: widget.post),
-    );
+Future<void> _showEditPostModal(BuildContext context) async {
+  final rootContext = Navigator.of(context, rootNavigator: true).context;
+
+  final result = await showModalBottomSheet<bool>(
+    context: rootContext,
+    isScrollControlled: true,
+    useRootNavigator: true,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+    ),
+    builder: (_) => EditPostModal(post: widget.post),
+  );
+
+  if (result == true && mounted) {
+    await ref.read(forumProvider.notifier).fetchAllPosts();
+    await Future.delayed(const Duration(milliseconds: 150));
+    SnackbarHelper.showSnackbar(rootContext, "Postingan berhasil diperbarui.");
   }
+}
 
 
-  Future<void> _deletePost() async {
-    final success = await ref.read(forumProvider.notifier).deletePost(widget.post.id);
-    if (!mounted) return;
 
-    SnackbarHelper.showSnackbar(
-      context,
-      success ? "Postingan berhasil dihapus" : "Gagal menghapus postingan",
-      isError: !success,
-    );
-  }
+
+
+Future<void> _deletePost(BuildContext snackbarContext) async {
+  final success = await ref.read(forumProvider.notifier).deletePost(widget.post.id);
+  SnackbarHelper.showSnackbar(
+    snackbarContext,
+    success ? "Postingan berhasil dihapus" : "Gagal menghapus postingan",
+    isError: !success,
+  );
+}
 
 }

@@ -11,7 +11,7 @@ class ReportDetailStatus extends ConsumerStatefulWidget {
   final int reportId;
   final String? status;
   final int total_likes;
-  final int reportUserId; // ✅ Tambahkan ini di pemanggilan widget
+  final int reportUserId;
 
   const ReportDetailStatus({
     super.key,
@@ -138,83 +138,66 @@ class _ReportDetailStatusState extends ConsumerState<ReportDetailStatus> {
             );
           },
         ),
+
         // 🔹 Like & Save Buttons
         Row(
           children: [
-            // ❤️ Like & Count
-            Container(
-              height: 36,
-              padding: const EdgeInsets.only(right: 8),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
+            // ❤️ Like
+            IconButton(
+              onPressed: () async {
+                if (isLiked) {
+                  await likeNotifier.unlikeReport(widget.reportId);
+                } else {
+                  await likeNotifier.likeReport(widget.reportId);
+                }
+              },
+              icon: Icon(
+                isLiked ? Icons.favorite : Icons.favorite_border,
+                color: isLiked ? Colors.red : Colors.grey,
               ),
-              child: Row(
-                children: [
-                  IconButton(
-                    onPressed: () async {
-                      if (isLiked) {
-                        await likeNotifier.unlikeReport(widget.reportId);
-                      } else {
-                        await likeNotifier.likeReport(widget.reportId);
-                      }
-                    },
-                    icon: Icon(
-                      isLiked ? Icons.favorite : Icons.favorite_border,
-                      color: isLiked ? Colors.red : Colors.grey,
-                      size: 26,
-                    ),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                    splashRadius: 20,
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    "$likeCount",
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
+              padding: const EdgeInsets.all(4),
+              constraints: const BoxConstraints(),
+              splashRadius: 20,
+              tooltip: "Suka",
+            ),
+            Text(
+              "$likeCount",
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
               ),
             ),
-
             const SizedBox(width: 12),
 
-            // 🔖 Save Button
-            Container(
-              height: 36,
-              width: 36,
-              alignment: Alignment.center,
-              child: IconButton(
-                onPressed: () async {
-                  if (isSaved) {
-                    await saveNotifier.deleteSavedReport(widget.reportId);
-                    if (context.mounted) {
-                      SnackbarHelper.showSnackbar(
-                        context,
-                        "Laporan dihapus dari tersimpan",
-                      );
-                    }
-                  } else {
-                    await saveNotifier.saveReport(widget.reportId);
-                    if (context.mounted) {
-                      SnackbarHelper.showSnackbar(
-                        context,
-                        "Laporan berhasil disimpan",
-                      );
-                    }
+            // 🔖 Save
+            IconButton(
+              onPressed: () async {
+                if (isSaved) {
+                  await saveNotifier.deleteSavedReport(widget.reportId);
+                  if (context.mounted) {
+                    SnackbarHelper.showSnackbar(
+                      context,
+                      "Laporan dihapus dari tersimpan",
+                    );
                   }
-                },
-                icon: Icon(
-                  isSaved ? Icons.bookmark : Icons.bookmark_border,
-                  color: isSaved ? const Color(0xFF66BB6A) : Colors.black54,
-                  size: 26,
-                ),
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-                splashRadius: 20,
+                } else {
+                  await saveNotifier.saveReport(widget.reportId);
+                  if (context.mounted) {
+                    SnackbarHelper.showSnackbar(
+                      context,
+                      "Laporan berhasil disimpan",
+                    );
+                  }
+                }
+              },
+              icon: Icon(
+                isSaved ? Icons.bookmark : Icons.bookmark_border,
+                color: isSaved ? const Color(0xFF66BB6A) : Colors.black54,
               ),
+              padding: const EdgeInsets.all(4),
+              constraints: const BoxConstraints(),
+              splashRadius: 20,
+              tooltip: "Simpan",
             ),
           ],
         ),

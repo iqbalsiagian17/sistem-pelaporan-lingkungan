@@ -210,10 +210,12 @@ class _EditPostModalState extends ConsumerState<EditPostModal> {
                                 keptOldImages: _getRelativeImagePaths(_existingImages),
                               );
 
-                              if (mounted) {
-                                setState(() => _isLoading = false);
-                                Navigator.pop(context, success);
+                            if (mounted) {
+                              setState(() => _isLoading = false);
+                              if (success) {
+                                Navigator.pop(context, true); // ✅ hanya return true jika berhasil
                               }
+                            }
                             },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF66BB6A),

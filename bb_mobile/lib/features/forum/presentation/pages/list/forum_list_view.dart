@@ -40,9 +40,12 @@ class _ForumListViewState extends ConsumerState<ForumListView> with SingleTicker
   }
 
   Future<void> _showCreatePostModal() async {
+    final rootContext = Navigator.of(context, rootNavigator: true).context;
+
     final result = await showModalBottomSheet<bool>(
-      context: context,
-      isScrollControlled: true,
+    context: rootContext, // ⬅️ pakai rootContext
+    isScrollControlled: true,
+    useRootNavigator: true, // ⬅️ penting!
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),

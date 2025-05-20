@@ -82,8 +82,8 @@ class ForumCommentItem extends ConsumerWidget {
                     GestureDetector(
                       onTap: () => _showUserInfo(context),
                       child: Text(
-                        comment.user.username.length > 23
-                          ? '${comment.user.username.substring(0, 23)}...'
+                        comment.user.username.length > 20
+                          ? '${comment.user.username.substring(0, 20)}...'
                           : comment.user.username,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,

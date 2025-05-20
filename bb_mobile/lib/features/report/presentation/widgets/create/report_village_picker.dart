@@ -5,6 +5,7 @@ class ReportVillagePicker extends StatelessWidget {
   final void Function(String) onSelected;
   final FocusNode focusNode;
   final String? Function(String?)? validator;
+  final bool isRequired; // ✅ Tambahan
 
   const ReportVillagePicker({
     super.key,
@@ -12,14 +13,45 @@ class ReportVillagePicker extends StatelessWidget {
     required this.onSelected,
     required this.focusNode,
     this.validator,
+    this.isRequired = false, // ✅ Default false
   });
 
   static final List<String> _villages = [
-    "Aekbolon Jae", "Aekbolon Julu", "Baru Ara", "Balige I", "Balige II", "Balige III",
-    "Bonan Dolok I", "Bonan Dolok II", "Bonan Dolok III", "Hinalang Bagasan",
-    "Huta Bulu Mejan", "Huta Dame", "Huta Namora", "Hutagaol Peatalun (Peatalum)",
-    "Longat", "Lumban Bul Bul", "Lumban Dolok Haumabange", "Lumban Gaol",
-    "Lumban Gorat", "Lumban Pea", "Lumban Pea Timur", "Lumban Silintong", "Tambunan Sunge",
+    "Desa Hutanamora",
+    "Desa Hutagaol Peatalun",
+    "Desa Hinalang Bagasan",
+    "Desa Matio",
+    "Desa Lumban Pea",
+    "Desa Hutabulu Mejan",
+    "Desa Lumban Gaol",
+    "Desa Parsuratan",
+    "Desa Baruara",
+    "Desa Aek Bolon Julu",
+    "Desa Sibolahotang SAS",
+    "Desa Lumban Bulbul",
+    "Desa Sianipar Sihailhail",
+    "Desa Silalahi Pagar Batu",
+    "Desa Lumban Silintong",
+    "Desa Saribu Raja Janji Maria",
+    "Desa Longat",
+    "Desa Balige II",
+    "Desa Aek Bolon Jae",
+    "Desa Lumban Gorat",
+    "Desa Sibuntuon",
+    "Desa Siboruon",
+    "Desa Paindoan",
+    "Desa Bonan Dolok I",
+    "Desa Bonan Dolok II",
+    "Desa Bonan Dolok III",
+    "Desa Huta Dame",
+    "Kelurahan Balige I",
+    "Kelurahan Balige III",
+    "Kelurahan Pardede Onan",
+    "Kelurahan Sangkar Nihuta",
+    "Kelurahan Lumban Dolok Hauma Bange",
+    "Kelurahan Napitupulu Bagasan",
+    "Desa Lumban Pea Timur",
+    "Desa Tambunan Sunge",
   ];
 
   @override
@@ -27,12 +59,22 @@ class ReportVillagePicker extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          "Pilih Desa/Kelurahan",
-          style: TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w600,
-            color: Colors.black87,
+        RichText(
+          text: TextSpan(
+            text: "Pilih Desa/Kelurahan",
+            style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+              color: Colors.black87,
+            ),
+            children: isRequired
+                ? const [
+                    TextSpan(
+                      text: ' *',
+                      style: TextStyle(color: Colors.red),
+                    )
+                  ]
+                : [],
           ),
         ),
         const SizedBox(height: 8),
@@ -66,7 +108,7 @@ class ReportVillagePicker extends StatelessWidget {
                             final isSelected = item == controller.text;
                             return ListTile(
                               title: Text(item, style: const TextStyle(fontSize: 14)),
-                              tileColor: isSelected ? Color(0xFF66BB6A).withOpacity(0.1) : null,
+                              tileColor: isSelected ? const Color(0xFF66BB6A).withOpacity(0.1) : null,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
                               ),
@@ -90,7 +132,7 @@ class ReportVillagePicker extends StatelessWidget {
             child: TextFormField(
               controller: controller,
               focusNode: focusNode,
-              validator: validator, // ✅ Tambahkan validator ke TextFormField
+              validator: validator,
               decoration: InputDecoration(
                 prefixIcon: const Icon(Icons.location_on_outlined),
                 hintText: "Pilih Desa/Kelurahan",

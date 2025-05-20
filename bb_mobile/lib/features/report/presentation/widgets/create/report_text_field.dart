@@ -6,7 +6,8 @@ class ReportTextField extends StatelessWidget {
   final int maxLines;
   final FocusNode? focusNode;
   final TextEditingController? controller;
-  final String? Function(String?)? validator; // ✅ Tambahkan validator
+  final String? Function(String?)? validator;
+  final bool isRequired; // ✅ Tambahan
 
   const ReportTextField({
     super.key,
@@ -15,7 +16,8 @@ class ReportTextField extends StatelessWidget {
     this.maxLines = 1,
     this.controller,
     this.focusNode,
-    this.validator, // ✅ Tambahkan ke constructor
+    this.validator,
+    this.isRequired = false, // ✅ Default false
   });
 
   @override
@@ -25,16 +27,30 @@ class ReportTextField extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.only(bottom: 8),
-          child: Text(
-            title,
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+          child: RichText(
+            text: TextSpan(
+              text: title,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
+              children: isRequired
+                  ? [
+                      const TextSpan(
+                        text: ' *',
+                        style: TextStyle(color: Colors.red),
+                      ),
+                    ]
+                  : [],
+            ),
           ),
         ),
         TextFormField(
           controller: controller,
           focusNode: focusNode,
           maxLines: maxLines,
-          validator: validator, // ✅ Pasang validator di sini
+          validator: validator,
           decoration: InputDecoration(
             hintText: hint,
             filled: true,

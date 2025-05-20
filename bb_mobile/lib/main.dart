@@ -72,13 +72,25 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      debugShowCheckedModeBanner: false,
-      title: 'Balige Bersih',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF66BB6A)),
-        useMaterial3: true,
-      ),
-      routerConfig: AppRoutes.router,
+  debugShowCheckedModeBanner: false,
+  title: 'Balige Bersih',
+  theme: ThemeData(
+    colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF66BB6A)),
+    useMaterial3: true,
+  ),
+  routerConfig: AppRoutes.router,
+
+  // ✅ FIXED overlay injection
+  builder: (context, child) {
+    return Overlay(
+      initialEntries: [
+        OverlayEntry(
+          builder: (context) => child!,
+        ),
+      ],
     );
+  },
+);
+
   }
 }

@@ -44,6 +44,7 @@ class ReportFormFields extends StatelessWidget {
           controller: titleController,
           focusNode: titleFocus,
           validator: (val) => Validators.validateNotEmpty(val, fieldName: "Judul"),
+          isRequired: true, // ✅ Tambahkan ini
         ),
         const SizedBox(height: 12),
 
@@ -54,6 +55,7 @@ class ReportFormFields extends StatelessWidget {
           maxLines: 5,
           focusNode: descFocus,
           validator: (val) => Validators.validateNotEmpty(val, fieldName: "Deskripsi"),
+          isRequired: true, // ✅ Tambahkan ini
         ),
         const SizedBox(height: 12),
 
@@ -63,6 +65,8 @@ class ReportFormFields extends StatelessWidget {
             focusNode: villageFocus,
             onSelected: (val) {},
             validator: (val) => Validators.validateNotEmpty(val, fieldName: "Nama Desa"),
+            isRequired: true, // ✅ Tambahkan ini
+
           ),
 
         const SizedBox(height: 12),
