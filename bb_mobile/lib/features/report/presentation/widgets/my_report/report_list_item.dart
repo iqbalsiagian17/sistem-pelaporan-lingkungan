@@ -11,10 +11,12 @@ class ReportListItem extends StatelessWidget {
   final ReportEntity report;
   final bool showDelete;
   final VoidCallback? onDelete;
+  final List<ReportEntity> allUserReports;
 
   const ReportListItem({
     super.key,
     required this.report,
+    required this.allUserReports,
     this.showDelete = false,
     this.onDelete,
   });
@@ -28,7 +30,7 @@ class ReportListItem extends StatelessWidget {
     return InkWell(
       onTap: () => context.push(AppRoutes.detailReport, extra: report),
       borderRadius: BorderRadius.circular(12),
-      splashColor: Color(0xFF66BB6A).withOpacity(0.2),
+      splashColor: const Color(0xFF66BB6A).withOpacity(0.2),
       child: Padding(
         key: ValueKey(report.id),
         padding: const EdgeInsets.only(bottom: 12.0),
@@ -85,6 +87,18 @@ class ReportListItem extends StatelessWidget {
                     future: globalAuthService.getUserId(),
                     builder: (context, snapshot) {
                       final isOwner = snapshot.data == report.userId;
+                      final isUnderProcess = [
+                        'pending',
+                        'in_progress',
+                        'verified',
+                        'reopened',
+                      ].contains(report.status);
+
+                      final showDraftWarning = report.status == 'draft' &&
+                          allUserReports.any((r) =>
+                              r.userId == report.userId &&
+                              r.id != report.id &&
+                              r.status == 'completed');
 
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -109,12 +123,52 @@ class ReportListItem extends StatelessWidget {
                             Padding(
                               padding: const EdgeInsets.only(top: 4.0),
                               child: Text(
-                                "Segera berikan tanggapan anda",
+                                "Berikan tanggapan Anda untuk laporan ini",
                                 style: TextStyle(
                                   fontSize: 11,
                                   fontStyle: FontStyle.italic,
                                   color: Colors.orange[800],
                                 ),
+                              ),
+                            ),
+                          if (isUnderProcess)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 4.0),
+                              child: Row(
+                                children: const [
+                                  Icon(Icons.watch_later_outlined, size: 14, color: Colors.blueAccent),
+                                  SizedBox(width: 4),
+                                  Text(
+                                    "Sedang dalam penanganan",
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      color: Colors.blueAccent,
+                                      fontStyle: FontStyle.italic,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                          if (showDraftWarning)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 4.0),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: const [
+                                  Icon(Icons.info_outline, size: 14, color: Colors.deepOrange),
+                                  SizedBox(width: 4),
+                                  Expanded(
+                                    child: Text(
+                                      "Laporan sebelumnya telah selesai. Periksa kembali laporan ini, karena akan segera dikirim ke petugas.",
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        color: Colors.deepOrange,
+                                        fontStyle: FontStyle.italic,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                         ],
@@ -124,11 +178,6 @@ class ReportListItem extends StatelessWidget {
                 ],
               ),
             ),
-            if (showDelete)
-              IconButton(
-                onPressed: onDelete,
-                icon: const Icon(Icons.delete, color: Colors.redAccent),
-              ),
           ],
         ),
       ),

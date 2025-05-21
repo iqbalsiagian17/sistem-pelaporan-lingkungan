@@ -30,7 +30,6 @@ class _ReportCreateViewState extends ConsumerState<ReportCreateView> {
   final _villageController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-
   final FocusNode _titleFocus = FocusNode();
   final FocusNode _descFocus = FocusNode();
   final FocusNode _villageFocus = FocusNode();
@@ -57,10 +56,7 @@ class _ReportCreateViewState extends ConsumerState<ReportCreateView> {
     _locationDetailFocus.unfocus();
     FocusScope.of(context).unfocus();
 
-    if (!_formKey.currentState!.validate()) {
-/*       SnackbarHelper.showSnackbar(context, "Judul dan rincian aduan wajib diisi", isError: true); */
-      return;
-    }
+    if (!_formKey.currentState!.validate()) return;
 
     if (isAtLocation) {
       if (latitude == null || longitude == null) {
@@ -108,7 +104,11 @@ class _ReportCreateViewState extends ConsumerState<ReportCreateView> {
       );
 
       if (report != null) {
-        SnackbarHelper.showSnackbar(context, "Aduan berhasil dikirim!", isError: false);
+        if (report.status == 'draft') {
+          SnackbarHelper.showSnackbar(context, "Laporan Anda disimpan sebagai draft dan akan dikirim otomatis setelah laporan aktif selesai.", isError: false);
+        } else {
+          SnackbarHelper.showSnackbar(context, "Aduan berhasil dikirim!", isError: false);
+        }
         context.go(AppRoutes.detailReport, extra: ReportModel.fromEntity(report));
       } else {
         SnackbarHelper.showSnackbar(context, "Gagal mengirim aduan.", isError: true);
@@ -116,7 +116,7 @@ class _ReportCreateViewState extends ConsumerState<ReportCreateView> {
     } catch (e) {
       final message = e.toString().toLowerCase();
       if (message.contains("belum selesai")) {
-        SnackbarHelper.showSnackbar(context, "Anda masih memiliki laporan yang belum selesai. Selesaikan terlebih dahulu.", isError: true);
+        SnackbarHelper.showSnackbar(context, "Laporan Anda disimpan sebagai draft karena masih ada laporan aktif.", isError: false);
       } else if (message.contains("lokasi tidak tersedia") || message.contains("invalid location")) {
         SnackbarHelper.showSnackbar(context, "Gagal mengirim karena lokasi tidak valid atau tidak terdeteksi.", isError: true);
       } else {

@@ -1,4 +1,5 @@
 import 'package:bb_mobile/core/services/auth/global_auth_service.dart';
+import 'package:bb_mobile/features/report/domain/entities/report_entity.dart';
 import 'package:bb_mobile/features/report/presentation/providers/report_provider.dart';
 import 'package:bb_mobile/features/report/presentation/widgets/list/report_list_status_filter_sheet.dart';
 import 'package:bb_mobile/features/report/presentation/widgets/my_report/report_topbar.dart';
@@ -54,11 +55,24 @@ class _MyReportViewState extends ConsumerState<MyReportView> {
       body: reportAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, _) => Center(child: Text("Terjadi kesalahan: $err")),
-        data: (reports) {
-          final userReports = reports
-              .where((r) => r.userId == currentUserId)
-              .where((r) => _selectedStatus == 'all' || r.status == _selectedStatus)
-              .toList();
+        data: (List<ReportEntity> reports) {
+
+        final rawUserReports = reports
+            .where((r) => r.userId == currentUserId)
+            .where((r) => _selectedStatus == 'all' || r.status == _selectedStatus)
+            .toList();
+
+        final priorityStatuses = ['pending', 'in_progress', 'verified', 'reopened', 'completed'];
+
+        final prioritizedReports = rawUserReports
+            .where((r) => priorityStatuses.contains(r.status))
+            .toList();
+
+        final otherReports = rawUserReports
+            .where((r) => !priorityStatuses.contains(r.status))
+            .toList();
+
+        final List<ReportEntity> userReports = [...prioritizedReports, ...otherReports];
 
           final displayReports = _showAll ? userReports : userReports.take(10).toList();
 
@@ -91,7 +105,8 @@ class _MyReportViewState extends ConsumerState<MyReportView> {
                     itemCount: displayReports.length,
                     itemBuilder: (context, index) {
                       final report = displayReports[index];
-                      final canDelete = report.status.toLowerCase().trim() == "pending";
+                      final status = report.status.toLowerCase().trim();
+                      final canEditOrDelete = ["pending", "draft"].contains(status);
 
                       return InkWell(
                         onTap: () => context.push(AppRoutes.detailReport, extra: report),
@@ -100,10 +115,15 @@ class _MyReportViewState extends ConsumerState<MyReportView> {
                           alignment: Alignment.topRight,
                           children: [
                             Padding(
-                              padding: EdgeInsets.only(right: canDelete ? 32.0 : 0.0),
-                              child: ReportListItem(report: report),
+                              padding: EdgeInsets.only(right: canEditOrDelete ? 32.0 : 0.0),
+                              child: ReportListItem(
+                                key: ValueKey(report.id),
+                                report: report,
+                                allUserReports: userReports,
+                                showDelete: canEditOrDelete, // ✅ hanya tampil jika bisa edit/delete
+                              ),
                             ),
-                            if (canDelete)
+                            if (canEditOrDelete)
                               Positioned(
                                 top: 4,
                                 right: 0,

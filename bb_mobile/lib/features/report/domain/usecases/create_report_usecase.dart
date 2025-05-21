@@ -17,6 +17,7 @@ class CreateReportUseCase {
     String? longitude,
     bool? isAtLocation,
     List<File>? attachments,
+    required String status, // ✅ Tambahkan parameter status
   }) async {
     return await repository.createReport(
       title: title,
@@ -28,6 +29,8 @@ class CreateReportUseCase {
       longitude: longitude,
       isAtLocation: isAtLocation,
       attachments: attachments,
+      status: status, // ✅ Kirim ke repository
+
     );
   }
 }

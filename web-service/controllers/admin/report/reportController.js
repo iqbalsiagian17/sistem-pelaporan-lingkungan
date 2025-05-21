@@ -1,6 +1,7 @@
 const { Report, ReportAttachment, ReportStatusHistory, ReportEvidence, User, Notification,RatingReport, sequelize } = require('../../../models');
 const { sendNotificationToUser } = require('../../../services/firebaseService');
 const fs = require('fs');
+const { Op } = require('sequelize');
 const path = require('path');
 const multer = require('multer');
 
@@ -23,6 +24,9 @@ const uploadEvidence = multer({ storage: evidenceStorage }).array('evidences', 5
 exports.getAllReports = async (req, res) => {
   try {
     const reports = await Report.findAll({
+      where: {
+        status: { [Op.not]: 'draft' } // ⬅️ Tambahkan ini
+      },
       include: [
         { model: ReportAttachment, as: 'attachments' },
         { model: User, as: 'user', attributes: ['id', 'username', 'email'] }
@@ -245,6 +249,58 @@ exports.updateReportStatus = async (req, res) => {
     // ✅ Log khusus jika laporan berasal dari reopened
     if (previous_status === 'reopened') {
       console.log(`✅ Admin ${admin_id} menindaklanjuti ulang laporan #${report.report_number} dari status 'reopened' ke '${new_status}'`);
+    }
+
+    // ✅ Kirim draft berikutnya jika laporan sekarang selesai
+    const statusSelesai = ['closed', 'canceled', 'rejected'];
+    if (statusSelesai.includes(new_status)) {
+      const nextDraft = await Report.findOne({
+        where: {
+          user_id: report.user_id,
+          status: 'draft'
+        },
+        order: [['createdAt', 'ASC']]
+      });
+
+      if (nextDraft) {
+        const previousDraftStatus = nextDraft.status;
+        nextDraft.status = 'pending';
+        nextDraft.sent_at = new Date(); // Optional: jika kamu punya kolom sent_at
+        await nextDraft.save();
+
+        await ReportStatusHistory.create({
+          report_id: nextDraft.id,
+          changed_by: admin_id,
+          previous_status: previousDraftStatus,
+          new_status: 'pending',
+          message: 'Laporan dikirim otomatis setelah laporan sebelumnya diselesaikan.'
+        });
+
+        await Notification.create({
+          user_id: nextDraft.user_id,
+          report_id: nextDraft.id,
+          title: "Laporan Anda Telah Dikirim",
+          message: `Laporan dengan judul "${nextDraft.title}" telah otomatis dikirim karena laporan sebelumnya telah selesai.`,
+          type: "report",
+          sent_by: "system",
+          role_target: "user"
+        });
+
+        if (report.user.fcm_token) {
+          await sendNotificationToUser(
+            report.user.fcm_token,
+            "Laporan Anda Telah Dikirim",
+            `Laporan "${nextDraft.title}" telah otomatis dikirim.`,
+            {
+              report_id: nextDraft.id.toString(),
+              type: "report_auto_sent",
+              route: "notification"
+            }
+          );
+        }
+
+        console.log(`📤 Draft report #${nextDraft.report_number} otomatis dikirim.`);
+      }
     }
 
     res.status(200).json({ message: 'Status laporan berhasil diperbarui' });

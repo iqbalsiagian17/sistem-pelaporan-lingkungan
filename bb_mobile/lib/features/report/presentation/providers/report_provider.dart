@@ -98,14 +98,17 @@ class ReportNotifier extends StateNotifier<AsyncValue<List<ReportEntity>>> {
     final userId = await globalAuthService.getUserId();
     final currentReports = state.value ?? [];
 
+    bool hasPending = false;
     if (userId != null) {
-      final hasPending = currentReports.any(
-        (r) => r.userId == userId && r.status != 'closed' && r.status != 'rejected' && r.status != 'canceled',
+      hasPending = currentReports.any(
+        (r) => r.userId == userId &&
+            r.status != 'closed' &&
+            r.status != 'rejected' &&
+            r.status != 'canceled',
       );
-      if (hasPending) {
-        throw Exception("Anda masih memiliki laporan yang belum selesai.");
-      }
     }
+
+    final status = hasPending ? 'draft' : 'pending';
 
     if (isAtLocation == true &&
         (latitude == null || longitude == null || latitude.isEmpty || longitude.isEmpty)) {
@@ -122,6 +125,7 @@ class ReportNotifier extends StateNotifier<AsyncValue<List<ReportEntity>>> {
       longitude: longitude,
       isAtLocation: isAtLocation,
       attachments: attachments,
+      status: status, // ✅ Kirim status ke backend
     );
 
     if (newReport != null) {
@@ -135,6 +139,7 @@ class ReportNotifier extends StateNotifier<AsyncValue<List<ReportEntity>>> {
     rethrow;
   }
 }
+
 
 
   Future<ReportEntity?> updateReport({

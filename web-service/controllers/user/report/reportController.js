@@ -132,49 +132,41 @@ exports.createReport = async (req, res) => {
       return res.status(400).json({ message: "File upload error", error: err.message });
     }
 
-    console.log("🔍 [DEBUG] Data dari request body:", req.body); // ✅ Cek apakah location_details dikirim
-
-
     const { title, description, location_details, village, longitude, latitude, is_at_location, date } = req.body;
-    const user_id = req.user.id; // Ambil ID user dari token
+    const user_id = req.user.id;
 
     if (!title || !description || !date) {
       return res.status(400).json({ message: "Judul, deskripsi, dan tanggal wajib diisi" });
     }
 
     try {
-      // Ambil bulan dan tahun dari tanggal laporan
       const reportDate = new Date(date);
-      const month = String(reportDate.getMonth() + 1).padStart(2, "0"); // MM
-      const year = reportDate.getFullYear(); // YYYY
+      const month = String(reportDate.getMonth() + 1).padStart(2, "0");
+      const year = reportDate.getFullYear();
 
-      // Ambil jumlah laporan yang sudah dibuat dalam bulan ini
-      const existingReports = await Report.count({
+      const hasActiveReport = await Report.findOne({
         where: {
-          date: {
-            [Op.between]: [
-              new Date(`${year}-${month}-01 00:00:00`),
-              new Date(`${year}-${month}-31 23:59:59`),
-            ],
-          },
-        },
+          user_id,
+          status: {
+            [Op.notIn]: ['closed', 'rejected', 'canceled']
+          }
+        }
       });
 
-      // Format nomor laporan: BB-MMYYYY-XXXX
+      const status = hasActiveReport ? 'draft' : 'pending';
       const report_number = await generateUniqueReportNumber(date);
-
 
       const result = await sequelize.transaction(async (t) => {
         const newReport = await Report.create(
           {
             user_id,
-            report_number, // Gunakan nomor laporan yang baru dibuat
+            report_number,
             title,
             description,
-            status: "pending",
+            status,
             total_likes: 0,
-            date, // Pastikan `date` tidak null
-            location_details: location_details && location_details.trim() !== "" ? location_details.trim() : null, // ✅ Pastikan nilainya dikirim dan disimpan dengan benar
+            date,
+            location_details: location_details?.trim() || "",
             village: is_at_location === "false" ? village : null,
             latitude: is_at_location === "true" ? latitude : null,
             longitude: is_at_location === "true" ? longitude : null,
@@ -184,32 +176,38 @@ exports.createReport = async (req, res) => {
 
         const user = await User.findByPk(user_id);
 
+        // Notifikasi hanya untuk user
         await Notification.create({
-          user_id: null, // Dikirim ke admin
-          title: "Laporan Baru",
-          message: `Pengguna ${user.username} telah mengirim laporan baru dengan judul "${title}".`,
-          type: "report",
-          sent_by: "system",
-          role_target: "admin"
-        });
-        
-        await Notification.create({
-          user_id, // Notifikasi ke user itu sendiri
-          title: "Laporan Sedang Diperiksa",
-          message: `Laporan Anda dengan nomor ${report_number} telah berhasil dikirim dan sedang diperiksa oleh tim Dinas Lingkungan Hidup Toba.`,
+          user_id,
+          title: status === 'draft'
+            ? "Laporan Disimpan Sementara"
+            : "Laporan Sedang Diperiksa",
+          message: status === 'draft'
+            ? `Laporan Anda disimpan sebagai draft karena masih ada laporan aktif. Akan otomatis dikirim setelah laporan sebelumnya selesai.`
+            : `Laporan Anda dengan nomor ${report_number} berhasil dikirim dan sedang diperiksa oleh tim Dinas.`,
           type: "report",
           sent_by: "system",
           report_id: newReport.id,
           role_target: "user"
-        },{transaction : t});
-        
+        }, { transaction: t });
+
+        // Notifikasi admin hanya jika status pending
+        if (status === "pending") {
+          await Notification.create({
+            user_id: null,
+            title: "Laporan Baru",
+            message: `Pengguna ${user.username} mengirim laporan baru berjudul "${title}".`,
+            type: "report",
+            sent_by: "system",
+            role_target: "admin"
+          }, { transaction: t });
+        }
 
         if (req.files.length > 0) {
           const attachments = req.files.map((file) => ({
             report_id: newReport.id,
             file: `uploads/reports/${file.filename}`,
           }));
-
           await ReportAttachment.bulkCreate(attachments, { transaction: t });
         }
 
@@ -220,20 +218,18 @@ exports.createReport = async (req, res) => {
         include: { model: ReportAttachment, as: "attachments" },
       });
 
-      console.log("✅ [DEBUG] Data yang disimpan:", reportWithAttachments);
-
-      console.log("🛠 Data disimpan:", {
-        title, description, date, location_details, village, latitude, longitude, is_at_location
+      return res.status(201).json({
+        message: `Laporan berhasil dibuat${hasActiveReport ? " dan disimpan sebagai draft" : ""}`,
+        report: reportWithAttachments
       });
-      
 
-      res.status(201).json({ message: "Laporan berhasil dibuat!", report: reportWithAttachments });
     } catch (error) {
-      console.error("Error creating report:", error);
-      res.status(500).json({ message: "Terjadi kesalahan server", error: error.message });
+      console.error("❌ Error creating report:", error);
+      return res.status(500).json({ message: "Terjadi kesalahan server", error: error.message });
     }
   });
 };
+
 
 async function generateUniqueReportNumber(date) {
   const reportDate = new Date(date);
@@ -272,7 +268,7 @@ exports.updateReport = async (req, res) => {
 
       if (!report) return res.status(404).json({ message: 'Laporan tidak ditemukan' });
 
-      if (report.status !== 'pending') {
+      if (!['pending', 'draft'].includes(report.status)) {
         return res.status(400).json({ message: 'Laporan hanya bisa diedit jika masih dalam status pending' });
       }
 
