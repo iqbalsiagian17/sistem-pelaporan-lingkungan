@@ -1,10 +1,12 @@
 import { useEffect, useState, useMemo } from "react";
 import { fetchOverview } from "../../services/analyticsService";
 import { getAllReports } from "../../services/reportService";
+import { getReportById } from "../../services/reportService"; // Pastikan ini ada
 import { getAllUsers } from "../../services/userService";
 import { renderDashboardChart } from "../../utils/dashboardChart";
 import { renderGrowthChart } from "../../utils/growthChart";
 import statusData from "../../data/statusData.json";
+import { Spinner } from "react-bootstrap";
 
 // Import Komponen
 import WelcomeCard from "./components/WelcomeCard";
@@ -15,6 +17,7 @@ import RatingYearChart from "./components/RatingYearChart";
 import LatestReportsTable from "./components/LatestReportsTable";
 import LatestUsersTable from "./components/LatestUsersTable";
 import DetailLaporanModal from "../laporan/components/DetailLaporanModal";
+import ToastNotification from "../../components/common/ToastNotification"; // sesuaikan path
 
 export const DashboardPage = () => {
   const [overview, setOverview] = useState(null);
@@ -23,6 +26,9 @@ export const DashboardPage = () => {
   const [latestUsers, setLatestUsers] = useState([]);
   const [allReports, setAllReports] = useState([]);
   const [filter, setFilter] = useState("all");
+  const [toastShow, setToastShow] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+
 
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedReport, setSelectedReport] = useState(null);
@@ -55,8 +61,7 @@ export const DashboardPage = () => {
   };
   
   const handleOpenDetailModal = (report) => {
-    setSelectedReport(report);
-    setShowDetailModal(true);
+    fetchReportDetail(report.id); // 🔥 Ambil detail lengkap dari API
   };
 
   const handleCloseDetailModal = () => {
@@ -73,6 +78,18 @@ export const DashboardPage = () => {
     setSelectedUser(null);
     setShowUserDetailModal(false);
   };
+
+const fetchReportDetail = async (reportId) => {
+  try {
+    const report = await getReportById(reportId);
+    setSelectedReport(report);
+    setShowDetailModal(true);
+  } catch (error) {
+    setToastMessage("Gagal memuat detail laporan.");
+    setToastShow(true);
+  }
+};
+
 
   useEffect(() => {
     const loadAnalytics = async () => {
@@ -117,7 +134,14 @@ export const DashboardPage = () => {
   }, [overview, allReports]);
   
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) {
+    return (
+      <div className="d-flex flex-column justify-content-center align-items-center" style={{ minHeight: "80vh" }}>
+        <Spinner animation="border" variant="primary" role="status" />
+        <div className="mt-3 text-muted">Memuat data dashboard...</div>
+      </div>
+    );
+  }
   if (!overview) return <div>Gagal memuat data analitik.</div>;
 
   const { totalReports, completedReports, inProgressReports } = overview;
@@ -154,8 +178,8 @@ export const DashboardPage = () => {
         <div className="col-md-6 col-12 mb-4">
           <LatestReportsTable 
             latestReports={latestReports} 
-          handleOpenDetailModal={handleOpenDetailModal} 
-        />
+            handleOpenDetailModal={(report) => fetchReportDetail(report.id)} 
+          />
         </div>
         <div className="col-md-6 col-12 mb-4">
           <LatestUsersTable latestUsers={latestUsers} />
@@ -167,6 +191,14 @@ export const DashboardPage = () => {
         show={showDetailModal}
         onHide={handleCloseDetailModal}
         report={selectedReport}
+      />
+
+      <ToastNotification
+        show={toastShow}
+        onClose={() => setToastShow(false)}
+        title="Kesalahan"
+        message={toastMessage}
+        variant="danger"
       />
     </>
   );

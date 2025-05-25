@@ -48,37 +48,32 @@ const UserTable = ({
           <Col xs={12} md={6} className="mb-2 mb-md-0 text-center text-md-start">
             <h5 className="mb-0 text-primary fw-bold">Daftar Pengguna</h5>
           </Col>
-          <Col xs={12} md={6} className="d-flex justify-content-md-end justify-content-center align-items-center">
-            <div className="d-flex gap-2" style={{ maxWidth: "300px", width: "100%" }}>
-              <InputGroup>
-                <Form.Control
-                  type="text"
-                  placeholder="Cari berdasarkan username..."
-                  value={searchQuery}
-                  className="border-0 shadow-sm"
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-                <Button
-                  variant="outline-secondary"
-                  className="border-0 shadow-sm"
-                  onClick={() => setSearchQuery("")}
-                  title="Hapus Pencarian"
-                >
-                  <i className="bx bx-x" style={{ fontSize: "18px" }}></i>
-                </Button>
-              </InputGroup>
-            </div>
+          <Col xs={12} md={6}>
+            <InputGroup className="shadow-sm">
+              <Form.Control
+                type="text"
+                placeholder="Cari berdasarkan username..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              <Button
+                variant="outline-secondary"
+                onClick={() => setSearchQuery("")}
+                title="Hapus Pencarian"
+              >
+                <i className="bx bx-x" />
+              </Button>
+            </InputGroup>
           </Col>
         </Row>
       </Card.Header>
 
       <div className="table-responsive">
-        <Table hover className="align-middle">
-          <thead className="bg-light">
+        <Table hover className="align-middle mb-0">
+          <thead className="table-light">
             <tr>
               <th>#</th>
               <th>Username</th>
-              <th>Profile</th>
               <th>Email</th>
               <th>No HP</th>
               <th>Role</th>
@@ -90,7 +85,7 @@ const UserTable = ({
           <tbody>
             {isLoading ? (
               <tr>
-                <td colSpan="9" className="text-center py-5">
+                <td colSpan="8" className="text-center py-5">
                   <Spinner animation="border" variant="primary" />
                   <div className="text-muted mt-2">Memuat data pengguna...</div>
                 </td>
@@ -99,20 +94,23 @@ const UserTable = ({
               currentUsers.map((user, index) => (
                 <tr key={user.id}>
                   <td>{indexOfFirstUser + index + 1}</td>
-                  <td>{user.username}</td>
-                  <td>
+                  <td className="d-flex align-items-center">
                     <img
                       src={
                         user.profile_picture
                           ? `http://localhost:3000/${user.profile_picture}`
-                          : `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                              user.username
-                            )}&background=66BB6A&color=fff`
+                          : `https://ui-avatars.com/api/?name=${encodeURIComponent(user.username)}&background=3f51b5&color=fff`
                       }
-                      alt={`Foto profil ${user.username}`}
-                      className="rounded-circle"
-                      style={{ width: "40px", height: "40px", objectFit: "cover" }}
+                      alt={`Avatar ${user.username}`}
+                      className="rounded-circle me-2"
+                      width="36"
+                      height="36"
+                      style={{ objectFit: "cover" }}
+                      onError={(e) => {
+                        e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.username)}&background=3f51b5&color=fff`;
+                      }}
                     />
+                    {user.username}
                   </td>
                   <td>{user.email}</td>
                   <td>{user.phone_number}</td>
@@ -122,18 +120,16 @@ const UserTable = ({
                     </Badge>
                   </td>
                   <td>
-                    <Badge bg={user.auth_provider === "google" ? "danger" : "secondary"}>
+                    <Badge bg={`label-${user.auth_provider === "google" ? "danger" : "secondary"}`}>
                       {user.auth_provider === "google" ? "Google" : "Manual"}
                     </Badge>
                   </td>
                   <td>
-                    {user.blocked_until ? (
-                      <Badge bg="danger">
-                        Sampai {new Date(user.blocked_until).toLocaleDateString("id-ID")}
-                      </Badge>
-                    ) : (
-                      <Badge bg="success">Aktif</Badge>
-                    )}
+                    <Badge bg={user.blocked_until ? "danger" : "success"}>
+                      {user.blocked_until
+                        ? `Sampai ${new Date(user.blocked_until).toLocaleDateString("id-ID")}`
+                        : "Aktif"}
+                    </Badge>
                   </td>
                   <td>
                     <div className="dropdown">
@@ -142,28 +138,28 @@ const UserTable = ({
                         className="btn p-0 dropdown-toggle hide-arrow"
                         data-bs-toggle="dropdown"
                       >
-                        <i className="icon-base bx bx-dots-vertical-rounded"></i>
+                        <i className="bx bx-dots-vertical-rounded" />
                       </button>
-                      <div className="dropdown-menu">
+                      <div className="dropdown-menu dropdown-menu-end">
                         <button className="dropdown-item" onClick={() => onDetail(user.id)}>
-                          <i className="icon-base bx bx-info-circle me-1"></i> Detail
+                          <i className="bx bx-info-circle me-1" /> Detail
                         </button>
                         <button className="dropdown-item" onClick={() => onEdit(user)}>
-                          <i className="icon-base bx bx-edit-alt me-1"></i> Edit
-                        </button>
-                        <button className="dropdown-item" onClick={() => onDelete(user)}>
-                          <i className="icon-base bx bx-trash me-1"></i> Delete
+                          <i className="bx bx-edit-alt me-1" /> Edit
                         </button>
                         <button className="dropdown-item" onClick={() => onChangePassword(user)}>
-                          <i className="icon-base bx bx-key me-1"></i> Ganti Password
+                          <i className="bx bx-key me-1" /> Ganti Password
+                        </button>
+                        <button className="dropdown-item text-danger" onClick={() => onDelete(user)}>
+                          <i className="bx bx-trash me-1" /> Hapus
                         </button>
                         {user.blocked_until ? (
                           <button className="dropdown-item" onClick={() => onUnblock(user)}>
-                            <i className="icon-base bx bx-check-circle me-1"></i> Unblock
+                            <i className="bx bx-check-circle me-1" /> Unblock
                           </button>
                         ) : (
                           <button className="dropdown-item" onClick={() => onBlock(user)}>
-                            <i className="icon-base bx bx-block me-1"></i> Block
+                            <i className="bx bx-block me-1" /> Block
                           </button>
                         )}
                       </div>
@@ -173,24 +169,24 @@ const UserTable = ({
               ))
             ) : (
               <tr>
-                <td colSpan="9" className="text-center text-muted py-5">
+                <td colSpan="8" className="text-center text-muted py-5">
                   Tidak ada pengguna ditemukan.
                 </td>
               </tr>
             )}
           </tbody>
         </Table>
-
-        {!isLoading && filteredUsers.length > usersPerPage && (
-          <div className="d-flex justify-content-center my-3">
-            <CustomPagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={paginate}
-            />
-          </div>
-        )}
       </div>
+
+      {!isLoading && filteredUsers.length > usersPerPage && (
+        <div className="d-flex justify-content-center my-3">
+          <CustomPagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={paginate}
+          />
+        </div>
+      )}
     </Card>
   );
 };

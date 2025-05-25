@@ -344,8 +344,8 @@ exports.deleteReport = async (req, res) => {
 
     if (!report) return res.status(404).json({ message: 'Laporan tidak ditemukan' });
 
-    if (report.status !== 'pending') {
-      return res.status(400).json({ message: 'Laporan hanya bisa dihapus jika masih dalam status pending' });
+    if (!['pending', 'draft'].includes(report.status)) {
+      return res.status(400).json({ message: 'Laporan hanya bisa dihapus jika masih dalam status pending atau draft' });
     }
 
     if (report.user_id !== user_id) {

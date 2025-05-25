@@ -19,7 +19,7 @@ const Sidebar = () => {
                     <img 
                         src="/assets/img/logo/logo.png" 
                         alt="Logo Dinas Lingkungan Hidup" 
-                        className="img-fluid rounded shadow-sm me-2" 
+                        className="img-fluid rounded me-2" 
                         width={40}
                         height={40}
                     />

@@ -4,6 +4,7 @@ import { FaFileAlt, FaClock, FaUser, FaEnvelope, FaClipboardList, FaTimesCircle,
 import getFullImageUrl from "../../../utils/getFullImageUrl"; // 🔥 Import helper function
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
+import statusData from "../../../data/statusData.json";
 
 const DetailLaporanModal = ({ show, onHide, report }) => {  
   const [loadingImages, setLoadingImages] = useState({});
@@ -239,13 +240,13 @@ const DetailLaporanModal = ({ show, onHide, report }) => {
                       </div>
 
                       <div className="d-flex align-items-center mt-2">
-                        <span className="badge bg-secondary me-2">
-                          {history.previous_status.toUpperCase()}
+                        <span className={`badge bg-label-${statusData.statusMappings[history.previous_status]?.color || "secondary"} me-2`}>
+                          {statusData.statusMappings[history.previous_status]?.label || history.previous_status}
                         </span>
                         <FaArrowRight className="text-muted" />
-                        <span className="badge bg-primary ms-2">
-                          {history.new_status.toUpperCase()}
-                        </span>
+                          <span className={`badge bg-label-${statusData.statusMappings[history.new_status]?.color || "secondary"} ms-2`}>
+                            {statusData.statusMappings[history.new_status]?.label || history.new_status}
+                          </span>
                       </div>
 
                       {history.message && (

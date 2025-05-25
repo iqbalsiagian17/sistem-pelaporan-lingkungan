@@ -29,7 +29,7 @@ exports.getAllReports = async (req, res) => {
       },
       include: [
         { model: ReportAttachment, as: 'attachments' },
-        { model: User, as: 'user', attributes: ['id', 'username', 'email'] }
+        { model: User, as: 'user', attributes: ['id', 'username', 'email', 'profile_picture'] }
       ],
       order: [['createdAt', 'DESC']]
     });
@@ -57,7 +57,7 @@ exports.getReportById = async (req, res) => {
         { model: ReportAttachment, as: 'attachments' },
         { model: ReportEvidence, as: 'evidences' }, 
         { model: ReportStatusHistory, as: 'statusHistory', include: { model: User, as: 'admin', attributes: ['id', 'username'] } },
-        { model: User, as: 'user', attributes: ['id', 'username', 'email'] },
+        { model: User, as: 'user', attributes: ['id', 'username', 'email', 'profile_picture'] },
         { model: RatingReport, as: 'rating', attributes: ['id', 'rating', 'review', 'rated_at'] } // ✅ sesuai alias
       ]
     });
