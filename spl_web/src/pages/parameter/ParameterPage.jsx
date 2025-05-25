@@ -19,6 +19,8 @@
     const [showEditModal, setShowEditModal] = useState(false);
     const [showDetailModal, setShowDetailModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+
 
     const [toast, setToast] = useState({
       show: false,
@@ -31,14 +33,16 @@
     };
 
     const fetchData = async () => {
+      setIsLoading(true); // ✅ mulai loading
       try {
         const result = await getAllParameters();
         setParameters(result);
       } catch (err) {
         alert(`Gagal memuat parameter: ${err.message}`);
+      } finally {
+        setIsLoading(false); // ✅ selesai loading
       }
     };
-
     const handleCreate = async (data) => {
       try {
         await createParameter(data);
@@ -103,6 +107,7 @@
 
         <ParameterTable
           parameters={parameters}
+          isLoading={isLoading} 
           onView={handleOpenDetailModal}
           onEdit={handleOpenEditModal}
           onDelete={handleOpenDeleteModal}

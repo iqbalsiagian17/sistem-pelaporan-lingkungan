@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Modal, Button, Form, Toast, ToastContainer } from "react-bootstrap";
+import { Modal, Button, Form, Toast, ToastContainer, Spinner } from "react-bootstrap";
 
 const PostEditModal = ({ show, onHide, onSave, initialData }) => {
   const [content, setContent] = useState("");
   const [images, setImages] = useState([]);
   const fileInputRef = useRef();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [toast, setToast] = useState({ show: false, message: "", variant: "danger" });
 
-  const MAX_FILES = 5;
-  const MAX_SIZE_MB = 25;
+  const MAX_FILES = 2;
 
   useEffect(() => {
     if (initialData) {
@@ -30,23 +30,23 @@ const PostEditModal = ({ show, onHide, onSave, initialData }) => {
     }
 
     if (images.length > MAX_FILES) {
-      showToast(`❌ Maksimal ${MAX_FILES} gambar yang diperbolehkan.`);
+      showToast(`❌ Maksimal ${MAX_FILES} gambar diperbolehkan.`);
       return;
     }
 
-    for (const img of images) {
-      if (img.size > MAX_SIZE_MB * 1024 * 1024) {
-        showToast(`❌ Ukuran gambar tidak boleh melebihi ${MAX_SIZE_MB}MB.`);
-        return;
-      }
-    }
-
+    setIsSubmitting(true);
     const formData = new FormData();
     formData.append("content", content);
     images.forEach((file) => formData.append("images", file));
 
-    await onSave(formData);
-    resetForm();
+    try {
+      await onSave(formData);
+      resetForm();
+    } catch (err) {
+      showToast("❌ Gagal mengedit postingan!");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleFileChange = (e) => {
@@ -64,6 +64,7 @@ const PostEditModal = ({ show, onHide, onSave, initialData }) => {
     setImages([]);
     if (fileInputRef.current) fileInputRef.current.value = null;
     onHide();
+    setIsSubmitting(false);
   };
 
   return (
@@ -83,6 +84,7 @@ const PostEditModal = ({ show, onHide, onSave, initialData }) => {
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 required
+                disabled={isSubmitting}
               />
             </Form.Group>
 
@@ -93,9 +95,14 @@ const PostEditModal = ({ show, onHide, onSave, initialData }) => {
                   {initialData.images.map((img) => (
                     <img
                       key={img.id}
-                      src={`http://localhost:3000/${img.image}`}
+                      src={`https://baligebersih.site/${img.image}`}
                       alt="existing"
-                      style={{ width: "100px", height: "100px", objectFit: "cover", borderRadius: 8 }}
+                      style={{
+                        width: "100px",
+                        height: "100px",
+                        objectFit: "cover",
+                        borderRadius: 8,
+                      }}
                     />
                   ))}
                 </div>
@@ -103,28 +110,38 @@ const PostEditModal = ({ show, onHide, onSave, initialData }) => {
             )}
 
             <Form.Group className="mt-3">
-              <Form.Label>Ganti Gambar (maksimal 5 × 25MB)</Form.Label>
+              <Form.Label>Ganti Gambar (maksimal {MAX_FILES})</Form.Label>
               <Form.Control
                 type="file"
                 accept="image/*"
                 multiple
                 ref={fileInputRef}
                 onChange={handleFileChange}
+                disabled={isSubmitting}
               />
               <Form.Text muted>
                 Mengunggah gambar baru akan menggantikan gambar yang lama.
               </Form.Text>
               {images.length > 0 && (
-                <small className="text-muted d-block mt-1">{images.length} file baru dipilih</small>
+                <small className="text-muted d-block mt-1">
+                  {images.length} file baru dipilih
+                </small>
               )}
             </Form.Group>
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="secondary" onClick={resetForm}>
+            <Button variant="secondary" onClick={resetForm} disabled={isSubmitting}>
               Batal
             </Button>
-            <Button type="submit" variant="primary">
-              Simpan Perubahan
+            <Button type="submit" variant="primary" disabled={isSubmitting}>
+              {isSubmitting ? (
+                <>
+                  <Spinner size="sm" animation="border" className="me-2" />
+                  Menyimpan...
+                </>
+              ) : (
+                "Simpan Perubahan"
+              )}
             </Button>
           </Modal.Footer>
         </Form>

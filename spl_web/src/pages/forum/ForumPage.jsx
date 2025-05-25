@@ -1,15 +1,23 @@
 import { useState } from "react";
-import { Modal, Carousel, Dropdown, ButtonGroup } from "react-bootstrap";
+import { Modal, Carousel, Dropdown, ButtonGroup, Spinner } from "react-bootstrap";
 import { usePost } from "../../context/PostContext";
 import PostCard from "./components/PostCard";
 import PostCreateModal from "./components/PostCreateModal";
 import PostEditModal from "./components/PostEditModal";
 import ConfirmModal from "../../components/common/ConfirmModal";
-import CommentEditModal from "./components/CommentEditModal"; 
+import CommentEditModal from "./components/CommentEditModal";
 import ToastNotification from "../../components/common/ToastNotification";
 
 const ForumPage = () => {
-  const { posts, addPost, editPost, removePost, removeComment, pinPost, editComment } = usePost();
+  const {
+    posts,
+    addPost,
+    editPost,
+    removePost,
+    removeComment,
+    pinPost,
+    editComment,
+  } = usePost();
 
   const [selectedPost, setSelectedPost] = useState(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -21,8 +29,7 @@ const ForumPage = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showEditCommentModal, setShowEditCommentModal] = useState(false);
   const [selectedComment, setSelectedComment] = useState(null);
-
-
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const [toast, setToast] = useState({
     show: false,
@@ -57,53 +64,68 @@ const ForumPage = () => {
 
   const handleConfirmDelete = async () => {
     try {
+      setIsProcessing(true);
       await removePost(selectedPost.id);
       setShowDeleteModal(false);
       showToast("Postingan berhasil dihapus.", "danger");
     } catch (err) {
       alert(`Gagal menghapus: ${err.message}`);
+    } finally {
+      setIsProcessing(false);
     }
   };
 
   const handleDeleteComment = async (commentId) => {
     try {
+      setIsProcessing(true);
       await removeComment(commentId);
       showToast("Komentar berhasil dihapus.", "danger");
     } catch (err) {
       alert(`Gagal hapus komentar: ${err.message}`);
+    } finally {
+      setIsProcessing(false);
     }
   };
 
   const handleEditComment = async (commentId, newContent) => {
     try {
-      await editComment(commentId, newContent); // dari context
+      setIsProcessing(true);
+      await editComment(commentId, newContent);
       showToast("Komentar berhasil diperbarui.");
     } catch (err) {
       alert(`Gagal edit komentar: ${err.message}`);
+    } finally {
+      setIsProcessing(false);
     }
   };
 
   const handleCreatePost = async (formData) => {
     try {
+      setIsProcessing(true);
       await addPost(formData);
       setShowCreateModal(false);
       showToast("Postingan berhasil ditambahkan.");
     } catch (err) {
       alert(`Gagal menambahkan post: ${err.message}`);
+    } finally {
+      setIsProcessing(false);
     }
   };
 
   const handleEditPost = async (formData) => {
     try {
+      setIsProcessing(true);
       await editPost(selectedPost.id, formData);
       setShowEditModal(false);
       showToast("Postingan berhasil diperbarui.");
     } catch (err) {
       alert(`Gagal mengedit post: ${err.message}`);
+    } finally {
+      setIsProcessing(false);
     }
   };
-  
 
+  // Pisahkan pinned dan unpinned posts
   const pinned = posts.filter((p) => p.is_pinned);
   const notPinned = posts.filter((p) => !p.is_pinned);
 
@@ -116,13 +138,15 @@ const ForumPage = () => {
 
   const sortedPosts = [...pinned, ...filteredPosts];
 
+  // 🔍 Tampilkan loading jika data belum tersedia
+  const isInitialLoading = posts.length === 0 && !toast.show && !showCreateModal && !showEditModal;
+
   return (
     <div className="container mx-auto px-4 py-4">
       <div className="d-flex justify-content-between align-items-center mb-3">
         <Dropdown as={ButtonGroup}>
           <Dropdown.Toggle variant="outline-secondary">
-            Filter: {filter === "terbaru" ? "Terbaru" :
-                    filter === "populer" ? "Populer" : ""}
+            Filter: {filter === "terbaru" ? "Terbaru" : "Populer"}
           </Dropdown.Toggle>
           <Dropdown.Menu>
             <Dropdown.Item onClick={() => setFilter("terbaru")}>Terbaru</Dropdown.Item>
@@ -135,7 +159,12 @@ const ForumPage = () => {
         </button>
       </div>
 
-      {sortedPosts.length === 0 ? (
+      {isInitialLoading ? (
+        <div className="text-center my-5">
+          <Spinner animation="border" variant="primary" />
+          <p className="text-muted mt-2">Memuat postingan...</p>
+        </div>
+      ) : sortedPosts.length === 0 ? (
         <p className="text-muted">Belum ada postingan.</p>
       ) : (
         sortedPosts.map((post) => (
@@ -152,18 +181,9 @@ const ForumPage = () => {
         ))
       )}
 
-      <PostCreateModal
-        show={showCreateModal}
-        onHide={() => setShowCreateModal(false)}
-        onCreate={handleCreatePost}
-      />
+      <PostCreateModal show={showCreateModal} onHide={() => setShowCreateModal(false)} onCreate={handleCreatePost} />
 
-      <PostEditModal
-        show={showEditModal}
-        onHide={() => setShowEditModal(false)}
-        onSave={handleEditPost}
-        initialData={selectedPost}
-      />
+      <PostEditModal show={showEditModal} onHide={() => setShowEditModal(false)} onSave={handleEditPost} initialData={selectedPost} />
 
       <ConfirmModal
         show={showDeleteModal}
@@ -182,14 +202,13 @@ const ForumPage = () => {
         onSave={handleEditComment}
       />
 
-
       <Modal show={showImageModal} onHide={() => setShowImageModal(false)} size="lg" centered>
         <Modal.Body className="p-0">
           <Carousel activeIndex={startIndex} onSelect={(i) => setStartIndex(i)} interval={null}>
             {imageList.map((img) => (
               <Carousel.Item key={img.id}>
                 <img
-                  src={`http://localhost:3000/${img.image}`}
+                  src={`https://baligebersih.site/${img.image}`}
                   alt="slide"
                   className="d-block w-100"
                   style={{ objectFit: "contain", maxHeight: "80vh" }}

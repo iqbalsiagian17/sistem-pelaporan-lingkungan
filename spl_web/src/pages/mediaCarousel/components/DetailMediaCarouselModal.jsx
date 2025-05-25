@@ -22,7 +22,7 @@ const MediaDetailCarouselModal = ({ show, onHide, mediaCarousel }) => {
             {mediaCarousel.image && (
               <div className="text-center">
                 <img
-                  src={`http://localhost:3000/${mediaCarousel.image}`}
+                  src={`https://baligebersih.site/${mediaCarousel.image}`}
                   alt="Gambar Media Carousel"
                   className="img-fluid rounded shadow-sm border"
                   style={{ maxHeight: "300px", objectFit: "contain" }}

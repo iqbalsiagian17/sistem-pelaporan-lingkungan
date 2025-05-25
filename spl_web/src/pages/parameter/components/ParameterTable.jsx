@@ -1,6 +1,6 @@
-import { Card, Table } from "react-bootstrap";
+import { Card, Table, Spinner } from "react-bootstrap";
 
-const ParameterTable = ({ parameters, onView, onEdit, onDelete }) => {
+const ParameterTable = ({ parameters, isLoading, onView, onEdit, onDelete }) => {
   const parameter = parameters?.[0];
 
   const renderPreviewHTML = (htmlString) => {
@@ -13,7 +13,7 @@ const ParameterTable = ({ parameters, onView, onEdit, onDelete }) => {
     <Card className="shadow-sm border-0">
       <Card.Header className="fw-bold bg-light d-flex justify-content-between align-items-center">
         <h5 className="mb-0">Data Parameter Aplikasi</h5>
-        {parameter && (
+        {parameter && !isLoading && (
           <div className="dropdown">
             <button
               type="button"
@@ -23,15 +23,9 @@ const ParameterTable = ({ parameters, onView, onEdit, onDelete }) => {
               <i className="bx bx-dots-vertical-rounded" style={{ fontSize: "18px" }}></i>
             </button>
             <div className="dropdown-menu dropdown-menu-end">
-              <button className="dropdown-item" onClick={() => onView(parameter)}>
-                📄 Lihat Detail
-              </button>
-              <button className="dropdown-item" onClick={() => onEdit(parameter)}>
-                ✏️ Edit
-              </button>
-              <button className="dropdown-item text-danger" onClick={() => onDelete(parameter)}>
-                🗑️ Hapus
-              </button>
+              <button className="dropdown-item" onClick={() => onView(parameter)}>📄 Lihat Detail</button>
+              <button className="dropdown-item" onClick={() => onEdit(parameter)}>✏️ Edit</button>
+              <button className="dropdown-item text-danger" onClick={() => onDelete(parameter)}>🗑️ Hapus</button>
             </div>
           </div>
         )}
@@ -51,7 +45,14 @@ const ParameterTable = ({ parameters, onView, onEdit, onDelete }) => {
             </tr>
           </thead>
           <tbody>
-            {parameter ? (
+            {isLoading ? (
+              <tr>
+                <td colSpan="7" className="text-center py-5">
+                  <Spinner animation="border" variant="primary" />
+                  <div className="text-muted mt-2">Memuat data parameter...</div>
+                </td>
+              </tr>
+            ) : parameter ? (
               <tr>
                 <td>{renderPreviewHTML(parameter.about)}</td>
                 <td>{renderPreviewHTML(parameter.terms)}</td>
@@ -63,7 +64,7 @@ const ParameterTable = ({ parameters, onView, onEdit, onDelete }) => {
               </tr>
             ) : (
               <tr>
-                <td colSpan="7" className="text-center text-muted">
+                <td colSpan="7" className="text-center text-muted py-5">
                   Tidak ada data parameter ditemukan.
                 </td>
               </tr>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AnnouncementTable from "./components/AnnouncementTable";
 import DetailAnnouncementModal from "./components/DetailAnnouncementModal";
 import EditAnnouncementModal from "./components/EditAnnouncementModal";
@@ -15,6 +15,7 @@ const AnnouncementPage = () => {
     updateAnnouncement,
     updateAnnouncementLocal,
     addAnnouncement,
+    fetchAnnouncements,
   } = useAnnouncement();
 
   const [selectedAnnouncement, setSelectedAnnouncement] = useState(null);
@@ -22,6 +23,7 @@ const AnnouncementPage = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const [toast, setToast] = useState({
     show: false,
@@ -33,13 +35,28 @@ const AnnouncementPage = () => {
     setToast({ show: true, message, variant });
   };
 
+useEffect(() => {
+  const loadAnnouncements = async () => {
+    setIsLoading(true);
+    try {
+      await fetchAnnouncements();
+    } catch (err) {
+      showToast("Gagal memuat pengumuman", "danger");
+      return; // ⛔ keluar sebelum isLoading = false
+    }
+    setIsLoading(false); // ✅ hanya diset kalau berhasil
+  };
+  loadAnnouncements();
+}, []);
+
+
   const handleOpenDetailModal = async (id) => {
     try {
       const announcement = await getAnnouncementById(id);
       setSelectedAnnouncement(announcement);
       setShowDetailModal(true);
     } catch (error) {
-      alert(`Gagal memuat detail: ${error.message}`);
+      showToast(`Gagal memuat detail: ${error.message}`, "danger");
     }
   };
 
@@ -59,19 +76,18 @@ const AnnouncementPage = () => {
       setShowCreateModal(false);
       showToast("Pengumuman berhasil dibuat.");
     } catch (error) {
-      alert(`Gagal membuat pengumuman: ${error.message}`);
+      showToast(`Gagal membuat pengumuman: ${error.message}`, "danger");
     }
   };
 
   const handleConfirmDelete = async () => {
     if (!selectedAnnouncement?.id) return;
-
     try {
       await deleteAnnouncement(selectedAnnouncement.id);
       setShowDeleteModal(false);
       showToast("Pengumuman berhasil dihapus.", "danger");
     } catch (error) {
-      alert(`Gagal hapus: ${error.message}`);
+      showToast(`Gagal hapus: ${error.message}`, "danger");
     }
   };
 
@@ -82,7 +98,7 @@ const AnnouncementPage = () => {
       setShowEditModal(false);
       showToast("Pengumuman berhasil diperbarui.");
     } catch (error) {
-      alert(`Gagal update: ${error.message}`);
+      showToast(`Gagal update: ${error.message}`, "danger");
     }
   };
 
@@ -96,6 +112,7 @@ const AnnouncementPage = () => {
 
       <AnnouncementTable
         announcements={announcements}
+        isLoading={isLoading}
         onView={handleOpenDetailModal}
         onEdit={handleOpenEditModal}
         onDelete={handleOpenDeleteModal}

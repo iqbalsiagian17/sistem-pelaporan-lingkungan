@@ -1,6 +1,6 @@
 const getFullImageUrl = (path) => {
     if (!path) return "";
-    return path.startsWith("http") ? path : `http://localhost:3000${path.startsWith("/") ? path : `/${path}`}`;
+    return path.startsWith("http") ? path : `https://baligebersih.site${path.startsWith("/") ? path : `/${path}`}`;
 };
 
 export default getFullImageUrl;

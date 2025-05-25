@@ -8,9 +8,10 @@ import {
   InputGroup,
   Form,
   Button,
+  Spinner, // ✅ penting!
 } from "react-bootstrap";
 
-const MediaCarouselTable = ({ mediaCarousels = [], onView, onEdit, onDelete }) => {
+const MediaCarouselTable = ({ mediaCarousels = [], isLoading, onView, onEdit, onDelete }) => {
   const [search, setSearch] = useState("");
 
   const filtered = mediaCarousels.filter((item) =>
@@ -21,14 +22,9 @@ const MediaCarouselTable = ({ mediaCarousels = [], onView, onEdit, onDelete }) =
     <Card className="shadow-sm border-0">
       <Card.Header className="bg-light">
         <Row className="align-items-center">
-          {/* 📋 Judul */}
           <Col xs={12} md={6} className="mb-2 mb-md-0 text-center text-md-start">
-            <h5 className="mb-0 text-primary fw-bold">
-               Daftar Media Carousel
-            </h5>
+            <h5 className="mb-0 text-primary fw-bold">Daftar Media Carousel</h5>
           </Col>
-
-          {/* 🔍 Search + ❌ */}
           <Col xs={12} md={6} className="d-flex justify-content-md-end justify-content-center align-items-center">
             <div className="d-flex gap-2" style={{ maxWidth: "300px", width: "100%" }}>
               <InputGroup>
@@ -53,7 +49,6 @@ const MediaCarouselTable = ({ mediaCarousels = [], onView, onEdit, onDelete }) =
         </Row>
       </Card.Header>
 
-
       <div className="table-responsive">
         <Table hover className="align-middle mb-0">
           <thead className="bg-light">
@@ -67,24 +62,35 @@ const MediaCarouselTable = ({ mediaCarousels = [], onView, onEdit, onDelete }) =
             </tr>
           </thead>
           <tbody>
-            {filtered.length > 0 ? (
+            {isLoading ? (
+              <tr>
+                <td colSpan="6" className="text-center py-5">
+                  <Spinner animation="border" variant="primary" />
+                  <div className="text-muted mt-2">Memuat data carousel...</div>
+                </td>
+              </tr>
+            ) : filtered.length > 0 ? (
               filtered.map((item, index) => (
                 <tr key={item.id}>
                   <td>{index + 1}</td>
                   <td>{item.title}</td>
                   <td>{item.description}</td>
                   <td>
-                        {item.image ? (
-                            <img
-                            src={`http://localhost:3000/${item.image}`}
-                            alt="carousel"
-                            style={{ width: "120px", height: "auto", objectFit: "cover", borderRadius: "6px" }}
-                            />
-                        ) : (
-                            "-"
-                        )}
-                </td>
-
+                    {item.image ? (
+                      <img
+                        src={`https://baligebersih.site/${item.image}`}
+                        alt="carousel"
+                        style={{
+                          width: "120px",
+                          height: "auto",
+                          objectFit: "cover",
+                          borderRadius: "6px",
+                        }}
+                      />
+                    ) : (
+                      "-"
+                    )}
+                  </td>
                   <td>
                     {new Date(item.createdAt).toLocaleDateString("id-ID", {
                       year: "numeric",
@@ -108,10 +114,7 @@ const MediaCarouselTable = ({ mediaCarousels = [], onView, onEdit, onDelete }) =
                         <button className="dropdown-item" onClick={() => onEdit(item)}>
                           ✏️ Edit
                         </button>
-                        <button
-                          className="dropdown-item text-danger"
-                          onClick={() => onDelete(item)}
-                        >
+                        <button className="dropdown-item text-danger" onClick={() => onDelete(item)}>
                           🗑️ Hapus
                         </button>
                       </div>
@@ -121,7 +124,7 @@ const MediaCarouselTable = ({ mediaCarousels = [], onView, onEdit, onDelete }) =
               ))
             ) : (
               <tr>
-                <td colSpan="5" className="text-center text-muted">
+                <td colSpan="6" className="text-center text-muted py-5">
                   Tidak ada data carousel ditemukan.
                 </td>
               </tr>

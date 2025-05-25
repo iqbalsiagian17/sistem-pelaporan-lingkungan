@@ -6,6 +6,8 @@ import DetailMediaCarouselModal from "./components/DetailMediaCarouselModal";
 import ConfirmModal from "../../components/common/ConfirmModal";
 import ToastNotification from "../../components/common/ToastNotification";
 import { useMediaCarousel } from "../../context/MediaCarouselContext";
+import { Spinner } from "react-bootstrap";
+
 
 const MediaCarouselPage = () => {
   const {
@@ -14,6 +16,7 @@ const MediaCarouselPage = () => {
     addMediaCarousel,
     updateMediaCarousel,
     deleteMediaCarousel,
+    isLoading, 
   } = useMediaCarousel();
 
   const [selectedMediaCarousel, setSelectedMediaCarousel] = useState(null);
@@ -95,11 +98,14 @@ const MediaCarouselPage = () => {
 
       <MediaCarouselTable
         mediaCarousels={mediaCarousels}
+        isLoading={isLoading}
         onView={handleOpenDetailModal}
         onEdit={handleOpenEditModal}
         onDelete={handleOpenDeleteModal}
       />
 
+
+      {/* Modal dan toast tetap */}
       <CreateMediaCarouselModal
         show={showCreateModal}
         onHide={() => setShowCreateModal(false)}
@@ -138,5 +144,6 @@ const MediaCarouselPage = () => {
     </>
   );
 };
+
 
 export default MediaCarouselPage;

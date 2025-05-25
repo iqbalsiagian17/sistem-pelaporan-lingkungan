@@ -7,85 +7,62 @@ import {
   deleteMediaCarousels,
 } from "../services/mediaCarouselService";
 
-// Buat context
 const MediaCarouselContext = createContext();
-
-// Custom hook
 export const useMediaCarousel = () => useContext(MediaCarouselContext);
 
-// Provider
 export const MediaCarouselProvider = ({ children }) => {
   const [mediaCarousels, setMediaCarousels] = useState([]);
+  const [isLoading, setIsLoading] = useState(true); // ✅ pastikan default = true
 
-  useEffect(() => {
-    loadMediaCarousels();
-  }, []);
-
-  // Muat semua data
   const loadMediaCarousels = async () => {
+    setIsLoading(true); // ✅ atur loading saat mulai fetch
     try {
       const data = await fetchMediaCarousels();
       setMediaCarousels(data);
     } catch (error) {
       console.error("❌ Gagal memuat media carousel:", error.message);
+    } finally {
+      setIsLoading(false); // ✅ hanya false setelah selesai
     }
   };
 
-  // Ambil berdasarkan ID
+  useEffect(() => {
+    loadMediaCarousels(); // otomatis fetch saat pertama kali render
+  }, []);
+
   const getMediaCarouselById = async (id) => {
-    try {
-      return await fetchMediaCarouselById(id);
-    } catch (error) {
-      console.error(`❌ Gagal mengambil media carousel ID ${id}:`, error.message);
-      throw error;
-    }
+    return await fetchMediaCarouselById(id);
   };
 
-  // Tambah baru
   const addMediaCarousel = async (formData) => {
-    try {
-      const newCarousel = await createMediaCarousels(formData);
-      setMediaCarousels((prev) => [newCarousel, ...prev]);
-      return newCarousel;
-    } catch (error) {
-      console.error("❌ Gagal menambahkan media carousel:", error.message);
-      throw error;
-    }
+    const newCarousel = await createMediaCarousels(formData);
+    setMediaCarousels((prev) => [newCarousel, ...prev]);
+    return newCarousel;
   };
 
-  // Update
   const updateMediaCarousel = async (id, formData) => {
-    try {
-      const updated = await updateMediaCarousels(id, formData);
-      setMediaCarousels((prev) =>
-        prev.map((item) => (item.id === id ? { ...item, ...updated } : item))
-      );
-      return updated;
-    } catch (error) {
-      console.error(`❌ Gagal mengupdate media carousel ID ${id}:`, error.message);
-      throw error;
-    }
+    const updated = await updateMediaCarousels(id, formData);
+    setMediaCarousels((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, ...updated } : item))
+    );
+    return updated;
   };
 
-  // Hapus
   const deleteMediaCarousel = async (id) => {
-    try {
-      await deleteMediaCarousels(id);
-      setMediaCarousels((prev) => prev.filter((item) => item.id !== id));
-    } catch (error) {
-      console.error(`❌ Gagal menghapus media carousel ID ${id}:`, error.message);
-      throw error;
-    }
+    await deleteMediaCarousels(id);
+    setMediaCarousels((prev) => prev.filter((item) => item.id !== id));
   };
 
   return (
     <MediaCarouselContext.Provider
       value={{
         mediaCarousels,
+        isLoading,
         getMediaCarouselById,
         addMediaCarousel,
         updateMediaCarousel,
         deleteMediaCarousel,
+        loadMediaCarousels, // optional jika mau trigger ulang
       }}
     >
       {children}

@@ -3,7 +3,7 @@ import React from "react";
 import AvatarCircle from "./AvatarCircle";
 
 const AvatarDisplay = ({ username = "A", profile_picture = "", size = 50, fontSize = 20 }) => {
-  const imageUrl = profile_picture ? `http://localhost:3000/${profile_picture}` : null;
+  const imageUrl = profile_picture ? `https://baligebersih.site/${profile_picture}` : null;
 
   return imageUrl ? (
     <img

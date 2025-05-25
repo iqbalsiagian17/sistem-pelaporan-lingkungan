@@ -1,14 +1,14 @@
 import React, { useState, useRef } from "react";
-import { Modal, Button, Form, Toast, ToastContainer } from "react-bootstrap";
+import { Modal, Button, Form, Toast, ToastContainer, Spinner } from "react-bootstrap";
 
 const PostCreateModal = ({ show, onHide, onCreate }) => {
   const [content, setContent] = useState("");
   const [images, setImages] = useState([]);
   const fileInputRef = useRef();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [toast, setToast] = useState({ show: false, message: "", variant: "danger" });
 
-  const MAX_FILES = 5;
-  const MAX_SIZE_MB = 25;
+  const MAX_FILES = 2; // ✅ Batas hanya 2 gambar
 
   const showToast = (message, variant = "danger") => {
     setToast({ show: true, message, variant });
@@ -23,23 +23,23 @@ const PostCreateModal = ({ show, onHide, onCreate }) => {
     }
 
     if (images.length > MAX_FILES) {
-      showToast(`❌ Maksimal ${MAX_FILES} gambar yang diperbolehkan.`);
+      showToast(`❌ Maksimal ${MAX_FILES} gambar diperbolehkan.`);
       return;
     }
 
-    for (const img of images) {
-      if (img.size > MAX_SIZE_MB * 1024 * 1024) {
-        showToast(`❌ Ukuran gambar tidak boleh melebihi ${MAX_SIZE_MB}MB.`);
-        return;
-      }
-    }
-
+    setIsSubmitting(true);
     const formData = new FormData();
     formData.append("content", content);
     images.forEach((file) => formData.append("images", file));
 
-    await onCreate(formData);
-    resetForm();
+    try {
+      await onCreate(formData);
+      resetForm();
+    } catch (error) {
+      showToast("❌ Gagal mengirim postingan!");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleFileChange = (e) => {
@@ -57,6 +57,7 @@ const PostCreateModal = ({ show, onHide, onCreate }) => {
     setImages([]);
     if (fileInputRef.current) fileInputRef.current.value = null;
     onHide();
+    setIsSubmitting(false);
   };
 
   return (
@@ -76,17 +77,19 @@ const PostCreateModal = ({ show, onHide, onCreate }) => {
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 required
+                disabled={isSubmitting}
               />
             </Form.Group>
 
             <Form.Group className="mt-3">
-              <Form.Label>Gambar (maksimal 5 × 25MB)</Form.Label>
+              <Form.Label>Gambar (maksimal {MAX_FILES})</Form.Label>
               <Form.Control
                 type="file"
                 accept="image/*"
                 multiple
                 ref={fileInputRef}
                 onChange={handleFileChange}
+                disabled={isSubmitting}
               />
               {images.length > 0 && (
                 <small className="text-muted">{images.length} file dipilih</small>
@@ -94,11 +97,18 @@ const PostCreateModal = ({ show, onHide, onCreate }) => {
             </Form.Group>
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="secondary" onClick={resetForm}>
+            <Button variant="secondary" onClick={resetForm} disabled={isSubmitting}>
               Batal
             </Button>
-            <Button type="submit" variant="primary">
-              Kirim
+            <Button type="submit" variant="primary" disabled={isSubmitting}>
+              {isSubmitting ? (
+                <>
+                  <Spinner size="sm" animation="border" className="me-2" />
+                  Mengirim...
+                </>
+              ) : (
+                "Kirim"
+              )}
             </Button>
           </Modal.Footer>
         </Form>
@@ -107,8 +117,8 @@ const PostCreateModal = ({ show, onHide, onCreate }) => {
       <ToastContainer
         position="bottom-end"
         className="p-3"
-        style={{ zIndex: 9999, position: "fixed" }} // ✅ zIndex tinggi + posisi fixed
-      >        
+        style={{ zIndex: 9999, position: "fixed" }}
+      >
         <Toast
           onClose={() => setToast({ ...toast, show: false })}
           show={toast.show}
@@ -122,5 +132,6 @@ const PostCreateModal = ({ show, onHide, onCreate }) => {
     </>
   );
 };
+
 
 export default PostCreateModal;

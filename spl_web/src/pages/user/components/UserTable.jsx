@@ -98,7 +98,7 @@ const UserTable = ({
                     <img
                       src={
                         user.profile_picture
-                          ? `http://localhost:3000/${user.profile_picture}`
+                          ? `https://baligebersih.site/${user.profile_picture}`
                           : `https://ui-avatars.com/api/?name=${encodeURIComponent(user.username)}&background=3f51b5&color=fff`
                       }
                       alt={`Avatar ${user.username}`}
