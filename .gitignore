@@ -1,0 +1,2 @@
+# Ignore Firebase service account key
+web-service/config/firebase-admin-sdk.json
