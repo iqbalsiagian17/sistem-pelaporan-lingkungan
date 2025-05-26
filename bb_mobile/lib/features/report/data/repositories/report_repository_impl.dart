@@ -23,13 +23,13 @@ Future<ReportEntity?> createReport({
     required String title,
     required String description,
     required String date,
+    required String status,
     String? locationDetails,
     String? village,
     String? latitude,
     String? longitude,
     bool? isAtLocation,
     List<File>? attachments,
-    required String status, 
   }) async {
     return await remoteDataSource.createReport(
       title: title,
@@ -37,6 +37,7 @@ Future<ReportEntity?> createReport({
       date: date,
       locationDetails: locationDetails,
       village: village,
+      status: status,
       latitude: latitude,
       longitude: longitude,
       isAtLocation: isAtLocation,

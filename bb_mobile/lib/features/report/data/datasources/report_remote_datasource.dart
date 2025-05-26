@@ -12,6 +12,7 @@ abstract class ReportRemoteDataSource {
     required String title,
     required String description,
     required String date,
+    required String status,
     String? locationDetails,
     String? village,
     String? latitude,
@@ -89,73 +90,95 @@ class ReportRemoteDataSourceImpl implements ReportRemoteDataSource {
   }
 
   @override
-@override
-Future<ReportEntity?> createReport({
-  required String title,
-  required String description,
-  required String date,
-  String? locationDetails,
-  String? village,
-  String? latitude,
-  String? longitude,
-  bool? isAtLocation,
-  List<File>? attachments,
-}) async {
-  try {
-    FormData formData = FormData.fromMap({
-      "title": title,
-      "description": description,
-      "date": date.split("T")[0],
-      "location_details": locationDetails?.trim() ?? "Tidak ada detail lokasi",
-      if (isAtLocation == false && village != null) "village": village,
-      if (isAtLocation == true && latitude != null) "latitude": latitude,
-      if (isAtLocation == true && longitude != null) "longitude": longitude,
-      "is_at_location": isAtLocation.toString(),
-    });
+  Future<ReportEntity?> createReport({
+    required String title,
+    required String description,
+    required String date,
+    required String status,
+    String? locationDetails,
+    String? village,
+    String? latitude,
+    String? longitude,
+    bool? isAtLocation,
+    List<File>? attachments,
+  }) async {
+    try {
+      FormData formData = FormData.fromMap({
+        "title": title,
+        "description": description,
+        "date": date.split("T")[0],
+        "location_details": locationDetails?.trim() ?? "Tidak ada detail lokasi",
+        "status": status,
+        if (isAtLocation == false && village != null) "village": village,
+        if (isAtLocation == true && latitude != null) "latitude": latitude,
+        if (isAtLocation == true && longitude != null) "longitude": longitude,
+        "is_at_location": isAtLocation.toString(),
+      });
 
-    if (attachments != null && attachments.isNotEmpty) {
-      for (var file in attachments) {
-        final fileName = file.path.split('/').last;
-        formData.files.add(MapEntry(
-          "attachments",
-          await MultipartFile.fromFile(
-            file.path,
-            filename: fileName,
-            contentType: MediaType("image", "jpeg"),
-          ),
-        ));
+      if (attachments != null && attachments.isNotEmpty) {
+        for (var file in attachments) {
+          if (await file.exists()) {
+            final fileName = file.path.split('/').last;
+            formData.files.add(MapEntry(
+              "attachments",
+              await MultipartFile.fromFile(
+                file.path,
+                filename: fileName,
+                contentType: MediaType("image", "jpeg"),
+              ),
+            ));
+          }
+        }
       }
-    }
 
-    final response = await dio.post(
-      '${ApiConstants.userReportUrl}/create',
-      data: formData,
-      options: Options(
-        contentType: "multipart/form-data",
-        headers: {
-          "Accept": "application/json", // 🟢 Penting agar server tidak balas HTML
-        },
-      ),
-    );
+      int retries = 0;
+      late Response response;
+      while (retries < 3) {
+        response = await dio.post(
+          '${ApiConstants.userReportUrl}/create',
+          data: formData,
+          options: Options(
+            contentType: "multipart/form-data",
+            headers: {
+              "Accept": "application/json",
+              "User-Agent": "FlutterApp/1.0",
+            },
+          ),
+        );
 
-    if (response.statusCode == 201 && response.data['report'] != null) {
-      return ReportModel.fromJson(response.data['report']);
-    }
+        final contentType = response.headers.value('content-type') ?? '';
+        if (contentType.contains("application/json")) break;
+        retries++;
+        await Future.delayed(Duration(seconds: 1));
+      }
 
-    throw Exception("Respons tidak sesuai format yang diharapkan.");
-  } on DioException catch (e) {
-    final data = e.response?.data;
-    if (data is Map<String, dynamic> && data.containsKey('message')) {
-      throw Exception("Gagal membuat laporan: ${data['message']}");
-    } else if (data is String && data.contains("<html")) {
-      throw Exception("Gagal membuat laporan: Respons HTML diterima dari server.");
-    } else {
-      throw Exception("Gagal membuat laporan: ${e.message}");
+      print("🟢 Response status: ${response.statusCode}");
+      print("🟢 Response headers: ${response.headers.map}");
+      print("🟢 Response data: ${response.data}");
+
+      if (response.statusCode == 201 && response.data['report'] != null) {
+        return ReportModel.fromJson(response.data['report']);
+      }
+
+      throw Exception("Respons tidak sesuai format yang diharapkan.");
+    } on DioException catch (e) {
+        print("❌ DioException terjadi:");
+  print("Status: ${e.response?.statusCode}");
+  print("Headers: ${e.response?.headers.map}");
+  print("Body: ${e.response?.data}");
+
+      final data = e.response?.data;
+      if (data is Map<String, dynamic> && data.containsKey('message')) {
+        throw Exception("Gagal membuat laporan: ${data['message']}");
+      } else if (data is String && data.contains("<html")) {
+        throw Exception("Gagal membuat laporan: Respons HTML diterima dari server.");
+      } else {
+        throw Exception("Gagal membuat laporan: ${e.message}");
+      }
+    } catch (e) {
+      throw Exception("Kesalahan tak terduga: $e");
     }
-  } catch (e) {
-    throw Exception("Kesalahan tak terduga: $e");
   }
-}
 
 
 

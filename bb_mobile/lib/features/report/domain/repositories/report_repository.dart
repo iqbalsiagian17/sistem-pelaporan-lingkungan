@@ -14,7 +14,7 @@ abstract class ReportRepository {
     String? longitude,
     bool? isAtLocation,
     List<File>? attachments,
-    required String status, 
+    required String status, // ⬅️ Tambahkan status
   });
 
   Future<ReportEntity?> updateReport({
