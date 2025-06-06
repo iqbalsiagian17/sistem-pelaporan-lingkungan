@@ -69,7 +69,7 @@ const AnnouncementEditModal = ({ show, onHide, announcement, onSave }) => {
               <small className="text-muted d-block mt-1">
                 File saat ini:{" "}
                 <a
-                  href={`https://baligebersih.site/${announcement.file}`}
+                  href={`http://localhost:3000/${announcement.file}`}
                   target="_blank"
                   rel="noopener noreferrer"
                 >

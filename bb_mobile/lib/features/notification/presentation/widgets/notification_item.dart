@@ -11,8 +11,11 @@ class NotificationItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final String translatedMessage = StatusUtils.replaceStatusKeywords(notif.message);
-    final String formattedTime =
-        DateFormat('HH:mm • dd MMM yyyy', 'id_ID').format(notif.createdAt);
+final DateTime wibTime = notif.createdAt;
+final String formattedTime =
+    DateFormat('HH:mm • dd MMM yyyy', 'id_ID').format(wibTime);
+
+
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),

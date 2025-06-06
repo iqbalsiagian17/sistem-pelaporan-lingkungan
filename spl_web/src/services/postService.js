@@ -1,6 +1,6 @@
 import { fetchWithAuth } from "../utils/fetchWithAuth";
 
-const BASE_URL = "https://baligebersih.site/api/admin/post";
+const BASE_URL = "http://localhost:3000/api/admin/post";
 
 // ✅ Ambil semua post
 export const fetchAdminPosts = async () => {

@@ -31,7 +31,7 @@ const adminAnalyticsRoutes = require("./routes/admin/analyticsRoute")
 const notificationRoutes = require("./routes/notification/notificationRoutes");
 const deleteInactiveUsers = require('./scheduler/delete_inactive_users');
 const { scheduleAutoCloseReports } = require('./scheduler/autoCloseScheduler');
-
+require("./scheduler/campaignNotifier.js");
 
 
 

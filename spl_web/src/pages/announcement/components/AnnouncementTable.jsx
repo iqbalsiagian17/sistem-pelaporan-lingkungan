@@ -3,7 +3,7 @@ import { Card, Table, Dropdown, Row, Col, InputGroup, Form, Button, Spinner } fr
 
 const AnnouncementTable = ({ announcements, isLoading, initialLoadComplete, onView, onDelete, onEdit }) => {
   const [searchQuery, setSearchQuery] = useState("");
-  const API_BASE_URL = "https://baligebersih.site";
+  const API_BASE_URL = "http://localhost:3000";
 
   const filtered = announcements.filter((a) =>
     a.title.toLowerCase().includes(searchQuery.toLowerCase())

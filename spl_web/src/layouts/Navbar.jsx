@@ -45,7 +45,7 @@ const Navbar = () => {
       const token = localStorage.getItem("accessToken");
       console.log("🔑 Token:", token);
   
-      const res = await fetch("https://baligebersih.site/api/notifications/read-all", {
+      const res = await fetch("http://localhost:3000/api/notifications/read-all", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

@@ -1,6 +1,8 @@
 class ApiConstants {
 
-  static const String baseUrl = "https://baligebersih.site";
+/*   static const String baseUrl = "https://baligebersih.site";*/
+
+  static const String baseUrl = "http://192.168.1.18:3000";
 
   // Auth
   static const String authBaseUrl = "$baseUrl/api/auth";

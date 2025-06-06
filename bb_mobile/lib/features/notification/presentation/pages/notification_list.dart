@@ -60,22 +60,29 @@ class _NotificationListViewState extends ConsumerState<NotificationListView> {
   }
 
   List<UserNotificationEntity> _filterByDate(
-    List<UserNotificationEntity> list,
-    DateTime date,
-  ) {
-    final dateFormat = DateFormat('yyyy-MM-dd');
-    return list.where((n) => dateFormat.format(n.createdAt) == dateFormat.format(date)).toList();
-  }
+  List<UserNotificationEntity> list,
+  DateTime date,
+) {
+  final dateFormat = DateFormat('yyyy-MM-dd');
+  return list.where((n) {
+final notifWib = n.createdAt.toLocal(); // pastikan ini .toLocal()
+    return dateFormat.format(notifWib) == dateFormat.format(date);
+  }).toList();
+}
 
-  List<UserNotificationEntity> _filterOthers(
-    List<UserNotificationEntity> list,
-    DateTime today,
-    DateTime yesterday,
-  ) {
-    final dateFormat = DateFormat('yyyy-MM-dd');
-    return list.where((n) {
-      final notifDate = dateFormat.format(n.createdAt);
-      return notifDate != dateFormat.format(today) && notifDate != dateFormat.format(yesterday);
-    }).toList();
-  }
+List<UserNotificationEntity> _filterOthers(
+  List<UserNotificationEntity> list,
+  DateTime today,
+  DateTime yesterday,
+) {
+  final dateFormat = DateFormat('yyyy-MM-dd');
+  return list.where((n) {
+final notifWib = n.createdAt.toLocal(); // pastikan ini .toLocal()
+    final todayStr = dateFormat.format(today);
+    final yesterdayStr = dateFormat.format(yesterday);
+    final notifStr = dateFormat.format(notifWib);
+    return notifStr != todayStr && notifStr != yesterdayStr;
+  }).toList();
+}
+
 }

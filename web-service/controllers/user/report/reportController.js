@@ -334,33 +334,84 @@ exports.updateReport = async (req, res) => {
   });
 };
 
-// ✅ DELETE REPORT (Hanya Bisa Jika Status Masih `pending` dan User yang Sama)
-exports.deleteReport = async (req, res) => {
-  try {
-    const user_id = req.user.id;
-    const { id } = req.params;
+  // ✅ DELETE REPORT (Hanya Bisa Jika Status Masih `pending` dan User yang Sama)
+  exports.deleteReport = async (req, res) => {
+    try {
+      const user_id = req.user.id;
+      const { id } = req.params;
 
-    const report = await Report.findByPk(id);
+      const report = await Report.findByPk(id);
 
-    if (!report) return res.status(404).json({ message: 'Laporan tidak ditemukan' });
+      if (!report) return res.status(404).json({ message: 'Laporan tidak ditemukan' });
 
-    if (!['pending', 'draft'].includes(report.status)) {
-      return res.status(400).json({ message: 'Laporan hanya bisa dihapus jika masih dalam status pending atau draft' });
+      if (!['pending', 'draft'].includes(report.status)) {
+        return res.status(400).json({ message: 'Laporan hanya bisa dihapus jika masih dalam status pending atau draft' });
+      }
+
+      if (report.user_id !== user_id) {
+        return res.status(403).json({ message: 'Anda tidak memiliki izin untuk menghapus laporan ini' });
+      }
+
+      // Hapus attachment jika ada
+      await ReportAttachment.destroy({ where: { report_id: id } });
+
+      // Hapus laporan
+      await report.destroy();
+
+      // ✅ Setelah menghapus, cari draft tertua
+      const nextDraft = await Report.findOne({
+        where: {
+          user_id,
+          status: 'draft'
+        },
+        order: [['createdAt', 'ASC']]
+      });
+
+      if (nextDraft) {
+        nextDraft.status = 'pending';
+        await nextDraft.save();
+
+        const user = await User.findByPk(user_id);
+
+        // Notifikasi untuk user
+        await Notification.create({
+          user_id,
+          title: "Laporan Anda Sedang Diperiksa",
+          message: `Laporan Anda berjudul "${nextDraft.title}" telah dikirim dan sedang diperiksa oleh tim Dinas.`,
+          type: "report",
+          sent_by: "system",
+          report_id: nextDraft.id,
+          role_target: "user"
+        });
+
+        // Notifikasi untuk admin
+        await Notification.create({
+          user_id: null,
+          title: "Laporan Baru",
+          message: `Pengguna ${user.username} mengirim laporan baru berjudul "${nextDraft.title}".`,
+          type: "report",
+          sent_by: "system",
+          report_id: nextDraft.id,
+          role_target: "admin"
+        });
+
+        // Tambah status history
+        await ReportStatusHistory.create({
+          report_id: nextDraft.id,
+          changed_by: user_id,
+          previous_status: 'draft',
+          new_status: 'pending',
+          message: 'Laporan otomatis dikirim setelah laporan aktif sebelumnya dihapus.'
+        });
+      }
+
+      res.status(200).json({ message: 'Laporan berhasil dihapus' });
+    } catch (error) {
+      console.error('Error deleting report:', error);
+      res.status(500).json({ message: 'Terjadi kesalahan server', error: error.message });
     }
+  };
 
-    if (report.user_id !== user_id) {
-      return res.status(403).json({ message: 'Anda tidak memiliki izin untuk menghapus laporan ini' });
-    }
-
-    await ReportAttachment.destroy({ where: { report_id: id } }); // Hapus attachment jika ada
-    await report.destroy();
-
-    res.status(200).json({ message: 'Laporan berhasil dihapus' });
-  } catch (error) {
-    console.error('Error deleting report:', error);
-    res.status(500).json({ message: 'Terjadi kesalahan server', error: error.message });
-  }
-};
 
 exports.getReportStats = async (req, res) => {
   const userId = req.params.id;

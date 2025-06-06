@@ -1,6 +1,7 @@
 import 'package:bb_mobile/features/notification/domain/entities/notification_entity.dart';
 import 'package:bb_mobile/features/notification/presentation/providers/notification_provider.dart';
 import 'package:bb_mobile/features/report/presentation/providers/report_provider.dart';
+import 'package:bb_mobile/widgets/buttons/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -76,56 +77,105 @@ class NotificationSection extends ConsumerWidget {
 
   Map<String, List<UserNotificationEntity>> _groupByDate(List<UserNotificationEntity> notifs) {
     Map<String, List<UserNotificationEntity>> grouped = {};
-
     for (var notif in notifs) {
       String dateKey = DateFormat('dd MMMM yyyy', 'id_ID').format(notif.createdAt);
       grouped.putIfAbsent(dateKey, () => []).add(notif);
     }
-
     return grouped;
   }
 
   Widget _buildNotifCard(BuildContext context, WidgetRef ref, UserNotificationEntity notif) {
     final dateFormatted = DateFormat('HH:mm', 'id_ID').format(notif.createdAt);
+    final iconData = _getIconData(notif.type);
+    final iconColor = _getIconColor(notif.type);
 
-return GestureDetector(
-    onTap: () async {
-      await ref.read(notificationProvider.notifier).markAsRead(notif.id);
+    return GestureDetector(
+      onTap: () async {
+        await ref.read(notificationProvider.notifier).markAsRead(notif.id);
+        if (!context.mounted) return;
 
-      if (!context.mounted) return; // ✅ tambahkan ini agar aman
-
-      switch (notif.type) {
-        case "report":
-          if (notif.reportId != null) {
-            final notifier = ref.read(reportProvider.notifier);
-            final report = await notifier.fetchReportById(notif.reportId!);
-
-            if (report != null) {
-              context.go(AppRoutes.detailReport, extra: report);
-            } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("Gagal memuat detail laporan")),
-              );
+        switch (notif.type) {
+          case "report":
+            if (notif.reportId != null) {
+              final notifier = ref.read(reportProvider.notifier);
+              final report = await notifier.fetchReportById(notif.reportId!);
+              if (report != null) {
+                context.go(AppRoutes.detailReport, extra: report);
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Gagal memuat detail laporan")),
+                );
+              }
             }
-          }
-          break;
+            break;
 
-        case "general":
-          // Misal arahkan ke halaman list announcement (bisa ke detail kalau sudah ada id-nya)
-          context.go(AppRoutes.allAnnouncement);
-          break;
-        
-        case "forum":
-          context.go(AppRoutes.forum);
+          case "general":
+            context.go(AppRoutes.allAnnouncement);
+            break;
 
-        default:
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Tipe notifikasi tidak dikenali")),
-          );
-      }
-    },
+          case "forum":
+            context.go(AppRoutes.forum);
+            break;
 
+          case "campaign":
+            showModalBottomSheet(
+              context: context,
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+              ),
+              backgroundColor: Colors.white,
+              isScrollControlled: true,
+              builder: (context) {
+                return Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 30),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Center(
+                        child: Container(
+                          width: 40,
+                          height: 4,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[300],
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      const Text(
+                        "Ayo Jaga Lingkungan!",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        notif.message,
+                        style: const TextStyle(fontSize: 14.5),
+                      ),
+                      const SizedBox(height: 20),
+                      CustomButton(
+                        text: "Laporkan Sekarang",
+                        onPressed: () {
+                          Navigator.pop(context);
+                          context.go(AppRoutes.createReport);
+                        },
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
+            break;
 
+          default:
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("Tipe notifikasi tidak dikenali")),
+            );
+        }
+      },
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(14),
@@ -143,7 +193,7 @@ return GestureDetector(
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Icon(Icons.notifications_active, size: 26, color: Color(0xFF66BB6A)),
+            Icon(iconData, size: 26, color: iconColor),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -173,5 +223,35 @@ return GestureDetector(
         ),
       ),
     );
+  }
+
+  IconData _getIconData(String type) {
+    switch (type) {
+      case 'report':
+        return Icons.report;
+      case 'forum':
+        return Icons.forum;
+      case 'campaign':
+        return Icons.campaign;
+      case 'general':
+        return Icons.announcement;
+      default:
+        return Icons.notifications;
+    }
+  }
+
+  Color _getIconColor(String type) {
+    switch (type) {
+      case 'report':
+        return const Color(0xFF66BB6A); // green
+      case 'forum':
+        return const Color(0xFF66BB6A); // green
+      case 'campaign':
+        return const Color(0xFF66BB6A); // green
+      case 'general':
+        return const Color(0xFF66BB6A); // green
+      default:
+        return const Color(0xFF1976D2); // blue
+    }
   }
 }

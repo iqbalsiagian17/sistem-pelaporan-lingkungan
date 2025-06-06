@@ -1,7 +1,7 @@
 // src/services/reportService.js
 import { fetchWithAuth } from "../utils/fetchWithAuth";
 
-const BASE_URL = "https://baligebersih.site/api/admin/reports";
+const BASE_URL = "http://localhost:3000/api/admin/reports";
 
 // Ambil semua laporan
 export const getAllReports = async () => {

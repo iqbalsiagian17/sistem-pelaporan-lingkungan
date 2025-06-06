@@ -46,7 +46,7 @@ const LatestReportsTable = ({ latestReports, handleOpenDetailModal }) => (
             latestReports.map((report, index) => {
               const username = report.user?.username || "Pengguna";
               const avatarUrl = report.user?.avatar
-                ? `https://baligebersih.site/${report.user.avatar}`
+                ? `http://localhost:3000/${report.user.avatar}`
                 : `https://ui-avatars.com/api/?name=${encodeURIComponent(username)}&background=3f51b5&color=fff`;
 
               return (

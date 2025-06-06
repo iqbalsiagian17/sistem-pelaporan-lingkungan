@@ -27,21 +27,30 @@ class UserNotificationModel {
     required this.roleTarget,
   });
 
-  factory UserNotificationModel.fromJson(Map<String, dynamic> json) {
-    return UserNotificationModel(
-      id: json['id'],
-      title: json['title'] ?? 'Tanpa Judul',
-      message: json['message'] ?? '-',
-      isRead: json['is_read'] ?? false,
-      type: json['type'] ?? 'info',
-      sentBy: json['sent_by'] ?? 'system',
-      userId: json['user_id'],
-      reportId: json['report_id'],
-      roleTarget: json['role_target'] ?? 'user',
-      createdAt: DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime.now(),
-      updatedAt: DateTime.tryParse(json['updatedAt'] ?? '') ?? DateTime.now(),
-    );
-  }
+factory UserNotificationModel.fromJson(Map<String, dynamic> json) {
+  final rawCreatedAt = json['createdAt'] as String?;
+  final rawUpdatedAt = json['updatedAt'] as String?;
+
+  final parsedCreatedAt = rawCreatedAt != null ? DateTime.parse(rawCreatedAt) : DateTime.now();
+  final parsedUpdatedAt = rawUpdatedAt != null ? DateTime.parse(rawUpdatedAt) : DateTime.now();
+
+  return UserNotificationModel(
+    id: json['id'],
+    title: json['title'] ?? 'Tanpa Judul',
+    message: json['message'] ?? '-',
+    isRead: json['is_read'] ?? false,
+    type: json['type'] ?? 'info',
+    sentBy: json['sent_by'] ?? 'system',
+    userId: json['user_id'],
+    reportId: json['report_id'],
+    roleTarget: json['role_target'] ?? 'user',
+
+    /// ✅ Paksa ke lokal waktu jika masih dalam UTC
+    createdAt: parsedCreatedAt.isUtc ? parsedCreatedAt.toLocal() : parsedCreatedAt,
+    updatedAt: parsedUpdatedAt.isUtc ? parsedUpdatedAt.toLocal() : parsedUpdatedAt,
+  );
+}
+
 
   /// Konversi ke entitas
   UserNotificationEntity toEntity() {

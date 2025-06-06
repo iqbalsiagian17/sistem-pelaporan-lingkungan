@@ -95,7 +95,7 @@ const PostEditModal = ({ show, onHide, onSave, initialData }) => {
                   {initialData.images.map((img) => (
                     <img
                       key={img.id}
-                      src={`https://baligebersih.site/${img.image}`}
+                      src={`http://localhost:3000/${img.image}`}
                       alt="existing"
                       style={{
                         width: "100px",

@@ -155,7 +155,7 @@ const LaporanTable = ({ reports, handleOpenDetailModal, handleOpenStatusModal, h
                           <img
                             src={
                               report.user?.avatar
-                                ? `https://baligebersih.site/${report.user.avatar}`
+                                ? `http://localhost:3000/${report.user.avatar}`
                                 : `https://ui-avatars.com/api/?name=${encodeURIComponent(report.user?.username || "User")}&background=3f51b5&color=fff`
                             }
                             alt={`Avatar ${report.user?.username}`}

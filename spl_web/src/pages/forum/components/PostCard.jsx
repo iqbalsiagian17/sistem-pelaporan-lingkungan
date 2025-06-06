@@ -86,7 +86,7 @@ const PostCard = ({
                 }}
               >
                 <img
-                  src={`https://baligebersih.site/${img.image}`}
+                  src={`http://localhost:3000/${img.image}`}
                   alt="Gambar Postingan"
                   className="rounded w-100"
                   style={{

@@ -78,7 +78,7 @@ const MediaCarouselTable = ({ mediaCarousels = [], isLoading, onView, onEdit, on
                   <td>
                     {item.image ? (
                       <img
-                        src={`https://baligebersih.site/${item.image}`}
+                        src={`http://localhost:3000/${item.image}`}
                         alt="carousel"
                         style={{
                           width: "120px",

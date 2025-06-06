@@ -72,7 +72,7 @@ const MediaCarouselEditModal = ({ show, onHide, mediaCarousel, onSave }) => {
                 <Form.Label>Pratinjau Gambar Saat Ini</Form.Label>
                 <br />
                 <img
-                  src={`https://baligebersih.site/${mediaCarousel.image}`}
+                  src={`http://localhost:3000/${mediaCarousel.image}`}
                   alt="Preview"
                   className="img-fluid rounded shadow-sm border"
                   style={{ maxHeight: "180px", objectFit: "cover" }}
