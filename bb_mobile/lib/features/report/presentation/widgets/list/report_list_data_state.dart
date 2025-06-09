@@ -230,7 +230,7 @@ class _ReportListDataStateState extends ConsumerState<ReportListDataState> {
 
   Widget _defaultImage() {
     return Image.asset(
-      "assets/images/report/report1.jpg",
+      "assets/images/error-image.png",
       width: 80,
       height: 80,
       fit: BoxFit.cover,

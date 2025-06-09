@@ -136,7 +136,7 @@ class _ReportDetailImageState extends State<ReportDetailImage> {
 
   Widget _defaultImage() {
     return Image.asset(
-      "assets/images/default.jpg",
+      "assets/images/error-image.png",
       width: double.infinity,
       height: 200,
       fit: BoxFit.cover,

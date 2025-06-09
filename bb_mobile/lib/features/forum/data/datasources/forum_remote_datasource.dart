@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:bb_mobile/core/constants/dio_client.dart';
 import 'package:bb_mobile/core/constants/api.dart';
@@ -78,7 +80,7 @@ Future<List<ForumPostModel>> getAllPosts() async {
     try {
     final formData = FormData.fromMap({
       "content": content,
-      "keptOldImages": keptOldImages.isNotEmpty ? keptOldImages : [], // boleh kosong
+      "keptOldImages": jsonEncode(keptOldImages), // ✅ Encode jadi string JSON!
     });
 
       for (var path in imagePaths) {
