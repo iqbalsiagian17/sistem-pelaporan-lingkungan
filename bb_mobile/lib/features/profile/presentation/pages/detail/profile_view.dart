@@ -1,4 +1,5 @@
 import 'package:bb_mobile/features/auth/presentation/providers/auth_provider.dart' show authNotifierProvider;
+import 'package:bb_mobile/widgets/skeleton/skeleton_profile_view.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -61,7 +62,7 @@ class _ProfileViewState extends ConsumerState<ProfileView> {
               ],
             );
           },
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => const ProfileViewSkeleton(),
           error: (error, stackTrace) => Center(child: Text(" Gagal memuat profil: $error")),
         ),
       ),

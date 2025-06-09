@@ -1,4 +1,5 @@
 import 'package:bb_mobile/routes/app_routes.dart';
+import 'package:bb_mobile/widgets/skeleton/skeleton_menu_profile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:bb_mobile/features/profile/presentation/providers/user_profile_provider.dart';
@@ -12,7 +13,7 @@ class ProfileMenu extends ConsumerWidget {
     final state = ref.watch(userProfileProvider);
 
     return state.when(
-      loading: () => const SizedBox.shrink(),
+      loading: () => const ProfileMenuSkeleton(),
       error: (_, __) => const SizedBox.shrink(),
       data: (user) {
         final isGoogleUser = user.authProvider == 'google';

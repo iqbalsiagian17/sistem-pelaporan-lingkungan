@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:bb_mobile/features/profile/presentation/providers/user_profile_provider.dart';
 import 'package:bb_mobile/widgets/skeleton/skeleton_header_profile.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:shimmer/shimmer.dart';
 
 class ProfileHeader extends ConsumerStatefulWidget {
   const ProfileHeader({super.key});
@@ -137,12 +138,31 @@ class _ProfileHeaderState extends ConsumerState<ProfileHeader> {
                             width: 80,
                             height: 80,
                             fit: BoxFit.cover,
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return Shimmer.fromColors(
+                                baseColor: Colors.grey.shade300,
+                                highlightColor: Colors.grey.shade100,
+                                child: Container(
+                                  width: 80,
+                                  height: 80,
+                                  decoration: const BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              );
+                            },
                             errorBuilder: (_, __, ___) => CircleAvatar(
                               radius: 40,
                               backgroundColor: bgColor,
                               child: Text(
                                 initials,
-                                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
+                                style: const TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
                               ),
                             ),
                           )
@@ -151,10 +171,16 @@ class _ProfileHeaderState extends ConsumerState<ProfileHeader> {
                             backgroundColor: bgColor,
                             child: Text(
                               initials,
-                              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
+                              style: const TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                   ),
+
+
                 ),
                 Positioned(
                   bottom: 0,

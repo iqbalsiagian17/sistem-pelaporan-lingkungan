@@ -1,5 +1,6 @@
 import 'package:bb_mobile/features/profile/presentation/providers/user_profile_provider.dart';
 import 'package:bb_mobile/routes/app_routes.dart';
+import 'package:bb_mobile/widgets/skeleton/skeleton_profile_stats.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -32,10 +33,7 @@ class _ProfileStatsState extends ConsumerState<ProfileStats> {
           final stats = ref.watch(userProfileProvider.notifier).reportStats;
 
           if (stats == null) {
-            return const Padding(
-              padding: EdgeInsets.symmetric(vertical: 20),
-              child: Center(child: CircularProgressIndicator()),
-            );
+            return const ProfileStatsSkeleton(); // ✅ tampilkan shimmer loading
           }
 
           return Container(
@@ -68,10 +66,8 @@ class _ProfileStatsState extends ConsumerState<ProfileStats> {
             ),
           );
         },
-        loading: () => const Padding(
-          padding: EdgeInsets.symmetric(vertical: 20),
-          child: Center(child: CircularProgressIndicator()),
-        ),
+        loading: () => const ProfileStatsSkeleton(),
+
         error: (error, _) => Padding(
           padding: const EdgeInsets.symmetric(vertical: 20),
           child: Center(child: Text("Gagal memuat statistik: $error")),
