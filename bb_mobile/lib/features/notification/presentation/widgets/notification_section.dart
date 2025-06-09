@@ -109,6 +109,10 @@ class NotificationSection extends ConsumerWidget {
             }
             break;
 
+          case "report_saved_update":
+            context.go(AppRoutes.saveReport); 
+          break;
+
           case "general":
             context.go(AppRoutes.allAnnouncement);
             break;
@@ -235,6 +239,8 @@ class NotificationSection extends ConsumerWidget {
         return Icons.campaign;
       case 'general':
         return Icons.announcement;
+      case 'report_saved_update':
+        return Icons.bookmark; 
       default:
         return Icons.notifications;
     }
@@ -250,6 +256,8 @@ class NotificationSection extends ConsumerWidget {
         return const Color(0xFF66BB6A); // green
       case 'general':
         return const Color(0xFF66BB6A); // green
+      case 'report_saved_update':
+        return const Color(0xFF66BB6A); 
       default:
         return const Color(0xFF1976D2); // blue
     }

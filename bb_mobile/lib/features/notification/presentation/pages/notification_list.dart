@@ -14,6 +14,8 @@ class NotificationListView extends ConsumerStatefulWidget {
 }
 
 class _NotificationListViewState extends ConsumerState<NotificationListView> {
+  String _selectedFilter = "all";
+
   @override
   void initState() {
     super.initState();
@@ -23,66 +25,70 @@ class _NotificationListViewState extends ConsumerState<NotificationListView> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(notificationProvider);
-
     final today = DateTime.now();
     final yesterday = today.subtract(const Duration(days: 1));
 
+    final filteredNotifs = _filterByType(state.notifications);
+
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: const NotificationTopBar(),
-      body: state.notifications.isEmpty
+      appBar: NotificationTopBar(
+        selectedType: _selectedFilter,
+        onFilterChanged: (val) {
+          setState(() => _selectedFilter = val);
+        },
+      ),
+      body: filteredNotifs.isEmpty
           ? const Center(child: Text("Tidak ada notifikasi"))
           : ListView(
               children: [
-                // Hari ini
-                if (_filterByDate(state.notifications, today).isNotEmpty)
+                if (_filterByDate(filteredNotifs, today).isNotEmpty)
                   NotificationSection(
                     title: "Hari ini",
-                    items: _filterByDate(state.notifications, today),
+                    items: _filterByDate(filteredNotifs, today),
                   ),
 
-                // Kemarin
-                if (_filterByDate(state.notifications, yesterday).isNotEmpty)
+                if (_filterByDate(filteredNotifs, yesterday).isNotEmpty)
                   NotificationSection(
                     title: DateFormat('dd MMM yyyy', 'id_ID').format(yesterday),
-                    items: _filterByDate(state.notifications, yesterday),
+                    items: _filterByDate(filteredNotifs, yesterday),
                   ),
 
-                // Sebelumnya
-                if (_filterOthers(state.notifications, today, yesterday).isNotEmpty)
+                if (_filterOthers(filteredNotifs, today, yesterday).isNotEmpty)
                   NotificationSection(
                     title: "Sebelumnya",
-                    items: _filterOthers(state.notifications, today, yesterday),
+                    items: _filterOthers(filteredNotifs, today, yesterday),
                   ),
               ],
             ),
     );
   }
 
-  List<UserNotificationEntity> _filterByDate(
-  List<UserNotificationEntity> list,
-  DateTime date,
-) {
-  final dateFormat = DateFormat('yyyy-MM-dd');
-  return list.where((n) {
-final notifWib = n.createdAt.toLocal(); // pastikan ini .toLocal()
-    return dateFormat.format(notifWib) == dateFormat.format(date);
-  }).toList();
-}
+  List<UserNotificationEntity> _filterByType(List<UserNotificationEntity> list) {
+    if (_selectedFilter == "all") return list;
+    return list.where((n) => n.type == _selectedFilter).toList();
+  }
 
-List<UserNotificationEntity> _filterOthers(
-  List<UserNotificationEntity> list,
-  DateTime today,
-  DateTime yesterday,
-) {
-  final dateFormat = DateFormat('yyyy-MM-dd');
-  return list.where((n) {
-final notifWib = n.createdAt.toLocal(); // pastikan ini .toLocal()
-    final todayStr = dateFormat.format(today);
-    final yesterdayStr = dateFormat.format(yesterday);
-    final notifStr = dateFormat.format(notifWib);
-    return notifStr != todayStr && notifStr != yesterdayStr;
-  }).toList();
-}
+  List<UserNotificationEntity> _filterByDate(List<UserNotificationEntity> list, DateTime date) {
+    final dateFormat = DateFormat('yyyy-MM-dd');
+    return list.where((n) {
+      final notifWib = n.createdAt.toLocal();
+      return dateFormat.format(notifWib) == dateFormat.format(date);
+    }).toList();
+  }
 
+  List<UserNotificationEntity> _filterOthers(
+    List<UserNotificationEntity> list,
+    DateTime today,
+    DateTime yesterday,
+  ) {
+    final dateFormat = DateFormat('yyyy-MM-dd');
+    return list.where((n) {
+      final notifWib = n.createdAt.toLocal();
+      final todayStr = dateFormat.format(today);
+      final yesterdayStr = dateFormat.format(yesterday);
+      final notifStr = dateFormat.format(notifWib);
+      return notifStr != todayStr && notifStr != yesterdayStr;
+    }).toList();
+  }
 }

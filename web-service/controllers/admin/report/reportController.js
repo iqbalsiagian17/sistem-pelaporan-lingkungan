@@ -1,4 +1,4 @@
-const { Report, ReportAttachment, ReportStatusHistory, ReportEvidence, User, Notification,RatingReport, sequelize } = require('../../../models');
+const { Report, ReportAttachment, ReportStatusHistory, ReportEvidence, User, Notification,RatingReport, UserReportSave, sequelize } = require('../../../models');
 const { sendNotificationToUser } = require('../../../services/firebaseService');
 const fs = require('fs');
 const { Op } = require('sequelize');
@@ -302,6 +302,53 @@ exports.updateReportStatus = async (req, res) => {
         console.log(`📤 Draft report #${nextDraft.report_number} otomatis dikirim.`);
       }
     }
+
+    // 🔔 Kirim notifikasi ke user lain yang menyimpan laporan ini
+    const savedByUsers = await UserReportSave.findAll({
+      where: { report_id: report.id },
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: ['id', 'fcm_token']
+        }
+      ]
+    });
+
+    for (const saved of savedByUsers) {
+      const savedUser = saved.user;
+
+      // Jangan kirim notifikasi ke pemilik laporan (sudah dikirim sebelumnya)
+      if (!savedUser || savedUser.id === report.user_id) continue;
+
+      const statusTitle = getNotificationTitleByStatus(new_status);
+
+      const notifMessage = `Laporan yang Anda simpan (#${report.report_number}) diperbarui statusnya menjadi "${statusTitle}".`;
+
+      await Notification.create({
+        user_id: savedUser.id,
+        report_id: report.id,
+        title: "Update Status Laporan Tersimpan",
+        message: notifMessage,
+        type: "report_saved_update",
+        sent_by: "system",
+        role_target: "user"
+      });
+
+      if (savedUser.fcm_token) {
+        await sendNotificationToUser(
+          savedUser.fcm_token,
+          "Status Laporan Tersimpan Diperbarui",
+          notifMessage,
+          {
+            report_id: report.id.toString(),
+            type: "report_saved_update",
+            route: "notification"
+          }
+        );
+      }
+    }
+
 
     res.status(200).json({ message: 'Status laporan berhasil diperbarui' });
 
