@@ -13,7 +13,7 @@ class ReportAttachmentModel extends ReportAttachmentEntity {
 
   factory ReportAttachmentModel.fromJson(Map<String, dynamic> json) {
     return ReportAttachmentModel(
-      id: json['id'] ?? 0,
+id: json['id'] ?? (throw FormatException('Attachment ID tidak boleh null')),
       reportId: json['report_id'] ?? 0,
       file: json['file'] ?? '',
     );

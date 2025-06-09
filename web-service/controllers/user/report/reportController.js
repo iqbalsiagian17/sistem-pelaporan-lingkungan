@@ -36,7 +36,7 @@ exports.getAllReports = async (req, res) => {
         {
           model: ReportAttachment,
           as: 'attachments', // ✅ Pastikan alias ini sesuai dengan model
-          attributes: ['file'], // Hanya ambil kolom file
+          attributes: ['id', 'report_id', 'file'], // Hanya ambil kolom file
         },
         {
           model: ReportStatusHistory,
@@ -88,7 +88,7 @@ exports.getReportById = async (req, res) => {
         {
           model: ReportAttachment,
           as: 'attachments',
-          attributes: ['id', 'file']
+          attributes: ['id', 'report_id', 'file']
         },
         {
           model: ReportStatusHistory,
@@ -260,8 +260,20 @@ exports.updateReport = async (req, res) => {
     try {
       const user_id = req.user.id;
       const { id } = req.params;
-      const { title, description, location_details, village, longitude, latitude, is_at_location, delete_attachments } = req.body;
+      const {
+        title,
+        description,
+        location_details,
+        village,
+        longitude,
+        latitude,
+        is_at_location,
+        delete_attachments,
+      } = req.body;
 
+      console.log("🟡 delete_attachments:", delete_attachments); // Tambahkan ini untuk debugging
+
+      // Temukan laporan
       const report = await Report.findByPk(id, {
         include: { model: ReportAttachment, as: 'attachments' }
       });
@@ -276,7 +288,7 @@ exports.updateReport = async (req, res) => {
         return res.status(403).json({ message: 'Anda tidak memiliki izin untuk mengedit laporan ini' });
       }
 
-      // Update laporan
+      // Update data laporan
       report.title = title || report.title;
       report.description = description || report.description;
       report.location_details = location_details || report.location_details;
@@ -295,36 +307,50 @@ exports.updateReport = async (req, res) => {
 
       await report.save();
 
-      // ✅ Hapus attachment lama jika diminta
-      if (delete_attachments) {
-        const attachmentsToDelete = JSON.parse(delete_attachments);
-        for (const attachmentId of attachmentsToDelete) {
-          const attachment = await ReportAttachment.findByPk(attachmentId);
-          if (attachment) {
-            try {
-              fs.unlinkSync(attachment.file); // Hapus file dari sistem
-            } catch (err) {
-              console.error(`Gagal menghapus file ${attachment.file}:`, err.message);
-            }
-            await attachment.destroy(); // Hapus dari database
-          }
+      // ✅ Hapus attachment lama jika ada
+      let attachmentsToDelete = [];
+
+      if (typeof delete_attachments === 'string') {
+        try {
+          attachmentsToDelete = JSON.parse(delete_attachments);
+          if (!Array.isArray(attachmentsToDelete)) attachmentsToDelete = [];
+        } catch (e) {
+          console.warn('delete_attachments bukan JSON array valid:', e.message);
+          attachmentsToDelete = [];
         }
       }
 
-      // ✅ Tambahkan attachment baru (jika ada file diunggah)
-      if (req.files.length > 0) {
+      for (const attachmentId of attachmentsToDelete) {
+        const attachment = await ReportAttachment.findByPk(attachmentId);
+        if (attachment) {
+          try {
+            fs.unlinkSync(attachment.file); // hapus file dari server
+          } catch (err) {
+            console.error(`Gagal menghapus file ${attachment.file}:`, err.message);
+          }
+          await attachment.destroy(); // hapus dari DB
+        }
+      }
+
+      // ✅ Tambahkan file baru jika ada
+      if (req.files && req.files.length > 0) {
         const newAttachments = req.files.map((file) => ({
           report_id: report.id,
-          file: `uploads/reports/${file.filename}`
+          file: `uploads/reports/${file.filename}`,
         }));
         await ReportAttachment.bulkCreate(newAttachments);
       }
 
-      // Ambil laporan yang telah diperbarui dengan attachments terbaru
-      const updatedReport = await Report.findByPk(id, {
-        include: { model: ReportAttachment, as: 'attachments' }
-      });
-
+      // Ambil kembali laporan yang diperbarui
+const updatedReport = await Report.findByPk(id, {
+  include: [
+    {
+      model: ReportAttachment,
+      as: 'attachments',
+      attributes: ['id', 'report_id', 'file'], // ⬅️ tambahkan ini
+    }
+  ]
+});
       res.status(200).json({ message: 'Laporan berhasil diperbarui', report: updatedReport });
 
     } catch (error) {

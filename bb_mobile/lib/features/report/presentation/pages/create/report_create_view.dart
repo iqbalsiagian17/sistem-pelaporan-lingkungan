@@ -140,6 +140,11 @@ class _ReportCreateViewState extends ConsumerState<ReportCreateView> {
             ReportLocationToggle(
               isAtLocation: isAtLocation,
               onChange: (val) => setState(() => isAtLocation = val),
+              onForceChangeToNotAtLocation: () {
+                setState(() {
+                  isAtLocation = false; // Paksa ke tidak di lokasi
+                });
+              },
             ),
             const SizedBox(height: 16),
             Form(

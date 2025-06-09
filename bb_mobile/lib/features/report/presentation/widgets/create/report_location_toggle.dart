@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:bb_mobile/core/utils/location_validator.dart';
+import 'package:bb_mobile/widgets/buttons/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
@@ -8,12 +10,15 @@ class ReportLocationToggle extends StatefulWidget {
   final bool isAtLocation;
   final ValueChanged<bool> onChange;
   final bool isDisabled;
+  final VoidCallback? onForceChangeToNotAtLocation;
+
 
   const ReportLocationToggle({
     super.key,
     required this.isAtLocation,
     required this.onChange,
     this.isDisabled = false,
+    this.onForceChangeToNotAtLocation,
   });
 
   @override
@@ -90,15 +95,31 @@ class _ReportLocationToggleState extends State<ReportLocationToggle> with Widget
     );
 
     setState(() {
-      isLocationAvailable = position != null;
+      isLocationAvailable = true;
       isChecking = false;
       countdown = 0;
     });
 
-    // Kalau berhasil dapat posisi dan "forceEnable" = true, maka reset tombol
-    if (forceEnable && position != null) {
-      widget.onChange(true); // Balik ke "Masih di Lokasi"
-      disableAtLocationButton.value = false; // Enable tombol "Masih di Lokasi"
+    final lat = position.latitude;
+    final long = position.longitude;
+    final isInsideBalige = LocationValidator.isInsideBaligeArea(lat, long);
+
+    if (!isInsideBalige) {
+      if (!mounted) return;
+      await _showOutOfAreaDialog();
+
+      // Ubah state di parent
+      widget.onForceChangeToNotAtLocation?.call();
+
+      // Disable tombol dari dalam
+      disableAtLocationButton.value = true;
+      return;
+    }
+
+    // Lokasi valid
+    if (forceEnable) {
+      widget.onChange(true);
+      disableAtLocationButton.value = false;
     }
   } catch (_) {
     if (!mounted) return;
@@ -111,6 +132,59 @@ class _ReportLocationToggleState extends State<ReportLocationToggle> with Widget
     disableAtLocationButton.value = true;
   }
 }
+
+
+Future<void> _showOutOfAreaDialog() async {
+  await showModalBottomSheet(
+    context: context,
+    isDismissible: false,
+    isScrollControlled: true,
+    backgroundColor: Colors.white,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+    ),
+    builder: (context) {
+      return Padding(
+        padding: EdgeInsets.only(
+          top: 24,
+          left: 20,
+          right: 20,
+          bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+          const Icon(Icons.error_outline, size: 48, color: Colors.redAccent),
+          const SizedBox(height: 12),
+          const Text(
+            "Lokasi Di Luar Area Pelaporan",
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 12),
+          const Text(
+            "Sistem mendeteksi bahwa Anda berada di luar wilayah Kecamatan Balige.\n\n"
+            "Silakan lanjutkan dengan mengisi informasi lokasi secara manual agar laporan tetap dapat diproses.",
+            style: TextStyle(fontSize: 14, color: Colors.black87),
+            textAlign: TextAlign.center,
+          ),
+
+            const SizedBox(height: 20),
+            CustomButton(
+              text: "Mengerti",
+              onPressed: () => Navigator.of(context).pop(),
+              color: Colors.green[700]!,
+              textColor: Colors.white,
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
+
+
+
 
   void _startCountdownAndRefresh() {
     if (countdown > 0) return;

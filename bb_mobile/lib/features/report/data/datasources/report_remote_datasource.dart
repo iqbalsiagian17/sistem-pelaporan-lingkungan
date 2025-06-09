@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:http_parser/http_parser.dart';
@@ -74,20 +75,21 @@ class ReportRemoteDataSourceImpl implements ReportRemoteDataSource {
     }
   }
 
-  @override
-  Future<ReportEntity?> getReportById(String reportId) async {
-    try {
-      final response = await dio.get('${ApiConstants.userReportUrl}/$reportId');
+@override
+Future<ReportEntity?> getReportById(String reportId) async {
+  try {
+    final response = await dio.get('${ApiConstants.userReportUrl}/$reportId');
 
-      if (response.statusCode == 200 && response.data['report'] != null) {
-        return ReportModel.fromJson(response.data['report']);
-      } else {
-        return null;
-      }
-    } catch (e) {
+    if (response.statusCode == 200 && response.data['report'] != null) {
+      // ✅ Jangan langsung response.data['report'], karena ReportModel.fromJson sudah handle sendiri
+      return ReportModel.fromJson(response.data); 
+    } else {
       return null;
     }
+  } catch (e) {
+    return null;
   }
+}
 
   @override
   Future<ReportEntity?> createReport({
@@ -205,7 +207,7 @@ Future<ReportEntity?> updateReport({
       if (isAtLocation == true && longitude != null) "longitude": longitude,
       if (isAtLocation != null) "is_at_location": isAtLocation.toString(),
       if (deleteAttachmentIds != null && deleteAttachmentIds.isNotEmpty)
-        "delete_attachments": deleteAttachmentIds,
+        "delete_attachments": jsonEncode(deleteAttachmentIds), // ✅ fix
     });
 
     if (attachments != null && attachments.isNotEmpty) {
@@ -221,6 +223,9 @@ Future<ReportEntity?> updateReport({
         ));
       }
     }
+
+        print('🟡 deleteAttachmentIds (json): ${jsonEncode(deleteAttachmentIds)}');
+
 
     final response = await dio.put(
       '${ApiConstants.userReportUrl}/$reportId',

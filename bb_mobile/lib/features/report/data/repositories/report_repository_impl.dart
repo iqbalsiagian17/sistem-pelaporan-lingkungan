@@ -13,10 +13,10 @@ class ReportRepositoryImpl implements ReportRepository {
     return await remoteDataSource.fetchReports();
   }
 
-  @override
-  Future<ReportEntity?> getReportById(String reportId) async {
-    return await remoteDataSource.getReportById(reportId);
-  }
+@override
+Future<ReportEntity?> getReportById(String reportId) async {
+  return await remoteDataSource.getReportById(reportId);
+}
 
   @override
 Future<ReportEntity?> createReport({

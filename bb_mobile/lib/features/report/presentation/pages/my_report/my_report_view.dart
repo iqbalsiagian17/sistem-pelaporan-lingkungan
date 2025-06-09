@@ -1,4 +1,5 @@
 import 'package:bb_mobile/core/services/auth/global_auth_service.dart';
+import 'package:bb_mobile/features/report/data/models/report_model.dart';
 import 'package:bb_mobile/features/report/domain/entities/report_entity.dart';
 import 'package:bb_mobile/features/report/presentation/providers/report_provider.dart';
 import 'package:bb_mobile/features/report/presentation/widgets/list/report_list_status_filter_sheet.dart';
@@ -109,7 +110,10 @@ class _MyReportViewState extends ConsumerState<MyReportView> {
                       final canEditOrDelete = ["pending", "draft"].contains(status);
 
                       return InkWell(
-                        onTap: () => context.push(AppRoutes.detailReport, extra: report),
+onTap: () {
+  final reportModel = ReportModel.fromEntity(report);
+  context.push(AppRoutes.detailReport, extra: reportModel);
+},
                         borderRadius: BorderRadius.circular(12),
                         child: Stack(
                           alignment: Alignment.topRight,

@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:bb_mobile/core/constants/api.dart';
+import 'package:bb_mobile/features/report/data/models/report_attachment_model.dart';
 import 'package:bb_mobile/features/report/data/models/report_model.dart';
-import 'package:bb_mobile/features/report/domain/entities/report_entity.dart';
 import 'package:bb_mobile/features/report/presentation/widgets/create/report_location_toggle.dart';
 import 'package:bb_mobile/features/report/presentation/widgets/create/report_text_field.dart';
 import 'package:bb_mobile/features/report/presentation/widgets/create/report_upload_buttons.dart';
@@ -17,7 +17,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 class ReportEditView extends ConsumerStatefulWidget {
-  final ReportEntity report;
+  final ReportModel report;
 
   const ReportEditView({super.key, required this.report});
 
@@ -30,9 +30,10 @@ class _ReportEditViewState extends ConsumerState<ReportEditView> {
   late TextEditingController _descController;
   late TextEditingController _locationDetailController;
   late TextEditingController _villageController;
+  List<ReportAttachmentModel> existingAttachments = [];
+  List<File> newAttachments = [];
 
   bool isAtLocation = true;
-  List<File> attachments = [];
   List<int> deletedAttachmentIds = [];
   bool isSubmitting = false;
   int _selectedIndex = 2;
@@ -47,6 +48,8 @@ class _ReportEditViewState extends ConsumerState<ReportEditView> {
     _locationDetailController = TextEditingController(text: report.locationDetails ?? '');
     _villageController = TextEditingController(text: report.village ?? '');
     isAtLocation = (report.latitude ?? 0) != 0 && (report.longitude ?? 0) != 0;
+
+    existingAttachments = List<ReportAttachmentModel>.from(widget.report.attachments);
   }
 
   Future<void> _handleSubmit() async {
@@ -73,8 +76,8 @@ class _ReportEditViewState extends ConsumerState<ReportEditView> {
         locationDetails: _locationDetailController.text,
         village: _villageController.text.isNotEmpty ? _villageController.text : null,
         isAtLocation: isAtLocation,
-        attachments: attachments,
-        deleteAttachmentIds: deletedAttachmentIds,
+        attachments: newAttachments,
+        deleteAttachmentIds: deletedAttachmentIds.where((id) => id != 0).toList(),
       );
 
       if (updatedReport != null) {
@@ -93,13 +96,10 @@ class _ReportEditViewState extends ConsumerState<ReportEditView> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
-
-    print('isAtLocation: $isAtLocation');
-print('village: ${_villageController.text}');
     final report = widget.report;
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: const ReportTopBar(title: "Edit Aduan"),
@@ -108,11 +108,6 @@ print('village: ${_villageController.text}');
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ReportLocationToggle(
-              isAtLocation: isAtLocation,
-              onChange: (val) => setState(() => isAtLocation = val),
-              isDisabled: true,
-            ),
             const SizedBox(height: 16),
             ReportTextField(
               title: "Judul",
@@ -152,17 +147,17 @@ print('village: ${_villageController.text}');
             const SizedBox(height: 12),
             ReportUploadButtons(
               isAtLocation: isAtLocation,
-              onFilesSelected: (files) => setState(() => attachments = files),
+              onFilesSelected: (files) => setState(() => newAttachments = files),
               onLocationCaptured: (_, __) {},
             ),
-            if (report.attachments.isNotEmpty) ...[
+            if (existingAttachments.isNotEmpty) ...[
               const SizedBox(height: 16),
               const Text("Lampiran Sebelumnya:", style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               Wrap(
                 spacing: 10,
                 runSpacing: 10,
-                children: report.attachments.map((attachment) {
+                children: existingAttachments.map((attachment) {
                   final imageUrl = "${ApiConstants.baseUrl}/${attachment.file}";
                   return Stack(
                     children: [
@@ -186,9 +181,10 @@ print('village: ${_villageController.text}');
                         right: 0,
                         child: GestureDetector(
                           onTap: () {
+                            print('🟥 Hapus lampiran ID: ${attachment.id}');
                             setState(() {
                               deletedAttachmentIds.add(attachment.id);
-                              widget.report.attachments.remove(attachment);
+                              existingAttachments.remove(attachment);
                             });
                           },
                           child: Container(

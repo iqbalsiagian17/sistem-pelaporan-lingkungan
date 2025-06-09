@@ -45,7 +45,7 @@ class ReportModel extends ReportEntity {
         );
 
   factory ReportModel.fromJson(Map<String, dynamic> json) {
-    final data = json.containsKey('report') ? json['report'] : json;
+final data = (json['report'] is Map<String, dynamic>) ? json['report'] : json;
 
     return ReportModel(
       id: data['id'] ?? 0,
@@ -60,9 +60,13 @@ class ReportModel extends ReportEntity {
       locationDetails: data['location_details'],
       latitude: (data['latitude'] ?? 0).toDouble(),
       longitude: (data['longitude'] ?? 0).toDouble(),
-      attachments: (data['attachments'] as List<dynamic>? ?? [])
-          .map((e) => ReportAttachmentModel.fromJson(e))
-          .toList(),
+attachments: (data['attachments'] as List<dynamic>? ?? [])
+    .map((e) {
+      print('📦 Attachment JSON: $e'); // debug
+      return ReportAttachmentModel.fromJson(e);
+    })
+    .toList(),
+
       user: UserModel.fromJson(data['user'] ?? {}),
       statusHistory: (data['statusHistory'] as List<dynamic>? ?? [])
           .map((e) => ReportStatusHistoryModel.fromJson(e))

@@ -115,8 +115,8 @@ static Future<String?> _redirectLogic(BuildContext context, GoRouterState state)
       GoRoute(
         path: editReport,
         builder: (context, state) {
-          final report = state.extra as ReportEntity;
-          return ReportEditView(report: report);
+          final report = state.extra as ReportModel; // ✅ ganti ke ReportModel
+          return ReportEditView(report: report);     // ✅ sudah cocok
         },
       ),
       GoRoute(
