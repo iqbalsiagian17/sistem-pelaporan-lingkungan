@@ -7,7 +7,7 @@ import "react-toastify/dist/ReactToastify.css";  // ⬅️ import styling toast
 
 function App() {
   const location = useLocation();
-  const isAuthPath = location.pathname.includes("auth") || location.pathname.includes("error") || location.pathname.includes("under-maintenance") || location.pathname.includes("blank");
+  const isAuthPath =   location.pathname === "/" || location.pathname === "/login" || location.pathname.includes("error") || location.pathname.includes("under-maintenance") || location.pathname.includes("blank");
 
   return (
     <>
@@ -22,18 +22,6 @@ function App() {
       )}
 
       {/* ✅ Tambahkan ToastContainer agar toast bisa digunakan global */}
-      <ToastContainer
-        position="top-center"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss={false}
-        draggable
-        pauseOnHover
-        theme="colored"
-      />
     </>
   );
 }

@@ -1,4 +1,4 @@
-import { showSessionExpiredModal } from "./modalTrigger"; // helper untuk akses context
+import { showSessionExpiredModal } from "./modalTrigger";
 
 export const fetchWithAuth = async (url, options = {}) => {
   const token = localStorage.getItem("accessToken");
@@ -28,17 +28,29 @@ export const fetchWithAuth = async (url, options = {}) => {
     try {
       const errorData = await cloned.json();
       const isTokenInvalid = errorData?.message?.toLowerCase().includes("invalid token");
-      const isAlreadyOnLoginPage = window.location.pathname.includes("/auth/login");
-  
-      if (isTokenInvalid && !isAlreadyOnLoginPage) {
-        showSessionExpiredModal(); // tampilkan modal
+      const isAlreadyOnLoginPage = window.location.pathname.includes("/login");
+
+      const isPublicPath = (pathname) => {
+        return [
+          "/", // landing page
+          "/login",
+          "/under-maintenance",
+          "/error",
+        ].some((path) => pathname.startsWith(path));
+      };
+
+      if (
+        isTokenInvalid &&
+        !isAlreadyOnLoginPage &&
+        !isPublicPath(window.location.pathname)
+      ) {
+        showSessionExpiredModal(); // tampilkan modal hanya jika bukan public
         throw new Error("Token tidak valid atau sudah kadaluarsa");
       }
     } catch (e) {
       console.warn("❗ Error parsing error response:", e);
     }
   }
-  
 
   return response;
 };

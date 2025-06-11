@@ -37,7 +37,7 @@ const Navbar = () => {
   const handleLogout = () => {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("user");
-    navigate("/auth/login");
+    navigate("/login");
   };
 
   const handleMarkAllAsRead = async () => {

@@ -15,7 +15,7 @@ export const showSessionExpiredModal = () => {
         // Bersihkan token dan redirect
         localStorage.removeItem("accessToken");
         localStorage.removeItem("user");
-        window.location.href = "/auth/login";
+        window.location.href = "/login";
       },
     });
   }

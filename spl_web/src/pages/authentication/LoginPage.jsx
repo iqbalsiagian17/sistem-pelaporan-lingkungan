@@ -46,7 +46,7 @@ export const LoginPage = () => {
             localStorage.setItem("accessToken", data.token);
             localStorage.setItem("user", JSON.stringify(data.user));
 
-            navigate("/");
+        navigate("/dashboard");
         } catch (err) {
             setError(err.message);
         } finally {

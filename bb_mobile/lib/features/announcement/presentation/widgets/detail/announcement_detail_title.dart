@@ -5,11 +5,19 @@ class AnnouncementTitle extends StatelessWidget {
   final String title;
   final DateTime createdAt;
 
-  const AnnouncementTitle({super.key, required this.title, required this.createdAt});
+  const AnnouncementTitle({
+    super.key,
+    required this.title,
+    required this.createdAt,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final formattedDate = DateFormat('d MMMM yyyy • HH:mm', 'id_ID').format(createdAt);
+    // Konversi ke zona waktu WIB (+7 jam dari UTC)
+    final wibTime = createdAt.toUtc().add(const Duration(hours: 7));
+
+    // Format dalam 24 jam tanpa AM/PM
+    final formattedDate = DateFormat('d MMMM yyyy • HH:mm', 'id_ID').format(wibTime) + ' WIB';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

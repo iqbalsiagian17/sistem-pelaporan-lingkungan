@@ -8,22 +8,24 @@ import AnnouncementPage from "../pages/announcement/AnnouncementPage";
 import MediaCarouselPage from "../pages/mediaCarousel/MediaCarouselPage";
 import ParameterPage from "../pages/parameter/ParameterPage";
 import ForumPage from "../pages/forum/ForumPage";
+import LandingPage from "../pages/landing/LandingPage"; 
 
 const AppRoutes = () => {
     return (
         <Routes>
-            {/* Route Login */}
-            <Route path="/auth/login" element={<LoginPage />} />
+            {/* ✅ Public routes */}
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/login" element={<LoginPage />} />
 
-            {/* Protected Route untuk Dashboard */}
+            {/* 🔒 Protected routes */}
             <Route element={<ProtectedRoute />}>
-                <Route path="/" element={<DashboardPage />} />
-                <Route path="/reports/" element={<LaporanPage />} />
-                <Route path="/users/" element={<UserManagementPage  />} />
-                <Route path="/announcements/" element={<AnnouncementPage  />} />
-                <Route path= "/banners/" element={<MediaCarouselPage  />} />
-                <Route path="/parameters/" element={<ParameterPage />} />
-                <Route path="/forum" element={<ForumPage/>} />
+                <Route path="/dashboard" element={<DashboardPage />} />
+                <Route path="/reports" element={<LaporanPage />} />
+                <Route path="/users" element={<UserManagementPage />} />
+                <Route path="/announcements" element={<AnnouncementPage />} />
+                <Route path="/banners" element={<MediaCarouselPage />} />
+                <Route path="/parameters" element={<ParameterPage />} />
+                <Route path="/forum" element={<ForumPage />} />
             </Route>
         </Routes>
     );

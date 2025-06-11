@@ -29,7 +29,7 @@ export const showSessionExpiredModal = () => {
 
         // Tunggu sedikit supaya animasi modal menutup sempurna
         setTimeout(() => {
-          window.location.href = "/auth/login";
+          window.location.href = "/login";
         }, 300);
       },
     });

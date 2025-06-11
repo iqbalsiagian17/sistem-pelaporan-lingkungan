@@ -15,7 +15,7 @@ const Sidebar = () => {
     return (
         <aside id="layout-menu" className="layout-menu menu-vertical menu bg-menu-theme">
             <div className="app-brand demo d-flex align-items-center justify-content-center py-3">
-                <a href="/" className="app-brand-link d-flex align-items-center text-decoration-none">
+                <a href="/dashboard" className="app-brand-link d-flex align-items-center text-decoration-none">
                     <img 
                         src="/assets/img/logo/logo.png" 
                         alt="Logo Dinas Lingkungan Hidup" 
