@@ -17,6 +17,11 @@ export const ParameterProvider = ({ children }) => {
 
   const fetchParameter = async () => {
     try {
+      const token = localStorage.getItem("accessToken");
+      if (!token) {
+        return;
+      }
+
       setLoading(true);
       const result = await getAllParameters();
       setParameter(result[0] || null);
@@ -45,13 +50,12 @@ export const ParameterProvider = ({ children }) => {
       setError("Gagal memperbarui parameter");
     }
   };
-  
 
-  const deleteParameter = async (data) => {
+  const deleteParameter = async () => {
     try {
       if (!parameter?.id) throw new Error("ID parameter tidak ditemukan.");
-      const deleted = await deleteParam();
-      setParameter(deleted);
+      await deleteParam(parameter.id); // jangan lupa kirim ID
+      setParameter(null);
     } catch (err) {
       setError("Gagal menghapus parameter");
     }

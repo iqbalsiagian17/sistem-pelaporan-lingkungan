@@ -10,17 +10,23 @@ import {
 // Buat context
 const AnnouncementContext = createContext();
 
-// Hook custom untuk mengakses context
+// Hook custom untuk gunakan context ini
 export const useAnnouncement = () => useContext(AnnouncementContext);
 
-// Provider
+// Provider utama
 export const AnnouncementProvider = ({ children }) => {
   const [announcements, setAnnouncements] = useState([]);
 
-  // Fetch dari backend
+  // ✅ Hanya fetch jika user sudah login
   const fetchAnnouncements = async () => {
     try {
-      const data = await fetchAnnouncementsService(); // dari service
+      const token = localStorage.getItem("accessToken");
+      if (!token) {
+        console.log("🔒 User belum login. Tidak fetch pengumuman.");
+        return { success: false, error: "Not authenticated" };
+      }
+
+      const data = await fetchAnnouncementsService(); // panggil service
       setAnnouncements(data);
       return { success: true };
     } catch (error) {
@@ -29,30 +35,19 @@ export const AnnouncementProvider = ({ children }) => {
     }
   };
 
-  // Panggil sekali saat mount
   useEffect(() => {
     fetchAnnouncements();
   }, []);
 
-  // Get satu pengumuman by ID
   const getAnnouncementById = async (id) => {
     return await fetchAnnouncementById(id);
   };
 
-  // Tambah pengumuman
   const addAnnouncement = async (formData) => {
     const created = await createAnnouncement(formData);
     setAnnouncements((prev) => [created, ...prev]);
   };
 
-  // Update lokal (tanpa API)
-  const updateAnnouncementLocal = (id, newData) => {
-    setAnnouncements((prev) =>
-      prev.map((ann) => (ann.id === id ? { ...ann, ...newData } : ann))
-    );
-  };
-
-  // Update ke server
   const updateAnnouncement = async (id, formData) => {
     const updated = await updateAnnouncementService(id, formData);
     setAnnouncements((prev) =>
@@ -61,13 +56,17 @@ export const AnnouncementProvider = ({ children }) => {
     return updated;
   };
 
-  // Delete dari server dan update lokal
+  const updateAnnouncementLocal = (id, newData) => {
+    setAnnouncements((prev) =>
+      prev.map((ann) => (ann.id === id ? { ...ann, ...newData } : ann))
+    );
+  };
+
   const deleteAnnouncement = async (id) => {
     await deleteAnnouncementService(id);
     setAnnouncements((prev) => prev.filter((ann) => ann.id !== id));
   };
 
-  // Alias: hapus di lokal (jika perlu pakai berbeda)
   const removeAnnouncement = (id) => {
     setAnnouncements((prev) => prev.filter((ann) => ann.id !== id));
   };
@@ -76,7 +75,7 @@ export const AnnouncementProvider = ({ children }) => {
     <AnnouncementContext.Provider
       value={{
         announcements,
-        fetchAnnouncements,            // ✅ WAJIB agar bisa dipanggil dari page
+        fetchAnnouncements,
         getAnnouncementById,
         addAnnouncement,
         updateAnnouncement,

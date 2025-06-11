@@ -11,14 +11,21 @@ import {
   togglePinPost,
 } from "../services/postService";
 
+// Context & hook
 const PostContext = createContext();
 export const usePost = () => useContext(PostContext);
 
+// Provider
 export const PostProvider = ({ children }) => {
   const [posts, setPosts] = useState([]);
 
+  // ✅ Hanya fetch jika token login ada
   useEffect(() => {
-    loadPosts();
+    const token = localStorage.getItem("accessToken");
+    if (token) {
+      loadPosts();
+    } else {
+    }
   }, []);
 
   const loadPosts = async () => {
@@ -26,7 +33,7 @@ export const PostProvider = ({ children }) => {
       const data = await fetchAdminPosts();
       setPosts(data);
     } catch (err) {
-      console.error("Gagal memuat post:", err.message);
+      console.error("❌ Gagal memuat post:", err.message);
     }
   };
 
@@ -57,7 +64,6 @@ export const PostProvider = ({ children }) => {
       }))
     );
   };
-  
 
   const removePost = async (id) => {
     await deleteAdminPost(id);

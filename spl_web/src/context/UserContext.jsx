@@ -7,7 +7,7 @@ import {
   blockUser,
   unblockUser,
   changeUserPassword,
-  getUserDetails
+  getUserDetails,
 } from "../services/userService";
 
 const UserContext = createContext();
@@ -18,14 +18,20 @@ export const UserProvider = ({ children }) => {
 
   const fetchUsers = async () => {
     try {
+      const token = localStorage.getItem("accessToken");
+      if (!token) {
+        return;
+      }
+
       const data = await getAllUsers();
       setUsers(data);
     } catch (error) {
-      console.error("Gagal fetch users:", error);
+      console.error("❌ Gagal fetch users:", error);
     }
   };
 
   const removeUser = (id) => setUsers((prev) => prev.filter((u) => u.id !== id));
+
   const updateUserLocal = (id, updatedData) => {
     setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, ...updatedData } : u)));
   };
@@ -47,7 +53,7 @@ export const UserProvider = ({ children }) => {
         changeUserPassword,
         removeUser,
         updateUserLocal,
-        getUserDetails
+        getUserDetails,
       }}
     >
       {children}

@@ -3,13 +3,13 @@ import {
   getAllReports,
   getReportById,
   updateReportStatus,
-  deleteReport
+  deleteReport,
 } from "../services/reportService";
 
 // 1. Buat context
 const ReportContext = createContext();
 
-// 2. Custom hook untuk akses context
+// 2. Custom hook
 export const useReport = () => useContext(ReportContext);
 
 // 3. Provider
@@ -20,6 +20,13 @@ export const ReportProvider = ({ children }) => {
   const fetchReports = async () => {
     setLoading(true);
     try {
+      const token = localStorage.getItem("accessToken");
+      if (!token) {
+        setReports([]);
+        setLoading(false);
+        return;
+      }
+
       const data = await getAllReports();
       setReports(data);
     } catch (err) {
@@ -48,7 +55,6 @@ export const ReportProvider = ({ children }) => {
       throw err;
     }
   };
-  
 
   const removeReport = (id) => {
     setReports((prev) => prev.filter((r) => r.id !== id));
@@ -68,7 +74,7 @@ export const ReportProvider = ({ children }) => {
         updateReportStatus: handleUpdateReportStatus,
         deleteReport,
         updateReportLocally,
-        removeReport
+        removeReport,
       }}
     >
       {children}
