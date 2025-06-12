@@ -232,22 +232,85 @@ const ForumPage = () => {
         onSave={handleEditComment}
       />
 
-      <Modal show={showImageModal} onHide={() => setShowImageModal(false)} size="lg" centered>
-        <Modal.Body className="p-0">
-          <Carousel activeIndex={startIndex} onSelect={(i) => setStartIndex(i)} interval={null}>
-            {imageList.map((img) => (
-              <Carousel.Item key={img.id}>
-                <img
-                  src={`http://localhost:3000/${img.image}`}
-                  alt="slide"
-                  className="d-block w-100"
-                  style={{ objectFit: "contain", maxHeight: "80vh" }}
-                />
-              </Carousel.Item>
+      <Modal
+        show={showImageModal}
+        onHide={() => setShowImageModal(false)}
+        centered
+        size="xl"
+        className="image-preview-modal"
+      >
+        <Modal.Header className="border-0 pb-0">
+          <button
+            type="button"
+            className="btn-close ms-auto"
+            aria-label="Close"
+            onClick={() => setShowImageModal(false)}
+          />
+        </Modal.Header>
+
+        <Modal.Body className="p-0 position-relative">
+          <div className="d-flex justify-content-center align-items-center bg-dark" style={{ minHeight: "80vh" }}>
+            {/* 🟩 Tombol Prev */}
+            {imageList.length > 1 && (
+              <button
+                onClick={() =>
+                  setStartIndex((prev) => (prev - 1 + imageList.length) % imageList.length)
+                }
+                className="btn btn-light position-absolute"
+                style={{ left: 20, top: "50%", transform: "translateY(-50%)" }}
+              >
+                ‹
+              </button>
+            )}
+
+            {/* 🟩 Gambar Utama */}
+            <img
+              src={`http://localhost:3000/${imageList[startIndex]?.image}`}
+              alt="preview"
+              style={{
+                maxHeight: "75vh",
+                maxWidth: "100%",
+                objectFit: "contain",
+                borderRadius: "8px",
+              }}
+            />
+
+            {/* 🟩 Tombol Next */}
+            {imageList.length > 1 && (
+              <button
+                onClick={() =>
+                  setStartIndex((prev) => (prev + 1) % imageList.length)
+                }
+                className="btn btn-light position-absolute"
+                style={{ right: 20, top: "50%", transform: "translateY(-50%)" }}
+              >
+                ›
+              </button>
+            )}
+          </div>
+
+          {/* 🟦 Thumbnail */}
+          <div className="d-flex justify-content-center gap-2 my-3 flex-wrap">
+            {imageList.map((img, idx) => (
+              <img
+                key={img.id}
+                src={`http://localhost:3000/${img.image}`}
+                alt={`thumb-${idx}`}
+                onClick={() => setStartIndex(idx)}
+                style={{
+                  width: 60,
+                  height: 45,
+                  objectFit: "cover",
+                  cursor: "pointer",
+                  border: idx === startIndex ? "2px solid #0d6efd" : "1px solid #ccc",
+                  borderRadius: 4,
+                }}
+              />
             ))}
-          </Carousel>
+          </div>
         </Modal.Body>
       </Modal>
+
 
       <ToastNotification
         show={toast.show}

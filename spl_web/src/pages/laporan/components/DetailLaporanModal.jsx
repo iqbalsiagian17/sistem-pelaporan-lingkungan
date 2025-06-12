@@ -5,6 +5,7 @@ import getFullImageUrl from "../../../utils/getFullImageUrl"; // 🔥 Import hel
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import statusData from "../../../data/statusData.json";
+import { generatePDFManually } from "../../../utils/exprotReportsToPdf";
 
 const DetailLaporanModal = ({ show, onHide, report }) => {  
   const [loadingImages, setLoadingImages] = useState({});
@@ -203,7 +204,7 @@ const DetailLaporanModal = ({ show, onHide, report }) => {
             </Card>
 
             {/* Riwayat Status */}
-            <Card className="shadow border-0">
+          <Card className="shadow border-0">
           <Card.Body>
             <h5 className="fw-bold text-primary mb-3">Riwayat Perubahan Status</h5>
             {report.statusHistory?.length ? (
@@ -363,7 +364,7 @@ const DetailLaporanModal = ({ show, onHide, report }) => {
       </Modal.Body>
 
       <Modal.Footer className="bg-white shadow-sm">
-        <Button variant="secondary" onClick={exportToPDF}>
+        <Button variant="secondary" onClick={() => generatePDFManually(report)}>
           <FaFileAlt className="me-2" /> Export PDF
         </Button>
         <Button variant="danger" onClick={onHide}>

@@ -1,4 +1,6 @@
 import { Card, Table, Spinner } from "react-bootstrap";
+import { BsEye, BsPencil, BsTrash } from "react-icons/bs";
+
 
 const ParameterTable = ({ parameters, isLoading, onView, onEdit, onDelete }) => {
   const parameter = parameters?.[0];
@@ -23,10 +25,26 @@ const ParameterTable = ({ parameters, isLoading, onView, onEdit, onDelete }) => 
               <i className="bx bx-dots-vertical-rounded" style={{ fontSize: "18px" }}></i>
             </button>
             <div className="dropdown-menu dropdown-menu-end">
-              <button className="dropdown-item" onClick={() => onView(parameter)}>📄 Lihat Detail</button>
-              <button className="dropdown-item" onClick={() => onEdit(parameter)}>✏️ Edit</button>
-              <button className="dropdown-item text-danger" onClick={() => onDelete(parameter)}>🗑️ Hapus</button>
+              <button
+                className="dropdown-item d-flex align-items-center gap-2"
+                onClick={() => onView(parameter)}
+              >
+                <BsEye /> Lihat Detail
+              </button>
+              <button
+                className="dropdown-item d-flex align-items-center gap-2"
+                onClick={() => onEdit(parameter)}
+              >
+                <BsPencil /> Edit
+              </button>
+              <button
+                className="dropdown-item d-flex align-items-center gap-2 text-danger"
+                onClick={() => onDelete(parameter)}
+              >
+                <BsTrash /> Hapus
+              </button>
             </div>
+
           </div>
         )}
       </Card.Header>

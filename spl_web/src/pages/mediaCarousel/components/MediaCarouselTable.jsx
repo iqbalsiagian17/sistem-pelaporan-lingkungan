@@ -11,6 +11,9 @@ import {
   Spinner, // ✅ penting!
 } from "react-bootstrap";
 
+import { BsThreeDotsVertical, BsEye, BsPencil, BsTrash } from "react-icons/bs";
+
+
 const MediaCarouselTable = ({ mediaCarousels = [], isLoading, onView, onEdit, onDelete }) => {
   const [search, setSearch] = useState("");
 
@@ -105,17 +108,26 @@ const MediaCarouselTable = ({ mediaCarousels = [], isLoading, onView, onEdit, on
                         className="btn p-0 dropdown-toggle hide-arrow"
                         data-bs-toggle="dropdown"
                       >
-                        <i className="bx bx-dots-vertical-rounded" style={{ fontSize: "18px" }}></i>
+                        <BsThreeDotsVertical size={18} />
                       </button>
                       <div className="dropdown-menu dropdown-menu-end">
-                        <button className="dropdown-item" onClick={() => onView(item.id)}>
-                          📄 Lihat Detail
+                        <button
+                          className="dropdown-item d-flex align-items-center gap-2"
+                          onClick={() => onView(item.id)}
+                        >
+                          <BsEye /> Lihat Detail
                         </button>
-                        <button className="dropdown-item" onClick={() => onEdit(item)}>
-                          ✏️ Edit
+                        <button
+                          className="dropdown-item d-flex align-items-center gap-2"
+                          onClick={() => onEdit(item)}
+                        >
+                          <BsPencil /> Edit
                         </button>
-                        <button className="dropdown-item text-danger" onClick={() => onDelete(item)}>
-                          🗑️ Hapus
+                        <button
+                          className="dropdown-item d-flex align-items-center gap-2 text-danger"
+                          onClick={() => onDelete(item)}
+                        >
+                          <BsTrash /> Hapus
                         </button>
                       </div>
                     </div>

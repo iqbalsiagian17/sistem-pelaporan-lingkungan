@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Card, Table, Dropdown, Row, Col, InputGroup, Form, Button, Spinner } from "react-bootstrap";
+import { BsThreeDotsVertical, BsEye, BsPencil, BsTrash } from "react-icons/bs";
 
 const AnnouncementTable = ({ announcements, isLoading, initialLoadComplete, onView, onDelete, onEdit }) => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -86,18 +87,22 @@ const AnnouncementTable = ({ announcements, isLoading, initialLoadComplete, onVi
         <td>{new Date(a.createdAt).toLocaleDateString("id-ID")}</td>
         <td>
           <div className="dropdown">
-            <button type="button" className="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
-              <i className="bx bx-dots-vertical-rounded" style={{ fontSize: "18px" }}></i>
+            <button
+              type="button"
+              className="btn p-0 dropdown-toggle hide-arrow"
+              data-bs-toggle="dropdown"
+            >
+              <BsThreeDotsVertical size={18} />
             </button>
             <div className="dropdown-menu dropdown-menu-end">
-              <button className="dropdown-item" onClick={() => onView(a.id)}>
-                📄 Lihat Detail
+              <button className="dropdown-item d-flex align-items-center gap-2" onClick={() => onView(a.id)}>
+                <BsEye /> Lihat Detail
               </button>
-              <button className="dropdown-item" onClick={() => onEdit(a)}>
-                ✏️ Edit
+              <button className="dropdown-item d-flex align-items-center gap-2" onClick={() => onEdit(a)}>
+                <BsPencil /> Edit
               </button>
-              <button className="dropdown-item text-danger" onClick={() => onDelete(a)}>
-                🗑️ Hapus
+              <button className="dropdown-item d-flex align-items-center gap-2 text-danger" onClick={() => onDelete(a)}>
+                <BsTrash /> Hapus
               </button>
             </div>
           </div>
