@@ -1,43 +1,41 @@
 import React, { useState, useRef } from "react";
-import { Form, Button, Toast, ToastContainer, Spinner } from "react-bootstrap";
-import AvatarCircle from "./AvatarCircle"; // Ganti AvatarDisplay
+import { Form, Button, Spinner } from "react-bootstrap";
+import AvatarCircle from "./AvatarCircle";
 
-const PostCreateEntryBox = ({ currentUser, onCreate }) => {
+const PostCreateEntryBox = ({ currentUser, onCreate, showToast }) => {
   const [content, setContent] = useState("");
   const [images, setImages] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [contentError, setContentError] = useState(""); // 🔥 Validasi teks
   const fileInputRef = useRef();
-  const [toast, setToast] = useState({ show: false, message: "", variant: "danger" });
 
   const MAX_FILES = 10;
 
-  const showToast = (message, variant = "danger") => {
-    setToast({ show: true, message, variant });
-    setTimeout(() => setToast({ show: false, message: "", variant }), 3000);
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!content.trim()) {
-      showToast("❌ Konten tidak boleh kosong!");
+      setContentError("Konten tidak boleh kosong");
       return;
+    } else {
+      setContentError("");
     }
 
     if (images.length > MAX_FILES) {
-      showToast(`❌ Maksimal ${MAX_FILES} gambar diperbolehkan.`);
+      showToast(`❌ Maksimal ${MAX_FILES} gambar diperbolehkan.`, "danger");
       return;
     }
 
     setIsSubmitting(true);
     const formData = new FormData();
-    formData.append("content", content);
+    formData.append("content", content.trim());
     images.forEach((file) => formData.append("images", file));
 
     try {
       await onCreate(formData);
       resetForm();
     } catch (error) {
-      showToast("❌ Gagal mengirim postingan!");
+      showToast("❌ Gagal mengirim postingan!", "danger");
     } finally {
       setIsSubmitting(false);
     }
@@ -46,7 +44,7 @@ const PostCreateEntryBox = ({ currentUser, onCreate }) => {
   const handleFileChange = (e) => {
     const selected = Array.from(e.target.files);
     if (selected.length > MAX_FILES) {
-      showToast(`❌ Maksimal ${MAX_FILES} gambar diperbolehkan.`);
+      showToast(`❌ Maksimal ${MAX_FILES} gambar diperbolehkan.`, "danger");
       e.target.value = null;
       return;
     }
@@ -56,6 +54,7 @@ const PostCreateEntryBox = ({ currentUser, onCreate }) => {
   const resetForm = () => {
     setContent("");
     setImages([]);
+    setContentError("");
     if (fileInputRef.current) fileInputRef.current.value = null;
   };
 
@@ -64,24 +63,25 @@ const PostCreateEntryBox = ({ currentUser, onCreate }) => {
   };
 
   return (
-    <div className="card p-3 mb-4">
+    <div className="card p-3 mb-2">
       <div className="d-flex align-items-center mb-3">
-        <AvatarCircle
-          username={"A"}
-          size={48}
-          fontSize={18}
-        />
+        <AvatarCircle username={currentUser?.username || "A"} size={48} fontSize={18} />
         <Form onSubmit={handleSubmit} className="flex-grow-1 ms-2">
           <Form.Control
             as="textarea"
             rows={2}
             placeholder="Apa yang ingin kamu bagikan hari ini?"
-            className="rounded-pill px-4 py-2"
+            className="px-4 py-2"
             style={{ resize: "none" }}
             value={content}
-            onChange={(e) => setContent(e.target.value)}
+            isInvalid={!!contentError}
+            onChange={(e) => {
+              setContent(e.target.value);
+              if (e.target.value.trim()) setContentError("");
+            }}
             disabled={isSubmitting}
           />
+          <Form.Control.Feedback type="invalid">{contentError}</Form.Control.Feedback>
         </Form>
       </div>
 
@@ -98,10 +98,6 @@ const PostCreateEntryBox = ({ currentUser, onCreate }) => {
 
         <div className="d-flex justify-content-between align-items-center">
           <div className="d-flex text-muted small gap-3">
-            <div className="d-flex align-items-center gap-1" role="button">
-              <i className="bi bi-camera-video-fill text-success"></i>
-              <span>Video</span>
-            </div>
             <div
               className="d-flex align-items-center gap-1"
               role="button"
@@ -112,10 +108,6 @@ const PostCreateEntryBox = ({ currentUser, onCreate }) => {
               {images.length > 0 && (
                 <small className="text-muted ms-1">({images.length})</small>
               )}
-            </div>
-            <div className="d-flex align-items-center gap-1" role="button">
-              <i className="bi bi-file-earmark-text-fill text-danger"></i>
-              <span>Tulis artikel</span>
             </div>
           </div>
 
@@ -131,18 +123,6 @@ const PostCreateEntryBox = ({ currentUser, onCreate }) => {
           </Button>
         </div>
       </Form>
-
-      <ToastContainer position="bottom-end" className="p-3" style={{ zIndex: 9999 }}>
-        <Toast
-          onClose={() => setToast({ ...toast, show: false })}
-          show={toast.show}
-          bg={toast.variant}
-          delay={3000}
-          autohide
-        >
-          <Toast.Body className="text-white">{toast.message}</Toast.Body>
-        </Toast>
-      </ToastContainer>
     </div>
   );
 };

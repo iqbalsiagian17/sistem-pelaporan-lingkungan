@@ -1,10 +1,16 @@
-import React from "react";
-import { Dropdown } from "react-bootstrap";
+import React, { useState } from "react";
 import AvatarDisplay from "./AvatarDisplay";
+import { formatPostDate } from "../../../utils/formatDate";
 
 const CommentItem = ({ comment, canEdit, onEdit, onDelete }) => {
+  const timeAgo = formatPostDate(comment.createdAt);
+  const [showMenu, setShowMenu] = useState(false);
+
+  const toggleMenu = () => setShowMenu((prev) => !prev);
+
   return (
-    <div className="d-flex justify-content-between align-items-start">
+    <div className="d-flex justify-content-between align-items-start position-relative">
+      {/* Kiri: Avatar dan konten */}
       <div className="d-flex">
         <AvatarDisplay
           username={comment.user?.username}
@@ -13,23 +19,60 @@ const CommentItem = ({ comment, canEdit, onEdit, onDelete }) => {
           fontSize={14}
         />
         <div className="ms-2">
-          <p className="fw-semibold mb-1">@{comment.user?.username}</p>
+          <div className="d-flex align-items-center gap-2 flex-wrap">
+            <span className="fw-semibold mb-0">@{comment.user?.username}</span>
+            <span className="text-muted small">• {timeAgo}</span>
+            {comment.is_edited && (
+              <span
+                className="badge text-secondary bg-light border"
+                style={{ fontSize: "0.65rem" }}
+              >
+                diedit
+              </span>
+            )}
+          </div>
           <p className="mb-1">{comment.content}</p>
         </div>
       </div>
-      <Dropdown>
-        <Dropdown.Toggle variant="link" className="text-muted p-0 border-0">
-          <i className="bi bi-three-dots-vertical"></i>
-        </Dropdown.Toggle>
-        <Dropdown.Menu align="end">
-          {canEdit(comment.user?.id) && (
-            <Dropdown.Item onClick={() => onEdit(comment)}>Edit Komentar</Dropdown.Item>
-          )}
-          <Dropdown.Item className="text-danger" onClick={() => onDelete(comment.id)}>
-            Hapus Komentar
-          </Dropdown.Item>
-        </Dropdown.Menu>
-      </Dropdown>
+
+      {/* Kanan: Dropdown manual */}
+      <div className="dropdown" style={{ position: "relative" }}>
+        <button
+          className="btn btn-link text-muted p-0 border-0"
+          onClick={toggleMenu}
+          aria-expanded={showMenu}
+        >
+          <i className="bi bi-three-dots-vertical" style={{ fontSize: "1.1rem" }}></i>
+        </button>
+
+        {showMenu && (
+          <div
+            className="dropdown-menu dropdown-menu-end show"
+            style={{ position: "absolute", top: "100%", right: 0, zIndex: 1000 }}
+          >
+            {canEdit(comment.user?.id) && (
+              <button
+                className="dropdown-item"
+                onClick={() => {
+                  onEdit(comment);
+                  setShowMenu(false);
+                }}
+              >
+                Edit Komentar
+              </button>
+            )}
+            <button
+              className="dropdown-item text-danger"
+              onClick={() => {
+                onDelete(comment.id);
+                setShowMenu(false);
+              }}
+            >
+              Hapus Komentar
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

@@ -17,16 +17,25 @@ const PostHeader = ({ post, onEditPost, onDeletePost, onPinPost }) => {
           fontSize={18}
         />
         <div className="ms-2 flex-grow-1">
+          {/* Nama pengguna & badge pinned */}
           <div className="fw-semibold d-flex align-items-center gap-2">
             {post.user?.username}
             {post.is_pinned && (
-              <span className="badge bg-success">📌 Tersemat</span>
+              <span className="badge bg-success px-2 py-1" style={{ fontSize: "0.75rem" }}>
+                📌 Tersemat
+              </span>
             )}
           </div>
 
+          {/* Info username, tanggal, dan badge diedit */}
           <div className="text-muted small d-flex align-items-center gap-2 flex-wrap">
             <span>@{post.user?.username}</span>
             <span>• {formattedDate}</span>
+            {post.is_edited && (
+              <span className="badge bg-light border text-muted px-2 py-1" style={{ fontSize: "0.65rem" }}>
+                (diedit)
+              </span>
+            )}
           </div>
         </div>
       </div>

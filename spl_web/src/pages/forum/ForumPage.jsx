@@ -159,7 +159,7 @@ const ForumPage = () => {
       />
 
 
-      <div className="d-flex justify-content-end align-items-center mb-3">
+      <div className="d-flex justify-content-end align-items-center mb-2">
         <div className="d-flex align-items-center gap-2 w-100">
           <div className="flex-grow-1 border-top" />
           <span className="text-muted small">Sortir menurut:</span>

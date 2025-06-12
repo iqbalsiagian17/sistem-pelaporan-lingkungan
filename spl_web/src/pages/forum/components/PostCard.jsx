@@ -42,9 +42,7 @@ const PostCard = ({
       
       <div className="border-top px-3 py-2">
         <div className="d-flex justify-content-around text-muted py-2 border-bottom">
-          <div role="button" className="d-flex align-items-center gap-2">
-            <i className="bi bi-hand-thumbs-up"></i> <span>Suka</span>
-          </div>
+          
           <div
             role="button"
             className="d-flex align-items-center gap-2"

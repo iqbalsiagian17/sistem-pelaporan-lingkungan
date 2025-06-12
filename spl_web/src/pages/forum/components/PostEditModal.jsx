@@ -8,7 +8,7 @@ const PostEditModal = ({ show, onHide, onSave, initialData }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [toast, setToast] = useState({ show: false, message: "", variant: "danger" });
 
-  const MAX_FILES = 19;
+  const MAX_FILES = 10;
 
   useEffect(() => {
     if (initialData) {
