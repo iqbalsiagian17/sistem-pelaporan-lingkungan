@@ -2,13 +2,9 @@ const Footer = () => {
   return (
     <footer className="bg-black text-center py-5">
       <div className="container px-5">
-        <div className="text-white-50 small">
-          <div className="mb-2">&copy; Balige Bersih 2025. All Rights Reserved.</div>
-          <a href="#!">Privasi</a>
-          <span className="mx-1">&middot;</span>
-          <a href="#!">Syarat</a>
-          <span className="mx-1">&middot;</span>
-          <a href="#!">Bantuan</a>
+        <div className="text-white text-sm opacity-75">
+          <div className="mb-2">&copy; Balige Bersih 2025. All rights reserved.</div>
+          <a href="/login" className="underline hover:text-white transition-colors">Masuk</a>
         </div>
       </div>
     </footer>

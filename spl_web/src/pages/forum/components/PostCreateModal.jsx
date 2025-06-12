@@ -8,7 +8,7 @@ const PostCreateModal = ({ show, onHide, onCreate }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [toast, setToast] = useState({ show: false, message: "", variant: "danger" });
 
-  const MAX_FILES = 2; // ✅ Batas hanya 2 gambar
+  const MAX_FILES = 10; // ✅ Batas hanya 2 gambar
 
   const showToast = (message, variant = "danger") => {
     setToast({ show: true, message, variant });

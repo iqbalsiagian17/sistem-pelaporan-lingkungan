@@ -7,6 +7,7 @@ import PostEditModal from "./components/PostEditModal";
 import ConfirmModal from "../../components/common/ConfirmModal";
 import CommentEditModal from "./components/CommentEditModal";
 import ToastNotification from "../../components/common/ToastNotification";
+import PostCreateEntryBox from "./components/PostCreateEntryBox"; 
 
 const ForumPage = () => {
   const {
@@ -132,9 +133,15 @@ const ForumPage = () => {
   let filteredPosts = [...notPinned];
   if (filter === "terbaru") {
     filteredPosts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-  } else if (filter === "populer") {
-    filteredPosts.sort((a, b) => b.likes - a.likes);
-  }
+} else if (filter === "populer") {
+  filteredPosts.sort((a, b) => (b.total_likes || 0) - (a.total_likes || 0));
+}
+
+
+  const filterOptions = {
+    terbaru: "Terbaru",
+    populer: "Populer",
+  };
 
   const sortedPosts = [...pinned, ...filteredPosts];
 
@@ -142,22 +149,45 @@ const ForumPage = () => {
   const isInitialLoading = posts.length === 0 && !toast.show && !showCreateModal && !showEditModal;
 
   return (
-    <div className="container mx-auto px-4 py-4">
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <Dropdown as={ButtonGroup}>
-          <Dropdown.Toggle variant="outline-secondary">
-            Filter: {filter === "terbaru" ? "Terbaru" : "Populer"}
-          </Dropdown.Toggle>
-          <Dropdown.Menu>
-            <Dropdown.Item onClick={() => setFilter("terbaru")}>Terbaru</Dropdown.Item>
-            <Dropdown.Item onClick={() => setFilter("populer")}>Populer</Dropdown.Item>
-          </Dropdown.Menu>
-        </Dropdown>
+    <div className="container-sm mx-auto px-3 py-4" style={{ maxWidth: "720px" }}>
+      <PostCreateEntryBox
+        currentUser={{
+          username: "currentUsername", // ganti dengan data user sesungguhnya
+          profile_picture: "path/to/profile.jpg"
+        }}
+        onCreate={handleCreatePost}
+      />
 
-        <button onClick={() => setShowCreateModal(true)} className="btn btn-primary">
-          + Buat Postingan
-        </button>
+
+      <div className="d-flex justify-content-end align-items-center mb-3">
+        <div className="d-flex align-items-center gap-2 w-100">
+          <div className="flex-grow-1 border-top" />
+          <span className="text-muted small">Sortir menurut:</span>
+          <Dropdown>
+            <Dropdown.Toggle
+              variant="link"
+              className="p-0 fw-semibold text-decoration-none text-dark"
+              size="sm"
+            >
+              {filterOptions[filter]}
+                  </Dropdown.Toggle>
+
+                  <Dropdown.Menu>
+                      {Object.entries(filterOptions).map(([key, label]) => (
+                <Dropdown.Item
+                  key={key}
+                  active={filter === key}
+                  onClick={() => setFilter(key)}
+                >
+                  {label}
+                </Dropdown.Item>
+              ))}
+            </Dropdown.Menu>
+          </Dropdown>
+        </div>
       </div>
+
+
 
       {isInitialLoading ? (
         <div className="text-center my-5">

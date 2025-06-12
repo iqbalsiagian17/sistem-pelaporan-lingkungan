@@ -1,7 +1,8 @@
 import React from "react";
-import { Dropdown } from "react-bootstrap";
+import PostHeader from "./PostHeader";
+import PostContent from "./PostContent";
+import CommentList from "./CommentList";
 import PostCommentBox from "./PostCommentBox";
-import AvatarDisplay from "./AvatarDisplay";
 
 const PostCard = ({
   post,
@@ -13,8 +14,6 @@ const PostCard = ({
   onImageClick,
   currentUserId,
 }) => {
-  const [expandedComments, setExpandedComments] = React.useState({});
-
   const hasParentId = post.comments?.some((c) => c.hasOwnProperty("parent_id"));
 
   const rootComments = hasParentId
@@ -26,155 +25,57 @@ const PostCard = ({
     : [];
 
   const getReplies = (parentId) => replies.filter((r) => r.parent_id === parentId);
-
-  const toggleReplies = (commentId) => {
-    setExpandedComments((prev) => ({
-      ...prev,
-      [commentId]: !prev[commentId],
-    }));
-  };
-
   const canEdit = (commentUserId) => commentUserId === currentUserId;
+  const [showComments, setShowComments] = React.useState(false);
+
 
   return (
-    <div className="card shadow-sm mb-4 border rounded-lg">
-      <div className="card-header d-flex justify-content-between align-items-start">
-        <div className="d-flex align-items-center">
-          <AvatarDisplay
-            username={post.user?.username}
-            profile_picture={post.user?.profile_picture}
-          />
-          <div className="ms-3">
-            <p className="mb-0 text-dark fw-semibold">@{post.user?.username}</p>
-            <div className="d-flex align-items-center gap-2">
-              <small className="text-muted">{new Date(post.createdAt).toLocaleString()}</small>
-              {post.is_pinned && <span className="badge bg-success text-white">📌 Tersemat</span>}
+    <div className="card shadow-sm mb-2 rounded">
+      <PostHeader post={post} onEditPost={onEditPost} onDeletePost={onDeletePost} onPinPost={onPinPost} />
+      <PostContent
+        content={post.content}
+        images={post.images}
+        onImageClick={onImageClick}
+        totalLikes={post.total_likes}
+        totalComments={post.comments?.length}
+      />
+      
+      <div className="border-top px-3 py-2">
+        <div className="d-flex justify-content-around text-muted py-2 border-bottom">
+          <div role="button" className="d-flex align-items-center gap-2">
+            <i className="bi bi-hand-thumbs-up"></i> <span>Suka</span>
+          </div>
+          <div
+            role="button"
+            className="d-flex align-items-center gap-2"
+            onClick={() => setShowComments((prev) => !prev)}
+          >
+            <i className="bi bi-chat-left-text"></i> <span>Komentar</span>
+          </div>
+        </div>
+
+        {showComments && (
+          <>
+            <p className="text-muted mt-3">Komentar ({post.comments?.length})</p>
+
+            <CommentList
+              rootComments={rootComments}
+              getReplies={getReplies}
+              canEdit={canEdit}
+              onEdit={onEditComment}
+              onDelete={onDeleteComment}
+            />
+
+            <div className="mt-3">
+              <PostCommentBox
+                postId={post.id}
+                onCommentSuccess={() => window.location.reload()}
+              />
             </div>
-          </div>
-        </div>
-        <Dropdown>
-          <Dropdown.Toggle variant="light" size="sm" className="border-0 text-muted">
-            <i className="bi bi-three-dots-vertical"></i>
-          </Dropdown.Toggle>
-          <Dropdown.Menu align="end">
-            <Dropdown.Item onClick={() => onPinPost(post.id)}>
-              {post.is_pinned ? "Unpin Post" : "Pin Post"}
-            </Dropdown.Item>
-            <Dropdown.Item onClick={() => onEditPost(post)}>Edit Postingan</Dropdown.Item>
-            <Dropdown.Item onClick={() => onDeletePost(post)} className="text-danger">
-              Hapus Postingan
-            </Dropdown.Item>
-          </Dropdown.Menu>
-        </Dropdown>
-      </div>
-
-      <div className="card-body">
-        <p className="text-dark">{post.content}</p>
-        <div className="mt-2 text-muted small d-flex align-items-center gap-1">
-          <i className="bi bi-heart-fill text-danger"></i>
-          <span>{post.total_likes || 0} suka</span>
-        </div>
-
-        {post.images?.length > 0 && (
-          <div className="mt-3 d-flex flex-wrap gap-2">
-            {post.images.map((img, index) => (
-              <div
-                key={index}
-                style={{
-                  width: "calc(33.333% - 8px)",
-                  cursor: "pointer",
-                }}
-              >
-                <img
-                  src={`http://localhost:3000/${img.image}`}
-                  alt="Gambar Postingan"
-                  className="rounded w-100"
-                  style={{
-                    aspectRatio: 1,
-                    objectFit: "cover",
-                    borderRadius: "8px",
-                  }}
-                  onClick={() => onImageClick(post.images, index)}
-                />
-              </div>
-            ))}
-          </div>
+          </>
         )}
       </div>
 
-      <div className="card-footer">
-        <p className="text-muted mb-2">Komentar ({post.comments?.length})</p>
-        <div className="d-flex flex-column gap-3">
-          {rootComments.map((comment) => (
-            <div key={comment.id} className="d-flex flex-column gap-2">
-              <div className="d-flex align-items-start justify-content-between">
-                <div className="d-flex">
-                  <AvatarDisplay
-                    username={comment.user?.username}
-                    profile_picture={comment.user?.profile_picture}
-                    size={30}
-                    fontSize={14}
-                  />
-                  <div className="ms-3">
-                    <p className="fw-bold text-primary mb-1">@{comment.user?.username}</p>
-                    <p className="mb-1">{comment.content}</p>
-                  </div>
-                </div>
-                <Dropdown>
-                  <Dropdown.Toggle variant="link" className="p-0 text-muted border-0">
-                    <i className="bi bi-three-dots-vertical"></i>
-                  </Dropdown.Toggle>
-                  <Dropdown.Menu align="end">
-                    {canEdit(comment.user?.id) && (
-                      <Dropdown.Item onClick={() => onEditComment(comment)}>Edit Komentar</Dropdown.Item>
-                    )}
-                    <Dropdown.Item className="text-danger" onClick={() => onDeleteComment(comment.id)}>
-                      Hapus Komentar
-                    </Dropdown.Item>
-                  </Dropdown.Menu>
-                </Dropdown>
-              </div>
-
-              {getReplies(comment.id).map((reply) => (
-                <div key={reply.id} className="d-flex align-items-start ms-5 justify-content-between">
-                  <div className="d-flex">
-                    <AvatarDisplay
-                      username={reply.user?.username}
-                      profile_picture={reply.user?.profile_picture}
-                      size={26}
-                      fontSize={13}
-                    />
-                    <div className="ms-3">
-                      <p className="fw-bold text-secondary mb-1">@{reply.user?.username}</p>
-                      <p className="mb-1 text-muted small">Membalas: <span className="text-dark">{reply.content}</span></p>
-                    </div>
-                  </div>
-                  <Dropdown>
-                    <Dropdown.Toggle variant="link" className="p-0 text-muted border-0">
-                      <i className="bi bi-three-dots-vertical"></i>
-                    </Dropdown.Toggle>
-                    <Dropdown.Menu align="end">
-                      {canEdit(reply.user?.id) && (
-                        <Dropdown.Item onClick={() => onEditComment(reply)}>Edit Komentar</Dropdown.Item>
-                      )}
-                      <Dropdown.Item className="text-danger" onClick={() => onDeleteComment(reply.id)}>
-                        Hapus Komentar
-                      </Dropdown.Item>
-                    </Dropdown.Menu>
-                  </Dropdown>
-                </div>
-              ))}
-            </div>
-          ))}
-        </div>
-
-        <PostCommentBox
-          postId={post.id}
-          onCommentSuccess={() => {
-            if (typeof window !== "undefined") window.location.reload();
-          }}
-        />
-      </div>
     </div>
   );
 };
