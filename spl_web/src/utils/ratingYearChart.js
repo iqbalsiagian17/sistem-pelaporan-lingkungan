@@ -13,7 +13,10 @@ export const renderRatingYearChart = (ratingAnalytics) => {
     if (!ratingYearChartEl || typeof ApexCharts === "undefined") return;
   
     const years = ratingAnalytics.averageRatingByYear.map((item) => item.year.toString());
-    const avgRatings = ratingAnalytics.averageRatingByYear.map((item) => parseFloat(item.avg_rating));
+    const avgRatings = ratingAnalytics.averageRatingByYear.map((item) => {
+      const rounded = Math.round(parseFloat(item.avg_rating) * 10) / 10;
+      return Number.isInteger(rounded) ? parseInt(rounded) : rounded;
+    });
     const jumlahRatings = ratingAnalytics.averageRatingByYear.map((item) => item.jumlah_rating);
   
     const options = {
@@ -28,7 +31,7 @@ export const renderRatingYearChart = (ratingAnalytics) => {
         }
       ],
       chart: {
-        height: 280,
+        height: 320,
         stacked: false,
         type: 'bar',
         toolbar: { show: false }
