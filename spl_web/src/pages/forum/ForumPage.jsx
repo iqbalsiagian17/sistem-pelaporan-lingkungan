@@ -8,6 +8,9 @@ import ConfirmModal from "../../components/common/ConfirmModal";
 import CommentEditModal from "./components/CommentEditModal";
 import ToastNotification from "../../components/common/ToastNotification";
 import PostCreateEntryBox from "./components/PostCreateEntryBox"; 
+import ForumStatsCard from "./components/ForumStatsCard";
+import AdminProfileCard from "./components/AdminProfileCard";
+
 
 const ForumPage = () => {
   const {
@@ -31,6 +34,7 @@ const ForumPage = () => {
   const [showEditCommentModal, setShowEditCommentModal] = useState(false);
   const [selectedComment, setSelectedComment] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  
 
   const [toast, setToast] = useState({
     show: false,
@@ -130,12 +134,42 @@ const ForumPage = () => {
   const pinned = posts.filter((p) => p.is_pinned);
   const notPinned = posts.filter((p) => !p.is_pinned);
 
-  let filteredPosts = [...notPinned];
-  if (filter === "terbaru") {
-    filteredPosts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-} else if (filter === "populer") {
-  filteredPosts.sort((a, b) => (b.total_likes || 0) - (a.total_likes || 0));
-}
+    let filteredPosts = [...notPinned];
+    if (filter === "terbaru") {
+      filteredPosts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  } else if (filter === "populer") {
+    filteredPosts.sort((a, b) => (b.total_likes || 0) - (a.total_likes || 0));
+  }
+
+  const totalPosts = posts.length;
+  const postsWithImages = posts.filter((p) => p.images?.length > 0).length;
+  const totalComments = posts.reduce((sum, p) => sum + (p.comments?.length || 0), 0);
+  const totalPinnedPosts = posts.filter(post => post.is_pinned).length;
+  const mostLikedPost = posts.reduce((prev, curr) => {
+    return (curr.total_likes || 0) > (prev.total_likes || 0) ? curr : prev;
+  }, posts[0] || null);
+  const adminPosts = posts.filter(p => p.user?.username === "Admin Balige Bersih");
+
+  const lastPost = adminPosts
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
+
+  const totalLikes = adminPosts.reduce((sum, p) => sum + (p.total_likes || 0), 0);
+  const lastPostLikes = lastPost?.total_likes || 0;
+
+  const adminProfile = {
+    username: "Admin Balige Bersih",
+    profile_picture: "", // tampil inisial
+    totalPosts: adminPosts.length,
+    totalLikes,
+    lastPostData: lastPost
+      ? {
+          content: lastPost.content,
+          image: lastPost.images?.[0]?.image || null,
+          createdAt: lastPost.createdAt,
+          likes: lastPost.total_likes || 0, // pastikan ini angka
+        }
+      : null,
+  };
 
 
   const filterOptions = {
@@ -143,183 +177,133 @@ const ForumPage = () => {
     populer: "Populer",
   };
 
+  const top10Posts = [...posts]
+  .filter(p => p.total_likes > 0)
+  .sort((a, b) => (b.total_likes || 0) - (a.total_likes || 0))
+  .slice(0, 10);
+
+
   const sortedPosts = [...pinned, ...filteredPosts];
 
   // 🔍 Tampilkan loading jika data belum tersedia
   const isInitialLoading = posts.length === 0 && !toast.show && !showCreateModal && !showEditModal;
 
   return (
-    <div className="container-sm mx-auto px-3 py-4" style={{ maxWidth: "720px" }}>
-      <PostCreateEntryBox
-        currentUser={{
-          username: "currentUsername", // ganti dengan data user sesungguhnya
-          profile_picture: "path/to/profile.jpg"
-        }}
-        onCreate={handleCreatePost}
-      />
-
-
-      <div className="d-flex justify-content-end align-items-center mb-2">
-        <div className="d-flex align-items-center gap-2 w-100">
-          <div className="flex-grow-1 border-top" />
-          <span className="text-muted small">Sortir menurut:</span>
-          <Dropdown>
-            <Dropdown.Toggle
-              variant="link"
-              className="p-0 fw-semibold text-decoration-none text-dark"
-              size="sm"
-            >
-              {filterOptions[filter]}
-                  </Dropdown.Toggle>
-
-                  <Dropdown.Menu>
-                      {Object.entries(filterOptions).map(([key, label]) => (
-                <Dropdown.Item
-                  key={key}
-                  active={filter === key}
-                  onClick={() => setFilter(key)}
-                >
-                  {label}
-                </Dropdown.Item>
-              ))}
-            </Dropdown.Menu>
-          </Dropdown>
-        </div>
+  <div className="container-sm mx-auto px-3 py-4" style={{ maxWidth: "1500px" }}>
+    <div className="row gy-4">
+      {/* Kolom kiri: Profil admin */}
+      <div className="col-md-3">
+        <AdminProfileCard profile={adminProfile} />
       </div>
 
+      {/* Kolom tengah: Form + daftar postingan */}
+      <div className="col-md-5">
+        <PostCreateEntryBox
+          currentUser={{
+            username: adminProfile.username,
+            profile_picture: adminProfile.profile_picture,
+          }}
+          onCreate={handleCreatePost}
+        />
 
-
-      {isInitialLoading ? (
-        <div className="text-center my-5">
-          <Spinner animation="border" variant="primary" />
-          <p className="text-muted mt-2">Memuat postingan...</p>
+        {/* Sorting */}
+        <div className="d-flex justify-content-end align-items-center mb-3">
+          <div className="d-flex align-items-center gap-2 w-100">
+            <div className="flex-grow-1 border-top" />
+            <span className="text-muted small">Sortir menurut:</span>
+            <Dropdown>
+              <Dropdown.Toggle
+                variant="link"
+                className="p-0 fw-semibold text-decoration-none text-dark"
+                size="sm"
+              >
+                {filterOptions[filter]}
+              </Dropdown.Toggle>
+              <Dropdown.Menu>
+                {Object.entries(filterOptions).map(([key, label]) => (
+                  <Dropdown.Item
+                    key={key}
+                    active={filter === key}
+                    onClick={() => setFilter(key)}
+                  >
+                    {label}
+                  </Dropdown.Item>
+                ))}
+              </Dropdown.Menu>
+            </Dropdown>
+          </div>
         </div>
-      ) : sortedPosts.length === 0 ? (
-        <p className="text-muted">Belum ada postingan.</p>
-      ) : (
-        sortedPosts.map((post) => (
-          <PostCard
-            key={post.id}
-            post={post}
-            onDeletePost={handleOpenDeleteModal}
-            onEditPost={handleOpenEditModal}
-            onEditComment={handleOpenEditComment}
-            onPinPost={pinPost}
-            onDeleteComment={handleDeleteComment}
-            onImageClick={handleOpenImageModal}
-          />
-        ))
-      )}
 
-      <PostCreateModal show={showCreateModal} onHide={() => setShowCreateModal(false)} onCreate={handleCreatePost} />
-
-      <PostEditModal show={showEditModal} onHide={() => setShowEditModal(false)} onSave={handleEditPost} initialData={selectedPost} />
-
-      <ConfirmModal
-        show={showDeleteModal}
-        onHide={() => setShowDeleteModal(false)}
-        onConfirm={handleConfirmDelete}
-        title="Hapus Postingan"
-        body="Yakin ingin menghapus postingan ini?"
-        confirmText="Hapus"
-        variant="danger"
-      />
-
-      <CommentEditModal
-        show={showEditCommentModal}
-        onHide={() => setShowEditCommentModal(false)}
-        comment={selectedComment}
-        onSave={handleEditComment}
-      />
-
-      <Modal
-        show={showImageModal}
-        onHide={() => setShowImageModal(false)}
-        centered
-        size="xl"
-        className="image-preview-modal"
-      >
-        <Modal.Header className="border-0 pb-0">
-          <button
-            type="button"
-            className="btn-close ms-auto"
-            aria-label="Close"
-            onClick={() => setShowImageModal(false)}
-          />
-        </Modal.Header>
-
-        <Modal.Body className="p-0 position-relative">
-          <div className="d-flex justify-content-center align-items-center bg-dark" style={{ minHeight: "80vh" }}>
-            {/* 🟩 Tombol Prev */}
-            {imageList.length > 1 && (
-              <button
-                onClick={() =>
-                  setStartIndex((prev) => (prev - 1 + imageList.length) % imageList.length)
-                }
-                className="btn btn-light position-absolute"
-                style={{ left: 20, top: "50%", transform: "translateY(-50%)" }}
-              >
-                ‹
-              </button>
-            )}
-
-            {/* 🟩 Gambar Utama */}
-            <img
-              src={`http://localhost:3000/${imageList[startIndex]?.image}`}
-              alt="preview"
-              style={{
-                maxHeight: "75vh",
-                maxWidth: "100%",
-                objectFit: "contain",
-                borderRadius: "8px",
-              }}
-            />
-
-            {/* 🟩 Tombol Next */}
-            {imageList.length > 1 && (
-              <button
-                onClick={() =>
-                  setStartIndex((prev) => (prev + 1) % imageList.length)
-                }
-                className="btn btn-light position-absolute"
-                style={{ right: 20, top: "50%", transform: "translateY(-50%)" }}
-              >
-                ›
-              </button>
-            )}
+        {/* Post list */}
+        {isInitialLoading ? (
+          <div className="text-center my-5">
+            <Spinner animation="border" variant="primary" />
+            <p className="text-muted mt-2">Memuat postingan...</p>
           </div>
-
-          {/* 🟦 Thumbnail */}
-          <div className="d-flex justify-content-center gap-2 my-3 flex-wrap">
-            {imageList.map((img, idx) => (
-              <img
-                key={img.id}
-                src={`http://localhost:3000/${img.image}`}
-                alt={`thumb-${idx}`}
-                onClick={() => setStartIndex(idx)}
-                style={{
-                  width: 60,
-                  height: 45,
-                  objectFit: "cover",
-                  cursor: "pointer",
-                  border: idx === startIndex ? "2px solid #0d6efd" : "1px solid #ccc",
-                  borderRadius: 4,
-                }}
+        ) : sortedPosts.length === 0 ? (
+          <p className="text-muted">Belum ada postingan.</p>
+        ) : (
+          sortedPosts.map((post) => (
+            <div key={post.id} id={`post-${post.id}`}>
+              <PostCard
+                post={post}
+                onDeletePost={handleOpenDeleteModal}
+                onEditPost={handleOpenEditModal}
+                onEditComment={handleOpenEditComment}
+                onPinPost={pinPost}
+                onDeleteComment={handleDeleteComment}
+                onImageClick={handleOpenImageModal}
               />
-            ))}
-          </div>
-        </Modal.Body>
-      </Modal>
+            </div>
+          ))
+        )}
+      </div>
 
-
-      <ToastNotification
-        show={toast.show}
-        onClose={() => setToast({ ...toast, show: false })}
-        message={toast.message}
-        variant={toast.variant}
-      />
+      {/* Kolom kanan: Statistik forum */}
+      <div className="col-md-4">
+        <ForumStatsCard
+          totalPosts={totalPosts}
+          postsWithImages={postsWithImages}
+          totalPinnedPosts={totalPinnedPosts}
+          topPosts={top10Posts}
+          totalComments={totalComments} 
+        />
+      </div>
     </div>
-  );
-};
+
+    {/* Modal dan Toast */}
+    <PostCreateModal show={showCreateModal} onHide={() => setShowCreateModal(false)} onCreate={handleCreatePost} />
+    <PostEditModal show={showEditModal} onHide={() => setShowEditModal(false)} onSave={handleEditPost} initialData={selectedPost} />
+    <ConfirmModal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} onConfirm={handleConfirmDelete} title="Hapus Postingan" body="Yakin ingin menghapus postingan ini?" confirmText="Hapus" variant="danger" />
+    <CommentEditModal show={showEditCommentModal} onHide={() => setShowEditCommentModal(false)} comment={selectedComment} onSave={handleEditComment} />
+
+    {/* Modal Gambar */}
+    <Modal show={showImageModal} onHide={() => setShowImageModal(false)} centered size="xl" className="image-preview-modal">
+      <Modal.Header className="border-0 pb-0">
+        <button type="button" className="btn-close ms-auto" aria-label="Close" onClick={() => setShowImageModal(false)} />
+      </Modal.Header>
+      <Modal.Body className="p-0 position-relative">
+        <div className="d-flex justify-content-center align-items-center bg-dark" style={{ minHeight: "80vh" }}>
+          {imageList.length > 1 && (
+            <button onClick={() => setStartIndex((prev) => (prev - 1 + imageList.length) % imageList.length)} className="btn btn-light position-absolute" style={{ left: 20, top: "50%", transform: "translateY(-50%)" }}>‹</button>
+          )}
+          <img src={`http://localhost:3000/${imageList[startIndex]?.image}`} alt="preview" style={{ maxHeight: "75vh", maxWidth: "100%", objectFit: "contain", borderRadius: "8px" }} />
+          {imageList.length > 1 && (
+            <button onClick={() => setStartIndex((prev) => (prev + 1) % imageList.length)} className="btn btn-light position-absolute" style={{ right: 20, top: "50%", transform: "translateY(-50%)" }}>›</button>
+          )}
+        </div>
+        <div className="d-flex justify-content-center gap-2 my-3 flex-wrap">
+          {imageList.map((img, idx) => (
+            <img key={img.id} src={`http://localhost:3000/${img.image}`} alt={`thumb-${idx}`} onClick={() => setStartIndex(idx)} style={{ width: 60, height: 45, objectFit: "cover", cursor: "pointer", border: idx === startIndex ? "2px solid #0d6efd" : "1px solid #ccc", borderRadius: 4 }} />
+          ))}
+        </div>
+      </Modal.Body>
+    </Modal>
+
+    <ToastNotification show={toast.show} onClose={() => setToast({ ...toast, show: false })} message={toast.message} variant={toast.variant} />
+  </div>
+);
+
+}
 
 export default ForumPage;

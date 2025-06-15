@@ -1,12 +1,28 @@
-import React from "react";
+import React, { useState } from "react";
 
 const PostContent = ({ content, images, onImageClick, totalLikes = 0, totalComments = 0 }) => {
 
+const [showFull, setShowFull] = useState(false);
+const words = content.trim().split(/\s+/);
+const isLong = words.length > 20;
+
   return (
     <div className="px-3 pb-2">
-        <p className="text-dark mb-3 mt-2" style={{ lineHeight: "1.6", whiteSpace: "pre-line" }}>
-        {content}
-        </p>
+      <p className="text-dark mb-3 mt-2" style={{ lineHeight: "1.6", whiteSpace: "pre-line" }}>
+        {isLong && !showFull
+          ? words.slice(0, 20).join(" ") + "..."
+          : content}
+        {isLong && (
+          <span
+            onClick={() => setShowFull(!showFull)}
+            className="text-primary ms-2 fw-semibold"
+            style={{ cursor: "pointer" }}
+          >
+            {showFull ? "Sembunyikan" : "Selengkapnya"}
+          </span>
+        )}
+      </p>
+
 
       {images?.length > 0 && (
   <div className="mb-2 d-flex flex-wrap gap-2">
