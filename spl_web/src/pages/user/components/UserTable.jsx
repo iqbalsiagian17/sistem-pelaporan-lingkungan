@@ -99,7 +99,7 @@ const UserTable = ({
                       src={
                         user.profile_picture
                           ? `http://localhost:3000/${user.profile_picture}`
-                          : `https://ui-avatars.com/api/?name=${encodeURIComponent(user.username)}&background=3f51b5&color=fff`
+                          : `https://ui-avatars.com/api/?name=${encodeURIComponent(user.username)}&background=198754&color=fff`
                       }
                       alt={`Avatar ${user.username}`}
                       className="rounded-circle me-2"
@@ -107,7 +107,7 @@ const UserTable = ({
                       height="36"
                       style={{ objectFit: "cover" }}
                       onError={(e) => {
-                        e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.username)}&background=3f51b5&color=fff`;
+                        e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.username)}&background=198754&color=fff`;
                       }}
                     />
                     {user.username}

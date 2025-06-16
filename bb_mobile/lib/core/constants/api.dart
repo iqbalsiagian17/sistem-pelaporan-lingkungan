@@ -11,7 +11,7 @@ class ApiConstants {
   static const String userProfileBaseUrl = "$baseUrl/api/user/profile";
 
   // Laporan
-  static const String userReportUrl = "$baseUrl/api/user/reports";
+  static const String userReportUrl = "$baseUrl/api/user/reports"; 
   static const String userReportSave = "$baseUrl/api/user/saved-reports";
   static const String userReportLike = "$baseUrl/api/user/reports";
 

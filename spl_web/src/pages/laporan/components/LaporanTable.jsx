@@ -156,7 +156,7 @@ const LaporanTable = ({ reports, handleOpenDetailModal, handleOpenStatusModal, h
                             src={
                               report.user?.avatar
                                 ? `http://localhost:3000/${report.user.avatar}`
-                                : `https://ui-avatars.com/api/?name=${encodeURIComponent(report.user?.username || "User")}&background=3f51b5&color=fff`
+                                : `https://ui-avatars.com/api/?name=${encodeURIComponent(report.user?.username || "User")}&background=198754&color=fff`
                             }
                             alt={`Avatar ${report.user?.username}`}
                             className="rounded-circle me-2"
@@ -164,7 +164,7 @@ const LaporanTable = ({ reports, handleOpenDetailModal, handleOpenStatusModal, h
                             height="32"
                             style={{ objectFit: "cover" }}
                             onError={(e) => {
-                              e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(report.user?.username || "User")}&background=3f51b5&color=fff`;
+                              e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(report.user?.username || "User")}&background=198754&color=fff`;
                             }}
                           />
                         <span>{report.user?.username || "-"}</span>

@@ -47,7 +47,7 @@ const LatestReportsTable = ({ latestReports, handleOpenDetailModal }) => (
               const username = report.user?.username || "Pengguna";
               const avatarUrl = report.user?.avatar
                 ? `http://localhost:3000/${report.user.avatar}`
-                : `https://ui-avatars.com/api/?name=${encodeURIComponent(username)}&background=3f51b5&color=fff`;
+                : `https://ui-avatars.com/api/?name=${encodeURIComponent(username)}&background=198754&color=fff`;
 
               return (
                 <tr key={index}>

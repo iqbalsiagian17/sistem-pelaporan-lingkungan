@@ -154,6 +154,8 @@ exports.changeUserPassword = async (req, res) => {
           "type",
           "auth_provider",
           "blocked_until",
+          "profile_picture",
+          "is_active", 
           "createdAt"
         ]
       });
