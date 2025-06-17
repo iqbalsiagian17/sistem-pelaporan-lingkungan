@@ -26,24 +26,41 @@ Future<void> showDeleteConfirmation(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.warning_amber_rounded, size: 50, color: Colors.redAccent),
+            const Icon(Icons.warning_amber_rounded, size: 50, color: Colors.red),
             const SizedBox(height: 12),
-            const Text("Konfirmasi Hapus", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+            const Text(
+              "Konfirmasi Hapus",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+            ),
             const SizedBox(height: 8),
-            const Text("Yakin ingin menghapus komentar ini?", textAlign: TextAlign.center),
+            const Text(
+              "Yakin ingin menghapus komentar ini?",
+              style: TextStyle(fontSize: 14, color: Colors.black54),
+              textAlign: TextAlign.center,
+            ),
             const SizedBox(height: 20),
             Row(
               children: [
                 Expanded(
                   child: OutlinedButton(
                     onPressed: () => Navigator.pop(context),
-                    child: const Text("Batal"),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      side: const BorderSide(color: Color(0xFF66BB6A)),
+                    ),
+                    child: const Text("Batal", style: TextStyle(color: Color(0xFF66BB6A), fontSize: 16)),
                   ),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
                   child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
                     onPressed: () async {
                       final success = await ref.read(forumProvider.notifier).deleteComment(commentId, postId);
 
@@ -57,7 +74,7 @@ Future<void> showDeleteConfirmation(
                         }
                       }
                     },
-                    child: const Text("Hapus", style: TextStyle(color: Colors.white)),
+                    child: const Text("Hapus", style: TextStyle(color: Colors.white, fontSize: 16)),
                   ),
                 ),
               ],

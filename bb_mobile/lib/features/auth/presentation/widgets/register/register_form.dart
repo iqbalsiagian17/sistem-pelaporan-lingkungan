@@ -206,6 +206,8 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.white,
+        isDismissible: false, 
+        enableDrag: false,    
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),

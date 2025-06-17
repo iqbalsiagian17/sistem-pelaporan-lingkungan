@@ -1,3 +1,4 @@
+import 'package:bb_mobile/widgets/snackbar/snackbar_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:bb_mobile/features/forum/presentation/providers/forum_provider.dart';
@@ -35,12 +36,19 @@ class _ForumCommentInputState extends ConsumerState<ForumCommentInput> {
       parentId: replyTo?.id, // Ini null kalau tidak membalas
     );
 
-    if (success) {
-      _commentController.clear();
-      ref.read(forumProvider.notifier).clearReplyTarget(); // 🧼 clear total
-      widget.onCommentSent();
-    }
+if (success) {
+  _commentController.clear();
+  ref.read(forumProvider.notifier).clearReplyTarget();
+  widget.onCommentSent();
 
+  if (context.mounted) {
+    SnackbarHelper.showSnackbar(
+      context,
+      'Komentar berhasil dikirim',
+      isError: false,
+    );
+  }
+}
     setState(() => _isLoading = false);
   }
 
