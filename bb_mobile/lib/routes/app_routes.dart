@@ -18,7 +18,6 @@ import 'package:bb_mobile/features/profile/presentation/pages/detail/profile_vie
 import 'package:bb_mobile/features/profile/presentation/pages/edit/profile_edit_view.dart';
 import 'package:bb_mobile/features/profile/presentation/pages/password/password_edit_view.dart';
 import 'package:bb_mobile/features/report/data/models/report_model.dart';
-import 'package:bb_mobile/features/report/domain/entities/report_entity.dart';
 import 'package:bb_mobile/features/report/presentation/pages/create/report_create_view.dart';
 import 'package:bb_mobile/features/report/presentation/pages/detail/report_detail_view.dart';
 import 'package:bb_mobile/features/report/presentation/pages/edit/report_edit_view.dart';
@@ -34,7 +33,6 @@ import 'package:bb_mobile/features/auth/presentation/pages/register/register_vie
 import 'package:bb_mobile/features/dashboard/presentation/pages/dashboard_view.dart';
 
 class AppRoutes {
-  // 👉 Daftar path rute
   static const String splash = '/splash';
   static const String onboarding = '/onboarding';
   static const String login = '/login';

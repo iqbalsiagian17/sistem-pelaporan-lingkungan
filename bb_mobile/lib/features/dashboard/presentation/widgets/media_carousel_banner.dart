@@ -189,82 +189,76 @@ Widget _buildCarousel({required List<Widget> items}) {
     );
   }
 
-  void _showImageDetail(
+void _showImageDetail(
   BuildContext context, {
   required String imageUrl,
   required String title,
   required String description,
-  }) {
-    showDialog(
-      context: context,
-      builder: (_) => Dialog(
-        backgroundColor: Colors.transparent,
-        insetPadding: const EdgeInsets.all(10),
-        child: Stack(
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(16),
-              child: CachedNetworkImage(
-                imageUrl: imageUrl,
-                fit: BoxFit.cover,
-                width: double.infinity,
-                height: MediaQuery.of(context).size.height * 0.5,
-                placeholder: (context, url) => _loadingPlaceholder(),
-                errorWidget: (context, url, error) =>
-                    Image.asset(kDefaultImage, fit: BoxFit.cover),
-              ),
-            ),
-            Positioned(
-              top: 12,
-              right: 12,
-              child: GestureDetector(
-                onTap: () => Navigator.pop(context),
+}) {
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    builder: (_) => DraggableScrollableSheet(
+      expand: false,
+      initialChildSize: 0.6,
+      minChildSize: 0.4,
+      maxChildSize: 0.95,
+      builder: (_, scrollController) => Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        padding: const EdgeInsets.all(16),
+        child: SingleChildScrollView(
+          controller: scrollController,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
                 child: Container(
-                  padding: const EdgeInsets.all(8),
+                  width: 50,
+                  height: 6,
+                  margin: const EdgeInsets.only(bottom: 16),
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.5),
-                    shape: BoxShape.circle,
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(3),
                   ),
-                  child: const Icon(Icons.close, color: Colors.white),
                 ),
               ),
-            ),
-            Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: const BoxDecoration(
+              ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: CachedNetworkImage(
+                  imageUrl: imageUrl,
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                  placeholder: (context, url) => _loadingPlaceholder(),
+                  errorWidget: (context, url, error) =>
+                      Image.asset(kDefaultImage, fit: BoxFit.cover),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
                   color: Colors.black87,
-                  borderRadius: BorderRadius.vertical(bottom: Radius.circular(16)),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      description,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Colors.white70,
-                      ),
-                    ),
-                  ],
                 ),
               ),
-            ),
-          ],
+              const SizedBox(height: 8),
+              Text(
+                description,
+                style: const TextStyle(
+                  fontSize: 16,
+                  color: Colors.black54,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }
