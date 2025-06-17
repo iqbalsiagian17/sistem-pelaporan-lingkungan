@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:bb_mobile/core/constants/api.dart';
 import 'package:bb_mobile/widgets/snackbar/snackbar_helper.dart';
 import 'package:flutter/material.dart';
@@ -37,13 +39,13 @@ class _ProfileHeaderState extends ConsumerState<ProfileHeader> {
     return "${ApiConstants.baseUrl}/${path.replaceAll(r'\', '/')}";
   }
 
-  Future<void> _pickImage(BuildContext context) async {
-    if (_isPickingImage) return; // ✅ Cegah multiple tap
+  Future<void> _pickImage(BuildContext context, ImageSource source) async {
+    if (_isPickingImage) return;
     _isPickingImage = true;
 
     try {
       final picker = ImagePicker();
-      final image = await picker.pickImage(source: ImageSource.gallery);
+      final image = await picker.pickImage(source: source);
 
       if (image != null) {
         final success = await ref
@@ -71,6 +73,130 @@ class _ProfileHeaderState extends ConsumerState<ProfileHeader> {
     }
   }
 
+
+  void _showProfileImagePreview(BuildContext context, String imageUrl) {
+  showDialog(
+    context: context,
+    barrierDismissible: true,
+    barrierColor: Colors.transparent,
+    builder: (context) {
+      return GestureDetector(
+        onTap: () => Navigator.of(context).pop(), // tutup saat tap blur
+        child: Stack(
+          children: [
+            BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+              child: Container(
+                color: Colors.white.withOpacity(0.6),
+              ),
+            ),
+            Center(
+              child: GestureDetector(
+                onTap: () {}, // agar tap gambar tidak close
+                child: Stack(
+                  alignment: Alignment.bottomRight,
+                  children: [
+                    CircleAvatar(
+                      radius: 100,
+                      backgroundImage: NetworkImage(imageUrl),
+                      backgroundColor: Colors.grey[200],
+                    ),
+                    Positioned(
+                      bottom: 8,
+                      right: 8,
+                      child: GestureDetector(
+                        onTap: () async {
+                          Navigator.of(context).pop(); // tutup blur modal
+                          _showImageSourcePicker(context, imageUrl); // buka bottom sheet
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 4,
+                              ),
+                            ],
+                          ),
+                          child: const Icon(Icons.camera_alt, size: 20),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
+
+
+  void _showImageSourcePicker(BuildContext context, String imageUrl) {
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: false,
+    backgroundColor: Colors.white,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+    ),
+    builder: (context) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // 🔘 Handle bar
+          Container(
+            width: 40,
+            height: 4,
+            margin: const EdgeInsets.only(top: 12, bottom: 16),
+            decoration: BoxDecoration(
+              color: Colors.grey[300],
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+
+          // 🔘 Foto Profil
+          const SizedBox(height: 16),
+
+          // 🔘 Pilih dari Galeri
+          ListTile(
+            leading: const Icon(Icons.photo_outlined),
+            title: const Text('Pilih dari galeri'),
+            onTap: () async {
+              Navigator.pop(context);
+              await _pickImage(context, ImageSource.gallery);
+            },
+          ),
+
+          // 🔘 Ambil dari Kamera
+          ListTile(
+            leading: const Icon(Icons.camera_alt_outlined),
+            title: const Text('Ambil foto'),
+            onTap: () async {
+              Navigator.pop(context);
+              await _pickImage(context, ImageSource.camera);
+            },
+          ),
+
+          const SizedBox(height: 10),
+        ],
+      );
+    },
+  );
+}
+
+
+
+
+
+
+
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(userProfileProvider);
@@ -95,42 +221,10 @@ class _ProfileHeaderState extends ConsumerState<ProfileHeader> {
                 GestureDetector(
                   onTap: () {
                     if (hasImage) {
-                      showDialog(
-                        context: context,
-                        builder: (_) => Dialog(
-                          insetPadding: const EdgeInsets.all(10),
-                          backgroundColor: Colors.black,
-                          child: Stack(
-                            children: [
-                              InteractiveViewer(
-                                child: Image.network(
-                                  imageUrl!,
-                                  fit: BoxFit.contain,
-                                  errorBuilder: (_, __, ___) =>
-                                      const Center(child: Text("Gagal menampilkan gambar")),
-                                ),
-                              ),
-                              Positioned(
-                                top: 10,
-                                right: 10,
-                                child: GestureDetector(
-                                  onTap: () => Navigator.of(context).pop(),
-                                  child: Container(
-                                    padding: const EdgeInsets.all(6),
-                                    decoration: BoxDecoration(
-                                      color: Colors.black.withOpacity(0.5),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: const Icon(Icons.close, color: Colors.white),
-                                  ),
-                                ),
-                              )
-                            ],
-                          ),
-                        ),
-                      );
+                      _showProfileImagePreview(context, imageUrl!);
                     }
                   },
+
                   child: ClipOval(
                     child: hasImage
                         ? Image.network(
@@ -186,7 +280,7 @@ class _ProfileHeaderState extends ConsumerState<ProfileHeader> {
                   bottom: 0,
                   right: 0,
                   child: GestureDetector(
-                    onTap: () => _pickImage(context),
+                  onTap: () => _showImageSourcePicker(context, imageUrl!),
                     child: Container(
                       padding: const EdgeInsets.all(6),
                       decoration: BoxDecoration(

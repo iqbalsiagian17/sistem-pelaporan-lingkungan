@@ -96,9 +96,20 @@ const updateProfilePicture = (req, res) => {
         return res.status(400).json({ message: "File tidak ditemukan" });
       }
 
-      // ✅ Ubah backslash ke slash untuk URL-friendly path
       const imagePath = req.file.path.replace(/\\/g, '/');
 
+      // ✅ Ambil data user lama
+      const oldUser = await userService.getUserById(user_id);
+
+      // ✅ Hapus file lama jika ada
+      if (oldUser?.profile_picture) {
+      const oldPath = path.resolve('uploads/profile', path.basename(oldUser.profile_picture));
+        if (fs.existsSync(oldPath)) {
+          fs.unlinkSync(oldPath);
+        }
+      }
+
+      // ✅ Simpan path baru ke DB
       const updatedUser = await userService.updateUser(user_id, {
         profile_picture: imagePath,
       });
