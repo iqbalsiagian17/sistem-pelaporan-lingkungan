@@ -1,7 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
-import 'package:bb_mobile/widgets/skeleton/skeleton_image_card.dart'; // Pastikan file ini ada
+import 'package:bb_mobile/widgets/skeleton/skeleton_image_card.dart'; // pastikan ini ada
 
 class ReportDetailImage extends StatefulWidget {
   final List<String> imageUrls;
@@ -45,7 +45,13 @@ class _ReportDetailImageState extends State<ReportDetailImage> {
                 return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8),
                   child: GestureDetector(
-                    onTap: () => _showFullImageDialog(context, imageUrl),
+                    onTap: () {
+                      if (widget.imageUrls.length > 1) {
+                        _showFullImageDialog(context, widget.imageUrls, index);
+                      } else {
+                        _showFullscreenZoomableImage(context, imageUrl);
+                      }
+                    },
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(12),
                       child: Hero(
@@ -83,53 +89,149 @@ class _ReportDetailImageState extends State<ReportDetailImage> {
                 dotWidth: 10,
                 spacing: 8,
                 radius: 16,
-                dotColor: Color(0xFFBDBDBD), // abu muda untuk dot tidak aktif
-                activeDotColor: Color(0xFF66BB6A), // hijau tema aplikasi
+                dotColor: Color(0xFFBDBDBD),
+                activeDotColor: Color(0xFF66BB6A),
               ),
             ),
-          ), 
+          ),
       ],
     );
   }
 
-  void _showFullImageDialog(BuildContext context, String imageUrl) {
+  void _showFullscreenZoomableImage(BuildContext context, String imageUrl) {
     showDialog(
       context: context,
-      builder: (_) => Dialog(
-        backgroundColor: Colors.transparent,
-        insetPadding: const EdgeInsets.all(10),
-        child: Stack(
-          children: [
-            Hero(
-              tag: imageUrl,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Image(
-                  image: CachedNetworkImageProvider(imageUrl),
-                  width: double.infinity,
-                  height: 400,
-                  fit: BoxFit.contain,
-                ),
-              ),
-            ),
-            Positioned(
-              top: 12,
-              right: 12,
-              child: GestureDetector(
-                onTap: () => Navigator.of(context).pop(),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.5),
-                    shape: BoxShape.circle,
+      barrierColor: Colors.black.withOpacity(0.95),
+      builder: (_) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: EdgeInsets.zero,
+          child: Stack(
+            children: [
+              Positioned.fill(
+                child: InteractiveViewer(
+                  panEnabled: true,
+                  minScale: 1,
+                  maxScale: 5,
+                  child: CachedNetworkImage(
+                    imageUrl: imageUrl,
+                    fit: BoxFit.contain,
+                    placeholder: (context, url) => const Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                    errorWidget: (context, url, error) => _defaultImage(),
                   ),
-                  padding: const EdgeInsets.all(8),
-                  child: const Icon(Icons.close, color: Colors.white, size: 22),
                 ),
               ),
-            )
-          ],
-        ),
-      ),
+              Positioned(
+                top: 30,
+                right: 20,
+                child: GestureDetector(
+                  onTap: () => Navigator.of(context).pop(),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.6),
+                      shape: BoxShape.circle,
+                    ),
+                    padding: const EdgeInsets.all(8),
+                    child: const Icon(Icons.close, color: Colors.white, size: 24),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showFullImageDialog(BuildContext context, List<String> imageUrls, int initialIndex) {
+    final pageController = PageController(initialPage: initialIndex);
+    int currentIndex = initialIndex;
+
+    showDialog(
+      context: context,
+      barrierColor: Colors.black.withOpacity(0.95),
+      builder: (_) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Dialog(
+              backgroundColor: Colors.transparent,
+              insetPadding: EdgeInsets.zero,
+              child: Stack(
+                children: [
+                  PageView.builder(
+                    controller: pageController,
+                    itemCount: imageUrls.length,
+                    onPageChanged: (index) => setState(() => currentIndex = index),
+                    itemBuilder: (context, index) {
+                      final imageUrl = imageUrls[index];
+                      return Center(
+                        child: Hero(
+                          tag: imageUrl,
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(
+                              maxHeight: 800, // 🔧 Batasi tinggi maksimum gambar
+                            ),
+                            child: InteractiveViewer(
+                              panEnabled: true,
+                              minScale: 1,
+                              maxScale: 5,
+                              child: CachedNetworkImage(
+                                imageUrl: imageUrl,
+                                fit: BoxFit.contain,
+                                placeholder: (context, url) =>
+                                    const Center(child: CircularProgressIndicator()),
+                                errorWidget: (context, url, error) => _defaultImage(),
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  // Tombol close
+                  Positioned(
+                    top: 30,
+                    right: 20,
+                    child: GestureDetector(
+                      onTap: () => Navigator.of(context).pop(),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.5),
+                          shape: BoxShape.circle,
+                        ),
+                        padding: const EdgeInsets.all(8),
+                        child: const Icon(Icons.close, color: Colors.white, size: 24),
+                      ),
+                    ),
+                  ),
+                  // Indikator halaman
+                  if (imageUrls.length > 1)
+                    Positioned(
+                      bottom: 24,
+                      left: 0,
+                      right: 0,
+                      child: Center(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.4),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            "${currentIndex + 1} / ${imageUrls.length}",
+                            style: const TextStyle(color: Colors.white70, fontSize: 14),
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 
