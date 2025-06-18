@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:bb_mobile/core/utils/location_validator.dart';
 import 'package:bb_mobile/widgets/snackbar/snackbar_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
@@ -57,20 +56,6 @@ class _ReportUploadButtonsState extends State<ReportUploadButtons> {
       debugPrint("📍 Lokasi Saat Ini → lat: $lat, lon: $lon");
 
       if (!mounted) return;
-
-      bool isInside = LocationValidator.isInsideBaligeArea(lat, lon);
-      if (!isInside) {
-        if (!_hasShownOutOfAreaSnackbar) {
-          SnackbarHelper.showSnackbar(
-            context,
-            "Anda berada di luar wilayah pelaporan (Kecamatan Balige).",
-            isError: true,
-          );
-          _hasShownOutOfAreaSnackbar = true;
-        }
-        widget.onLocationValidityChanged?.call(false);
-        return;
-      }
 
       setState(() {
         latitude = lat;

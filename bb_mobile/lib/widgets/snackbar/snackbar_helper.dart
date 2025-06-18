@@ -9,7 +9,6 @@ class SnackbarHelper {
     if (!context.mounted) return;
 
     final overlay = Overlay.of(context, rootOverlay: true);
-    if (overlay == null) return;
 
     final overlayEntry = OverlayEntry(
       builder: (context) {

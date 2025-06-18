@@ -1,3 +1,4 @@
+// Tambahkan semua import seperti biasa
 import 'dart:async';
 import 'package:bb_mobile/core/utils/location_validator.dart';
 import 'package:bb_mobile/widgets/buttons/custom_button.dart';
@@ -11,7 +12,6 @@ class ReportLocationToggle extends StatefulWidget {
   final ValueChanged<bool> onChange;
   final bool isDisabled;
   final VoidCallback? onForceChangeToNotAtLocation;
-
 
   const ReportLocationToggle({
     super.key,
@@ -28,6 +28,7 @@ class ReportLocationToggle extends StatefulWidget {
 class _ReportLocationToggleState extends State<ReportLocationToggle> with WidgetsBindingObserver {
   bool isLocationAvailable = false;
   bool isChecking = false;
+  bool _hasShownOutOfAreaDialog = false;
   int countdown = 0;
   Timer? _countdownTimer;
   StreamSubscription<ServiceStatus>? _serviceStatusStream;
@@ -39,16 +40,13 @@ class _ReportLocationToggleState extends State<ReportLocationToggle> with Widget
     WidgetsBinding.instance.addObserver(this);
     disableAtLocationButton = ValueNotifier(false);
     _checkLocationAvailability();
-  _serviceStatusStream = Geolocator.getServiceStatusStream().listen((ServiceStatus status) {
-    if (status == ServiceStatus.enabled) {
-      // Kalau GPS aktif, langsung cek ulang lokasi
-      _checkLocationAvailability(forceEnable: true);
-    } else {
-      // Kalau GPS off
-      _checkLocationAvailability();
-    }
-  });
-
+    _serviceStatusStream = Geolocator.getServiceStatusStream().listen((ServiceStatus status) {
+      if (status == ServiceStatus.enabled) {
+        _checkLocationAvailability(forceEnable: true);
+      } else {
+        _checkLocationAvailability();
+      }
+    });
   }
 
   @override
@@ -68,16 +66,59 @@ class _ReportLocationToggleState extends State<ReportLocationToggle> with Widget
   }
 
   Future<void> _checkLocationAvailability({bool forceEnable = false}) async {
-  try {
-    setState(() => isChecking = true);
-    final serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    var permission = await Geolocator.checkPermission();
+    try {
+      setState(() => isChecking = true);
+      final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      var permission = await Geolocator.checkPermission();
 
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-    }
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
 
-    if (!serviceEnabled || permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
+      if (!serviceEnabled || permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
+        if (!mounted) return;
+        setState(() {
+          isLocationAvailable = false;
+          isChecking = false;
+          countdown = 0;
+        });
+        widget.onChange(false);
+        disableAtLocationButton.value = true;
+        return;
+      }
+
+      final position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+        timeLimit: const Duration(seconds: 10),
+      );
+
+      setState(() {
+        isLocationAvailable = true;
+        isChecking = false;
+        countdown = 0;
+      });
+
+      final lat = position.latitude;
+      final long = position.longitude;
+      final isInsideBalige = LocationValidator.isInsideBaligeArea(lat, long);
+
+      if (!isInsideBalige) {
+        if (!mounted) return;
+        if (!_hasShownOutOfAreaDialog) {
+          _hasShownOutOfAreaDialog = true;
+          await _showOutOfAreaDialog();
+        }
+
+        widget.onForceChangeToNotAtLocation?.call();
+        disableAtLocationButton.value = true;
+        return;
+      }
+
+      if (forceEnable) {
+        widget.onChange(true);
+        disableAtLocationButton.value = false;
+      }
+    } catch (_) {
       if (!mounted) return;
       setState(() {
         isLocationAvailable = false;
@@ -86,105 +127,56 @@ class _ReportLocationToggleState extends State<ReportLocationToggle> with Widget
       });
       widget.onChange(false);
       disableAtLocationButton.value = true;
-      return;
     }
-
-    final position = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
-      timeLimit: const Duration(seconds: 10),
-    );
-
-    setState(() {
-      isLocationAvailable = true;
-      isChecking = false;
-      countdown = 0;
-    });
-
-    final lat = position.latitude;
-    final long = position.longitude;
-    final isInsideBalige = LocationValidator.isInsideBaligeArea(lat, long);
-
-    if (!isInsideBalige) {
-      if (!mounted) return;
-      await _showOutOfAreaDialog();
-
-      // Ubah state di parent
-      widget.onForceChangeToNotAtLocation?.call();
-
-      // Disable tombol dari dalam
-      disableAtLocationButton.value = true;
-      return;
-    }
-
-    // Lokasi valid
-    if (forceEnable) {
-      widget.onChange(true);
-      disableAtLocationButton.value = false;
-    }
-  } catch (_) {
-    if (!mounted) return;
-    setState(() {
-      isLocationAvailable = false;
-      isChecking = false;
-      countdown = 0;
-    });
-    widget.onChange(false);
-    disableAtLocationButton.value = true;
   }
-}
 
-
-Future<void> _showOutOfAreaDialog() async {
-  await showModalBottomSheet(
-    context: context,
-    isDismissible: false,
-    isScrollControlled: true,
-    backgroundColor: Colors.white,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-    ),
-    builder: (context) {
-      return Padding(
-        padding: EdgeInsets.only(
-          top: 24,
-          left: 20,
-          right: 20,
-          bottom: MediaQuery.of(context).viewInsets.bottom + 24,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-          const Icon(Icons.error_outline, size: 48, color: Colors.redAccent),
-          const SizedBox(height: 12),
-          const Text(
-            "Lokasi Di Luar Area Pelaporan",
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            textAlign: TextAlign.center,
+  Future<void> _showOutOfAreaDialog() async {
+    await showModalBottomSheet(
+      context: context,
+      isDismissible: false,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.only(
+            top: 24,
+            left: 20,
+            right: 20,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 24,
           ),
-          const SizedBox(height: 12),
-          const Text(
-            "Sistem mendeteksi bahwa Anda berada di luar wilayah Kecamatan Balige.\n\n"
-            "Silakan lanjutkan dengan mengisi informasi lokasi secara manual agar laporan tetap dapat diproses.",
-            style: TextStyle(fontSize: 14, color: Colors.black87),
-            textAlign: TextAlign.center,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.error_outline, size: 48, color: Colors.redAccent),
+              const SizedBox(height: 12),
+              const Text(
+                "Lokasi Di Luar Area Pelaporan",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 12),
+              const Text(
+                "Sistem mendeteksi bahwa Anda berada di luar wilayah Kecamatan Balige.\n\n"
+                "Silakan lanjutkan dengan mengisi informasi lokasi secara manual agar laporan tetap dapat diproses.",
+                style: TextStyle(fontSize: 14, color: Colors.black87),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 20),
+              CustomButton(
+                text: "Mengerti",
+                onPressed: () => Navigator.of(context).pop(),
+                color: Colors.green[700]!,
+                textColor: Colors.white,
+              ),
+            ],
           ),
-
-            const SizedBox(height: 20),
-            CustomButton(
-              text: "Mengerti",
-              onPressed: () => Navigator.of(context).pop(),
-              color: Colors.green[700]!,
-              textColor: Colors.white,
-            ),
-          ],
-        ),
-      );
-    },
-  );
-}
-
-
-
+        );
+      },
+    );
+  }
 
   void _startCountdownAndRefresh() {
     if (countdown > 0) return;
@@ -201,132 +193,86 @@ Future<void> _showOutOfAreaDialog() async {
     });
   }
 
-Future<void> _showLocationMap(BuildContext context) async {
-  try {
-    // Show loading dialog
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (_) => const Center(child: CircularProgressIndicator()),
-    );
-
-    // Get current position of the user
-    final position = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
-    );
-
-    if (context.mounted) Navigator.pop(context);
-
-    if (context.mounted) {
-      showModalBottomSheet(
+  Future<void> _showLocationMap(BuildContext context) async {
+    try {
+      showDialog(
         context: context,
-        isScrollControlled: true,
-        backgroundColor: Colors.white,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        builder: (context) {
-          return SizedBox(
-            height: MediaQuery.of(context).size.height * 0.45,
-            child: Column(
-              children: [
-                const Padding(
-                  padding: EdgeInsets.all(16),
-                  child: Text("Lokasi Anda Sekarang",
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                ),
-                Expanded(
-                  child: FlutterMap(
-                    options: MapOptions(
-                      center: LatLng(position.latitude, position.longitude),
-                      zoom: 16.0,
+        barrierDismissible: false,
+        builder: (_) => const Center(child: CircularProgressIndicator()),
+      );
+
+      final position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+
+      if (context.mounted) Navigator.pop(context);
+
+      if (context.mounted) {
+        showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          backgroundColor: Colors.white,
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          builder: (context) {
+            return SizedBox(
+              height: MediaQuery.of(context).size.height * 0.45,
+              child: Column(
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Text("Lokasi Anda Sekarang",
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  ),
+                  Expanded(
+                    child: FlutterMap(
+                      options: MapOptions(
+                        center: LatLng(position.latitude, position.longitude),
+                        zoom: 16.0,
+                      ),
+                      children: [
+                        TileLayer(
+                          urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                          subdomains: ['a', 'b', 'c'],
+                        ),
+                        MarkerLayer(
+                          markers: [
+                            Marker(
+                              point: LatLng(position.latitude, position.longitude),
+                              width: 40,
+                              height: 40,
+                              child: const Icon(Icons.location_pin, size: 40, color: Colors.red),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
-                    children: [
-                      TileLayer(
-                        urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                        subdomains: ['a', 'b', 'c'],
-                      ),
-                      // Polygon layer for Balige area boundary using GeoJSON coordinates
-                      PolygonLayer(
-                        polygons: [
-                          Polygon(
-                            points: [
-                              
-                              // kordinat untuk balige
-                              LatLng(2.3495373075169397, 99.03711737302717), 
-                              LatLng(2.35060307618825, 99.04073641769787), 
-                              LatLng(2.3456929209123842, 99.0465268891723), 
-                              LatLng(2.3419191022465498, 99.04844797628596), 
-                              LatLng(2.342283604801395, 99.05126126377752), 
-                              LatLng(2.335057280763394, 99.05665949700796), 
-                              LatLng(2.3360995933740583, 99.06128811193781),
-                              LatLng(2.3453164060374974, 99.06404656390549),
-                              LatLng(2.3509233170573225, 99.07484762955943),
-                              LatLng(2.349709450427426, 99.08230169082617),
-                              LatLng(2.354975828827719, 99.08822610772688),
-                              LatLng(2.3637756359219253, 99.10392782722607),
-                              LatLng(2.3643161680033558, 99.10958343265133),
-                              LatLng(2.28488810016286, 99.13015468370656),
-                              LatLng(2.256206943195835, 99.03425300438255),
-                              LatLng(2.3495340286737303, 99.03711661083042),
-
-                              // kordinat untuk IT Del
-                              /* LatLng(2.3821346987402734, 99.14864504109096),  
-                              LatLng(2.3838726531813705, 99.15010217927676), 
-                              LatLng(2.3860159060928225, 99.14913878783454), 
-                              LatLng(2.387439499090263, 99.15088260843959),  
-                              LatLng(2.388608119104404, 99.14995753287604),  
-                              LatLng(2.386462107041467, 99.14599140430448), 
-                              LatLng(2.384369210862843, 99.14689521376397),  
-                              LatLng(2.383476807463012, 99.14692711292173),  
-                              LatLng(2.382124393177463, 99.14864643676253),   */
-
-                            ],
-                            color: Colors.green.withOpacity(0.3),
-                            borderStrokeWidth: 2,
-                            borderColor: Colors.green,
-                          ),
-                        ],
-                      ),
-                      // Marker for current location
-                      MarkerLayer(
-                        markers: [
-                          Marker(
-                            point: LatLng(position.latitude, position.longitude),
-                            width: 40,
-                            height: 40,
-                            child: const Icon(Icons.location_pin, size: 40, color: Colors.red),
-                          ),
-                        ],
-                      ),
-                    ],
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  child: Text(
-                    "Lat: ${position.latitude}, Long: ${position.longitude}",
-                    style: const TextStyle(fontSize: 14, color: Colors.black54),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    child: Text(
+                      "Lat: ${position.latitude}, Long: ${position.longitude}",
+                      style: const TextStyle(fontSize: 14, color: Colors.black54),
+                    ),
                   ),
-                ),
-              ],
-            ),
-          );
-        },
-      );
-    }
-  } catch (_) {
-    if (context.mounted) {
-      Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Gagal menampilkan lokasi")),
-      );
+                ],
+              ),
+            );
+          },
+        );
+      }
+    } catch (_) {
+      if (context.mounted) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Gagal menampilkan lokasi")),
+        );
+      }
     }
   }
-}
 
-
-   @override
+  @override
   Widget build(BuildContext context) {
     final infoColor = isLocationAvailable ? const Color(0xFF2E7D32) : const Color(0xFFF57F17);
     final bgColor = isLocationAvailable ? const Color(0xFFE8F5E9) : const Color(0xFFFFF8E1);
