@@ -38,6 +38,7 @@ class _ReportCreateViewState extends ConsumerState<ReportCreateView> {
   bool isAtLocation = true;
   bool isSubmitting = false;
   bool isLocationValid = true;
+  bool isLoadingLocation = true;
   double? latitude;
   double? longitude;
   List<File> attachments = [];
@@ -46,7 +47,9 @@ class _ReportCreateViewState extends ConsumerState<ReportCreateView> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() => showReportGuideTutorial(context));
+    Future.microtask(() {
+      showReportGuideTutorial(context);
+    });
   }
 
   Future<void> _handleSubmit() async {
@@ -63,7 +66,6 @@ class _ReportCreateViewState extends ConsumerState<ReportCreateView> {
         SnackbarHelper.showSnackbar(context, "Lokasi belum ditemukan. Mohon aktifkan GPS Anda.", isError: true);
         return;
       }
-
     } else {
       if (_villageController.text.isEmpty) {
         SnackbarHelper.showSnackbar(context, "Pilih lokasi desa/kelurahan", isError: true);
@@ -125,72 +127,111 @@ class _ReportCreateViewState extends ConsumerState<ReportCreateView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: const ReportTopBar(title: "Isi Aduan"),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ReportLocationToggle(
-              isAtLocation: isAtLocation,
-              onChange: (val) => setState(() => isAtLocation = val),
-              onForceChangeToNotAtLocation: () {
-                setState(() {
-                  isAtLocation = false; // Paksa ke tidak di lokasi
-                });
-              },
+    return Stack(
+      children: [
+        Scaffold(
+          backgroundColor: Colors.white,
+          appBar: const ReportTopBar(title: "Isi Aduan"),
+          body: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ReportLocationToggle(
+                  isAtLocation: isAtLocation,
+                  onChange: (val) => setState(() => isAtLocation = val),
+                  onForceChangeToNotAtLocation: () {
+                    setState(() {
+                      isAtLocation = false;
+                    });
+                  },
+                ),
+                const SizedBox(height: 16),
+                Form(
+                  key: _formKey,
+                  child: ReportFormFields(
+                    isAtLocation: isAtLocation,
+                    onLocationChange: (val) => setState(() => isAtLocation = val),
+                    isLocationAvailable: latitude != null && longitude != null,
+                    titleController: _titleController,
+                    descController: _descController,
+                    villageController: _villageController,
+                    locationDetailController: _locationDetailController,
+                    titleFocus: _titleFocus,
+                    descFocus: _descFocus,
+                    villageFocus: _villageFocus,
+                    locationDetailFocus: _locationDetailFocus,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                ReportUploadButtons(
+                  isAtLocation: isAtLocation,
+                  onFilesSelected: (files) => setState(() => attachments = files),
+                  onLocationCaptured: (lat, long) {
+                    setState(() {
+                      latitude = lat;
+                      longitude = long;
+                    });
+                  },
+                  onLocationValidityChanged: (isValid) {
+                    setState(() {
+                      isLocationValid = isValid;
+                      isLoadingLocation = false;
+                    });
+                  },
+                ),
+                const SizedBox(height: 16),
+                ReportSubmitButton(
+                  isSubmitting: isSubmitting,
+                  onPressed: _handleSubmit,
+                  isEnabled: !isAtLocation || isLocationValid,
+                  isAtLocation: isAtLocation,
+                  isLocationValid: isLocationValid,
+                ),
+                const SizedBox(height: 10),
+              ],
             ),
-            const SizedBox(height: 16),
-            Form(
-              key: _formKey,
-              child: ReportFormFields(
-                isAtLocation: isAtLocation,
-                onLocationChange: (val) => setState(() => isAtLocation = val),
-                isLocationAvailable: latitude != null && longitude != null,
-                titleController: _titleController,
-                descController: _descController,
-                villageController: _villageController,
-                locationDetailController: _locationDetailController,
-                titleFocus: _titleFocus,
-                descFocus: _descFocus,
-                villageFocus: _villageFocus,
-                locationDetailFocus: _locationDetailFocus,
+          ),
+          bottomNavigationBar: BottomNavbar(
+            currentIndex: _selectedIndex,
+            onTap: (index) => setState(() => _selectedIndex = index),
+          ),
+        ),
+        if (isAtLocation && isLoadingLocation)
+        Positioned.fill(
+          child: Container(
+            color: Colors.black.withOpacity(0.3),
+            child: const Center(
+              child: Material(
+                color: Colors.white,
+                borderRadius: BorderRadius.all(Radius.circular(12)),
+                elevation: 6,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SizedBox(
+                        width: 28,
+                        height: 28,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 3,
+                          color: Color(0xFF66BB6A),
+                        ),
+                      ),
+                      SizedBox(width: 16),
+                      Text(
+                        "Melacak lokasi...",
+                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
-            const SizedBox(height: 16),
-            ReportUploadButtons(
-              isAtLocation: isAtLocation,
-              onFilesSelected: (files) => setState(() => attachments = files),
-              onLocationCaptured: (lat, long) {
-                setState(() {
-                  latitude = lat;
-                  longitude = long;
-                });
-              },
-              onLocationValidityChanged: (isValid) {
-                setState(() {
-                  isLocationValid = isValid;
-                });
-              },
-            ),
-            const SizedBox(height: 16),
-            ReportSubmitButton(
-              isSubmitting: isSubmitting,
-              onPressed: _handleSubmit,
-              isEnabled: !isAtLocation || isLocationValid,
-              isAtLocation: isAtLocation,
-              isLocationValid: isLocationValid,
-            ),
-            const SizedBox(height: 10),
-          ],
-        ),
-      ),
-      bottomNavigationBar: BottomNavbar(
-        currentIndex: _selectedIndex,
-        onTap: (index) => setState(() => _selectedIndex = index),
-      ),
+          ),
+        )
+      ],
     );
   }
 }
