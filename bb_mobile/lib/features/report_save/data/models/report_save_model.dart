@@ -52,7 +52,7 @@ class ReportSaveModel extends ReportSaveEntity {
 
     final imageUrl = attachments.isNotEmpty
         ? "${ApiConstants.baseUrl}/${attachments.first.file}"
-        : "assets/images/default.jpg";
+        : "assets/images/error-image.png";
 
     return ReportSaveModel(
       reportId: reportData['id'] ?? 0,

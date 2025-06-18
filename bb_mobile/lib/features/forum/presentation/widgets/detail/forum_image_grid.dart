@@ -46,8 +46,16 @@ class _ForumImageGridState extends State<ForumImageGrid> {
                   child: CachedNetworkImage(
                     imageUrl: widget.images[index].imageUrl,
                     placeholder: (context, url) => _buildImageSkeleton(),
-                    errorWidget: (context, url, error) =>
-                        const Icon(Icons.error, color: Colors.red),
+                      errorWidget: (context, url, error) {
+                        debugPrint("❌ Gagal memuat gambar: $url");
+                        debugPrint("🪵 Detail error: $error");
+                        return Image.asset(
+                          "assets/images/error-image.png",
+                          fit: BoxFit.cover,
+                          width: MediaQuery.of(context).size.width,
+                          height: 300,
+                        );
+                      },
                     fit: BoxFit.cover,
                     width: MediaQuery.of(context).size.width,
                   ),

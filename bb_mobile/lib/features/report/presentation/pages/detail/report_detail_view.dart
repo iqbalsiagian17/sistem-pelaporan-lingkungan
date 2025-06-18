@@ -140,7 +140,7 @@ class _ReportDetailViewState extends ConsumerState<ReportDetailView> {
                     ReportDetailImage(
                       imageUrls: report.attachments.isNotEmpty
                           ? report.attachments.map((e) => "${ApiConstants.baseUrl}/${e.file}").toList()
-                          : ["assets/images/default.jpg"],
+                          : ["assets/images/error-image.png"],
                       reportId: report.id,
                     ),
                     Padding(

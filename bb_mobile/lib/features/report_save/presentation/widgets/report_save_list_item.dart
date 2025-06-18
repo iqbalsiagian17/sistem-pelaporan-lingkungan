@@ -25,7 +25,7 @@ class ReportSaveListItem extends ConsumerWidget {
         context.push('/detail-report', extra: reportModel);
       },
       borderRadius: BorderRadius.circular(12),
-      splashColor: Color(0xFF66BB6A).withOpacity(0.2),
+      splashColor: const Color(0xFF66BB6A).withOpacity(0.2),
       child: Padding(
         padding: EdgeInsets.only(bottom: 12.0, top: index == 0 ? 12.0 : 0),
         child: Row(
@@ -33,18 +33,7 @@ class ReportSaveListItem extends ConsumerWidget {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
-              child: CachedNetworkImage(
-                imageUrl: report.imageUrl.isNotEmpty
-                    ? report.imageUrl
-                    : "assets/images/default.jpg",
-                width: 70,
-                height: 70,
-                fit: BoxFit.cover,
-                placeholder: (_, __) =>
-                    Container(width: 70, height: 70, color: Colors.grey[300]),
-                errorWidget: (_, __, ___) =>
-                    Image.asset("assets/images/default.jpg", width: 70, height: 70),
-              ),
+              child: _buildReportImage(report.imageUrl),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -90,6 +79,34 @@ class ReportSaveListItem extends ConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+
+  /// 🔁 Gunakan ini untuk menangani gambar kosong atau gagal dimuat
+  Widget _buildReportImage(String imageUrl) {
+    const double size = 70;
+
+    if (imageUrl.isEmpty || !imageUrl.startsWith("http")) {
+      return _defaultImage(size, size);
+    }
+
+    return CachedNetworkImage(
+      imageUrl: imageUrl,
+      width: size,
+      height: size,
+      fit: BoxFit.cover,
+      placeholder: (_, __) => Container(width: size, height: size, color: Colors.grey[300]),
+      errorWidget: (_, __, ___) => _defaultImage(size, size),
+    );
+  }
+
+  /// 🧱 Gambar default
+  Widget _defaultImage(double width, double height) {
+    return Image.asset(
+      "assets/.jpg",
+      width: width,
+      height: height,
+      fit: BoxFit.cover,
     );
   }
 }

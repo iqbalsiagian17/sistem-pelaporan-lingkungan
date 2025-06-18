@@ -51,7 +51,10 @@ class PostImageGrid extends StatelessWidget {
                 errorWidget: (context, url, error) {
                   debugPrint("❌ Gagal memuat gambar (two): $url");
                   debugPrint("🪵 Detail error: $error");
-                  return const Icon(Icons.error, color: Colors.red);
+                  return Image.asset(
+              "assets/images/error-image.png",
+              fit: BoxFit.cover,
+            );
                 },
                 fit: BoxFit.cover,
               ),
@@ -85,7 +88,10 @@ class PostImageGrid extends StatelessWidget {
           errorWidget: (context, url, error) {
             debugPrint("❌ Gagal memuat gambar (grid): $url");
             debugPrint("🪵 Detail error: $error");
-            return const Icon(Icons.error, color: Colors.red);
+            return Image.asset(
+              "assets/images/error-image.png",
+              fit: BoxFit.cover,
+            );
           },
           fit: BoxFit.cover,
         );
@@ -103,7 +109,10 @@ class PostImageGrid extends StatelessWidget {
           errorWidget: (context, url, error) {
             debugPrint("❌ Gagal memuat gambar (overlay): $url");
             debugPrint("🪵 Detail error: $error");
-            return const Icon(Icons.error, color: Colors.red);
+            return Image.asset(
+              "assets/images/error-image.png",
+              fit: BoxFit.cover,
+            );
           },
           fit: BoxFit.cover,
         ),

@@ -40,7 +40,7 @@ class _ReportDetailImageState extends State<ReportDetailImage> {
               itemBuilder: (context, index) {
                 final imageUrl = widget.imageUrls.isNotEmpty
                     ? widget.imageUrls[index]
-                    : "assets/images/default.jpg";
+                    : "assets/images/error-image.png";
 
                 return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8),
