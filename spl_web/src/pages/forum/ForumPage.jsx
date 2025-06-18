@@ -15,6 +15,7 @@ import AdminProfileCard from "./components/AdminProfileCard";
 const ForumPage = () => {
   const {
     posts,
+    setPosts, 
     addPost,
     editPost,
     removePost,
@@ -128,6 +129,20 @@ const ForumPage = () => {
     } finally {
       setIsProcessing(false);
     }
+  };
+
+  const handleAddComment = (postId, newComment) => {
+    setPosts((prevPosts) =>
+      prevPosts.map((post) =>
+        post.id === postId
+          ? {
+              ...post,
+              comments: [...(post.comments || []), newComment],
+            }
+          : post
+      )
+    );
+    showToast("Komentar berhasil ditambahkan.");
   };
 
   // Pisahkan pinned dan unpinned posts
@@ -253,6 +268,9 @@ const ForumPage = () => {
                 onPinPost={pinPost}
                 onDeleteComment={handleDeleteComment}
                 onImageClick={handleOpenImageModal}
+                onCommentAdded={handleAddComment}
+                onShowToast={showToast}
+
               />
             </div>
           ))

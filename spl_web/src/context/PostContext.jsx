@@ -93,6 +93,7 @@ export const PostProvider = ({ children }) => {
         posts,
         loadPosts,
         addPost,
+        setPosts,
         editPost,
         editComment,
         addComment,

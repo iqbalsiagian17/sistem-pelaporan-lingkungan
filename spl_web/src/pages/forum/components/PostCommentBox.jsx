@@ -3,7 +3,7 @@ import { usePost } from "../../../context/PostContext";
 import AvatarCircle from "./AvatarCircle";
 import { Form, Button, Spinner } from "react-bootstrap";
 
-const PostCommentBox = ({ postId, onCommentSuccess }) => {
+const PostCommentBox = ({ postId, onCommentSuccess, onShowToast }) => {
   const { addComment } = usePost();
   const [comment, setComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -14,15 +14,18 @@ const PostCommentBox = ({ postId, onCommentSuccess }) => {
 
     try {
       setIsSubmitting(true);
-      await addComment({ post_id: postId, content: comment });
+      const newComment = await addComment({ post_id: postId, content: comment });
       setComment("");
-      if (onCommentSuccess) onCommentSuccess();
+
+      if (onCommentSuccess) onCommentSuccess(postId, newComment);
+      if (onShowToast) onShowToast("Komentar berhasil ditambahkan.");
     } catch (err) {
       alert("❌ Gagal mengirim komentar: " + err.message);
     } finally {
       setIsSubmitting(false);
     }
   };
+
 
   return (
     <Form onSubmit={handleSubmit} className="d-flex align-items-start gap-2 mt-2">

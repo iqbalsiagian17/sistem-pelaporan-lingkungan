@@ -13,6 +13,9 @@ const PostCard = ({
   onEditComment,
   onImageClick,
   currentUserId,
+  onCommentAdded,
+  onShowToast,
+
 }) => {
   const hasParentId = post.comments?.some((c) => c.hasOwnProperty("parent_id"));
 
@@ -67,7 +70,8 @@ const PostCard = ({
             <div className="mt-3">
               <PostCommentBox
                 postId={post.id}
-                onCommentSuccess={() => window.location.reload()}
+                onCommentSuccess={onCommentAdded}
+                onShowToast={onShowToast}
               />
             </div>
           </>
