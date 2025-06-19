@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
@@ -7,12 +7,39 @@ const AnnouncementCreateModal = ({ show, onHide, onCreate }) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [file, setFile] = useState(null);
+  const [titleError, setTitleError] = useState("");
+  const [descriptionError, setDescriptionError] = useState("");
+
+  useEffect(() => {
+    if (show) {
+      // Reset ketika modal dibuka
+      setTitle("");
+      setDescription("");
+      setFile(null);
+      setTitleError("");
+      setDescriptionError("");
+    }
+  }, [show]);
 
   const handleSubmit = () => {
-    if (!title.trim() || !description.trim()) {
-      alert("Judul dan deskripsi wajib diisi.");
-      return;
+    let valid = true;
+
+    if (!title.trim()) {
+      setTitleError("Judul tidak boleh kosong.");
+      valid = false;
+    } else {
+      setTitleError("");
     }
+
+    const descPlain = description.replace(/<(.|\n)*?>/g, "").trim();
+    if (!descPlain) {
+      setDescriptionError("Deskripsi tidak boleh kosong.");
+      valid = false;
+    } else {
+      setDescriptionError("");
+    }
+
+    if (!valid) return;
 
     const formData = new FormData();
     formData.append("title", title);
@@ -20,12 +47,7 @@ const AnnouncementCreateModal = ({ show, onHide, onCreate }) => {
     if (file) formData.append("file", file);
 
     onCreate(formData);
-
-    // Reset form setelah submit
-    setTitle("");
-    setDescription("");
-    setFile(null);
-    onHide();
+    onHide(); // Tutup modal setelah berhasil
   };
 
   return (
@@ -44,13 +66,17 @@ const AnnouncementCreateModal = ({ show, onHide, onCreate }) => {
               placeholder="Masukkan judul"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
+              isInvalid={!!titleError}
             />
+            <Form.Control.Feedback type="invalid">
+              {titleError}
+            </Form.Control.Feedback>
           </Form.Group>
 
           {/* Deskripsi */}
           <Form.Group className="mb-4">
             <Form.Label>Deskripsi</Form.Label>
-            <div className="border rounded" style={{ minHeight: "250px", overflow: "hidden" }}>
+            <div className={`border rounded ${descriptionError ? 'border-danger' : ''}`} style={{ minHeight: "250px", overflow: "hidden" }}>
               <ReactQuill
                 theme="snow"
                 value={description}
@@ -59,6 +85,11 @@ const AnnouncementCreateModal = ({ show, onHide, onCreate }) => {
                 style={{ height: "220px", border: "none" }}
               />
             </div>
+            {descriptionError && (
+              <div className="text-danger mt-1" style={{ fontSize: "0.875em" }}>
+                {descriptionError}
+              </div>
+            )}
           </Form.Group>
 
           {/* Lampiran */}

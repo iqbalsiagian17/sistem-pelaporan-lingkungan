@@ -7,17 +7,41 @@ const AnnouncementEditModal = ({ show, onHide, announcement, onSave }) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [file, setFile] = useState(null);
+  const [titleError, setTitleError] = useState("");
+  const [descriptionError, setDescriptionError] = useState("");
 
-  // Sinkronisasi ulang data ketika modal dibuka atau pengumuman berubah
+  // Reset field saat modal terbuka atau data berubah
   useEffect(() => {
     if (announcement) {
       setTitle(announcement.title || "");
       setDescription(announcement.description || "");
       setFile(null);
+      setTitleError("");
+      setDescriptionError("");
     }
   }, [announcement]);
 
   const handleSave = () => {
+    let valid = true;
+
+    if (!title.trim()) {
+      setTitleError("Judul tidak boleh kosong.");
+      valid = false;
+    } else {
+      setTitleError("");
+    }
+
+    // Validasi deskripsi dengan membersihkan tag kosong
+    const descPlain = description.replace(/<(.|\n)*?>/g, "").trim();
+    if (!descPlain) {
+      setDescriptionError("Deskripsi tidak boleh kosong.");
+      valid = false;
+    } else {
+      setDescriptionError("");
+    }
+
+    if (!valid) return;
+
     const formData = new FormData();
     formData.append("title", title);
     formData.append("description", description);
@@ -41,13 +65,17 @@ const AnnouncementEditModal = ({ show, onHide, announcement, onSave }) => {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Masukkan judul"
+              isInvalid={!!titleError}
             />
+            <Form.Control.Feedback type="invalid">
+              {titleError}
+            </Form.Control.Feedback>
           </Form.Group>
 
-          {/* Deskripsi dengan ReactQuill */}
+          {/* Deskripsi */}
           <Form.Group className="mb-3">
             <Form.Label>Deskripsi</Form.Label>
-            <div className="border rounded" style={{ minHeight: "250px", overflow: "hidden" }}>
+            <div className={`border rounded ${descriptionError ? 'border-danger' : ''}`} style={{ minHeight: "250px", overflow: "hidden" }}>
               <ReactQuill
                 theme="snow"
                 value={description}
@@ -56,6 +84,11 @@ const AnnouncementEditModal = ({ show, onHide, announcement, onSave }) => {
                 style={{ height: "220px", border: "none" }}
               />
             </div>
+            {descriptionError && (
+              <div className="text-danger mt-1" style={{ fontSize: "0.875em" }}>
+                {descriptionError}
+              </div>
+            )}
           </Form.Group>
 
           {/* Lampiran */}
