@@ -5,23 +5,30 @@ const MediaCarouselEditModal = ({ show, onHide, mediaCarousel, onSave }) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [image, setImage] = useState(null);
+  const [titleError, setTitleError] = useState("");
 
-  // Sinkronkan data saat modal dibuka atau mediaCarousel berubah
+  // Sinkronkan data saat modal dibuka
   useEffect(() => {
     if (mediaCarousel) {
       setTitle(mediaCarousel.title || "");
       setDescription(mediaCarousel.description || "");
-      setImage(null); // Reset input file setiap kali modal dibuka
+      setImage(null);
+      setTitleError("");
     }
   }, [mediaCarousel]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (!title.trim() || !description.trim()) {
-      alert("Judul dan deskripsi wajib diisi.");
-      return;
+    let isValid = true;
+    if (!title.trim()) {
+      setTitleError("Judul tidak boleh kosong.");
+      isValid = false;
+    } else {
+      setTitleError("");
     }
+
+    if (!isValid) return;
 
     const formData = new FormData();
     formData.append("title", title.trim());
@@ -38,6 +45,7 @@ const MediaCarouselEditModal = ({ show, onHide, mediaCarousel, onSave }) => {
       </Modal.Header>
       <Modal.Body>
         <Form onSubmit={handleSubmit}>
+          {/* Judul */}
           <Form.Group className="mb-3">
             <Form.Label>Judul</Form.Label>
             <Form.Control
@@ -45,11 +53,16 @@ const MediaCarouselEditModal = ({ show, onHide, mediaCarousel, onSave }) => {
               placeholder="Masukkan judul carousel"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
+              isInvalid={!!titleError}
             />
+            <Form.Control.Feedback type="invalid">
+              {titleError}
+            </Form.Control.Feedback>
           </Form.Group>
 
+          {/* Deskripsi (opsional) */}
           <Form.Group className="mb-3">
-            <Form.Label>Deskripsi</Form.Label>
+            <Form.Label>Deskripsi (Opsional)</Form.Label>
             <Form.Control
               as="textarea"
               rows={4}
@@ -59,8 +72,9 @@ const MediaCarouselEditModal = ({ show, onHide, mediaCarousel, onSave }) => {
             />
           </Form.Group>
 
+          {/* Gambar */}
           <Form.Group className="mb-3">
-            <Form.Label>Gambar (opsional)</Form.Label>
+            <Form.Label>Gambar (Opsional)</Form.Label>
             <Form.Control
               type="file"
               accept="image/*"
@@ -81,6 +95,7 @@ const MediaCarouselEditModal = ({ show, onHide, mediaCarousel, onSave }) => {
             )}
           </Form.Group>
 
+          {/* Tombol */}
           <div className="text-end">
             <Button variant="secondary" onClick={onHide} className="me-2">
               Batal
