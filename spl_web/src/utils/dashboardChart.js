@@ -1,7 +1,4 @@
 export const renderDashboardChart = (overviewData) => {
-  const currentYear = new Date().getFullYear();
-  const previousYear = currentYear - 1;
-
   const config = window.config || {
     colors: {
       primary: "#696cff",
@@ -16,25 +13,27 @@ export const renderDashboardChart = (overviewData) => {
   const axisColor = config.colors.axisColor;
   const borderColor = config.colors.borderColor;
 
-  const totalRevenueChartEl = document.querySelector("#totalRevenueChart");
-  if (!totalRevenueChartEl || typeof ApexCharts === "undefined") return;
+  const chartEl = document.querySelector("#totalRevenueChart");
+  if (!chartEl || typeof ApexCharts === "undefined") return;
 
-  const chartThisYear = overviewData[`chart${currentYear}`] || new Array(12).fill(0);
-  const chartLastYear = overviewData[`chart${previousYear}`] || null;
+  chartEl.innerHTML = "";
+
+  // Ambil hanya 1 tahun yang dipilih
+  const year = Object.keys(overviewData)[0]?.replace("chart", "") || "";
+  const data = overviewData[`chart${year}`] || [];
 
   const series = [
-    { name: `${currentYear}`, data: chartThisYear },
+    {
+      name: year,
+      data,
+    },
   ];
 
-  if (chartLastYear && chartLastYear.some(value => value !== 0)) {
-    series.push({ name: `${previousYear}`, data: chartLastYear });
-  }
-
   const options = {
-    series: series,
+    series,
     chart: {
-      height: 320,
       type: "bar",
+      height: 300,
       toolbar: {
         show: true,
         tools: {
@@ -48,74 +47,65 @@ export const renderDashboardChart = (overviewData) => {
         },
         export: {
           csv: {
-            filename: `Total_Laporan_${currentYear}`,
-            columnDelimiter: ',',
-            headerCategory: 'Bulan',
-            headerValue: 'Jumlah',
+            filename: `Total_Laporan_${year}`,
+            columnDelimiter: ",",
+            headerCategory: "Bulan",
+            headerValue: "Jumlah",
           },
-          svg: { filename: `Total_Laporan_${currentYear}` },
-          png: { filename: `Total_Laporan_${currentYear}` },
+          svg: { filename: `Total_Laporan_${year}` },
+          png: { filename: `Total_Laporan_${year}` },
         },
       },
     },
     plotOptions: {
       bar: {
         horizontal: false,
-        columnWidth: "35%",
-        borderRadius: 8,
+        columnWidth: "95%",
+        borderRadius: 10,
+        endingShape: "rounded",
         borderRadiusApplication: "end",
-        borderRadiusWhenStacked: "last",
       },
     },
-    fill: {
-      type: "gradient",
-      gradient: {
-        shade: "light",
-        type: "vertical",
-        shadeIntensity: 0.5,
-        gradientToColors: [config.colors.primary, config.colors.info],
-        inverseColors: false,
-        opacityFrom: 0.85,
-        opacityTo: 0.55,
-        stops: [0, 90, 100],
-      },
-    },
-    colors: [config.colors.primary, config.colors.info],
+    colors: [config.colors.primary],
     dataLabels: {
-      enabled: false,
+      enabled: true,
+      style: {
+        fontSize: "13px",
+        colors: [cardColor],
+      },
     },
     stroke: {
-      width: 3,
+      width: 4,
       curve: "smooth",
       lineCap: "round",
       colors: [cardColor],
     },
-    legend: {
-      show: series.length > 1,
-      horizontalAlign: "left",
-      position: "top",
-      markers: { height: 8, width: 8, radius: 10, offsetX: -3 },
-      labels: { colors: axisColor, useSeriesColors: false },
-      itemMargin: { horizontal: 10 },
-    },
-    grid: {
-      borderColor: borderColor,
-      padding: { top: 0, bottom: -8, left: 20, right: 20 },
-      strokeDashArray: 4,
-    },
     xaxis: {
       categories: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
       labels: {
-        style: { fontSize: "13px", fontWeight: 500, colors: axisColor },
+        style: {
+          fontSize: "13px",
+          colors: axisColor,
+        },
       },
       axisTicks: { show: false },
       axisBorder: { show: false },
     },
     yaxis: {
       labels: {
-        style: { fontSize: "13px", fontWeight: 500, colors: axisColor },
+        style: {
+          fontSize: "13px",
+          colors: axisColor,
+        },
         formatter: (val) => Math.round(val),
       },
+    },
+    grid: {
+      borderColor,
+      padding: { top: 0, bottom: -10, left: 15, right: 15 },
+    },
+    legend: {
+      show: false,
     },
     tooltip: {
       theme: "light",
@@ -123,13 +113,8 @@ export const renderDashboardChart = (overviewData) => {
         formatter: (val) => `${val} laporan`,
       },
     },
-    states: {
-      hover: { filter: { type: "lighten", value: 0.05 } },
-      active: { filter: { type: "darken", value: 0.05 } },
-    },
   };
-  
 
-  const chart = new ApexCharts(totalRevenueChartEl, options);
+  const chart = new ApexCharts(chartEl, options);
   chart.render();
 };

@@ -165,7 +165,7 @@ const fetchReportDetail = async (reportId) => {
         </div>
 
         <div className="col-12 col-md-12 col-lg-6 order-3 order-md-2 mb-4">
-          <ChartCard allReports={allReports} />
+<ChartCard allReports={allReports} overviewData={overview} currentYear={overview.currentYear} />
         </div>
 
         <div className="col-12 col-md-12 col-lg-6 order-3 order-md-2 mb-4">

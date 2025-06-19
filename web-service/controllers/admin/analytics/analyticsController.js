@@ -56,8 +56,7 @@ const getOverview = async (req, res) => {
 
       let percentageChange = 0;
       if (completedLastMonth > 0) {
-        percentageChange =
-          ((completedThisMonth - completedLastMonth) / completedLastMonth) * 100;
+        percentageChange = ((completedThisMonth - completedLastMonth) / completedLastMonth) * 100;
       } else if (completedThisMonth > 0) {
         percentageChange = 100;
       }
@@ -73,56 +72,54 @@ const getOverview = async (req, res) => {
       percentageChange: completionRate,
     } = await calculateCompletionRate();
 
-    const startOfYear = new Date(currentYear, 0, 1);
-    const endOfYear = new Date(currentYear, 11, 31, 23, 59, 59, 999);
-
-    const monthlyReports = await Report.findAll({
+    // --- DYNAMIC CHART PER YEAR ---
+    const yearsRaw = await Report.findAll({
       attributes: [
-        [Sequelize.fn("MONTH", Sequelize.col("createdAt")), "month"],
-        [Sequelize.fn("COUNT", Sequelize.col("id")), "count"],
+        [Sequelize.fn("DISTINCT", Sequelize.fn("YEAR", Sequelize.col("createdAt"))), "year"],
       ],
-      where: {
-        createdAt: {
-          [Op.between]: [startOfYear, endOfYear],
-        },
-      },
-      group: ["month"],
       raw: true,
     });
 
-    const chartData = Array(12).fill(0);
-    monthlyReports.forEach((item) => {
-      const monthIndex = item.month - 1;
-      chartData[monthIndex] = parseInt(item.count);
-    });
+    const overviewCharts = {};
+    for (const { year } of yearsRaw) {
+      const monthly = await Report.findAll({
+        attributes: [
+          [Sequelize.fn("MONTH", Sequelize.col("createdAt")), "month"],
+          [Sequelize.fn("COUNT", Sequelize.col("id")), "count"],
+        ],
+        where: Sequelize.where(Sequelize.fn("YEAR", Sequelize.col("createdAt")), year),
+        group: ["month"],
+        raw: true,
+      });
+
+      const chartData = Array(12).fill(0);
+      monthly.forEach((item) => {
+        const monthIndex = item.month - 1;
+        chartData[monthIndex] = parseInt(item.count);
+      });
+
+      overviewCharts[`chart${year}`] = chartData;
+    }
 
     // --- ANALISIS RATING ---
+    const allRatingAvgResult = await RatingReport.findOne({
+      attributes: [[Sequelize.fn("AVG", Sequelize.col("rating")), "avg_rating"]],
+      where: { is_latest: true },
+      raw: true,
+    });
+    const averageRatingAll = parseFloat(allRatingAvgResult?.avg_rating || 0).toFixed(2);
 
-// 1. Rata-rata rating dari semua laporan (hanya yang is_latest = true)
-const allRatingAvgResult = await RatingReport.findOne({
-  attributes: [[Sequelize.fn("AVG", Sequelize.col("rating")), "avg_rating"]],
-  where: {
-    is_latest: true, // ✅ hanya rating terbaru
-  },
-  raw: true,
-});
-const averageRatingAll = parseFloat(allRatingAvgResult?.avg_rating || 0).toFixed(2);
-
-// 2. Rata-rata rating per tahun (hanya yang is_latest = true)
-const averageRatingByYear = await RatingReport.findAll({
-  attributes: [
-    [Sequelize.fn("YEAR", Sequelize.col("rated_at")), "year"],
-    [Sequelize.fn("AVG", Sequelize.col("rating")), "avg_rating"],
-    [Sequelize.fn("COUNT", Sequelize.col("id")), "jumlah_rating"],
-  ],
-  where: {
-    is_latest: true, // ✅ hanya rating terbaru
-  },
-  group: ["year"],
-  order: [["year", "ASC"]],
-  raw: true,
-});
-
+    const averageRatingByYear = await RatingReport.findAll({
+      attributes: [
+        [Sequelize.fn("YEAR", Sequelize.col("rated_at")), "year"],
+        [Sequelize.fn("AVG", Sequelize.col("rating")), "avg_rating"],
+        [Sequelize.fn("COUNT", Sequelize.col("id")), "jumlah_rating"],
+      ],
+      where: { is_latest: true },
+      group: ["year"],
+      order: [["year", "ASC"]],
+      raw: true,
+    });
 
     return res.json({
       totalReports,
@@ -133,7 +130,8 @@ const averageRatingByYear = await RatingReport.findAll({
       urgentReports,
       completionRate,
       completionThisMonth,
-      [`chart${currentYear}`]: chartData,
+      ...overviewCharts,
+      currentYear, // ✅ kirim tahun sekarang ke frontend
       ratingAnalytics: {
         averageRatingAll,
         averageRatingByYear,
