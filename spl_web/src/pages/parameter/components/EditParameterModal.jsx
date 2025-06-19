@@ -14,12 +14,11 @@ const EditParameterModal = ({ show, onHide, parameter, onSave }) => {
     firefighter_contact: "",
   });
 
+  const [errors, setErrors] = useState({});
   const [editorKey, setEditorKey] = useState(Date.now());
 
   useEffect(() => {
     if (parameter) {
-      console.log("📦 PARAMETER MASUK:", parameter);
-
       setForm({
         about: parameter.about || "",
         terms: parameter.terms || "",
@@ -29,23 +28,44 @@ const EditParameterModal = ({ show, onHide, parameter, onSave }) => {
         police_contact: parameter.police_contact || "",
         firefighter_contact: parameter.firefighter_contact || "",
       });
-
-      // 🔁 Force re-render ReactQuill editor
+      setErrors({});
       setEditorKey(Date.now());
     }
   }, [parameter]);
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
+    if (value.trim() !== "") {
+      setErrors((prev) => ({ ...prev, [name]: null }));
+    }
   };
 
   const handleEditorChange = (name, value) => {
     setForm((prev) => ({ ...prev, [name]: value }));
+    if (!isQuillEmpty(value)) {
+      setErrors((prev) => ({ ...prev, [name]: null }));
+    }
+  };
+
+  const isQuillEmpty = (html) => {
+    const plain = html.replace(/<(.|\n)*?>/g, "").trim();
+    return plain === "";
   };
 
   const handleSubmit = () => {
-    if (!form.about || !form.terms || !form.report_guidelines) {
-      alert("❌ Harap lengkapi kolom utama (About, Terms, Guidelines)");
+    const newErrors = {};
+
+    if (isQuillEmpty(form.about)) newErrors.about = "Kolom ini wajib diisi.";
+    if (isQuillEmpty(form.terms)) newErrors.terms = "Kolom ini wajib diisi.";
+    if (isQuillEmpty(form.report_guidelines)) newErrors.report_guidelines = "Kolom ini wajib diisi.";
+
+    ["emergency_contact", "ambulance_contact", "police_contact", "firefighter_contact"].forEach((field) => {
+      if (!form[field].trim()) newErrors[field] = "Kolom ini wajib diisi.";
+    });
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       return;
     }
 
@@ -54,48 +74,71 @@ const EditParameterModal = ({ show, onHide, parameter, onSave }) => {
   };
 
   return (
-    <Modal show={show} onHide={onHide} size="lg" centered scrollable>
+    <Modal show={show} onHide={onHide} size="xl" centered scrollable>
       <Modal.Header closeButton>
         <Modal.Title className="fw-bold">Edit Parameter</Modal.Title>
       </Modal.Header>
-      <Modal.Body>
+
+      <Modal.Body style={{ maxHeight: "75vh", overflowY: "auto" }}>
         <Form>
+          {/* About */}
           <Form.Group className="mb-3">
             <Form.Label>About</Form.Label>
-            <ReactQuill
-              key={`about-${editorKey}`}
-              value={form.about}
-              onChange={(val) => handleEditorChange("about", val)}
-              theme="snow"
-              placeholder="Tentang aplikasi..."
-              style={{ height: "150px", marginBottom: "40px" }}
-            />
+            <div
+              className={`border rounded ${errors.about ? "border-danger" : ""}`}
+              style={{ maxHeight: 300, overflowY: "auto" }}
+            >
+              <ReactQuill
+                key={`about-${editorKey}`}
+                value={form.about}
+                onChange={(val) => handleEditorChange("about", val)}
+                theme="snow"
+                placeholder="Tentang aplikasi..."
+                style={{ minHeight: 150 }}
+              />
+            </div>
+            {errors.about && <div className="text-danger mt-1">{errors.about}</div>}
           </Form.Group>
 
+          {/* Terms */}
           <Form.Group className="mb-3">
             <Form.Label>Terms</Form.Label>
-            <ReactQuill
-              key={`terms-${editorKey}`}
-              value={form.terms}
-              onChange={(val) => handleEditorChange("terms", val)}
-              theme="snow"
-              placeholder="Syarat & Ketentuan..."
-              style={{ height: "150px", marginBottom: "40px" }}
-            />
+            <div
+              className={`border rounded ${errors.terms ? "border-danger" : ""}`}
+              style={{ maxHeight: 300, overflowY: "auto" }}
+            >
+              <ReactQuill
+                key={`terms-${editorKey}`}
+                value={form.terms}
+                onChange={(val) => handleEditorChange("terms", val)}
+                theme="snow"
+                placeholder="Syarat & Ketentuan..."
+                style={{ minHeight: 150 }}
+              />
+            </div>
+            {errors.terms && <div className="text-danger mt-1">{errors.terms}</div>}
           </Form.Group>
 
+          {/* Guidelines */}
           <Form.Group className="mb-3">
             <Form.Label>Panduan Pelaporan</Form.Label>
-            <ReactQuill
-              key={`guidelines-${editorKey}`}
-              value={form.report_guidelines}
-              onChange={(val) => handleEditorChange("report_guidelines", val)}
-              theme="snow"
-              placeholder="Tata cara pelaporan..."
-              style={{ height: "150px", marginBottom: "40px" }}
-            />
+            <div
+              className={`border rounded ${errors.report_guidelines ? "border-danger" : ""}`}
+              style={{ maxHeight: 300, overflowY: "auto" }}
+            >
+              <ReactQuill
+                key={`guidelines-${editorKey}`}
+                value={form.report_guidelines}
+                onChange={(val) => handleEditorChange("report_guidelines", val)}
+                theme="snow"
+                placeholder="Tata cara pelaporan..."
+                style={{ minHeight: 150 }}
+              />
+            </div>
+            {errors.report_guidelines && <div className="text-danger mt-1">{errors.report_guidelines}</div>}
           </Form.Group>
 
+          {/* Contacts */}
           <Row>
             <Col md={6}>
               <Form.Group className="mb-3">
@@ -105,8 +148,12 @@ const EditParameterModal = ({ show, onHide, parameter, onSave }) => {
                   name="emergency_contact"
                   value={form.emergency_contact}
                   onChange={handleChange}
+                  isInvalid={!!errors.emergency_contact}
                   placeholder="08xxxx / 112 / lainnya"
                 />
+                <Form.Control.Feedback type="invalid">
+                  {errors.emergency_contact}
+                </Form.Control.Feedback>
               </Form.Group>
             </Col>
             <Col md={6}>
@@ -117,8 +164,12 @@ const EditParameterModal = ({ show, onHide, parameter, onSave }) => {
                   name="ambulance_contact"
                   value={form.ambulance_contact}
                   onChange={handleChange}
+                  isInvalid={!!errors.ambulance_contact}
                   placeholder="08xxxx / 119 / lainnya"
                 />
+                <Form.Control.Feedback type="invalid">
+                  {errors.ambulance_contact}
+                </Form.Control.Feedback>
               </Form.Group>
             </Col>
           </Row>
@@ -132,8 +183,12 @@ const EditParameterModal = ({ show, onHide, parameter, onSave }) => {
                   name="police_contact"
                   value={form.police_contact}
                   onChange={handleChange}
+                  isInvalid={!!errors.police_contact}
                   placeholder="110 / kontak polisi"
                 />
+                <Form.Control.Feedback type="invalid">
+                  {errors.police_contact}
+                </Form.Control.Feedback>
               </Form.Group>
             </Col>
             <Col md={6}>
@@ -144,13 +199,18 @@ const EditParameterModal = ({ show, onHide, parameter, onSave }) => {
                   name="firefighter_contact"
                   value={form.firefighter_contact}
                   onChange={handleChange}
+                  isInvalid={!!errors.firefighter_contact}
                   placeholder="113 / kontak damkar"
                 />
+                <Form.Control.Feedback type="invalid">
+                  {errors.firefighter_contact}
+                </Form.Control.Feedback>
               </Form.Group>
             </Col>
           </Row>
         </Form>
       </Modal.Body>
+
       <Modal.Footer>
         <Button variant="secondary" onClick={onHide}>
           Batal
