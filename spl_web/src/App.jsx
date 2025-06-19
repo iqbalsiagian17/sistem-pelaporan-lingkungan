@@ -3,6 +3,7 @@ import Layout from "./layouts/Layout";
 import AppRoutes from "./router/AppRoutes";
 import { Blank } from "./layouts/Blank";
 import "react-toastify/dist/ReactToastify.css";
+import 'bootstrap-icons/font/bootstrap-icons.css';
 
 function App() {
   const location = useLocation();

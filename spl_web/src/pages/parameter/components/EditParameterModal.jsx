@@ -14,6 +14,7 @@ const EditParameterModal = ({ show, onHide, parameter, onSave }) => {
     firefighter_contact: "",
   });
 
+  const [video, setVideo] = useState(null);
   const [errors, setErrors] = useState({});
   const [editorKey, setEditorKey] = useState(Date.now());
 
@@ -28,6 +29,7 @@ const EditParameterModal = ({ show, onHide, parameter, onSave }) => {
         police_contact: parameter.police_contact || "",
         firefighter_contact: parameter.firefighter_contact || "",
       });
+      setVideo(null); // reset input file setiap kali modal dibuka
       setErrors({});
       setEditorKey(Date.now());
     }
@@ -69,7 +71,17 @@ const EditParameterModal = ({ show, onHide, parameter, onSave }) => {
       return;
     }
 
-    onSave({ ...form, id: parameter.id });
+    const formData = new FormData();
+    Object.entries(form).forEach(([key, value]) => {
+      formData.append(key, value);
+    });
+
+    if (video) {
+      formData.append("landing_video", video);
+    }
+
+    formData.append("id", parameter.id);
+    onSave(formData);
     onHide();
   };
 
@@ -84,10 +96,7 @@ const EditParameterModal = ({ show, onHide, parameter, onSave }) => {
           {/* About */}
           <Form.Group className="mb-3">
             <Form.Label>About</Form.Label>
-            <div
-              className={`border rounded ${errors.about ? "border-danger" : ""}`}
-              style={{ maxHeight: 300, overflowY: "auto" }}
-            >
+            <div className={`border rounded ${errors.about ? "border-danger" : ""}`} style={{ maxHeight: 300, overflowY: "auto" }}>
               <ReactQuill
                 key={`about-${editorKey}`}
                 value={form.about}
@@ -103,10 +112,7 @@ const EditParameterModal = ({ show, onHide, parameter, onSave }) => {
           {/* Terms */}
           <Form.Group className="mb-3">
             <Form.Label>Terms</Form.Label>
-            <div
-              className={`border rounded ${errors.terms ? "border-danger" : ""}`}
-              style={{ maxHeight: 300, overflowY: "auto" }}
-            >
+            <div className={`border rounded ${errors.terms ? "border-danger" : ""}`} style={{ maxHeight: 300, overflowY: "auto" }}>
               <ReactQuill
                 key={`terms-${editorKey}`}
                 value={form.terms}
@@ -122,10 +128,7 @@ const EditParameterModal = ({ show, onHide, parameter, onSave }) => {
           {/* Guidelines */}
           <Form.Group className="mb-3">
             <Form.Label>Panduan Pelaporan</Form.Label>
-            <div
-              className={`border rounded ${errors.report_guidelines ? "border-danger" : ""}`}
-              style={{ maxHeight: 300, overflowY: "auto" }}
-            >
+            <div className={`border rounded ${errors.report_guidelines ? "border-danger" : ""}`} style={{ maxHeight: 300, overflowY: "auto" }}>
               <ReactQuill
                 key={`guidelines-${editorKey}`}
                 value={form.report_guidelines}
@@ -208,6 +211,25 @@ const EditParameterModal = ({ show, onHide, parameter, onSave }) => {
               </Form.Group>
             </Col>
           </Row>
+
+          {/* Landing Video */}
+          <Form.Group className="mb-3">
+            <Form.Label>Video Landing (Opsional)</Form.Label>
+            <Form.Control
+              type="file"
+              accept="video/*"
+              onChange={(e) => setVideo(e.target.files[0])}
+            />
+            {!video && parameter?.landing_video && (
+              <div className="mt-2">
+                <video
+                  src={`http://localhost:3000${parameter.landing_video}`}
+                  controls
+                  style={{ width: "100%", maxHeight: 240, borderRadius: "8px" }}
+                />
+              </div>
+            )}
+          </Form.Group>
         </Form>
       </Modal.Body>
 

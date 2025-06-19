@@ -1,4 +1,3 @@
-// src/services/parameterService.js
 import { fetchWithAuth } from "../utils/fetchWithAuth";
 
 const BASE_URL = "http://localhost:3000/api/admin/parameters";
@@ -11,33 +10,53 @@ export const getAllParameters = async () => {
   return data.data || [];
 };
 
-// Update parameter (ID tetap 1 di backend)
-export const updateParameter = async (id, payload) => {
+// ✅ Update parameter (dengan FormData)
+export const updateParameter = async (id, formData) => {
   const response = await fetchWithAuth(`${BASE_URL}/${id}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
+    body: formData,
   });
 
-  const data = await response.json();
+  const text = await response.text();
+  let data;
+
+  try {
+    data = JSON.parse(text);
+  } catch (e) {
+    console.error("❌ Gagal parsing JSON:", e);
+    console.warn("🧾 Response mentah:", text);
+    throw new Error("Server mengembalikan response tidak valid. Cek server.");
+  }
+
   if (!response.ok) throw new Error(data.message || "Gagal memperbarui parameter.");
   return data.data;
 };
 
 
-// Buat parameter (jika belum ada)
-export const createParameter = async (payload) => {
+// ✅ Create parameter (dengan FormData)
+export const createParameter = async (formData) => {
   const response = await fetchWithAuth(BASE_URL, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
+    body: formData, // kirim FormData langsung
   });
-  const data = await response.json();
+
+  const text = await response.text();
+  let data;
+
+  try {
+    data = JSON.parse(text);
+  } catch (e) {
+    console.error("❌ Gagal parsing JSON:", e);
+    console.warn("🧾 Response mentah:", text);
+    throw new Error("Server mengembalikan response tidak valid. Cek server.");
+  }
+
   if (!response.ok) throw new Error(data.message || "Gagal membuat parameter.");
   return data.data;
 };
 
-// Hapus parameter (opsional, ID tetap 1)
+
+// Hapus parameter (opsional)
 export const deleteParameter = async (id) => {
   const response = await fetchWithAuth(`${BASE_URL}/${id}`, {
     method: "DELETE",

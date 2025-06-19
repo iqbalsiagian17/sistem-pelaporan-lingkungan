@@ -14,6 +14,7 @@ const CreateParameterModal = ({ show, onHide, onCreate }) => {
     firefighter_contact: "",
   });
 
+  const [video, setVideo] = useState(null);
   const [errors, setErrors] = useState({});
 
   const handleQuillChange = (field, value) => {
@@ -39,12 +40,10 @@ const CreateParameterModal = ({ show, onHide, onCreate }) => {
   const handleSubmit = () => {
     const newErrors = {};
 
-    // Quill fields
     if (isQuillEmpty(form.about)) newErrors.about = "Kolom ini wajib diisi.";
     if (isQuillEmpty(form.terms)) newErrors.terms = "Kolom ini wajib diisi.";
     if (isQuillEmpty(form.report_guidelines)) newErrors.report_guidelines = "Kolom ini wajib diisi.";
 
-    // Text input fields
     ["emergency_contact", "ambulance_contact", "police_contact", "firefighter_contact"].forEach((field) => {
       if (!form[field].trim()) {
         newErrors[field] = "Kolom ini wajib diisi.";
@@ -56,8 +55,20 @@ const CreateParameterModal = ({ show, onHide, onCreate }) => {
       return;
     }
 
-    onCreate(form);
+    const formData = new FormData();
+    Object.entries(form).forEach(([key, value]) => {
+      formData.append(key, value);
+    });
+    if (video) {
+      formData.append("landing_video", video);
+    }
+
+    onCreate(formData);
     onHide();
+    resetForm();
+  };
+
+  const resetForm = () => {
     setForm({
       about: "",
       terms: "",
@@ -67,6 +78,7 @@ const CreateParameterModal = ({ show, onHide, onCreate }) => {
       police_contact: "",
       firefighter_contact: "",
     });
+    setVideo(null);
     setErrors({});
   };
 
@@ -75,6 +87,7 @@ const CreateParameterModal = ({ show, onHide, onCreate }) => {
       <Modal.Header closeButton>
         <Modal.Title className="fw-bold">Tambah Parameter</Modal.Title>
       </Modal.Header>
+
       <Modal.Body>
         <Form>
           {/* About */}
@@ -122,6 +135,7 @@ const CreateParameterModal = ({ show, onHide, onCreate }) => {
             {errors.report_guidelines && <div className="text-danger mt-1">{errors.report_guidelines}</div>}
           </Form.Group>
 
+          {/* Kontak Darurat */}
           <Row>
             <Col md={6}>
               <Form.Group className="mb-3">
@@ -137,7 +151,6 @@ const CreateParameterModal = ({ show, onHide, onCreate }) => {
                 <Form.Control.Feedback type="invalid">{errors.emergency_contact}</Form.Control.Feedback>
               </Form.Group>
             </Col>
-
             <Col md={6}>
               <Form.Group className="mb-3">
                 <Form.Label>Ambulans</Form.Label>
@@ -169,7 +182,6 @@ const CreateParameterModal = ({ show, onHide, onCreate }) => {
                 <Form.Control.Feedback type="invalid">{errors.police_contact}</Form.Control.Feedback>
               </Form.Group>
             </Col>
-
             <Col md={6}>
               <Form.Group className="mb-3">
                 <Form.Label>Pemadam Kebakaran</Form.Label>
@@ -185,6 +197,25 @@ const CreateParameterModal = ({ show, onHide, onCreate }) => {
               </Form.Group>
             </Col>
           </Row>
+
+          {/* Landing Video */}
+          <Form.Group className="mb-3">
+            <Form.Label>Video Landing (Opsional)</Form.Label>
+            <Form.Control
+              type="file"
+              accept="video/*"
+              onChange={(e) => setVideo(e.target.files[0])}
+            />
+            {video && (
+              <div className="mt-2">
+                <video
+                  src={URL.createObjectURL(video)}
+                  controls
+                  style={{ width: "100%", maxHeight: 240, borderRadius: 8 }}
+                />
+              </div>
+            )}
+          </Form.Group>
         </Form>
       </Modal.Body>
 

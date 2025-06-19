@@ -2,6 +2,8 @@ import { Modal, Button, Row, Col } from "react-bootstrap";
 
 const DetailParameterModal = ({ show, onHide, parameter }) => {
   if (!parameter) return null;
+  console.log("🎥 VIDEO PATH:", parameter.landing_video);
+
 
   return (
     <Modal show={show} onHide={onHide} size="lg" centered scrollable>
@@ -42,6 +44,27 @@ const DetailParameterModal = ({ show, onHide, parameter }) => {
                 __html: parameter.report_guidelines || "<p>-</p>",
               }}
             />
+          </Col>
+        </Row>
+
+        <Row className="mb-4">
+          <Col>
+            <h6 className="fw-bold">Video Landing</h6>
+            <div className="ratio ratio-16x9">
+              <video
+          src={`http://localhost:3000${parameter.landing_video}`}
+                controls
+                style={{ borderRadius: 8 }}
+                onError={(e) => {
+                  e.target.replaceWith(
+                    Object.assign(document.createElement("div"), {
+                      className: "text-danger mt-2",
+                      textContent: "⚠️ Video gagal dimuat.",
+                    })
+                  );
+                }}
+              />
+            </div>
           </Col>
         </Row>
 

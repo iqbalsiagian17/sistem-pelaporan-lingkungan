@@ -44,7 +44,11 @@ module.exports = (sequelize, DataTypes) => {
     firefighter_contact: {
       type: DataTypes.STRING,
       allowNull: true,
-    }
+    },
+    landing_video: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
   }, {
     sequelize,
     modelName: 't_parameter',

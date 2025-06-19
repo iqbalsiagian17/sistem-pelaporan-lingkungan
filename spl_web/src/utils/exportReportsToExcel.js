@@ -13,7 +13,8 @@ const statusTranslations = {
 };
 
 export const exportReportsToExcel = (reports) => {
-  const data = reports.map((report) => ({
+  const data = reports.map((report,index) => ({
+    "No": index + 1,
     "Pelapor": report.user?.email || report.user?.username || '-',
     "Nomor Laporan": report.report_number || '-',
     "Judul Laporan": report.title || '-',
@@ -29,6 +30,7 @@ export const exportReportsToExcel = (reports) => {
   const worksheet = XLSX.utils.json_to_sheet(data);
 
   worksheet['!cols'] = [
+    { wch: 5 }, 
     { wch: 20 },
     { wch: 20 },
     { wch: 30 },

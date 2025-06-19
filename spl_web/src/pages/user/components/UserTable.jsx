@@ -48,23 +48,45 @@ const UserTable = ({
           <Col xs={12} md={6} className="mb-2 mb-md-0 text-center text-md-start">
             <h5 className="mb-0 text-primary fw-bold">Daftar Pengguna</h5>
           </Col>
-          <Col xs={12} md={6}>
-            <InputGroup className="shadow-sm">
-              <Form.Control
-                type="text"
-                placeholder="Cari berdasarkan username..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-              <Button
-                variant="outline-secondary"
-                onClick={() => setSearchQuery("")}
-                title="Hapus Pencarian"
-              >
-                <i className="bx bx-x" />
-              </Button>
-            </InputGroup>
-          </Col>
+          <Col
+              xs={12}
+              md={6}
+              className="d-flex justify-content-md-end justify-content-center align-items-center"
+            >
+              <div className="d-flex gap-2" style={{ maxWidth: "400px", width: "100%" }}>
+                <InputGroup>
+                  <Form.Control
+                    type="text"
+                    placeholder="Cari berdasarkan username..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="border-0 shadow-sm"
+                  />
+                  <Button
+                    variant="outline-secondary"
+                    className="border-0 shadow-sm"
+                    onClick={() => setSearchQuery("")}
+                    title="Hapus Pencarian"
+                  >
+                    <i className="bx bx-x" style={{ fontSize: "18px" }}></i>
+                  </Button>
+                </InputGroup>
+
+                {/* Tombol tambahan jika dibutuhkan, contoh Export */}
+                {/* 
+                <Button
+                  variant="success"
+                  className="border-0 shadow-sm d-flex align-items-center justify-content-center"
+                  style={{ width: "48px", height: "48px" }}
+                  onClick={handleExportExcel}
+                  title="Export Excel"
+                >
+                  <i className="bx bx-spreadsheet" style={{ fontSize: "18px" }}></i>
+                </Button>
+                */}
+              </div>
+            </Col>
+
         </Row>
       </Card.Header>
 

@@ -12,6 +12,7 @@ exports.getPublicParameter = async (req, res) => {
         "ambulance_contact",
         "police_contact",
         "firefighter_contact",
+        "landing_video"
       ],
       order: [["id", "ASC"]]
     });
@@ -66,18 +67,22 @@ exports.updateParameter = async (req, res) => {
     const user_id = req.user.id;
 
     const parameter = await t_parameter.findByPk(id);
-
     if (!parameter) {
       return res.status(404).json({ success: false, message: 'Parameter tidak ditemukan' });
     }
 
     if (parameter.user_id !== user_id) {
-      return res.status(403).json({ success: false, message: 'Anda tidak memiliki izin untuk memperbarui parameter ini' });
+      return res.status(403).json({ success: false, message: 'Anda tidak memiliki izin' });
     }
+
+    const landing_video = req.file
+      ? `/uploads/videos/parameter/${req.file.filename}`
+      : parameter.landing_video; // gunakan yang lama jika tidak ada file baru
 
     await parameter.update({
       ...req.body,
-      user_id, // Tetap update user_id untuk tracking siapa yang terakhir ubah
+      landing_video,
+      user_id,
     });
 
     res.status(200).json({
@@ -95,6 +100,7 @@ exports.updateParameter = async (req, res) => {
 };
 
 
+
 // ✅ Admin - Create Parameter (jika belum ada)
 exports.createParameter = async (req, res) => {
   try {
@@ -103,10 +109,14 @@ exports.createParameter = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Parameter sudah tersedia' });
     }
 
-    const user_id = req.user.id; // 🔥 Ambil user_id dari token
+    const user_id = req.user.id;
+
+    // 👇 Tambahkan path video jika ada
+    const landing_video = req.file ? `/uploads/videos/parameter/${req.file.filename}` : null;
 
     const created = await t_parameter.create({
       ...req.body,
+      landing_video,
       user_id,
     });
 

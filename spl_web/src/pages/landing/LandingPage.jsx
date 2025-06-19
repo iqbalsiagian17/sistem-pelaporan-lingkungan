@@ -1,12 +1,13 @@
-import React, { useEffect } from "react";
+import { useState, useEffect } from "react";
 import Navbar from "./components/Navbar";
 import Header from "./components/Header";
-import HeroSection from "./components/HeroSection";
 import FeaturesSection from "./components/FeaturesSection";
 import DownloadSection from "./components/DownloadSection";
 import Footer from "./components/Footer";
 
 const LandingPage = () => {
+  const [parameter, setParameter] = useState(null);
+
   useEffect(() => {
     const link = document.createElement("link");
     link.rel = "stylesheet";
@@ -15,12 +16,24 @@ const LandingPage = () => {
     return () => document.head.removeChild(link);
   }, []);
 
+  useEffect(() => {
+    const fetchParameter = async () => {
+      try {
+        const res = await fetch("http://localhost:3000/api/parameters");
+        const json = await res.json();
+        setParameter(json.data);
+      } catch (err) {
+        console.error("❌ Gagal mengambil parameter:", err);
+      }
+    };
+    fetchParameter();
+  }, []);
+
   return (
     <>
       <Navbar />
-      <Header />
-      <HeroSection />
-      <FeaturesSection />
+      <Header parameter={parameter} />
+      <FeaturesSection parameter={parameter} />
       <DownloadSection />
       <Footer />
     </>
