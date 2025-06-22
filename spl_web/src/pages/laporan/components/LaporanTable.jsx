@@ -154,8 +154,8 @@ const LaporanTable = ({ reports, handleOpenDetailModal, handleOpenStatusModal, h
                       <td className="d-flex align-items-center">
                           <img
                             src={
-                              report.user?.avatar
-                                ? `http://localhost:3000/${report.user.avatar}`
+                              report.user?.profile_picture
+                                ? `http://localhost:3000/${report.user.profile_picture}`
                                 : `https://ui-avatars.com/api/?name=${encodeURIComponent(report.user?.username || "User")}&background=198754&color=fff`
                             }
                             alt={`Avatar ${report.user?.username}`}

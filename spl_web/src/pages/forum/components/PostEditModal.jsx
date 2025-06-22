@@ -67,6 +67,12 @@ const PostEditModal = ({ show, onHide, onSave, initialData }) => {
     setIsSubmitting(false);
   };
 
+  const handleImageError = (e) => {
+    e.target.onerror = null;
+    e.target.src = "/assets/img/illustrations/error-image.png";
+  };
+
+
   return (
     <>
       <Modal show={show} onHide={resetForm} centered>
@@ -97,6 +103,7 @@ const PostEditModal = ({ show, onHide, onSave, initialData }) => {
                       key={img.id}
                       src={`http://localhost:3000/${img.image}`}
                       alt="existing"
+                      onError={handleImageError}
                       style={{
                         width: "100px",
                         height: "100px",

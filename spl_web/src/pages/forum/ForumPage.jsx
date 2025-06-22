@@ -145,6 +145,11 @@ const ForumPage = () => {
     showToast("Komentar berhasil ditambahkan.");
   };
 
+  const handleImageError = (e) => {
+    e.target.onerror = null;
+    e.target.src = "/assets/img/illustrations/error-image.png";
+  };
+
   // Pisahkan pinned dan unpinned posts
   const pinned = posts.filter((p) => p.is_pinned);
   const notPinned = posts.filter((p) => !p.is_pinned);
@@ -305,14 +310,14 @@ const ForumPage = () => {
           {imageList.length > 1 && (
             <button onClick={() => setStartIndex((prev) => (prev - 1 + imageList.length) % imageList.length)} className="btn btn-light position-absolute" style={{ left: 20, top: "50%", transform: "translateY(-50%)" }}>‹</button>
           )}
-          <img src={`http://localhost:3000/${imageList[startIndex]?.image}`} alt="preview" style={{ maxHeight: "75vh", maxWidth: "100%", objectFit: "contain", borderRadius: "8px" }} />
+          <img src={`http://localhost:3000/${imageList[startIndex]?.image}`} alt="preview" style={{ maxHeight: "75vh", maxWidth: "100%", objectFit: "contain", borderRadius: "8px" }} onError={handleImageError} />
           {imageList.length > 1 && (
             <button onClick={() => setStartIndex((prev) => (prev + 1) % imageList.length)} className="btn btn-light position-absolute" style={{ right: 20, top: "50%", transform: "translateY(-50%)" }}>›</button>
           )}
         </div>
         <div className="d-flex justify-content-center gap-2 my-3 flex-wrap">
           {imageList.map((img, idx) => (
-            <img key={img.id} src={`http://localhost:3000/${img.image}`} alt={`thumb-${idx}`} onClick={() => setStartIndex(idx)} style={{ width: 60, height: 45, objectFit: "cover", cursor: "pointer", border: idx === startIndex ? "2px solid #0d6efd" : "1px solid #ccc", borderRadius: 4 }} />
+            <img key={img.id} src={`http://localhost:3000/${img.image}`} alt={`thumb-${idx}`} onClick={() => setStartIndex(idx)} style={{ width: 60, height: 45, objectFit: "cover", cursor: "pointer", border: idx === startIndex ? "2px solid #0d6efd" : "1px solid #ccc", borderRadius: 4 }} onError={handleImageError}/>
           ))}
         </div>
       </Modal.Body>

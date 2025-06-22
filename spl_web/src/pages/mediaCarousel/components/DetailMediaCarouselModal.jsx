@@ -1,6 +1,12 @@
 import { Modal, Button } from "react-bootstrap";
 
 const MediaDetailCarouselModal = ({ show, onHide, mediaCarousel }) => {
+
+  const handleImageError = (e) => {
+    e.target.onerror = null;
+    e.target.src = "/assets/img/illustrations/error-image.png";
+  };
+
   return (
     <Modal show={show} onHide={onHide} centered size="lg">
       <Modal.Header closeButton>
@@ -26,6 +32,7 @@ const MediaDetailCarouselModal = ({ show, onHide, mediaCarousel }) => {
                   alt="Gambar Media Carousel"
                   className="img-fluid rounded shadow-sm border"
                   style={{ maxHeight: "300px", objectFit: "contain" }}
+                  onError={handleImageError}
                 />
               </div>
             )}

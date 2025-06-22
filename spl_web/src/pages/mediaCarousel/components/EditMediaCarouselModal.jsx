@@ -38,6 +38,11 @@ const MediaCarouselEditModal = ({ show, onHide, mediaCarousel, onSave }) => {
     onSave(mediaCarousel.id, formData);
   };
 
+  const handleImageError = (e) => {
+    e.target.onerror = null;
+    e.target.src = "/assets/img/illustrations/error-image.png";
+  };
+
   return (
     <Modal show={show} onHide={onHide} size="lg" centered>
       <Modal.Header closeButton>
@@ -90,6 +95,7 @@ const MediaCarouselEditModal = ({ show, onHide, mediaCarousel, onSave }) => {
                   alt="Preview"
                   className="img-fluid rounded shadow-sm border"
                   style={{ maxHeight: "180px", objectFit: "cover" }}
+                  onError={handleImageError}
                 />
               </div>
             )}

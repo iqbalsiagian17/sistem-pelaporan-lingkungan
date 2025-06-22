@@ -20,6 +20,12 @@ const MediaCarouselTable = ({ mediaCarousels = [], isLoading, onView, onEdit, on
   const filtered = mediaCarousels.filter((item) =>
     item.title.toLowerCase().includes(search.toLowerCase())
   );
+  
+  const handleImageError = (e) => {
+    e.target.onerror = null;
+    e.target.src = "/assets/img/illustrations/error-image.png";
+  };
+
 
   return (
     <Card className="shadow-sm border-0">
@@ -83,6 +89,7 @@ const MediaCarouselTable = ({ mediaCarousels = [], isLoading, onView, onEdit, on
                       <img
                         src={`http://localhost:3000/${item.image}`}
                         alt="carousel"
+                        onError={handleImageError} 
                         style={{
                           width: "120px",
                           height: "auto",

@@ -6,6 +6,12 @@ const [showFull, setShowFull] = useState(false);
 const words = content.trim().split(/\s+/);
 const isLong = words.length > 20;
 
+const handleImageError = (e) => {
+  e.target.onerror = null;
+  e.target.src = "/assets/img/illustrations/error-image.png";
+};
+
+
   return (
     <div className="px-3 pb-2">
       <p className="text-dark mb-3 mt-2" style={{ lineHeight: "1.6", whiteSpace: "pre-line" }}>
@@ -33,6 +39,7 @@ const isLong = words.length > 20;
         className="w-100 rounded"
         style={{ objectFit: "cover", maxHeight: "400px", cursor: "pointer" }}
         onClick={() => onImageClick(images, 0)}
+        onError={handleImageError}
       />
     )}
 
@@ -44,6 +51,7 @@ const isLong = words.length > 20;
           className="w-100 rounded"
           style={{ aspectRatio: "4/3", objectFit: "cover", cursor: "pointer" }}
           onClick={() => onImageClick(images, i)}
+          onError={handleImageError}
         />
       </div>
     ))}
@@ -57,6 +65,7 @@ const isLong = words.length > 20;
             className="w-100 rounded mb-2"
             style={{ aspectRatio: "16/9", objectFit: "cover", cursor: "pointer" }}
             onClick={() => onImageClick(images, 0)}
+            onError={handleImageError}
           />
         </div>
         {images.slice(1).map((img, i) => (
@@ -67,6 +76,7 @@ const isLong = words.length > 20;
               className="w-100 rounded"
               style={{ aspectRatio: "4/3", objectFit: "cover", cursor: "pointer" }}
               onClick={() => onImageClick(images, i + 1)}
+              onError={handleImageError}
             />
           </div>
         ))}
@@ -87,6 +97,7 @@ const isLong = words.length > 20;
         className="w-100 rounded"
         style={{ aspectRatio: "4/3", objectFit: "cover", cursor: "pointer" }}
         onClick={() => onImageClick(images, i)}
+        onError={handleImageError}
       />
       {isLastVisible && remainingCount > 0 && (
         <div

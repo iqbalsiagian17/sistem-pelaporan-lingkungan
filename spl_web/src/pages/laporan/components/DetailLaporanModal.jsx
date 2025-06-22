@@ -14,9 +14,12 @@ const DetailLaporanModal = ({ show, onHide, report }) => {
     setLoadingImages((prev) => ({ ...prev, [index]: false }));
   };
 
-  const handleImageError = (index) => {
+  const handleImageError = (e, index) => {
+    e.target.onerror = null; // cegah infinite loop
+    e.target.src = "/assets/img/illustrations/error-image.png";
     setLoadingImages((prev) => ({ ...prev, [index]: false }));
   };
+
 
   const exportToPDF = async () => {
     const input = document.getElementById('laporanDetailContent');
@@ -70,6 +73,8 @@ const DetailLaporanModal = ({ show, onHide, report }) => {
       return evidenceDate >= new Date(currentCreatedAt) && evidenceDate < new Date(nextCreatedAt);
     });
   };
+
+  
 
   return (
     <Modal show={show} onHide={onHide} size="xl" centered>
@@ -188,7 +193,7 @@ const DetailLaporanModal = ({ show, onHide, report }) => {
                                   style={{ height: "180px", objectFit: "cover" }} 
                                   onLoad={() => handleImageLoad(index)}
                                   onError={(e) => {
-                                    e.target.src = "/assets/img/default-image.png";
+                                    e.target.src = "/assets/img/illustrations/error-image.png";
                                     handleImageError(index);
                                   }}
                                 />
@@ -272,7 +277,7 @@ const DetailLaporanModal = ({ show, onHide, report }) => {
                                         className="card-img-top rounded"
                                         style={{ height: "180px", objectFit: "cover" }}
                                         onError={(e) => {
-                                          e.target.src = "/assets/img/default-image.png";
+                                          e.target.src = "/assets/img/illustrations/error-image.png";
                                         }}
                                       />
                                     </a>
