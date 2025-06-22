@@ -31,6 +31,8 @@ const PostCard = ({
   const canEdit = (commentUserId) => commentUserId === currentUserId;
   const [showComments, setShowComments] = React.useState(false);
 
+  console.log("Current user ID:", currentUserId);
+
 
   return (
     <div className="card shadow-sm mb-2 rounded">

@@ -260,11 +260,6 @@ exports.updateCommentAdmin = async (req, res) => {
     const { id } = req.params;
     const { content } = req.body;
     const user_id = req.user.id;
-
-    console.log("🛠️ Admin UpdateComment → ID:", id);
-    console.log("🛠️ Admin UpdateComment → Content:", content);
-    console.log("🛠️ Admin UpdateComment → UserID:", user_id);
-
     const comment = await Comment.findByPk(id);
 
     if (!comment) {
@@ -279,20 +274,20 @@ exports.updateCommentAdmin = async (req, res) => {
     }
 
     comment.content = content;
-    comment.is_edited = true; // ✅ tandai sebagai sudah diedit
+    comment.is_edited = true; 
     await comment.save();
 
     const updatedComment = await Comment.findByPk(id, {
       include: { model: User, as: "user", attributes: ["id", "username", "profile_picture"] }
     });
 
-    console.log("✅ Komentar berhasil diperbarui");
+    console.log("Komentar berhasil diperbarui");
     return res.status(200).json({
       message: "Komentar berhasil diperbarui",
       comment: updatedComment,
     });
   } catch (error) {
-    console.error("❌ Error updating comment (admin):", error);
+    console.error("Error updating comment (admin):", error);
     return res.status(500).json({ message: "Server error", error: error.message });
   }
 };

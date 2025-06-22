@@ -270,7 +270,7 @@ const ForumPage = () => {
                 onImageClick={handleOpenImageModal}
                 onCommentAdded={handleAddComment}
                 onShowToast={showToast}
-
+                currentUserId={1} // ✅ GANTI dengan ID user login
               />
             </div>
           ))

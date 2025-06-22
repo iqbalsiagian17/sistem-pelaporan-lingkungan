@@ -1,12 +1,9 @@
-import React, { useState } from "react";
+import React from "react";
 import AvatarDisplay from "./AvatarDisplay";
 import { formatPostDate } from "../../../utils/formatDate";
 
 const CommentItem = ({ comment, canEdit, onEdit, onDelete }) => {
   const timeAgo = formatPostDate(comment.createdAt);
-  const [showMenu, setShowMenu] = useState(false);
-
-  const toggleMenu = () => setShowMenu((prev) => !prev);
 
   return (
     <div className="d-flex justify-content-between align-items-start position-relative">
@@ -35,43 +32,32 @@ const CommentItem = ({ comment, canEdit, onEdit, onDelete }) => {
         </div>
       </div>
 
-      {/* Kanan: Dropdown manual */}
-      <div className="dropdown" style={{ position: "relative" }}>
+      {/* Kanan: Dropdown Bootstrap */}
+      <div className="dropdown">
         <button
-          className="btn btn-link text-muted p-0 border-0"
-          onClick={toggleMenu}
-          aria-expanded={showMenu}
+          type="button"
+          className="btn p-0 dropdown-toggle hide-arrow"
+          data-bs-toggle="dropdown"
+          aria-expanded="false"
         >
-          <i className="bi bi-three-dots-vertical" style={{ fontSize: "1.1rem" }}></i>
+          <i className="bx bx-dots-vertical-rounded" style={{ fontSize: "18px" }}></i>
         </button>
-
-        {showMenu && (
-          <div
-            className="dropdown-menu dropdown-menu-end show"
-            style={{ position: "absolute", top: "100%", right: 0, zIndex: 1000 }}
-          >
-            {canEdit(comment.user?.id) && (
-              <button
-                className="dropdown-item"
-                onClick={() => {
-                  onEdit(comment);
-                  setShowMenu(false);
-                }}
-              >
-                Edit Komentar
-              </button>
-            )}
+        <div className="dropdown-menu dropdown-menu-end">
+          {canEdit(comment.user?.id) && (
             <button
-              className="dropdown-item text-danger"
-              onClick={() => {
-                onDelete(comment.id);
-                setShowMenu(false);
-              }}
+              className="dropdown-item"
+              onClick={() => onEdit(comment)}
             >
-              Hapus Komentar
+              <i className="bx bx-edit-alt me-1"></i> Edit Komentar
             </button>
-          </div>
-        )}
+          )}
+          <button
+            className="dropdown-item text-danger"
+            onClick={() => onDelete(comment.id)}
+          >
+            <i className="bx bx-trash me-1"></i> Hapus Komentar
+          </button>
+        </div>
       </div>
     </div>
   );
