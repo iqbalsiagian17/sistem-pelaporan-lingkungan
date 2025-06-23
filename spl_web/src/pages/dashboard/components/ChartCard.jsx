@@ -44,8 +44,8 @@ useEffect(() => {
 }, [selectedYear, overviewData]);
 
   return (
-    <div className="card">
-      <div className="row row-bordered g-0">
+    <div className="card h-100">
+      <div className="row row-bordered g-0 h-100">
         <div className="col-md-8">
           <div className="d-flex justify-content-between align-items-center px-3 pt-3">
             <h5 className="card-title m-0">Total Laporan ({selectedYear})</h5>
