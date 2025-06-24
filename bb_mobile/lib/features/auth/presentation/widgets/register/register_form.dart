@@ -157,16 +157,22 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
           const SizedBox(height: 8),
           RegisterTermsCheckbox(
             value: _isAgreedToTerms,
-            onChanged: (val) {
-              setState(() {
-                _isAgreedToTerms = val ?? false;
-                if (_isAgreedToTerms) {
+            onChanged: (val) async {
+              if (!_isAgreedToTerms && val == true) {
+                await _showTermsModal(); // wajib baca dulu
+                setState(() {
+                  _isAgreedToTerms = true;
                   _showTermsError = false;
-                }
-              });
+                });
+              } else {
+                setState(() {
+                  _isAgreedToTerms = val ?? false; 
+                });
+              }
             },
             onShowTerms: _showTermsModal,
           ),
+
 
           if (_showTermsError)
             const Padding(
