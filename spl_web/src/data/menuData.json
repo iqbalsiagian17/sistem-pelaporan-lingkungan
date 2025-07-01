@@ -69,16 +69,19 @@
         "header": "MASTER DATA",
         "items": [
             {
-                "text": "Parameter",
-                "icon": "bx bx-cog",
+                "text": "Master Data",
+                "icon": "bx bx-data",
                 "available": true,
-                "link": "/parameters"
-            },
-            {
-                "text": "Desa",
-                "icon": "bx bx-map",
-                "available": true,
-                "link": "/villages"
+                "submenu": [
+                {
+                    "text": "Parameter",
+                    "link": "/parameters"
+                },
+                {
+                    "text": "Desa",
+                    "link": "/villages"
+                }
+                ]
             }
         ]
     }
