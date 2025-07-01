@@ -107,7 +107,8 @@ class _ProfileHeaderState extends ConsumerState<ProfileHeader> {
                       child: GestureDetector(
                         onTap: () async {
                           Navigator.of(context).pop(); // tutup blur modal
-                          _showImageSourcePicker(context, imageUrl); // buka bottom sheet
+                          _showImageSourcePicker(context);
+
                         },
                         child: Container(
                           padding: const EdgeInsets.all(6),
@@ -137,7 +138,7 @@ class _ProfileHeaderState extends ConsumerState<ProfileHeader> {
 }
 
 
-  void _showImageSourcePicker(BuildContext context, String imageUrl) {
+void _showImageSourcePicker(BuildContext context) {
   showModalBottomSheet(
     context: context,
     isScrollControlled: false,
@@ -280,7 +281,8 @@ class _ProfileHeaderState extends ConsumerState<ProfileHeader> {
                   bottom: 0,
                   right: 0,
                   child: GestureDetector(
-                  onTap: () => _showImageSourcePicker(context, imageUrl!),
+                    onTap: () => _showImageSourcePicker(context),
+
                     child: Container(
                       padding: const EdgeInsets.all(6),
                       decoration: BoxDecoration(

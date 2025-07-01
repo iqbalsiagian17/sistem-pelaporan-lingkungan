@@ -9,6 +9,7 @@ import MediaCarouselPage from "../pages/mediaCarousel/MediaCarouselPage";
 import ParameterPage from "../pages/parameter/ParameterPage";
 import ForumPage from "../pages/forum/ForumPage";
 import LandingPage from "../pages/landing/LandingPage"; 
+import VillagePage from "../pages/village/VillagePage";
 
 const AppRoutes = () => {
     return (
@@ -26,6 +27,7 @@ const AppRoutes = () => {
                 <Route path="/banners" element={<MediaCarouselPage />} />
                 <Route path="/parameters" element={<ParameterPage />} />
                 <Route path="/forum" element={<ForumPage />} />
+                <Route path="/villages" element={<VillagePage />} />
             </Route>
         </Routes>
     );

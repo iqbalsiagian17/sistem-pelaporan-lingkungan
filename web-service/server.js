@@ -18,6 +18,7 @@ const adminReportRoutes = require('./routes/admin/reportRoutes');
 const adminMediaCarouselRoutes = require("./routes/admin/mediaCarouselRoutes");
 const adminAnnouncementRoutes = require("./routes/admin/announcementRoutes");
 const adminParameterRoutes = require("./routes/admin/parameterRoutes");
+const adminVillageRoutes = require("./routes/admin/villageRoutes");
 const forumRoutes = require("./routes/user/forumRoutes");
 const userManagementRoutes = require("./routes/admin/userManagementRoutes");
 const publicMediaCarouselRoutes = require("./routes/public/mediaCarouselRoutes");
@@ -78,6 +79,7 @@ app.use("/api/admin/announcements", adminAnnouncementRoutes);
 app.use("/api/admin/parameters", adminParameterRoutes);
 app.use("/api/admin/post", adminForumRoutes);
 app.use("/api/admin/analytics", adminAnalyticsRoutes);
+app.use("/api/admin/villages", adminVillageRoutes);
 
 // 🔹 Static Files
 app.use("/uploads", express.static("uploads"));

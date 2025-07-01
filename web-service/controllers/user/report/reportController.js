@@ -1,4 +1,4 @@
-const { User, Report, ReportAttachment, ReportStatusHistory, Notification, ReportEvidence, UserReportSave, RatingReport  } = require('../../../models');
+const { User, Report, ReportAttachment, ReportStatusHistory, Notification, ReportEvidence, UserReportSave, RatingReport, Villages  } = require('../../../models');
 const { sequelize } = require('../../../models');
 const { Op } = require("sequelize");
 const multer = require('multer');
@@ -50,6 +50,11 @@ exports.getAllReports = async (req, res) => {
           ],
           attributes: ['id', 'previous_status', 'new_status', 'message', 'createdAt'], // Ambil hanya kolom penting
           order: [['createdAt', 'DESC']], // Urutkan status dari yang terbaru
+        },
+        {
+          model: Villages,
+          as: 'village',
+          attributes: ['id', 'name']
         },
         {
           model: ReportEvidence,
@@ -132,7 +137,7 @@ exports.createReport = async (req, res) => {
       return res.status(400).json({ message: "File upload error", error: err.message });
     }
 
-    const { title, description, location_details, village, longitude, latitude, is_at_location, date } = req.body;
+    const { title, description, location_details, village_id, longitude, latitude, is_at_location, date } = req.body;
     const user_id = req.user.id;
 
     if (!title || !description || !date) {
@@ -167,7 +172,7 @@ exports.createReport = async (req, res) => {
             total_likes: 0,
             date,
             location_details: location_details?.trim() || "",
-            village: is_at_location === "false" ? village : null,
+            village_id: is_at_location === "false" ? village_id : null,
             latitude: is_at_location === "true" ? latitude : null,
             longitude: is_at_location === "true" ? longitude : null,
           },
@@ -302,7 +307,7 @@ exports.updateReport = async (req, res) => {
       } else {
         report.longitude = null;
         report.latitude = null;
-        report.village = village || report.village;
+        report.village_id = village_id || report.village_id;
       }
 
       await report.save();

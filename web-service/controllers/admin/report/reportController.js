@@ -1,4 +1,4 @@
-const { Report, ReportAttachment, ReportStatusHistory, ReportEvidence, User, Notification,RatingReport, UserReportSave, sequelize } = require('../../../models');
+const { Report, ReportAttachment, ReportStatusHistory, ReportEvidence, User, Notification,RatingReport, UserReportSave, sequelize, Villages } = require('../../../models');
 const { sendNotificationToUser } = require('../../../services/firebaseService');
 const fs = require('fs');
 const { Op } = require('sequelize');
@@ -29,7 +29,8 @@ exports.getAllReports = async (req, res) => {
       },
       include: [
         { model: ReportAttachment, as: 'attachments' },
-        { model: User, as: 'user', attributes: ['id', 'username', 'email', 'profile_picture'] }
+        { model: User, as: 'user', attributes: ['id', 'username', 'email', 'profile_picture'] },
+        { model: Villages, as: 'village', attributes: ['id', 'name'] }
       ],
       order: [['createdAt', 'DESC']]
     });
@@ -56,6 +57,7 @@ exports.getReportById = async (req, res) => {
       include: [
         { model: ReportAttachment, as: 'attachments' },
         { model: ReportEvidence, as: 'evidences' }, 
+        { model: Villages, as: 'village', attributes: ['id', 'name'] },
         { model: ReportStatusHistory, as: 'statusHistory', include: { model: User, as: 'admin', attributes: ['id', 'username'] } },
         { model: User, as: 'user', attributes: ['id', 'username', 'email', 'profile_picture'] },
         { model: RatingReport, as: 'rating', attributes: ['id', 'rating', 'review', 'rated_at'] } // ✅ sesuai alias

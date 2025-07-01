@@ -73,6 +73,12 @@
                 "icon": "bx bx-cog",
                 "available": true,
                 "link": "/parameters"
+            },
+            {
+                "text": "Desa",
+                "icon": "bx bx-map",
+                "available": true,
+                "link": "/villages"
             }
         ]
     }

@@ -38,10 +38,14 @@ module.exports = (sequelize, DataTypes) => {
               type: DataTypes.ENUM('pending', 'rejected', 'verified', 'in_progress', 'completed', 'closed', 'reopened', 'canceled'),
               defaultValue: 'pending'
           },
-          village: {
-              type: DataTypes.STRING(100),
+          village_id: {
+              type: DataTypes.INTEGER,
               allowNull: true,
-              defaultValue: "" // ✅ Ganti dari NULL ke string kosong
+              references: {
+                model: 't_villages',
+                key: 'id'
+              },
+              onDelete: 'SET NULL'
           },
           location_details: {
               type: DataTypes.TEXT,
@@ -95,6 +99,7 @@ module.exports = (sequelize, DataTypes) => {
       Report.hasMany(models.UserReportLikeHistory, { foreignKey: 'report_id', as: 'likesRelation' });
       Report.hasMany(models.ReportEvidence, { foreignKey: 'report_id', as: 'evidences' });
       Report.hasOne(models.RatingReport, { foreignKey: 'report_id', as: 'rating' }); // ⬅ Ubah 'ratings' menjadi 'rating'
+      Report.belongsTo(models.Villages, { foreignKey: 'village_id', as: 'village' });
     };
 
   return Report;

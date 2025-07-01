@@ -59,16 +59,16 @@ function getRandomSubset(arr, percentage = 0.5) {
 }
 
 // Jalankan cron pada 08:00, 12:00, 16:00 setiap hari
-cron.schedule("48 14 * * *", async () => {
+cron.schedule("0 8,10,12,13,15,16 * * *", async () => {
   const now = new Date();
-  const hour = now.getHours();
+  const hour = now.getHours(); // misalnya 15
   const label = `${hour}:00`;
 
-  const todayStart = new Date();
-  todayStart.setHours(0, 0, 0, 0);
-  const todayEnd = new Date();
-  todayEnd.setHours(23, 59, 59, 999);
-
+  // Rentang waktu hanya untuk jam ini
+  const thisHourStart = new Date();
+  thisHourStart.setHours(hour, 0, 0, 0);
+  const thisHourEnd = new Date();
+  thisHourEnd.setHours(hour, 59, 59, 999);
 
   try {
     const allUsers = await User.findAll({
@@ -78,25 +78,24 @@ cron.schedule("48 14 * * *", async () => {
       },
     });
 
-    // Ambil subset user secara acak (misal 50%)
-    const targetUsers = allUsers; // Kirim ke semua user
+    let sentCount = 0;
 
-
-    for (const user of targetUsers) {
-
-      const message = getRandomMessage();
-
-      // Cek apakah user sudah dapat notifikasi campaign hari ini
-      const existing = await Notification.findOne({
+    for (const user of allUsers) {
+      // ❗ Cek apakah user sudah menerima campaign pada jam ini
+      const alreadyThisHour = await Notification.findOne({
         where: {
           user_id: user.id,
           type: "campaign",
-          createdAt: { [Op.between]: [todayStart, todayEnd] },
-          message, // sama persis
+          createdAt: {
+            [Op.between]: [thisHourStart, thisHourEnd],
+          },
         },
       });
 
-      if (existing) continue;
+      if (alreadyThisHour) continue;
+
+      // 🔁 Ambil pesan acak untuk user ini
+      const message = getRandomMessage();
 
       await Notification.create({
         user_id: user.id,
@@ -110,10 +109,14 @@ cron.schedule("48 14 * * *", async () => {
       await sendNotificationToUser(user.fcm_token, "Ayo Jaga Lingkungan!", message, {
         type: "campaign",
       });
+
+      console.log(`✅ [${label}] User ${user.id} menerima pesan: ${message}`);
+      sentCount++;
     }
 
-    console.log(`✅ Kampanye '${message}' dikirim ke ${targetUsers.length} user pada ${label}.`);
+    console.log(`🎉 Total kampanye dikirim ke ${sentCount} user pada ${label}`);
   } catch (err) {
     console.error("❌ Gagal kirim kampanye:", err);
   }
 });
+

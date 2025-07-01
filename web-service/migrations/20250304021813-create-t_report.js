@@ -10,15 +10,15 @@ module.exports = {
         primaryKey: true
       },
       user_id: {
-        type: Sequelize.INTEGER, // Sesuai dengan tipe di t_user
+        type: Sequelize.INTEGER,
         allowNull: false,
-        defaultValue: 0, // ✅ Pastikan tidak NULL
         references: {
-          model: 't_user', // Harus sesuai dengan nama tabel di database (perhatikan case-sensitive)
+          model: 't_user',
           key: 'id'
         },
         onDelete: 'CASCADE'
       },
+
       report_number: {
         type: Sequelize.STRING(20),
         allowNull: false,
@@ -46,10 +46,14 @@ module.exports = {
         allowNull: false, // ✅ Pastikan tidak NULL
         defaultValue: 0  // ✅ Default agar tidak NULL
       },
-      village: {
-        type: Sequelize.STRING(100),
+      village_id: {
+        type: Sequelize.INTEGER,
         allowNull: true,
-        defaultValue: "" // ✅ Ganti dari NULL ke string kosong
+        references: {
+          model: 't_villages',
+          key: 'id'
+        },
+        onDelete: 'SET NULL'
       },
       location_details: {
         type: Sequelize.TEXT,

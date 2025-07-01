@@ -51,6 +51,8 @@ Future<Map<String, dynamic>> login(String identifier, String password) async {
       await globalAuthService.saveUserInfo(user);
       await saveFcmTokenToBackend(user["id"]);
       return data;
+
+      print("fcm token : ${user["fcm_token"]}");
     }
 
     return response.data;

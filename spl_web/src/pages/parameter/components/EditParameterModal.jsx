@@ -63,8 +63,14 @@ const EditParameterModal = ({ show, onHide, parameter, onSave }) => {
     if (isQuillEmpty(form.report_guidelines)) newErrors.report_guidelines = "Kolom ini wajib diisi.";
 
     ["emergency_contact", "ambulance_contact", "police_contact", "firefighter_contact"].forEach((field) => {
-      if (!form[field].trim()) newErrors[field] = "Kolom ini wajib diisi.";
+      const value = form[field].trim();
+      if (!value) {
+        newErrors[field] = "Kolom ini wajib diisi.";
+      } else if (!/^\d+$/.test(value)) {
+        newErrors[field] = "Hanya boleh diisi dengan angka.";
+      }
     });
+
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -151,6 +157,10 @@ const EditParameterModal = ({ show, onHide, parameter, onSave }) => {
                   name="emergency_contact"
                   value={form.emergency_contact}
                   onChange={handleChange}
+                  onKeyPress={(e) => {
+                    if (!/[0-9]/.test(e.key)) e.preventDefault();
+                  }}
+
                   isInvalid={!!errors.emergency_contact}
                   placeholder="08xxxx / 112 / lainnya"
                 />
@@ -167,6 +177,9 @@ const EditParameterModal = ({ show, onHide, parameter, onSave }) => {
                   name="ambulance_contact"
                   value={form.ambulance_contact}
                   onChange={handleChange}
+                  onKeyPress={(e) => {
+                    if (!/[0-9]/.test(e.key)) e.preventDefault();
+                  }}
                   isInvalid={!!errors.ambulance_contact}
                   placeholder="08xxxx / 119 / lainnya"
                 />
@@ -186,6 +199,9 @@ const EditParameterModal = ({ show, onHide, parameter, onSave }) => {
                   name="police_contact"
                   value={form.police_contact}
                   onChange={handleChange}
+                  onKeyPress={(e) => {
+                    if (!/[0-9]/.test(e.key)) e.preventDefault();
+                  }}
                   isInvalid={!!errors.police_contact}
                   placeholder="110 / kontak polisi"
                 />
@@ -202,6 +218,9 @@ const EditParameterModal = ({ show, onHide, parameter, onSave }) => {
                   name="firefighter_contact"
                   value={form.firefighter_contact}
                   onChange={handleChange}
+                  onKeyPress={(e) => {
+                    if (!/[0-9]/.test(e.key)) e.preventDefault();
+                  }}
                   isInvalid={!!errors.firefighter_contact}
                   placeholder="113 / kontak damkar"
                 />

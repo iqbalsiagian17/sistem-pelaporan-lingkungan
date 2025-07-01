@@ -5,8 +5,8 @@ import 'package:bb_mobile/core/constants/api.dart';
 Future<void> saveFcmTokenToBackend(int userId) async {
   try {
     final token = await FirebaseMessaging.instance.getToken();
-    print("📲 Token FCM yang akan dikirim: $token");
-
+/*     print("📲 Token FCM yang akan dikirim: $token");
+ */
     if (token == null) return;
 
     final dio = DioClient.instance;
