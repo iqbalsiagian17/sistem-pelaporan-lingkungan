@@ -12,7 +12,9 @@ class ReportEntity {
   final String date;
   final String status;
   final int total_likes;
+  final int? villageId;
   final String? village;
+  final Map<String, dynamic>? boundary; // ✅ Tambahan ini
   final String? locationDetails;
   final double latitude;
   final double longitude;
@@ -31,7 +33,9 @@ class ReportEntity {
     required this.date,
     required this.status,
     required this.total_likes,
+    this.villageId,
     this.village,
+    this.boundary, // ✅ Tambahkan di constructor
     this.locationDetails,
     required this.latitude,
     required this.longitude,
@@ -54,7 +58,9 @@ class ReportEntity {
       date: data['date'],
       status: data['status'],
       total_likes: data['total_likes'] ?? 0,
-      village: data['village'],
+      villageId: data['village_id'],
+      village: data['village'] != null ? data['village']['name'] : null,
+      boundary: data['village'] != null ? data['village']['boundary'] : null, // ✅ Tambahan ini
       locationDetails: data['location_details'],
       latitude: double.tryParse(data['latitude'].toString()) ?? 0.0,
       longitude: double.tryParse(data['longitude'].toString()) ?? 0.0,

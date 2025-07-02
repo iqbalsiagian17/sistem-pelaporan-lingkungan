@@ -19,6 +19,7 @@ class ApiConstants {
   static const String publicCarousel = "$baseUrl/api/mediacarousels";
   static const String publicAnnouncement = "$baseUrl/api/announcements";
   static const String publicParameter = "$baseUrl/api/parameters";
+  static const String publicVillageUrl = "$baseUrl/api/villages";
 
   // Forum
   static const String forumUrl = "$baseUrl/api/forum";

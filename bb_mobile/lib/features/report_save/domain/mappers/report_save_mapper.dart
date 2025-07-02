@@ -16,13 +16,22 @@ ReportModel convertSaveEntityToReportModel(ReportSaveEntity save) {
     status: save.status,
     latitude: save.latitude,
     longitude: save.longitude,
-    village: save.location,
-    locationDetails: '', // kosongkan atau sesuaikan
-    attachments: save.attachments.map((e) => ReportAttachmentModel.fromEntity(e)).toList(),
+    locationDetails: '', // opsional, isi jika ada
+    villageId: null, // karena dari ReportSaveEntity hanya ada `location` (nama)
+    villageModel: null, // bisa null karena hanya `String location` yang tersedia
+    attachments: save.attachments
+        .map((e) => ReportAttachmentModel.fromEntity(e))
+        .toList(),
     user: UserModel.fromEntity(save.user),
-    statusHistory: save.statusHistory.map((e) => ReportStatusHistoryModel.fromEntity(e)).toList(),
-    total_likes: 0, // default 0
+    statusHistory: save.statusHistory
+        .map((e) => ReportStatusHistoryModel.fromEntity(e))
+        .toList(),
+    total_likes: 0, // default
     isSaved: save.isSaved,
-    evidences: save.evidences.map((e) => ReportEvidenceModel.fromEntity(e)).toList(),
+    evidences: save.evidences
+        .map((e) => ReportEvidenceModel.fromEntity(e))
+        .toList(),
+    createdAt: '', // atau isi dengan save.createdAt jika tersedia
+    updatedAt: '', // atau isi dengan save.updatedAt jika tersedia
   );
 }

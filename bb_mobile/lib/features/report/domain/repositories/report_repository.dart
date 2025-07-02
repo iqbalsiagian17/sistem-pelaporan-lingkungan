@@ -1,20 +1,21 @@
-import 'package:bb_mobile/features/report/domain/entities/report_entity.dart';
 import 'dart:io';
+import 'package:bb_mobile/features/report/domain/entities/report_entity.dart';
 
 abstract class ReportRepository {
   Future<List<ReportEntity>> fetchReports();
   Future<ReportEntity?> getReportById(String reportId);
-  Future<ReportEntity?> createReport({ // ⬅️ Diubah dari bool → ReportEntity?
+
+  Future<ReportEntity?> createReport({
     required String title,
     required String description,
     required String date,
     String? locationDetails,
-    String? village,
+    int? villageId, // ✅ ubah dari String? village
     String? latitude,
     String? longitude,
     bool? isAtLocation,
     List<File>? attachments,
-    required String status, // ⬅️ Tambahkan status
+    required String status,
   });
 
   Future<ReportEntity?> updateReport({
@@ -22,13 +23,14 @@ abstract class ReportRepository {
     String? title,
     String? description,
     String? locationDetails,
-    String? village,
+    int? villageId, // ✅ ubah dari String? village
     String? latitude,
     String? longitude,
     bool? isAtLocation,
     List<File>? attachments,
     List<int>? deleteAttachmentIds,
   });
+
   Future<bool> deleteReport(String reportId);
   Future<bool> likeReport(int reportId);
   Future<bool> unlikeReport(int reportId);
@@ -36,10 +38,10 @@ abstract class ReportRepository {
   Future<int> getLikeCount(int reportId);
 
   Future<bool> submitRating({
-      required int reportId,
-      required int rating,
-      String? review,
-    });
+    required int reportId,
+    required int rating,
+    String? review,
+  });
 
-    Future<Map<String, dynamic>?> getRating(int reportId);
+  Future<Map<String, dynamic>?> getRating(int reportId);
 }

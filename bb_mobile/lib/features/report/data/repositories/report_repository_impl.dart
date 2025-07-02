@@ -13,19 +13,19 @@ class ReportRepositoryImpl implements ReportRepository {
     return await remoteDataSource.fetchReports();
   }
 
-@override
-Future<ReportEntity?> getReportById(String reportId) async {
-  return await remoteDataSource.getReportById(reportId);
-}
+  @override
+  Future<ReportEntity?> getReportById(String reportId) async {
+    return await remoteDataSource.getReportById(reportId);
+  }
 
   @override
-Future<ReportEntity?> createReport({
+  Future<ReportEntity?> createReport({
     required String title,
     required String description,
     required String date,
     required String status,
     String? locationDetails,
-    String? village,
+    int? villageId, // ✅ Ganti dari String? village
     String? latitude,
     String? longitude,
     bool? isAtLocation,
@@ -36,7 +36,7 @@ Future<ReportEntity?> createReport({
       description: description,
       date: date,
       locationDetails: locationDetails,
-      village: village,
+      villageId: villageId, // ✅ Kirim sebagai village_id
       status: status,
       latitude: latitude,
       longitude: longitude,
@@ -46,40 +46,37 @@ Future<ReportEntity?> createReport({
   }
 
   @override
-Future<ReportEntity?> updateReport({
-  required String reportId,
-  String? title,
-  String? description,
-  String? locationDetails,
-  String? village,
-  String? latitude,
-  String? longitude,
-  bool? isAtLocation,
-  List<File>? attachments,
-  List<int>? deleteAttachmentIds,
-}) async {
-  return await remoteDataSource.updateReport(
-    reportId: reportId,
-    title: title,
-    description: description,
-    locationDetails: locationDetails,
-    village: village,
-    latitude: latitude,
-    longitude: longitude,
-    isAtLocation: isAtLocation,
-    attachments: attachments,
-    deleteAttachmentIds: deleteAttachmentIds,
-  );
-}
-
-
+  Future<ReportEntity?> updateReport({
+    required String reportId,
+    String? title,
+    String? description,
+    String? locationDetails,
+    int? villageId, // ✅ Ganti dari String? village
+    String? latitude,
+    String? longitude,
+    bool? isAtLocation,
+    List<File>? attachments,
+    List<int>? deleteAttachmentIds,
+  }) async {
+    return await remoteDataSource.updateReport(
+      reportId: reportId,
+      title: title,
+      description: description,
+      locationDetails: locationDetails,
+      villageId: villageId, // ✅ Kirim sebagai village_id
+      latitude: latitude,
+      longitude: longitude,
+      isAtLocation: isAtLocation,
+      attachments: attachments,
+      deleteAttachmentIds: deleteAttachmentIds,
+    );
+  }
 
   @override
   Future<bool> deleteReport(String reportId) async {
     return await remoteDataSource.deleteReport(reportId);
   }
 
-  // 🔽 Tambahan untuk fitur likes
   @override
   Future<bool> likeReport(int reportId) async {
     return await remoteDataSource.likeReport(reportId);

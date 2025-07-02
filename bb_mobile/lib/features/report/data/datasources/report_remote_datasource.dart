@@ -15,7 +15,7 @@ abstract class ReportRemoteDataSource {
     required String date,
     required String status,
     String? locationDetails,
-    String? village,
+    int? villageId,
     String? latitude,
     String? longitude,
     bool? isAtLocation,
@@ -27,7 +27,7 @@ abstract class ReportRemoteDataSource {
     String? title,
     String? description,
     String? locationDetails,
-    String? village,
+    int? villageId,
     String? latitude,
     String? longitude,
     bool? isAtLocation,
@@ -82,7 +82,7 @@ Future<ReportEntity?> getReportById(String reportId) async {
 
     if (response.statusCode == 200 && response.data['report'] != null) {
       // ✅ Jangan langsung response.data['report'], karena ReportModel.fromJson sudah handle sendiri
-      return ReportModel.fromJson(response.data); 
+    return ReportModel.fromJson(response.data['report']);
     } else {
       return null;
     }
@@ -98,7 +98,7 @@ Future<ReportEntity?> getReportById(String reportId) async {
     required String date,
     required String status,
     String? locationDetails,
-    String? village,
+    int? villageId,
     String? latitude,
     String? longitude,
     bool? isAtLocation,
@@ -111,10 +111,10 @@ Future<ReportEntity?> getReportById(String reportId) async {
         "date": date.split("T")[0],
         "location_details": locationDetails?.trim() ?? "Tidak ada detail lokasi",
         "status": status,
-        if (isAtLocation == false && village != null) "village": village,
+        if (isAtLocation == false && villageId != null) "village_id": villageId, // ✅
         if (isAtLocation == true && latitude != null) "latitude": latitude,
         if (isAtLocation == true && longitude != null) "longitude": longitude,
-        "is_at_location": isAtLocation.toString(),
+        "is_at_location": isAtLocation == true ? "true" : "false",
       });
 
       if (attachments != null && attachments.isNotEmpty) {
@@ -190,7 +190,7 @@ Future<ReportEntity?> updateReport({
   String? title,
   String? description,
   String? locationDetails,
-  String? village,
+  int? villageId,
   String? latitude,
   String? longitude,
   bool? isAtLocation,
@@ -202,7 +202,7 @@ Future<ReportEntity?> updateReport({
       if (title != null) "title": title,
       if (description != null) "description": description,
       if (locationDetails != null) "location_details": locationDetails,
-      if (isAtLocation == false && village != null) "village": village,
+      if (isAtLocation == false && villageId != null) "village_id": villageId,
       if (isAtLocation == true && latitude != null) "latitude": latitude,
       if (isAtLocation == true && longitude != null) "longitude": longitude,
       if (isAtLocation != null) "is_at_location": isAtLocation.toString(),

@@ -2,13 +2,13 @@ import 'dart:io';
 import 'package:bb_mobile/core/constants/api.dart';
 import 'package:bb_mobile/features/report/data/models/report_attachment_model.dart';
 import 'package:bb_mobile/features/report/data/models/report_model.dart';
-import 'package:bb_mobile/features/report/presentation/widgets/create/report_location_toggle.dart';
+import 'package:bb_mobile/features/report/presentation/providers/report_provider.dart';
+import 'package:bb_mobile/features/report/presentation/providers/village_provider.dart';
 import 'package:bb_mobile/features/report/presentation/widgets/create/report_text_field.dart';
 import 'package:bb_mobile/features/report/presentation/widgets/create/report_upload_buttons.dart';
 import 'package:bb_mobile/features/report/presentation/widgets/create/report_topbar.dart';
 import 'package:bb_mobile/features/report/presentation/widgets/create/report_confirm_modal.dart';
 import 'package:bb_mobile/features/report/presentation/widgets/create/report_village_picker.dart';
-import 'package:bb_mobile/features/report/presentation/providers/report_provider.dart';
 import 'package:bb_mobile/routes/app_routes.dart';
 import 'package:bb_mobile/widgets/snackbar/snackbar_helper.dart';
 import 'package:bb_mobile/widgets/navbar/bottom_navbar.dart';
@@ -29,7 +29,7 @@ class _ReportEditViewState extends ConsumerState<ReportEditView> {
   late TextEditingController _titleController;
   late TextEditingController _descController;
   late TextEditingController _locationDetailController;
-  late TextEditingController _villageController;
+  int? selectedVillageId;
   List<ReportAttachmentModel> existingAttachments = [];
   List<File> newAttachments = [];
 
@@ -46,10 +46,10 @@ class _ReportEditViewState extends ConsumerState<ReportEditView> {
     _titleController = TextEditingController(text: report.title);
     _descController = TextEditingController(text: report.description);
     _locationDetailController = TextEditingController(text: report.locationDetails ?? '');
-    _villageController = TextEditingController(text: report.village ?? '');
-    isAtLocation = (report.latitude ?? 0) != 0 && (report.longitude ?? 0) != 0;
+    selectedVillageId = report.villageId;
+    isAtLocation = (report.latitude != 0 && report.longitude != 0);
 
-    existingAttachments = List<ReportAttachmentModel>.from(widget.report.attachments);
+    existingAttachments = List<ReportAttachmentModel>.from(report.attachments);
   }
 
   Future<void> _handleSubmit() async {
@@ -58,8 +58,8 @@ class _ReportEditViewState extends ConsumerState<ReportEditView> {
       return;
     }
 
-    if (!isAtLocation && _villageController.text.isEmpty) {
-      SnackbarHelper.showSnackbar(context, "Desa/Kelurahan wajib diisi", isError: true);
+    if (!isAtLocation && selectedVillageId == null) {
+      SnackbarHelper.showSnackbar(context, "Pilih lokasi desa/kelurahan", isError: true);
       return;
     }
 
@@ -74,7 +74,7 @@ class _ReportEditViewState extends ConsumerState<ReportEditView> {
         title: _titleController.text.trim(),
         description: _descController.text.trim(),
         locationDetails: _locationDetailController.text,
-        village: _villageController.text.isNotEmpty ? _villageController.text : null,
+        villageId: !isAtLocation ? selectedVillageId : null,
         isAtLocation: isAtLocation,
         attachments: newAttachments,
         deleteAttachmentIds: deletedAttachmentIds.where((id) => id != 0).toList(),
@@ -82,10 +82,7 @@ class _ReportEditViewState extends ConsumerState<ReportEditView> {
 
       if (updatedReport != null) {
         SnackbarHelper.showSnackbar(context, "Laporan berhasil diperbarui!", isError: false);
-        context.go(
-          AppRoutes.detailReport,
-          extra: ReportModel.fromEntity(updatedReport),
-        );
+        context.go(AppRoutes.detailReport, extra: ReportModel.fromEntity(updatedReport));
       } else {
         SnackbarHelper.showSnackbar(context, "Gagal memperbarui aduan.", isError: true);
       }
@@ -99,6 +96,7 @@ class _ReportEditViewState extends ConsumerState<ReportEditView> {
   @override
   Widget build(BuildContext context) {
     final report = widget.report;
+    final villageListAsync = ref.watch(villageListProvider);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -124,11 +122,10 @@ class _ReportEditViewState extends ConsumerState<ReportEditView> {
             const SizedBox(height: 12),
             if (!isAtLocation)
               ReportVillagePicker(
-                controller: _villageController,
-                onSelected: (val) => setState(() {
-                  _villageController.text = val;
-                }),
+                selectedVillageId: selectedVillageId,
+                onSelected: (val) => setState(() => selectedVillageId = val),
                 focusNode: FocusNode(),
+                isRequired: true,
               ),
             const SizedBox(height: 12),
             ReportTextField(
@@ -181,7 +178,6 @@ class _ReportEditViewState extends ConsumerState<ReportEditView> {
                         right: 0,
                         child: GestureDetector(
                           onTap: () {
-                            print('🟥 Hapus lampiran ID: ${attachment.id}');
                             setState(() {
                               deletedAttachmentIds.add(attachment.id);
                               existingAttachments.remove(attachment);

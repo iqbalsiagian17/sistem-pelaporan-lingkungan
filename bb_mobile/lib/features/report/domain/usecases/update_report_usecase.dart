@@ -12,7 +12,7 @@ class UpdateReportUseCase {
     String? title,
     String? description,
     String? locationDetails,
-    String? village,
+    int? villageId, // ✅ Ubah dari String? village
     String? latitude,
     String? longitude,
     bool? isAtLocation,
@@ -24,7 +24,7 @@ class UpdateReportUseCase {
       title: title,
       description: description,
       locationDetails: locationDetails,
-      village: village,
+      villageId: villageId, // ✅ Sesuaikan ke parameter repository
       latitude: latitude,
       longitude: longitude,
       isAtLocation: isAtLocation,

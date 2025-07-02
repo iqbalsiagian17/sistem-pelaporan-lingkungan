@@ -10,13 +10,15 @@ class ReportFormFields extends StatelessWidget {
 
   final TextEditingController titleController;
   final TextEditingController descController;
-  final TextEditingController villageController;
   final TextEditingController locationDetailController;
 
   final FocusNode titleFocus;
   final FocusNode descFocus;
   final FocusNode villageFocus;
   final FocusNode locationDetailFocus;
+
+  final int? selectedVillageId;
+  final void Function(int)? onVillageChanged;
 
   const ReportFormFields({
     super.key,
@@ -25,12 +27,13 @@ class ReportFormFields extends StatelessWidget {
     required this.isLocationAvailable,
     required this.titleController,
     required this.descController,
-    required this.villageController,
     required this.locationDetailController,
     required this.titleFocus,
     required this.descFocus,
     required this.villageFocus,
     required this.locationDetailFocus,
+    required this.selectedVillageId,
+    required this.onVillageChanged,
   });
 
   @override
@@ -44,7 +47,7 @@ class ReportFormFields extends StatelessWidget {
           controller: titleController,
           focusNode: titleFocus,
           validator: (val) => Validators.validateNotEmpty(val, fieldName: "Judul"),
-          isRequired: true, // ✅ Tambahkan ini
+          isRequired: true,
         ),
         const SizedBox(height: 12),
 
@@ -55,18 +58,16 @@ class ReportFormFields extends StatelessWidget {
           maxLines: 5,
           focusNode: descFocus,
           validator: (val) => Validators.validateNotEmpty(val, fieldName: "Deskripsi"),
-          isRequired: true, // ✅ Tambahkan ini
+          isRequired: true,
         ),
         const SizedBox(height: 12),
 
         if (!isAtLocation)
           ReportVillagePicker(
-            controller: villageController,
+            selectedVillageId: selectedVillageId,
+            onSelected: onVillageChanged!,
             focusNode: villageFocus,
-            onSelected: (val) {},
-            validator: (val) => Validators.validateNotEmpty(val, fieldName: "Nama Desa"),
-            isRequired: true, // ✅ Tambahkan ini
-
+            isRequired: true,
           ),
 
         const SizedBox(height: 12),
@@ -76,7 +77,6 @@ class ReportFormFields extends StatelessWidget {
           hint: "Contoh: Di samping kantor desa",
           controller: locationDetailController,
           focusNode: locationDetailFocus,
-          // Tidak pakai validator, karena ini opsional
         ),
       ],
     );

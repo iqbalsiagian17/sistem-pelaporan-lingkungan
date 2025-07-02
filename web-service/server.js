@@ -24,6 +24,7 @@ const userManagementRoutes = require("./routes/admin/userManagementRoutes");
 const publicMediaCarouselRoutes = require("./routes/public/mediaCarouselRoutes");
 const publicAnnouncementRoutes = require("./routes/public/announcementRoutes");
 const publicParameterRoutes = require("./routes/public/parameterRoutes")
+const publicVillageRoutes = require("./routes/public/villageRoutes");
 const userReportSaveRoutes = require("./routes/user/userReportSaveRoutes");
 const userReportLikesRoutes = require("./routes/user/userRoutesLikes");
 const userPostLikesRoutes = require("./routes/user/userLikesPostRoutes");
@@ -59,6 +60,7 @@ app.use('/api/auth', authRoutes);
 app.use("/api/mediacarousels", publicMediaCarouselRoutes);
 app.use("/api/announcements", publicAnnouncementRoutes);
 app.use("/api/parameters", publicParameterRoutes);
+app.use("/api/villages", publicVillageRoutes); // ✅ Tambahkan route desa
 
 // 🔹 Nontification Routes
 app.use("/api/notifications", notificationRoutes);

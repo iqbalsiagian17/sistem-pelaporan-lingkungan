@@ -12,25 +12,24 @@ class CreateReportUseCase {
     required String description,
     required String date,
     String? locationDetails,
-    String? village,
+    int? villageId, // ✅ Ganti dari String? village
     String? latitude,
     String? longitude,
     bool? isAtLocation,
     List<File>? attachments,
-    required String status, // ✅ Tambahkan parameter status
+    required String status,
   }) async {
     return await repository.createReport(
       title: title,
       description: description,
       date: date,
       locationDetails: locationDetails,
-      village: village,
+      villageId: villageId, // ✅ Sesuaikan ke parameter repository
       latitude: latitude,
       longitude: longitude,
       isAtLocation: isAtLocation,
       attachments: attachments,
-      status: status, // ✅ Kirim ke repository
-
+      status: status,
     );
   }
 }

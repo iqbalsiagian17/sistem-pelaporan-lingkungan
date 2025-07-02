@@ -1,20 +1,19 @@
 import 'dart:io';
-import 'package:bb_mobile/core/utils/location_validator.dart';
 import 'package:bb_mobile/features/report/data/models/report_model.dart';
+import 'package:bb_mobile/features/report/presentation/providers/report_provider.dart';
+import 'package:bb_mobile/features/report/presentation/widgets/create/report_confirm_modal.dart';
 import 'package:bb_mobile/features/report/presentation/widgets/create/report_form_fields.dart';
+import 'package:bb_mobile/features/report/presentation/widgets/create/report_guide_modal.dart';
+import 'package:bb_mobile/features/report/presentation/widgets/create/report_location_toggle.dart';
 import 'package:bb_mobile/features/report/presentation/widgets/create/report_submit_button.dart';
+import 'package:bb_mobile/features/report/presentation/widgets/create/report_topbar.dart';
+import 'package:bb_mobile/features/report/presentation/widgets/create/report_upload_buttons.dart';
+import 'package:bb_mobile/routes/app_routes.dart';
+import 'package:bb_mobile/widgets/navbar/bottom_navbar.dart';
+import 'package:bb_mobile/widgets/snackbar/snackbar_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:bb_mobile/features/report/presentation/providers/report_provider.dart';
-import 'package:bb_mobile/features/report/presentation/widgets/create/report_location_toggle.dart';
-import 'package:bb_mobile/features/report/presentation/widgets/create/report_upload_buttons.dart';
-import 'package:bb_mobile/features/report/presentation/widgets/create/report_topbar.dart';
-import 'package:bb_mobile/features/report/presentation/widgets/create/report_guide_modal.dart';
-import 'package:bb_mobile/features/report/presentation/widgets/create/report_confirm_modal.dart';
-import 'package:bb_mobile/widgets/snackbar/snackbar_helper.dart';
-import 'package:bb_mobile/widgets/navbar/bottom_navbar.dart';
-import 'package:bb_mobile/routes/app_routes.dart';
 
 class ReportCreateView extends ConsumerStatefulWidget {
   const ReportCreateView({super.key});
@@ -27,14 +26,14 @@ class _ReportCreateViewState extends ConsumerState<ReportCreateView> {
   final _titleController = TextEditingController();
   final _descController = TextEditingController();
   final _locationDetailController = TextEditingController();
-  final _villageController = TextEditingController();
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final FocusNode _titleFocus = FocusNode();
   final FocusNode _descFocus = FocusNode();
   final FocusNode _villageFocus = FocusNode();
   final FocusNode _locationDetailFocus = FocusNode();
 
+  int? selectedVillageId;
   bool isAtLocation = true;
   bool isSubmitting = false;
   bool isLocationValid = true;
@@ -67,7 +66,7 @@ class _ReportCreateViewState extends ConsumerState<ReportCreateView> {
         return;
       }
     } else {
-      if (_villageController.text.isEmpty) {
+      if (selectedVillageId == null) {
         SnackbarHelper.showSnackbar(context, "Pilih lokasi desa/kelurahan", isError: true);
         return;
       }
@@ -94,7 +93,7 @@ class _ReportCreateViewState extends ConsumerState<ReportCreateView> {
         description: _descController.text.trim(),
         date: DateTime.now().toIso8601String(),
         locationDetails: _locationDetailController.text,
-        village: isAtLocation ? null : _villageController.text,
+        villageId: isAtLocation ? null : selectedVillageId,
         latitude: isAtLocation ? latitude?.toString() : null,
         longitude: isAtLocation ? longitude?.toString() : null,
         isAtLocation: isAtLocation,
@@ -140,11 +139,7 @@ class _ReportCreateViewState extends ConsumerState<ReportCreateView> {
                 ReportLocationToggle(
                   isAtLocation: isAtLocation,
                   onChange: (val) => setState(() => isAtLocation = val),
-                  onForceChangeToNotAtLocation: () {
-                    setState(() {
-                      isAtLocation = false;
-                    });
-                  },
+                  onForceChangeToNotAtLocation: () => setState(() => isAtLocation = false),
                 ),
                 const SizedBox(height: 16),
                 Form(
@@ -155,12 +150,13 @@ class _ReportCreateViewState extends ConsumerState<ReportCreateView> {
                     isLocationAvailable: latitude != null && longitude != null,
                     titleController: _titleController,
                     descController: _descController,
-                    villageController: _villageController,
                     locationDetailController: _locationDetailController,
                     titleFocus: _titleFocus,
                     descFocus: _descFocus,
                     villageFocus: _villageFocus,
                     locationDetailFocus: _locationDetailFocus,
+                    selectedVillageId: selectedVillageId,
+                    onVillageChanged: (val) => setState(() => selectedVillageId = val),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -198,39 +194,39 @@ class _ReportCreateViewState extends ConsumerState<ReportCreateView> {
           ),
         ),
         if (isAtLocation && isLoadingLocation)
-        Positioned.fill(
-          child: Container(
-            color: Colors.black.withOpacity(0.3),
-            child: const Center(
-              child: Material(
-                color: Colors.white,
-                borderRadius: BorderRadius.all(Radius.circular(12)),
-                elevation: 6,
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      SizedBox(
-                        width: 28,
-                        height: 28,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 3,
-                          color: Color(0xFF66BB6A),
+          Positioned.fill(
+            child: Container(
+              color: Colors.black.withOpacity(0.3),
+              child: const Center(
+                child: Material(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                  elevation: 6,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        SizedBox(
+                          width: 28,
+                          height: 28,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 3,
+                            color: Color(0xFF66BB6A),
+                          ),
                         ),
-                      ),
-                      SizedBox(width: 16),
-                      Text(
-                        "Melacak lokasi...",
-                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-                      ),
-                    ],
+                        SizedBox(width: 16),
+                        Text(
+                          "Melacak lokasi...",
+                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
           ),
-        )
       ],
     );
   }

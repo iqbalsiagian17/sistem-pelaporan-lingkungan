@@ -188,6 +188,8 @@ class _ReportDetailViewState extends ConsumerState<ReportDetailView> {
                 longitude: report.longitude,
                 village: report.village,
                 locationDetails: report.locationDetails,
+                boundary: report.boundary,
+                
               ),
             ),
             const SizedBox(height: 16),

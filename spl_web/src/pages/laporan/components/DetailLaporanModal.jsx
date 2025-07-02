@@ -158,7 +158,7 @@ const DetailLaporanModal = ({ show, onHide, report }) => {
                       </>
                     ) : (
                       <>
-                        <p className="mb-1"><strong>Desa:</strong> {report.village || "Tidak tersedia"}</p>
+                        <p className="mb-1"><strong>Desa:</strong> {report.village?.name || "Tidak tersedia"}</p>
                         <p className="mb-0"><strong>Detail:</strong> {report.location_details || "Tidak ada detail lokasi"}</p>
                       </>
                     )}

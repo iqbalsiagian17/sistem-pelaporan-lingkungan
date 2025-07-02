@@ -54,7 +54,7 @@ exports.getAllReports = async (req, res) => {
         {
           model: Villages,
           as: 'village',
-          attributes: ['id', 'name']
+          attributes: ['id', 'name','boundary'] // Ambil data desa yang terkait
         },
         {
           model: ReportEvidence,
@@ -104,6 +104,11 @@ exports.getReportById = async (req, res) => {
             attributes: ['id', 'username', 'email']
           },
           attributes: ['id', 'previous_status', 'new_status', 'message', 'createdAt']
+        },
+        {
+          model: Villages, // relasi desa
+          as: 'village',   // pastikan alias sesuai
+          attributes: ['id', 'name', 'boundary'],
         },
         {
           model: ReportEvidence,
@@ -269,14 +274,14 @@ exports.updateReport = async (req, res) => {
         title,
         description,
         location_details,
-        village,
+        village_id, // ✅ gunakan ini sesuai dengan body dari frontend
         longitude,
         latitude,
         is_at_location,
         delete_attachments,
       } = req.body;
 
-      console.log("🟡 delete_attachments:", delete_attachments); // Tambahkan ini untuk debugging
+      console.log("🟡 delete_attachments:", delete_attachments);
 
       // Temukan laporan
       const report = await Report.findByPk(id, {
@@ -286,7 +291,7 @@ exports.updateReport = async (req, res) => {
       if (!report) return res.status(404).json({ message: 'Laporan tidak ditemukan' });
 
       if (!['pending', 'draft'].includes(report.status)) {
-        return res.status(400).json({ message: 'Laporan hanya bisa diedit jika masih dalam status pending' });
+        return res.status(400).json({ message: 'Laporan hanya bisa diedit jika masih dalam status pending atau draft' });
       }
 
       if (report.user_id !== user_id) {
@@ -303,7 +308,7 @@ exports.updateReport = async (req, res) => {
       if (isAtLocation) {
         report.longitude = longitude;
         report.latitude = latitude;
-        report.village = null;
+        report.village_id = null; // ✅ pastikan dikosongkan
       } else {
         report.longitude = null;
         report.latitude = null;
@@ -312,7 +317,7 @@ exports.updateReport = async (req, res) => {
 
       await report.save();
 
-      // ✅ Hapus attachment lama jika ada
+      // Hapus attachment lama jika ada
       let attachmentsToDelete = [];
 
       if (typeof delete_attachments === 'string') {
@@ -337,7 +342,7 @@ exports.updateReport = async (req, res) => {
         }
       }
 
-      // ✅ Tambahkan file baru jika ada
+      // Tambahkan file baru jika ada
       if (req.files && req.files.length > 0) {
         const newAttachments = req.files.map((file) => ({
           report_id: report.id,
@@ -347,15 +352,16 @@ exports.updateReport = async (req, res) => {
       }
 
       // Ambil kembali laporan yang diperbarui
-const updatedReport = await Report.findByPk(id, {
-  include: [
-    {
-      model: ReportAttachment,
-      as: 'attachments',
-      attributes: ['id', 'report_id', 'file'], // ⬅️ tambahkan ini
-    }
-  ]
-});
+      const updatedReport = await Report.findByPk(id, {
+        include: [
+          {
+            model: ReportAttachment,
+            as: 'attachments',
+            attributes: ['id', 'report_id', 'file'],
+          }
+        ]
+      });
+
       res.status(200).json({ message: 'Laporan berhasil diperbarui', report: updatedReport });
 
     } catch (error) {
@@ -364,6 +370,7 @@ const updatedReport = await Report.findByPk(id, {
     }
   });
 };
+
 
   // ✅ DELETE REPORT (Hanya Bisa Jika Status Masih `pending` dan User yang Sama)
   exports.deleteReport = async (req, res) => {
