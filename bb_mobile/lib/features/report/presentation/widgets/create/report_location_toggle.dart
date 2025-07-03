@@ -1,17 +1,17 @@
-// Tambahkan semua import seperti biasa
 import 'dart:async';
-import 'package:bb_mobile/core/utils/location_validator.dart';
 import 'package:bb_mobile/widgets/buttons/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
+import '../.../../../../../../core/utils/location_validator.dart';
 
 class ReportLocationToggle extends StatefulWidget {
   final bool isAtLocation;
   final ValueChanged<bool> onChange;
   final bool isDisabled;
   final VoidCallback? onForceChangeToNotAtLocation;
+  final Map<String, dynamic>? locationValidationArea; // ✅ Tambahkan ini
 
   const ReportLocationToggle({
     super.key,
@@ -19,6 +19,7 @@ class ReportLocationToggle extends StatefulWidget {
     required this.onChange,
     this.isDisabled = false,
     this.onForceChangeToNotAtLocation,
+    this.locationValidationArea, // ✅ Tambahkan ini
   });
 
   @override
@@ -100,15 +101,19 @@ class _ReportLocationToggleState extends State<ReportLocationToggle> with Widget
 
       final lat = position.latitude;
       final long = position.longitude;
-      final isInsideBalige = LocationValidator.isInsideBaligeArea(lat, long);
 
-      if (!isInsideBalige) {
+      final isInsideArea = LocationValidator.isInsideValidationArea(
+        lat: lat,
+        lon: long,
+        geoJson: widget.locationValidationArea,
+      );
+
+      if (!isInsideArea) {
         if (!mounted) return;
         if (!_hasShownOutOfAreaDialog) {
           _hasShownOutOfAreaDialog = true;
           await _showOutOfAreaDialog();
         }
-
         widget.onForceChangeToNotAtLocation?.call();
         disableAtLocationButton.value = true;
         return;
@@ -159,7 +164,7 @@ class _ReportLocationToggleState extends State<ReportLocationToggle> with Widget
               ),
               const SizedBox(height: 12),
               const Text(
-                "Sistem mendeteksi bahwa Anda berada di luar wilayah Kecamatan Balige.\n\n"
+                "Sistem mendeteksi bahwa Anda berada di luar wilayah yang valid.\n\n"
                 "Silakan lanjutkan dengan mengisi informasi lokasi secara manual agar laporan tetap dapat diproses.",
                 style: TextStyle(fontSize: 14, color: Colors.black87),
                 textAlign: TextAlign.center,
@@ -193,6 +198,20 @@ class _ReportLocationToggleState extends State<ReportLocationToggle> with Widget
     });
   }
 
+List<LatLng>? getPolygonPointsFromGeoJson(Map<String, dynamic>? geoJson) {
+  try {
+    final coordinates = geoJson?['coordinates'];
+    if (coordinates is List && coordinates.isNotEmpty && coordinates[0] is List) {
+      return (coordinates[0] as List)
+          .map((point) => LatLng(point[1] as double, point[0] as double))
+          .toList();
+    }
+  } catch (_) {}
+  return null;
+}
+
+
+
   Future<void> _showLocationMap(BuildContext context) async {
     try {
       showDialog(
@@ -200,6 +219,9 @@ class _ReportLocationToggleState extends State<ReportLocationToggle> with Widget
         barrierDismissible: false,
         builder: (_) => const Center(child: CircularProgressIndicator()),
       );
+
+      final polygonPoints = getPolygonPointsFromGeoJson(widget.locationValidationArea);
+
 
       final position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
@@ -209,58 +231,72 @@ class _ReportLocationToggleState extends State<ReportLocationToggle> with Widget
 
       if (context.mounted) {
         showModalBottomSheet(
-          context: context,
-          isScrollControlled: true,
-          backgroundColor: Colors.white,
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+  context: context,
+  isScrollControlled: true,
+  backgroundColor: Colors.white,
+  shape: const RoundedRectangleBorder(
+    borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+  ),
+  builder: (context) {
+    return SizedBox(
+      height: MediaQuery.of(context).size.height * 0.45,
+      child: Column(
+        children: [
+          const Padding(
+            padding: EdgeInsets.all(16),
+            child: Text(
+              "Lokasi Anda Sekarang",
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
           ),
-          builder: (context) {
-            return SizedBox(
-              height: MediaQuery.of(context).size.height * 0.45,
-              child: Column(
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.all(16),
-                    child: Text("Lokasi Anda Sekarang",
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                  ),
-                  Expanded(
-                    child: FlutterMap(
-                      options: MapOptions(
-                        center: LatLng(position.latitude, position.longitude),
-                        zoom: 16.0,
-                      ),
-                      children: [
-                        TileLayer(
-                          urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                          subdomains: ['a', 'b', 'c'],
-                        ),
-                        MarkerLayer(
-                          markers: [
-                            Marker(
-                              point: LatLng(position.latitude, position.longitude),
-                              width: 40,
-                              height: 40,
-                              child: const Icon(Icons.location_pin, size: 40, color: Colors.red),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    child: Text(
-                      "Lat: ${position.latitude}, Long: ${position.longitude}",
-                      style: const TextStyle(fontSize: 14, color: Colors.black54),
-                    ),
-                  ),
-                ],
+          Expanded(
+            child: FlutterMap(
+              options: MapOptions(
+                center: LatLng(position.latitude, position.longitude),
+                zoom: 16.0,
               ),
-            );
-          },
-        );
+              children: [
+                TileLayer(
+                  urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                  subdomains: ['a', 'b', 'c'],
+                ),
+                if (polygonPoints != null)
+                  PolygonLayer(
+                    polygons: [
+                      Polygon(
+                        points: polygonPoints,
+                        color: Colors.green.withOpacity(0.2),
+                        borderStrokeWidth: 2,
+                        borderColor: Colors.green,
+                      ),
+                    ],
+                  ),
+                MarkerLayer(
+                  markers: [
+                    Marker(
+                      point: LatLng(position.latitude, position.longitude),
+                      width: 40,
+                      height: 40,
+                      child: const Icon(Icons.location_pin, size: 40, color: Colors.red),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            child: Text(
+              "Lat: ${position.latitude}, Long: ${position.longitude}",
+              style: const TextStyle(fontSize: 14, color: Colors.black54),
+            ),
+          ),
+        ],
+      ),
+    );
+  },
+);
+
       }
     } catch (_) {
       if (context.mounted) {

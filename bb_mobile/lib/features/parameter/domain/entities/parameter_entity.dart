@@ -7,6 +7,7 @@ class ParameterEntity {
   final String? ambulanceContact;
   final String? policeContact;
   final String? firefighterContact;
+  final Map<String, dynamic>? locationValidationArea; // ✅ Tambahan
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -19,6 +20,7 @@ class ParameterEntity {
     this.ambulanceContact,
     this.policeContact,
     this.firefighterContact,
+    this.locationValidationArea, // ✅
     required this.createdAt,
     required this.updatedAt,
   });

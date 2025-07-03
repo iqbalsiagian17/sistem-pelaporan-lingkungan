@@ -49,11 +49,15 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: true,
     },
+    location_validation_area: {
+      type: DataTypes.GEOMETRY('POLYGON'),
+      allowNull: true,
+    },
   }, {
     sequelize,
     modelName: 't_parameter',
     tableName: 't_parameter',
-    timestamps: true, // createdAt & updatedAt otomatis
+    timestamps: true,
   });
 
   return t_parameter;

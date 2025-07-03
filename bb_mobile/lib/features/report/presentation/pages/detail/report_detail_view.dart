@@ -1,5 +1,7 @@
 import 'package:bb_mobile/core/constants/api.dart';
 import 'package:bb_mobile/core/services/auth/global_auth_service.dart';
+import 'package:bb_mobile/core/services/parameter_service.dart';
+import 'package:bb_mobile/features/parameter/domain/entities/parameter_entity.dart';
 import 'package:bb_mobile/features/report/data/models/report_evidence_model.dart';
 import 'package:bb_mobile/features/report/data/models/report_model.dart';
 import 'package:bb_mobile/features/report/data/models/report_rating_model.dart';
@@ -19,7 +21,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ReportDetailView extends ConsumerStatefulWidget {
   final ReportModel report;
-
   const ReportDetailView({super.key, required this.report});
 
   @override
@@ -28,54 +29,68 @@ class ReportDetailView extends ConsumerStatefulWidget {
 
 class _ReportDetailViewState extends ConsumerState<ReportDetailView> {
   ReportRatingModel? userRating;
+  ParameterEntity? parameter;
+  String? errorMessage;
 
   @override
+
   void initState() {
     super.initState();
     _checkAndShowRatingBottomSheet();
     _fetchUserRating();
+    _loadParameter();
+  }
+
+  Future<void> _loadParameter() async {
+    try {
+      final param = await ParameterService.getParameter();
+      setState(() {
+        parameter = param.toEntity();
+      });
+    } catch (e) {
+      setState(() {
+        errorMessage = e.toString();
+      });
+    }
   }
 
   Future<void> _checkAndShowRatingBottomSheet() async {
-  final currentUserId = await globalAuthService.getUserId();
-  final reportOwnerId = widget.report.userId;
+    final currentUserId = await globalAuthService.getUserId();
+    final reportOwnerId = widget.report.userId;
 
-  if (widget.report.status == 'completed' &&
-      currentUserId != null &&
-      currentUserId == reportOwnerId) {
-    try {
-      final ratingJson =
-          await ref.read(reportProvider.notifier).getRating(widget.report.id);
+    if (widget.report.status == 'completed' &&
+        currentUserId != null &&
+        currentUserId == reportOwnerId) {
+      try {
+        final ratingJson = await ref.read(reportProvider.notifier).getRating(widget.report.id);
 
-      if (!context.mounted) return;
+        if (!context.mounted) return;
 
-      if (ratingJson == null) {
-        _showRatingModal(); // Belum ada rating sama sekali
-        return;
+        if (ratingJson == null) {
+          _showRatingModal();
+          return;
+        }
+
+        final rating = ReportRatingModel.fromJson(ratingJson);
+
+        if (!rating.isLatest) {
+          _showRatingModal();
+          return;
+        }
+
+        final completedCount = widget.report.statusHistory
+            .where((h) => h.newStatus == 'completed')
+            .length;
+
+        if (rating.round < completedCount) {
+          _showRatingModal();
+          return;
+        }
+      } catch (e) {
+        debugPrint("❌ Error saat cek rating: $e");
       }
-
-      final rating = ReportRatingModel.fromJson(ratingJson);
-
-      if (!rating.isLatest) {
-        _showRatingModal(); // Ada rating tapi bukan yang terakhir
-        return;
-      }
-
-      final completedCount = widget.report.statusHistory
-          .where((h) => h.newStatus == 'completed')
-          .length;
-
-      if (rating.round < completedCount) {
-        _showRatingModal(); // Sudah pernah rating tapi belum untuk completed terakhir
-        return;
-      }
-
-    } catch (e) {
-      debugPrint("❌ Error saat cek rating: $e");
     }
   }
-}
-
 
   void _showRatingModal() {
     showModalBottomSheet(
@@ -88,13 +103,11 @@ class _ReportDetailViewState extends ConsumerState<ReportDetailView> {
         reportId: widget.report.id,
         onSubmitted: () async {
           await ref.read(reportProvider.notifier).fetchReports();
-          _fetchUserRating(); // refresh rating user
+          _fetchUserRating();
         },
       ),
     );
   }
-
-
 
   Future<void> _fetchUserRating() async {
     final result = await ref.read(reportProvider.notifier).getRating(widget.report.id);
@@ -107,6 +120,14 @@ class _ReportDetailViewState extends ConsumerState<ReportDetailView> {
 
   @override
   Widget build(BuildContext context) {
+    if (errorMessage != null) {
+      return Scaffold(body: Center(child: Text("Gagal memuat parameter: $errorMessage")));
+    }
+
+    if (parameter == null) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
     final reportsAsync = ref.watch(reportProvider);
     final report = reportsAsync.whenOrNull(
       data: (list) => list.firstWhere(
@@ -129,7 +150,6 @@ class _ReportDetailViewState extends ConsumerState<ReportDetailView> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 🔹 Gambar & Info Dasar
             Container(
               decoration: _boxShadow(),
               child: ClipRRect(
@@ -152,7 +172,7 @@ class _ReportDetailViewState extends ConsumerState<ReportDetailView> {
                             reportId: report.id,
                             status: report.status,
                             total_likes: report.total_likes,
-                            reportUserId: report.userId, // ✅ Diperlukan untuk validasi pemilik
+                            reportUserId: report.userId,
                           ),
                           const SizedBox(height: 10),
                           Text(
@@ -169,8 +189,6 @@ class _ReportDetailViewState extends ConsumerState<ReportDetailView> {
               ),
             ),
             const SizedBox(height: 16),
-
-            // 🔹 Info Laporan
             Container(
               decoration: _boxShadow(),
               child: ReportDetailInfo(
@@ -179,8 +197,6 @@ class _ReportDetailViewState extends ConsumerState<ReportDetailView> {
               ),
             ),
             const SizedBox(height: 16),
-
-            // 🔹 Lokasi
             Container(
               decoration: _boxShadow(),
               child: ReportDetailLocation(
@@ -189,12 +205,10 @@ class _ReportDetailViewState extends ConsumerState<ReportDetailView> {
                 village: report.village,
                 locationDetails: report.locationDetails,
                 boundary: report.boundary,
-                
+                locationValidationArea: parameter!.locationValidationArea,
               ),
             ),
             const SizedBox(height: 16),
-
-            // 🔹 Riwayat Status & Bukti
             if (report.statusHistory.isNotEmpty)
               ReportDetailStatusHistory(
                 statusHistory: report.statusHistory
@@ -208,20 +222,11 @@ class _ReportDetailViewState extends ConsumerState<ReportDetailView> {
             else
               _noAdminResponseCard(),
             const SizedBox(height: 16),
-
-            // 🔹 Review User (jika sudah rating)
-            Builder(
-  builder: (_) {
-    if (userRating != null) {
-      return ReportDetailUserReview(
-        rating: userRating!.rating,
-        review: userRating!.review,
-      );
-    }
-    return const SizedBox();
-  },
-),
-
+            if (userRating != null)
+              ReportDetailUserReview(
+                rating: userRating!.rating,
+                review: userRating!.review,
+              ),
           ],
         ),
       ),

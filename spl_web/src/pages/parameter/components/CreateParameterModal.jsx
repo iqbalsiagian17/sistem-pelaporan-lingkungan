@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Modal, Button, Form, Row, Col } from "react-bootstrap";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
+import MapBoundaryEditor from "../../village/components/MapBoundaryEditor";
 
 const CreateParameterModal = ({ show, onHide, onCreate }) => {
   const [form, setForm] = useState({
@@ -12,6 +13,7 @@ const CreateParameterModal = ({ show, onHide, onCreate }) => {
     ambulance_contact: "",
     police_contact: "",
     firefighter_contact: "",
+    location_validation_area: null,
   });
 
   const [video, setVideo] = useState(null);
@@ -50,6 +52,20 @@ const CreateParameterModal = ({ show, onHide, onCreate }) => {
       }
     });
 
+    // Validasi polygon
+    if (!form.location_validation_area) {
+      newErrors.location_validation_area = "Wilayah validasi lokasi wajib ditentukan.";
+    } else {
+      const area = form.location_validation_area;
+      if (
+        !area.type ||
+        area.type !== "Polygon" ||
+        !Array.isArray(area.coordinates)
+      ) {
+        newErrors.location_validation_area = "Batas wilayah tidak valid (GeoJSON Polygon diperlukan).";
+      }
+    }
+
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
@@ -57,7 +73,11 @@ const CreateParameterModal = ({ show, onHide, onCreate }) => {
 
     const formData = new FormData();
     Object.entries(form).forEach(([key, value]) => {
-      formData.append(key, value);
+      if (key === "location_validation_area") {
+        formData.append(key, JSON.stringify(value)); // ✅ kirim sebagai string JSON
+      } else {
+        formData.append(key, value);
+      }
     });
     if (video) {
       formData.append("landing_video", video);
@@ -77,13 +97,14 @@ const CreateParameterModal = ({ show, onHide, onCreate }) => {
       ambulance_contact: "",
       police_contact: "",
       firefighter_contact: "",
+      location_validation_area: null,
     });
     setVideo(null);
     setErrors({});
   };
 
   return (
-    <Modal show={show} onHide={onHide} size="lg" centered scrollable>
+    <Modal show={show} onHide={onHide} size="xl" centered scrollable>
       <Modal.Header closeButton>
         <Modal.Title className="fw-bold">Tambah Parameter</Modal.Title>
       </Modal.Header>
@@ -135,7 +156,7 @@ const CreateParameterModal = ({ show, onHide, onCreate }) => {
             {errors.report_guidelines && <div className="text-danger mt-1">{errors.report_guidelines}</div>}
           </Form.Group>
 
-          {/* Kontak Darurat */}
+          {/* Emergency Contacts */}
           <Row>
             <Col md={6}>
               <Form.Group className="mb-3">
@@ -198,7 +219,21 @@ const CreateParameterModal = ({ show, onHide, onCreate }) => {
             </Col>
           </Row>
 
-          {/* Landing Video */}
+          {/* Polygon Editor */}
+          <Form.Group className="mb-4">
+            <Form.Label>Wilayah Validasi Lokasi (Polygon)</Form.Label>
+            <MapBoundaryEditor
+              initialPolygon={form.location_validation_area}
+              onPolygonCreated={(geojson) =>
+                setForm((prev) => ({ ...prev, location_validation_area: geojson }))
+              }
+            />
+            {errors.location_validation_area && (
+              <div className="text-danger mt-1">{errors.location_validation_area}</div>
+            )}
+          </Form.Group>
+
+          {/* Video Landing */}
           <Form.Group className="mb-3">
             <Form.Label>Video Landing (Opsional)</Form.Label>
             <Form.Control

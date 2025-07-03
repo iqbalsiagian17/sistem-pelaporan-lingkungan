@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'package:bb_mobile/core/services/parameter_service.dart';
+import 'package:bb_mobile/features/parameter/domain/entities/parameter_entity.dart';
 import 'package:bb_mobile/features/report/data/models/report_model.dart';
 import 'package:bb_mobile/features/report/presentation/providers/report_provider.dart';
 import 'package:bb_mobile/features/report/presentation/widgets/create/report_confirm_modal.dart';
@@ -43,10 +45,19 @@ class _ReportCreateViewState extends ConsumerState<ReportCreateView> {
   List<File> attachments = [];
   int _selectedIndex = 2;
 
+  ParameterEntity? parameter;
+  String? errorMessage;
+
   @override
   void initState() {
     super.initState();
-    Future.microtask(() {
+    Future.microtask(() async {
+      try {
+        final param = await ParameterService.getParameter();
+        setState(() => parameter = param.toEntity());
+      } catch (e) {
+        setState(() => errorMessage = e.toString());
+      }
       showReportGuideTutorial(context);
     });
   }
@@ -126,6 +137,14 @@ class _ReportCreateViewState extends ConsumerState<ReportCreateView> {
 
   @override
   Widget build(BuildContext context) {
+    if (errorMessage != null) {
+      return Scaffold(body: Center(child: Text("Gagal memuat parameter: $errorMessage")));
+    }
+
+    if (parameter == null) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
     return Stack(
       children: [
         Scaffold(
@@ -140,6 +159,7 @@ class _ReportCreateViewState extends ConsumerState<ReportCreateView> {
                   isAtLocation: isAtLocation,
                   onChange: (val) => setState(() => isAtLocation = val),
                   onForceChangeToNotAtLocation: () => setState(() => isAtLocation = false),
+                  locationValidationArea: parameter!.locationValidationArea,
                 ),
                 const SizedBox(height: 16),
                 Form(

@@ -1,6 +1,8 @@
 import 'package:bb_mobile/features/parameter/domain/entities/parameter_entity.dart';
 
 class ParameterItem {
+
+  
   final int id;
   final String? about;
   final String? terms;
@@ -9,6 +11,7 @@ class ParameterItem {
   final String? ambulanceContact;
   final String? policeContact;
   final String? firefighterContact;
+  final Map<String, dynamic>? locationValidationArea; // ✅ Tambahan
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -21,6 +24,7 @@ class ParameterItem {
     this.ambulanceContact,
     this.policeContact,
     this.firefighterContact,
+    this.locationValidationArea, // ✅ Tambah di konstruktor
     required this.createdAt,
     required this.updatedAt,
   });
@@ -35,6 +39,7 @@ factory ParameterItem.fromJson(Map<String, dynamic> json) {
     ambulanceContact: json['ambulance_contact'],
     policeContact: json['police_contact'],
     firefighterContact: json['firefighter_contact'],
+    locationValidationArea: json['location_validation_area'], // ✅ Tambah di fromJson
     createdAt: json['createdAt'] != null
         ? DateTime.parse(json['createdAt'])
         : DateTime.now(), // ✅ fallback
@@ -54,6 +59,7 @@ factory ParameterItem.fromJson(Map<String, dynamic> json) {
       'ambulance_contact': ambulanceContact,
       'police_contact': policeContact,
       'firefighter_contact': firefighterContact,
+      'location_validation_area': locationValidationArea, // ✅
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
     };
@@ -70,6 +76,7 @@ factory ParameterItem.fromJson(Map<String, dynamic> json) {
       ambulanceContact: ambulanceContact,
       policeContact: policeContact,
       firefighterContact: firefighterContact,
+      locationValidationArea: locationValidationArea, // ✅
       createdAt: createdAt,
       updatedAt: updatedAt,
     );
@@ -86,6 +93,7 @@ factory ParameterItem.fromJson(Map<String, dynamic> json) {
       ambulanceContact: entity.ambulanceContact,
       policeContact: entity.policeContact,
       firefighterContact: entity.firefighterContact,
+      locationValidationArea: entity.locationValidationArea, // ✅
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
     );

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Modal, Button, Form, Row, Col } from "react-bootstrap";
+import MapBoundaryEditor from "../../village/components/MapBoundaryEditor";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 
@@ -12,6 +13,7 @@ const EditParameterModal = ({ show, onHide, parameter, onSave }) => {
     ambulance_contact: "",
     police_contact: "",
     firefighter_contact: "",
+    location_validation_area: null,
   });
 
   const [video, setVideo] = useState(null);
@@ -28,8 +30,9 @@ const EditParameterModal = ({ show, onHide, parameter, onSave }) => {
         ambulance_contact: parameter.ambulance_contact || "",
         police_contact: parameter.police_contact || "",
         firefighter_contact: parameter.firefighter_contact || "",
+        location_validation_area: parameter.location_validation_area || null,
       });
-      setVideo(null); // reset input file setiap kali modal dibuka
+      setVideo(null);
       setErrors({});
       setEditorKey(Date.now());
     }
@@ -71,6 +74,10 @@ const EditParameterModal = ({ show, onHide, parameter, onSave }) => {
       }
     });
 
+    const area = form.location_validation_area;
+    if (area && (area.type !== "Polygon" || !Array.isArray(area.coordinates))) {
+      newErrors.location_validation_area = "Batas wilayah tidak valid (GeoJSON Polygon diperlukan)";
+    }
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -79,7 +86,7 @@ const EditParameterModal = ({ show, onHide, parameter, onSave }) => {
 
     const formData = new FormData();
     Object.entries(form).forEach(([key, value]) => {
-      formData.append(key, value);
+      formData.append(key, typeof value === "object" ? JSON.stringify(value) : value);
     });
 
     if (video) {
@@ -147,7 +154,7 @@ const EditParameterModal = ({ show, onHide, parameter, onSave }) => {
             {errors.report_guidelines && <div className="text-danger mt-1">{errors.report_guidelines}</div>}
           </Form.Group>
 
-          {/* Contacts */}
+          {/* Kontak */}
           <Row>
             <Col md={6}>
               <Form.Group className="mb-3">
@@ -157,16 +164,10 @@ const EditParameterModal = ({ show, onHide, parameter, onSave }) => {
                   name="emergency_contact"
                   value={form.emergency_contact}
                   onChange={handleChange}
-                  onKeyPress={(e) => {
-                    if (!/[0-9]/.test(e.key)) e.preventDefault();
-                  }}
-
                   isInvalid={!!errors.emergency_contact}
                   placeholder="08xxxx / 112 / lainnya"
                 />
-                <Form.Control.Feedback type="invalid">
-                  {errors.emergency_contact}
-                </Form.Control.Feedback>
+                <Form.Control.Feedback type="invalid">{errors.emergency_contact}</Form.Control.Feedback>
               </Form.Group>
             </Col>
             <Col md={6}>
@@ -177,19 +178,13 @@ const EditParameterModal = ({ show, onHide, parameter, onSave }) => {
                   name="ambulance_contact"
                   value={form.ambulance_contact}
                   onChange={handleChange}
-                  onKeyPress={(e) => {
-                    if (!/[0-9]/.test(e.key)) e.preventDefault();
-                  }}
                   isInvalid={!!errors.ambulance_contact}
                   placeholder="08xxxx / 119 / lainnya"
                 />
-                <Form.Control.Feedback type="invalid">
-                  {errors.ambulance_contact}
-                </Form.Control.Feedback>
+                <Form.Control.Feedback type="invalid">{errors.ambulance_contact}</Form.Control.Feedback>
               </Form.Group>
             </Col>
           </Row>
-
           <Row>
             <Col md={6}>
               <Form.Group className="mb-3">
@@ -199,15 +194,10 @@ const EditParameterModal = ({ show, onHide, parameter, onSave }) => {
                   name="police_contact"
                   value={form.police_contact}
                   onChange={handleChange}
-                  onKeyPress={(e) => {
-                    if (!/[0-9]/.test(e.key)) e.preventDefault();
-                  }}
                   isInvalid={!!errors.police_contact}
                   placeholder="110 / kontak polisi"
                 />
-                <Form.Control.Feedback type="invalid">
-                  {errors.police_contact}
-                </Form.Control.Feedback>
+                <Form.Control.Feedback type="invalid">{errors.police_contact}</Form.Control.Feedback>
               </Form.Group>
             </Col>
             <Col md={6}>
@@ -218,20 +208,32 @@ const EditParameterModal = ({ show, onHide, parameter, onSave }) => {
                   name="firefighter_contact"
                   value={form.firefighter_contact}
                   onChange={handleChange}
-                  onKeyPress={(e) => {
-                    if (!/[0-9]/.test(e.key)) e.preventDefault();
-                  }}
                   isInvalid={!!errors.firefighter_contact}
                   placeholder="113 / kontak damkar"
                 />
-                <Form.Control.Feedback type="invalid">
-                  {errors.firefighter_contact}
-                </Form.Control.Feedback>
+                <Form.Control.Feedback type="invalid">{errors.firefighter_contact}</Form.Control.Feedback>
               </Form.Group>
             </Col>
           </Row>
 
-          {/* Landing Video */}
+          {/* Lokasi Validasi */}
+          <Form.Group className="mb-3">
+            <Form.Label>Wilayah Validasi Lokasi</Form.Label>
+            <MapBoundaryEditor
+              initialPolygon={form.location_validation_area}
+              onPolygonCreated={(geojson) =>
+                setForm((prev) => ({ ...prev, location_validation_area: geojson }))
+              }
+            />
+            <Form.Text muted>
+              Wilayah ini digunakan untuk memvalidasi lokasi laporan pengguna.
+            </Form.Text>
+            {errors.location_validation_area && (
+              <div className="text-danger mt-1">{errors.location_validation_area}</div>
+            )}
+          </Form.Group>
+
+          {/* Video */}
           <Form.Group className="mb-3">
             <Form.Label>Video Landing (Opsional)</Form.Label>
             <Form.Control
@@ -253,12 +255,8 @@ const EditParameterModal = ({ show, onHide, parameter, onSave }) => {
       </Modal.Body>
 
       <Modal.Footer>
-        <Button variant="secondary" onClick={onHide}>
-          Batal
-        </Button>
-        <Button variant="primary" onClick={handleSubmit}>
-          Simpan Perubahan
-        </Button>
+        <Button variant="secondary" onClick={onHide}>Batal</Button>
+        <Button variant="primary" onClick={handleSubmit}>Simpan Perubahan</Button>
       </Modal.Footer>
     </Modal>
   );

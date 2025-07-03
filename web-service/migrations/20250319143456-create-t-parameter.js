@@ -51,6 +51,10 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: true
       },
+      location_validation_area: {
+        type: DataTypes.GEOMETRY('POLYGON'),
+        allowNull: true,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
